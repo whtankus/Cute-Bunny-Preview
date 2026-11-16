@@ -48,7 +48,8 @@ let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
 let notesKeyboardDismissed = false;
 let streakSelectedWeekDate = '';
-let streakGardenActiveTab = 'promises';
+let streakGardenActiveTab = 'daily';
+let streakSelectedDailyQuest = 0;
 let streakPetalGame = { cards: [], flipped: [], matched: [], moves: 0, locked: false, completed: false, newBest: false };
 let streakCountdownInterval = null, streakCountdownDayKey = '';
 let presenceStatus = 'closed';
@@ -904,6 +905,46 @@ async function recordLoginStreak() {
 function streakStorageKey(suffix) {
   return 'cuteBunnyStreak:' + String(me?.id || me?.username || 'guest') + ':' + suffix;
 }
+
+function readStreakHeartMilestones() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(streakStorageKey('heart-milestones')) || '[]');
+    return new Set(Array.isArray(saved) ? saved.map(Number) : []);
+  } catch { return new Set(); }
+}
+function saveStreakHeartMilestones(count) {
+  const earned = readStreakHeartMilestones();
+  [1, 5, 10, 25, 50, 100, 250, 500].forEach(value => { if (count >= value) earned.add(value); });
+  try { localStorage.setItem(streakStorageKey('heart-milestones'), JSON.stringify([...earned].sort((a,b) => a-b))); } catch {}
+}
+function readStreakDailyQuests(dateKey) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(streakStorageKey('daily-quests:' + dateKey)) || '{}');
+    return {
+      hearts: Array.isArray(saved.hearts) ? [...new Set(saved.hearts.map(String))] : [],
+      photo: saved.photo === true,
+      kissNote: saved.kissNote === true,
+      badge: saved.badge === true
+    };
+  } catch { return {hearts:[], photo:false, kissNote:false, badge:false}; }
+}
+function writeStreakDailyQuests(dateKey, state) {
+  try { localStorage.setItem(streakStorageKey('daily-quests:' + dateKey), JSON.stringify(state)); } catch {}
+}
+function recordStreakDailyQuest(kind, value = '') {
+  if (!me) return;
+  const timezone = normalizeStreakTimeZone(me.streak_timezone || getBrowserStreakTimeZone());
+  const dateKey = streakDateInTimeZone(timezone);
+  const state = readStreakDailyQuests(dateKey);
+  if (kind === 'heart' && value && !state.hearts.includes(String(value))) state.hearts.push(String(value));
+  if (kind === 'photo') state.photo = true;
+  if (kind === 'kiss-note') state.kissNote = true;
+  const newlyCompleted = !state.badge && state.hearts.length >= 3 && state.photo && state.kissNote;
+  if (newlyCompleted) state.badge = true;
+  writeStreakDailyQuests(dateKey, state);
+  if (newlyCompleted) toast('Daily Bloom badge unlocked! You completed all three quests ♡');
+  if (page === 'streak') renderStreakPage();
+}
 function streakDateKey(date) {
   return date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0') + '-' + String(date.getUTCDate()).padStart(2, '0');
 }
@@ -1307,6 +1348,55 @@ function renderStreakPage() {
   if (!streakPetalGame.cards.length) resetStreakPetalGame();
   const allTimeGoalCompletions = countSavedStreakGoalCompletions();
 
+  const heartCount = Math.max(0, Number(me.heartCount) || 0);
+  saveStreakHeartMilestones(heartCount);
+  const heartMilestones = [
+    {hearts:1, name:'First Heart', icon:'💗'},
+    {hearts:5, name:'Little Love', icon:'💕'},
+    {hearts:10, name:'Heart Collector', icon:'💖'},
+    {hearts:25, name:'Kind Heart', icon:'💝'},
+    {hearts:50, name:'Love Grows', icon:'💞'},
+    {hearts:100, name:'Heart Garden', icon:'❤️'},
+    {hearts:250, name:'Endless Love', icon:'💘'},
+    {hearts:500, name:'Heart of Gold', icon:'💓'}
+  ];
+  const earnedHearts = readStreakHeartMilestones();
+  const heartBadges = heartMilestones.map(item => {
+    const unlocked = earnedHearts.has(item.hearts);
+    const percentage = unlocked ? 100 : Math.min(100, heartCount / item.hearts * 100);
+    const status = unlocked ? 'Heart unlocked' : (item.hearts - heartCount) + ' hearts to go';
+    return '<article class="streak-milestone sg-milestone' + (unlocked ? ' is-earned' : ' is-locked') + '">' +
+      '<span class="sg-milestone-art sg-heart-milestone-art" aria-hidden="true">' + item.icon + '</span>' +
+      '<span class="sg-milestone-copy"><small class="sg-milestone-day">' + item.hearts + ' HEARTS</small><b>' + item.name +
+      '</b><em>' + status + '</em></span>' +
+      '<span class="sg-milestone-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' +
+      Math.round(percentage) + '"><i style="width:' + percentage + '%"></i></span>' +
+      '<small class="sg-milestone-progress-copy">' + Math.min(heartCount, item.hearts) + ' / ' + item.hearts + ' hearts</small></article>';
+  }).join('');
+  const dailyQuestState = readStreakDailyQuests(todayKey);
+  const dailyQuestItems = [
+    {id:'hearts', title:'Send 3 hearts to friends', description:'Like three different memories shared by your friends.', progress:Math.min(3, dailyQuestState.hearts.length), target:3, icon:'💗', done:dailyQuestState.hearts.length >= 3},
+    {id:'photo', title:'Share a photo', description:'Add one photo to your shared scrapbook.', progress:dailyQuestState.photo ? 1 : 0, target:1, icon:'📸', done:dailyQuestState.photo},
+    {id:'kissNote', title:'Send a kiss note', description:'Send a friend a Notes message containing 💋.', progress:dailyQuestState.kissNote ? 1 : 0, target:1, icon:'💌', done:dailyQuestState.kissNote}
+  ];
+  const selectedQuest = dailyQuestItems[streakSelectedDailyQuest] || dailyQuestItems[0];
+  const completedQuests = dailyQuestItems.filter(item => item.done).length;
+  const dailyQuestMarkup = '<section class="sg-daily-quest-card">' +
+    '<div class="sg-daily-quest-top"><span class="sg-daily-quest-icon" aria-hidden="true">' + selectedQuest.icon + '</span>' +
+    '<span class="sg-daily-quest-step">QUEST ' + (streakSelectedDailyQuest + 1) + ' OF 3</span>' +
+    '<span class="sg-daily-quest-status' + (selectedQuest.done ? ' is-done' : '') + '">' + (selectedQuest.done ? 'Completed ✓' : 'In progress') + '</span></div>' +
+    '<h4>' + selectedQuest.title + '</h4><p>' + selectedQuest.description + '</p>' +
+    '<div class="sg-daily-quest-progress"><span style="width:' + (selectedQuest.progress / selectedQuest.target * 100) + '%"></span></div>' +
+    '<small class="sg-daily-quest-count">' + selectedQuest.progress + ' / ' + selectedQuest.target + ' completed today</small>' +
+    '<div class="sg-daily-quest-picker" role="group" aria-label="Choose a daily quest">' +
+    dailyQuestItems.map((item,index) => '<button type="button" data-streak-quest-select="' + index + '" class="' +
+      (index === streakSelectedDailyQuest ? 'is-active ' : '') + (item.done ? 'is-done' : '') +
+      '" aria-pressed="' + (index === streakSelectedDailyQuest) + '" aria-label="Show quest ' + (index + 1) + ': ' + item.title + '">' +
+      '<span>' + (item.done ? '✓' : String(index + 1).padStart(2,'0')) + '</span></button>').join('') +
+    '</div></section>' +
+    '<div class="sg-daily-quest-footer"><span>' + completedQuests + ' of 3 daily quests completed</span>' +
+    (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete all three to earn your Daily Bloom badge</small>') + '</div>';
+
   const todayDate = new Date(todayKey + 'T00:00:00Z');
   const mondayOffset = (todayDate.getUTCDay() + 6) % 7;
   const weekStartDate = shiftStreakDate(todayKey, -mondayOffset);
@@ -1580,31 +1670,28 @@ function renderStreakPage() {
       '<div class="sg-week-row">' + week.join('') + '</div></section>',
     '</div>',
 
-    '<section class="sg-game-section sg-game-compact"><div class="sg-petal-banner-copy">' +
-      '<div class="sg-compact-section-heading"><h3>Petal Pairs</h3><b id="streakGamePairsLeft">6 pairs left</b></div>' +
-      '<p class="sg-petal-banner-note">Find and match the hidden pairs</p>' +
-      '</div>' +
-      '<div class="sg-petal-board" id="streakGameBoard" aria-label="Petal pairs memory game with six pairs"></div></section>',
-    '<section class="sg-friends-section sg-friends-compact"><div class="sg-friends-heading"><h3>Friends in Bloom</h3></div>' +
-      streakFriendsMarkup() + '</section>',
-    '<div class="sg-bottom-tabs-wrap">',
-    '<div class="sg-bottom-tabs" role="tablist" aria-label="Garden details">' +
-      '<button type="button" class="sg-bottom-tab' + (streakGardenActiveTab === 'promises' ? ' is-active' : '') + '" id="sgPromisesTab" role="tab" aria-controls="sgPromisesPanel" aria-selected="' + (streakGardenActiveTab === 'promises') + '" data-streak-garden-tab="promises"><span class="sg-tab-icon" aria-hidden="true">♡</span><span class="sg-tab-label">Your Little Promises</span></button>' +
-      '<button type="button" class="sg-bottom-tab' + (streakGardenActiveTab === 'milestones' ? ' is-active' : '') + '" id="sgMilestonesTab" role="tab" aria-controls="sgMilestonesPanel" aria-selected="' + (streakGardenActiveTab === 'milestones') + '" data-streak-garden-tab="milestones"><span class="sg-tab-icon" aria-hidden="true">✿</span><span class="sg-tab-label">Your Garden Milestones</span></button></div>',
-    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'promises' ? ' is-active' : '') + '" id="sgPromisesPanel" role="tabpanel" aria-labelledby="sgPromisesTab"' + (streakGardenActiveTab === 'promises' ? '' : ' hidden') + '>' +
-      '<section class="sg-goals-section"><div class="sg-section-heading"><div><h3>Your Little Promises</h3><p>Optional goals for today</p></div><span class="sg-goal-count" id="streakGoalProgress">' + completed + ' / ' + goals.length + '</span></div>' +
+    '<div class="sg-garden-switcher" role="tablist" aria-label="Your garden details">' +
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" data-streak-garden-tab="flowers" role="tab" aria-selected="' + (streakGardenActiveTab === 'flowers') + '"><span>🌷</span><b>Your Flowers</b></button>' +
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" data-streak-garden-tab="hearts" role="tab" aria-selected="' + (streakGardenActiveTab === 'hearts') + '"><span>💗</span><b>Your Hearts</b></button>' +
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" data-streak-garden-tab="daily" role="tab" aria-selected="' + (streakGardenActiveTab === 'daily') + '"><span>☀️</span><b>Daily Quest</b></button></div>',
+    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" id="sgFlowersPanel" role="tabpanel"' + (streakGardenActiveTab === 'flowers' ? '' : ' hidden') + '>' +
+      '<section class="sg-milestones-section"><div class="sg-section-heading"><div><h3>Your Flowers</h3><p>' + earned.size + ' of ' + milestones.length + ' garden milestones unlocked</p></div></div>' +
+      '<div class="sg-milestone-route">' + badges + '</div></section></section>',
+    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" id="sgHeartsPanel" role="tabpanel"' + (streakGardenActiveTab === 'hearts' ? '' : ' hidden') + '>' +
+      '<section class="sg-milestones-section sg-hearts-section"><div class="sg-section-heading"><div><h3>Your Hearts</h3><p>' + heartCount + ' hearts received · ' + earnedHearts.size + ' of ' + heartMilestones.length + ' milestones unlocked</p></div></div>' +
+      '<div class="sg-milestone-route">' + heartBadges + '</div></section></section>',
+    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" id="sgDailyPanel" role="tabpanel"' + (streakGardenActiveTab === 'daily' ? '' : ' hidden') + '>' +
+      '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>A little kindness makes the garden bloom</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
+      dailyQuestMarkup + '</section></section>',
+    '<section class="sg-goals-section"><div class="sg-section-heading"><div><h3>Your Little Promises</h3><p>Optional goals for today</p></div><span class="sg-goal-count" id="streakGoalProgress">' + completed + ' / ' + goals.length + '</span></div>' +
       '<div class="sg-goal-progress"><span id="streakGoalProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (goals.length ? Math.round(completed / goals.length * 100) : 0) + '" style="width:' + (goals.length ? completed / goals.length * 100 : 0) + '%"></span></div>' +
       '<div class="sg-goal-list" id="streakGoalsList">' + goalMarkup + '</div>' +
       '<p class="sg-alltime-goals" id="sgAllTimeGoalCount"' + (allTimeGoalCompletions ? '' : ' hidden') + '>' + allTimeGoalCompletions + ' goals completed</p>' +
       '<button type="button" class="sg-add-goal" id="streakAddGoal"><span>＋</span> Add a goal</button>' +
-      '<form class="sg-add-form hidden" id="streakGoalForm"><input class="input" id="streakGoalInput" maxlength="56" placeholder="Add a little goal…" required><button type="submit" class="primary">Plant goal</button></form></section></section>',
-    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'milestones' ? ' is-active' : '') + '" id="sgMilestonesPanel" role="tabpanel" aria-labelledby="sgMilestonesTab"' + (streakGardenActiveTab === 'milestones' ? '' : ' hidden') + '>' +
-      '<section class="sg-milestones-section"><div class="sg-section-heading"><div><h3>Your Garden Milestones</h3><p>' + earned.size + ' of ' + milestones.length + ' blooms unlocked</p></div></div>' +
-      '<div class="sg-milestone-route">' + badges + '</div></section></section>',
+      '<form class="sg-add-form hidden" id="streakGoalForm"><input class="input" id="streakGoalInput" maxlength="56" placeholder="Add a little goal…" required><button type="submit" class="primary">Plant goal</button></form></section>',
     '</div>',
     '</div>',
   ].join('');
-  renderStreakPetalGame();
   startStreakCountdown();
   syncPresenceUI();
 }
@@ -1675,6 +1762,7 @@ async function popLoveHeart(card, event) {
       ? await sb.from('memory_likes').insert({ memory_id: item.id, user_id: me.id })
       : await sb.from('memory_likes').delete().eq('memory_id', item.id).eq('user_id', me.id);
     if (result.error) throw result.error;
+    if (nextLiked) recordStreakDailyQuest('heart', memoryId);
     return true;
   } catch (error) {
     item.liked_by_me = wasLiked; item.like_count = previousCount; paint();
@@ -2894,6 +2982,7 @@ async function sendChatMessage() {
       .select('id,owner_id,kind,text,created_at')
       .single();
     if (sendError) throw sendError;
+    if (/💋|😘|😗|😙|😚|😽/u.test(text)) recordStreakDailyQuest('kiss-note');
     const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
     feed = feed.map(m => String(m.id) === tempId ? record : m);
     renderNotesPage({ followLatest: true });
@@ -4453,10 +4542,20 @@ document.addEventListener('click', async e => {
     return;
   }
 
+  const questChoice = e.target.closest('[data-streak-quest-select]');
+  if (questChoice) {
+    const nextQuest = Number(questChoice.dataset.streakQuestSelect);
+    if (Number.isInteger(nextQuest) && nextQuest >= 0 && nextQuest <= 2) {
+      streakSelectedDailyQuest = nextQuest;
+      renderStreakPage();
+    }
+    return;
+  }
+
   const gardenTabButton = e.target.closest('[data-streak-garden-tab]');
   if (gardenTabButton) {
     const tabName = gardenTabButton.dataset.streakGardenTab;
-    if (tabName !== 'milestones' && tabName !== 'promises') return;
+    if (!['flowers', 'hearts', 'daily'].includes(tabName)) return;
     streakGardenActiveTab = tabName;
     const gardenTabs = gardenTabButton.closest('.streak-garden-page');
     gardenTabs?.querySelectorAll('[data-streak-garden-tab]').forEach(button => {
@@ -4465,7 +4564,7 @@ document.addEventListener('click', async e => {
       button.setAttribute('aria-selected', String(active));
     });
     gardenTabs?.querySelectorAll('.sg-tab-panel').forEach(panel => {
-      const active = panel.id === (tabName === 'milestones' ? 'sgMilestonesPanel' : 'sgPromisesPanel');
+      const active = panel.id === ({flowers:'sgFlowersPanel',hearts:'sgHeartsPanel',daily:'sgDailyPanel'})[tabName];
       panel.hidden = !active;
       panel.classList.toggle('is-active', active);
       if (active) {
@@ -5120,6 +5219,7 @@ document.addEventListener('change', async e => {
       previewUrl
     };
     feed = feed.map(m => String(m.id) === tempId ? item : m);
+    if (kind === 'photo') recordStreakDailyQuest('photo');
     render();
     toast('Added to your shared scrapbook ♡');
   } catch (err) {

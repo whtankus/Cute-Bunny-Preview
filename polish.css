@@ -904,3 +904,35 @@ body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px
 .auth-card.friend-profile-card #friendProfileGarden > #friendProfileTitleTag[hidden] {
   display: none !important;
 }
+
+
+/* Header identity: pair the Cute Bunny title with the pet icon tile. */
+.app > header .brand > b {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 38px;
+  padding: 5px 11px 5px 12px;
+  border: 1px solid #f0dfe7;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #fffaf6, #f7e8f0);
+  box-shadow: 0 3px 9px rgba(119, 79, 111, .07);
+}
+.app > header .brand b small {
+  margin-top: 4px;
+  color: #8a7186;
+}
+body[data-mode="dark"] .app > header .brand > b {
+  border-color: rgba(225, 198, 220, .22);
+  background: linear-gradient(145deg, rgba(91, 69, 99, .92), rgba(69, 57, 82, .96));
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .16);
+  color: #fff1f7;
+}
+body[data-mode="dark"] .app > header .brand b small {
+  color: #e1cadd;
+}
+@media (max-width: 380px) {
+  .app > header .brand > b {
+    padding-inline: 8px;
+  }
+}

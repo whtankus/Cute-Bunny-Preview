@@ -1101,3 +1101,78 @@ body.notes-page-active[data-mode="dark"] #app > header {
   background: var(--cb-bg) !important;
   border-bottom-color: var(--cb-border) !important;
 }
+
+
+/* Header identity: circular buddy icon + compact pill for the Cute Bunny name. */
+.app > header .brand {
+  gap: 9px;
+  min-height: 48px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+}
+.app > header .brand > span {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #efd8e3;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fffaf7 0%, #f8e7ef 100%);
+  box-shadow: 0 3px 9px rgba(119, 79, 111, .10), inset 0 0 0 2px rgba(255,255,255,.72);
+}
+.app > header .brand > b {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 7px 15px 7px 13px;
+  border: 1px solid #efdce5;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #fffaf7 0%, #f8eaf0 100%);
+  box-shadow: 0 3px 9px rgba(119, 79, 111, .08), inset 0 1px 0 rgba(255,255,255,.9);
+  color: #76536f;
+  font: 800 .96rem/1.05 Quicksand, Nunito, sans-serif;
+  letter-spacing: -.015em;
+}
+.app > header .brand > b small {
+  margin-top: 3px;
+  color: #a17f97;
+  font: 700 .64rem/1.1 Nunito, sans-serif;
+}
+body[data-mode="dark"] .app > header .brand > span,
+body[data-mode="dark"] .app > header .brand > b {
+  border-color: #5a465c;
+  background: linear-gradient(145deg, #49394f, #3a3043);
+  box-shadow: 0 3px 9px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.05);
+}
+body[data-mode="dark"] .app > header .brand > b {
+  color: #f2dce9;
+}
+body[data-mode="dark"] .app > header .brand > b small {
+  color: #c7a9c2;
+}
+@media (max-width: 520px) {
+  .app > header .brand { gap: 7px; min-height: 42px; }
+  .app > header .brand > span {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+  }
+  .app > header .brand > b {
+    padding: 6px 11px;
+    font-size: .86rem;
+  }
+  .app > header .brand > b small { font-size: .59rem; }
+}
+@media (max-width: 360px) {
+  .app > header .brand > span {
+    flex-basis: 33px;
+    width: 33px;
+    height: 33px;
+  }
+  .app > header .brand > b { padding-inline: 9px; }
+  .app > header .brand > b small { display: none; }
+}

@@ -12998,3 +12998,33 @@ body[data-mode="dark"] .streak-garden-page .sg-garden-switch.is-active{
 body[data-mode="dark"] .streak-garden-page .sg-garden-switch.is-active:before{
   background:linear-gradient(135deg,#51404d,#483744)!important;
 }
+
+
+/* Happy Things — bespoke pastel thumbnail illustrations. */
+.happy-things-grid>.tile>.happy-thing-art{
+  position:relative!important;isolation:isolate!important;display:grid!important;place-items:center!important;
+  min-height:91px!important;overflow:hidden!important;border:1px solid #fff!important;
+  box-shadow:inset 0 1px 0 #ffffffa8,0 4px 12px #92758a0c!important;
+}
+.happy-things-grid>.tile>.happy-thing-art svg{
+  position:relative;z-index:1;display:block;width:min(100%,220px);height:100%;max-height:116px;
+  overflow:visible;filter:drop-shadow(0 4px 3px #8c6b7c12);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s ease;
+}
+.happy-things-grid>.tile>.happy-thing-art:hover svg{transform:translateY(-3px) scale(1.035);filter:drop-shadow(0 7px 5px #8c6b7c20)}
+.happy-things-grid>.tile>.happy-note-thumbnail{background:radial-gradient(ellipse at 50% 100%,#f6dfe8 0%,#fff1f4 48%,#f7edf5 100%)!important}
+.happy-things-grid>.tile>.happy-photo-thumbnail{background:radial-gradient(ellipse at 50% 100%,#dfead7 0%,#f1f6e9 52%,#f7f1e8 100%)!important}
+.happy-things-grid>.tile>.happy-music-thumbnail{background:radial-gradient(ellipse at 50% 100%,#e7def3 0%,#f3edfa 52%,#f8eef1 100%)!important}
+.happy-things-grid .happy-art-sparkle{
+  position:absolute;z-index:2;right:13%;top:13%;display:grid;place-items:center;
+  width:23px;height:23px;border-radius:50%;background:#fff9f0b8;color:#c49b68;
+  font:700 14px/1 Quicksand,sans-serif;box-shadow:0 2px 8px #9b7d8a12;
+  pointer-events:none;animation:happy-art-twinkle 3.2s ease-in-out infinite;
+}
+.happy-things-grid>.tile>.happy-photo-thumbnail .happy-art-sparkle{color:#91a77d}
+.happy-things-grid>.tile>.happy-music-thumbnail .happy-art-sparkle{color:#a38abb}
+@keyframes happy-art-twinkle{0%,100%{opacity:.65;transform:scale(.9) rotate(-8deg)}50%{opacity:1;transform:scale(1.12) rotate(8deg)}}
+body[data-mode="dark"] .happy-things-grid>.tile>.happy-note-thumbnail{background:radial-gradient(ellipse at 50% 100%,#563d4b,#403543 75%)!important;border-color:#604b5b!important}
+body[data-mode="dark"] .happy-things-grid>.tile>.happy-photo-thumbnail{background:radial-gradient(ellipse at 50% 100%,#40503d,#343d38 75%)!important;border-color:#52614d!important}
+body[data-mode="dark"] .happy-things-grid>.tile>.happy-music-thumbnail{background:radial-gradient(ellipse at 50% 100%,#4a3e59,#383344 75%)!important;border-color:#5a4c68!important}
+@media(prefers-reduced-motion:reduce){.happy-things-grid .happy-art-sparkle{animation:none!important}.happy-things-grid>.tile>.happy-thing-art svg{transition:none!important}}

@@ -4,19 +4,24 @@ on:
   push:
     branches:
       - main
-      - 'improvement/**'
+      - Perfect-1
   workflow_dispatch:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: cute-bunny-preview-${{ github.ref }}
+  group: cute-bunny-preview-pages
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Check out preview repository
         uses: actions/checkout@v4
@@ -25,6 +30,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
       - name: Build preview using existing Supabase credentials
         env:
@@ -38,20 +46,6 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
-
-  deploy:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/improvement/android-first-polish'
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
 
       - name: Deploy testing website
         id: deployment

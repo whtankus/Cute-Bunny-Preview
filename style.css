@@ -12750,20 +12750,3 @@ body.notes-page-active:not(.notes-header-hidden) .app > header {
 }
 
 
-/* Align the compact header capsules with the top edge of the Cute Bunny/name capsule.
-   Their smaller heights previously made flex centering drop them lower. */
-#app > header > #nowPlayingIsland,
-#app > header > .header-actions {
-  align-self: flex-start !important;
-  margin-top: 0 !important;
-}
-#app > header > .header-actions {
-  padding-top: 0 !important;
-}
-@media (max-width: 520px) {
-  #app > header > #nowPlayingIsland,
-  #app > header > .header-actions {
-    align-self: flex-start !important;
-    margin-top: 0 !important;
-  }
-}

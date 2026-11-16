@@ -862,3 +862,33 @@ body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px
   border-color:rgba(91,65,91,.2) !important;text-shadow:none !important;
 }
 
+
+
+/* Starlight: target the actual profile tag elements by ID so the wallpaper's
+   broad white-text rule cannot recolour their individual semantic palettes. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > #friendProfileTitleTag {
+  color: #c09236 !important;
+  background: #fffaf0 !important;
+  border: 1px solid #f0e4c9 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-flower,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-flower b {
+  color: #a95f83 !important;
+  background: #fff7fb !important;
+  border-color: #f2dce8 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-heart,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-heart b {
+  color: #df557d !important;
+  background: #fff5f7 !important;
+  border-color: #f2dce4 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileJoined {
+  color: #514052 !important;
+  background: rgba(255,255,255,.92) !important;
+  border-color: rgba(91,65,91,.2) !important;
+  text-shadow: none !important;
+}

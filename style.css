@@ -13192,3 +13192,26 @@ body.notes-page-active:not(.notes-header-hidden) .app > header {
 body[data-mode="dark"] .happy-things-grid .happy-note-thumbnail{background:radial-gradient(ellipse at 50% 100%,#583e4d,#403543 76%)!important}
 body[data-mode="dark"] .happy-things-grid .happy-music-thumbnail{background:radial-gradient(ellipse at 50% 100%,#4c3e5d,#383344 76%)!important}
 @media(prefers-reduced-motion:reduce){.happy-things-grid .note-artwork,.happy-things-grid .music-artwork,.happy-things-grid .streak-artwork{animation:none!important}}
+
+/* Classic profile editor restored only inside the Profile settings tab. */
+.profile-editor-settings .profile-settings-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.profile-editor-settings label{display:block;margin:10px 0 7px;font-size:.78rem;font-weight:700;color:#755d70}
+.profile-editor-settings input{width:100%;min-width:0;min-height:42px;margin-top:5px;padding:10px 12px;border:1px solid #ead6e0;border-radius:13px;background:#fffdfd;color:#59465b;font:inherit;font-size:.84rem}
+.profile-editor-settings .profile-settings-choice-label{margin:13px 0 7px}
+.profile-settings-theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.profile-settings-theme-grid button,.profile-settings-buddy-grid button{display:flex;min-width:0;align-items:center;justify-content:center;gap:6px;padding:8px 5px;border:1px solid #eadce5;border-radius:13px;background:#fffafd;color:#715a70;font:inherit;font-size:.68rem;cursor:pointer}
+.profile-settings-theme-grid button{flex-direction:column}
+.profile-settings-theme-grid button .theme-swatch{display:grid;place-items:center;width:34px;height:29px;margin:0;border-radius:10px;font-style:normal}
+.profile-settings-theme-grid button.is-selected,.profile-settings-buddy-grid button.is-selected{border-color:#d28eae;background:#fcebf2;box-shadow:0 0 0 2px #f4d7e3}
+.profile-settings-buddy-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.profile-settings-buddy-grid button{flex-direction:column;font-size:1.2rem}
+.profile-settings-buddy-grid button span{font-size:.65rem}
+.profile-settings-gender{margin-top:12px}
+.profile-settings-gender>label{margin-bottom:6px}
+.profile-settings-gender .profile-gender-options{display:flex;gap:8px}
+.profile-settings-gender .profile-gender-options button{flex:1}
+body[data-mode="dark"] .profile-editor-settings label{color:#e2cadc}
+body[data-mode="dark"] .profile-editor-settings input{border-color:#655266;background:#302936;color:#f7edf5}
+body[data-mode="dark"] .profile-settings-theme-grid button,body[data-mode="dark"] .profile-settings-buddy-grid button{border-color:#655266;background:#393043;color:#f4e8f1}
+body[data-mode="dark"] .profile-settings-theme-grid button.is-selected,body[data-mode="dark"] .profile-settings-buddy-grid button.is-selected{border-color:#d58eb2;background:#554050}
+@media(max-width:390px){.profile-editor-settings .profile-settings-fields{grid-template-columns:1fr}.profile-settings-theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

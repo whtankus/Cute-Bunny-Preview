@@ -12741,3 +12741,10 @@ body[data-mode="dark"] .chat-bubble-wrap>.chat-bubble.is-single-character:active
   background: transparent !important;
   box-shadow: none !important;
 }
+
+
+/* Keep the Notes masthead aligned with the app-wide raised header position.
+   Do not override the separate slide-away transform used while the keyboard is open. */
+body.notes-page-active:not(.notes-header-hidden) .app > header {
+  transform: translate3d(0, -4px, 0) !important;
+}

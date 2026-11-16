@@ -1495,3 +1495,18 @@ html body.notes-page-active #content .chat-page .chat-thread::after {
   outline:0!important;
   box-shadow:none!important;
 }
+
+
+/* Notes bubble parity: both participants use exactly the same palette colours.
+   Ownership affects alignment/receipts only, never the bubble surface. */
+body[data-theme] #content .chat-page .chat-message .chat-bubble,
+body[data-theme] #content .chat-page .chat-message.is-mine .chat-bubble,
+body[data-theme] #content .chat-page .chat-message.is-friend .chat-bubble,
+body[data-theme] .home-note-memory .chat-message .chat-bubble,
+body[data-theme] .home-note-memory .chat-message.is-mine .chat-bubble,
+body[data-theme] .home-note-memory .chat-message.is-friend .chat-bubble {
+  color:var(--cb-text)!important;
+  background:linear-gradient(145deg,var(--cb-surface-soft),var(--cb-surface-raised))!important;
+  border:1px solid var(--cb-border)!important;
+  box-shadow:0 3px 0 color-mix(in srgb,var(--cb-accent) 24%,var(--cb-border))!important;
+}

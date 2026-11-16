@@ -12874,3 +12874,54 @@ body[data-mode="dark"] .streak-garden-page .sg-hearts-section .sg-milestone.is-e
   .streak-garden-page .sg-garden-switch{gap:3px!important}
   .streak-garden-page .sg-garden-switch .sg-switch-label>b{font-size:.55rem!important}
 }
+
+
+/* v110 — match heart achievement cards to the flower milestone dimensions. */
+.streak-garden-page .sg-hearts-section .sg-milestone-route{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:10px!important;
+  align-items:stretch!important;
+}
+.streak-garden-page .sg-hearts-section .sg-milestone{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  justify-items:center!important;
+  align-content:start!important;
+  gap:6px!important;
+  min-height:0!important;
+  height:100%!important;
+  padding:12px 8px 10px!important;
+  text-align:center!important;
+}
+.streak-garden-page .sg-hearts-section .sg-heart-milestone-art{
+  display:grid!important;
+  place-items:center!important;
+  flex:none!important;
+  width:48px!important;
+  height:48px!important;
+  margin:0!important;
+}
+.streak-garden-page .sg-hearts-section .sg-heart-milestone-art svg{
+  display:block!important;
+  width:43px!important;
+  height:39px!important;
+}
+.streak-garden-page .sg-hearts-section .sg-milestone-copy{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  flex:none!important;
+  width:100%!important;
+  gap:3px!important;
+  text-align:center!important;
+}
+.streak-garden-page .sg-hearts-section .sg-milestone-day{font-size:10px!important;line-height:1.2!important;letter-spacing:.35px!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-copy b{font-size:13px!important;line-height:1.25!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-copy em{font-size:12px!important;line-height:1.25!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-progress{width:100%!important;height:5px!important;margin-top:1px!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-progress-copy{width:100%!important;font-size:11px!important;text-align:center!important}
+@media(max-width:620px){
+  .streak-garden-page .sg-hearts-section .sg-milestone-route{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .streak-garden-page .sg-hearts-section .sg-milestone{padding:10px 7px!important}
+}

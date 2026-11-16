@@ -754,3 +754,93 @@ body[data-theme="midnight"] .app > header .round,
 body[data-theme="midnight"] #nav button.active { border-color: var(--cb-border); }
 body[data-theme] .theme-choice.is-selected { border-color: var(--cb-accent); }
 body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px var(--cb-accent-soft), 0 0 0 4px var(--cb-accent); }
+
+/* Profile wallpaper contrast: decorative themes must never reduce text legibility. */
+.auth-card.friend-profile-card[data-wallpaper] {
+  --profile-text: #493b4a;
+  --profile-muted: #68566b;
+  --profile-chip-bg: rgba(255,255,255,.88);
+  --profile-chip-text: #514052;
+  --profile-chip-border: rgba(91,65,91,.20);
+}
+.auth-card.friend-profile-card[data-wallpaper="normal"],
+.auth-card.friend-profile-card[data-wallpaper="blossom"],
+.auth-card.friend-profile-card[data-wallpaper="clouds"],
+.auth-card.friend-profile-card[data-wallpaper="hearts"] {
+  color: var(--profile-text) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="normal"] :is(h2,p,small,time,span),
+.auth-card.friend-profile-card[data-wallpaper="blossom"] :is(h2,p,small,time,span),
+.auth-card.friend-profile-card[data-wallpaper="clouds"] :is(h2,p,small,time,span),
+.auth-card.friend-profile-card[data-wallpaper="hearts"] :is(h2,p,small,time,span) {
+  color: var(--profile-text);
+}
+.auth-card.friend-profile-card[data-wallpaper="normal"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="blossom"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="clouds"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="hearts"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="normal"] .friend-profile-activity-status,
+.auth-card.friend-profile-card[data-wallpaper="blossom"] .friend-profile-activity-status,
+.auth-card.friend-profile-card[data-wallpaper="clouds"] .friend-profile-activity-status,
+.auth-card.friend-profile-card[data-wallpaper="hearts"] .friend-profile-activity-status {
+  color: var(--profile-muted) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper] .friend-profile-joined > time,
+.auth-card.friend-profile-card[data-wallpaper] .friend-profile-stat-plates > small {
+  color: var(--profile-chip-text) !important;
+  background: var(--profile-chip-bg) !important;
+  border: 1px solid var(--profile-chip-border) !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper] .friend-profile-follow {
+  color: #fff !important;
+  background: linear-gradient(135deg,#a9577c,#854565) !important;
+  border: 1px solid rgba(255,255,255,.72) !important;
+  box-shadow: 0 2px 0 rgba(76,39,65,.28) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] {
+  --profile-text: #fff8ff;
+  --profile-muted: #eee4ff;
+  --profile-chip-bg: rgba(35,31,73,.88);
+  --profile-chip-text: #fff8ff;
+  --profile-chip-border: rgba(231,222,255,.42);
+  color: var(--profile-text) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] :is(h2,p,small,time,span),
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-activity-status {
+  color: var(--profile-text) !important;
+  text-shadow: 0 1px 3px rgba(16,14,45,.55);
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-joined > time,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates > small {
+  color: var(--profile-chip-text) !important;
+  background: var(--profile-chip-bg) !important;
+  border-color: var(--profile-chip-border) !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-follow {
+  color: #30264e !important;
+  background: linear-gradient(135deg,#fff0b9,#e7d7ff) !important;
+  border-color: rgba(255,255,255,.8) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper] .friend-profile-eyebrow {
+  color: var(--profile-muted) !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-eyebrow {
+  color: #fff0c9 !important;
+}
+@media (prefers-contrast: more) {
+  .auth-card.friend-profile-card[data-wallpaper] {
+    --profile-chip-bg: #fff;
+    --profile-chip-text: #241b29;
+    --profile-chip-border: #55415c;
+  }
+  .auth-card.friend-profile-card[data-wallpaper="starlight"] {
+    --profile-chip-bg: #211b45;
+    --profile-chip-text: #fff;
+    --profile-chip-border: #fff;
+  }
+}
+

@@ -576,3 +576,159 @@ body[data-mode="dark"] .install-app-button {
   background: #302838;
   color: #f0bfd3;
 }
+
+
+/* App-wide colour system: shared semantic tokens keep every screen in sync. */
+body {
+  --cb-bg: #fcf7f2;
+  --cb-surface: #fffdfb;
+  --cb-surface-raised: #fffaf7;
+  --cb-surface-soft: #f8edf1;
+  --cb-text: #554457;
+  --cb-text-soft: #725d73;
+  --cb-text-muted: #88758a;
+  --cb-border: #eadde5;
+  --cb-accent: #bd6f91;
+  --cb-accent-strong: #a9577c;
+  --cb-accent-soft: #f8e5ec;
+  --cb-accent-contrast: #ffffff;
+  --cb-control: #fffefd;
+  --cb-shadow-color: 91, 62, 88;
+}
+body[data-theme="lavender"] {
+  --cb-bg: #f7f4fc; --cb-surface: #fffdfd; --cb-surface-raised: #faf7ff;
+  --cb-surface-soft: #eee8f8; --cb-text: #51465f; --cb-text-soft: #6f6280;
+  --cb-text-muted: #857a96; --cb-border: #e3d9ef; --cb-accent: #9c80c2;
+  --cb-accent-strong: #795d9f; --cb-accent-soft: #eee5f8; --cb-control: #fffefe;
+  --cb-shadow-color: 83, 67, 112;
+}
+body[data-theme="mint"] {
+  --cb-bg: #f3faf4; --cb-surface: #fcfffc; --cb-surface-raised: #f7fff8;
+  --cb-surface-soft: #e7f4eb; --cb-text: #405a49; --cb-text-soft: #587360;
+  --cb-text-muted: #758b7b; --cb-border: #d7e9dc; --cb-accent: #6fa982;
+  --cb-accent-strong: #4d8762; --cb-accent-soft: #e1f1e5; --cb-control: #fdfffd;
+  --cb-shadow-color: 63, 105, 76;
+}
+body[data-theme="sky"] {
+  --cb-bg: #f3f9fc; --cb-surface: #fcfeff; --cb-surface-raised: #f7fcff;
+  --cb-surface-soft: #e6f1f7; --cb-text: #405768; --cb-text-soft: #587184;
+  --cb-text-muted: #748b9b; --cb-border: #d7e6ee; --cb-accent: #6da6c0;
+  --cb-accent-strong: #4e829c; --cb-accent-soft: #e1f0f7; --cb-control: #fdfeff;
+  --cb-shadow-color: 61, 91, 112;
+}
+body[data-theme="peach"] {
+  --cb-bg: #fff7ef; --cb-surface: #fffdfa; --cb-surface-raised: #fffaf4;
+  --cb-surface-soft: #fcebdd; --cb-text: #654b42; --cb-text-soft: #806052;
+  --cb-text-muted: #987d6d; --cb-border: #f0dfd1; --cb-accent: #d58b68;
+  --cb-accent-strong: #ad694b; --cb-accent-soft: #fae8dc; --cb-control: #fffefd;
+  --cb-shadow-color: 122, 83, 61;
+}
+body[data-theme="berry"] {
+  --cb-bg: #fff4f8; --cb-surface: #fffdfd; --cb-surface-raised: #fff8fb;
+  --cb-surface-soft: #f9e4ed; --cb-text: #613f53; --cb-text-soft: #80536b;
+  --cb-text-muted: #986f86; --cb-border: #efd7e2; --cb-accent: #c65f91;
+  --cb-accent-strong: #a64273; --cb-accent-soft: #f8dce9; --cb-control: #fffefe;
+  --cb-shadow-color: 117, 57, 87;
+}
+body[data-theme="midnight"] {
+  --cb-bg: #f5eff8; --cb-surface: #fefbff; --cb-surface-raised: #faf6fd;
+  --cb-surface-soft: #eee5f3; --cb-text: #51445d; --cb-text-soft: #6c5b7b;
+  --cb-text-muted: #857895; --cb-border: #e2d7e9; --cb-accent: #80628f;
+  --cb-accent-strong: #674c79; --cb-accent-soft: #e8dbef; --cb-control: #fffefe;
+  --cb-shadow-color: 81, 62, 96;
+}
+body[data-mode="dark"] {
+  --cb-bg: #241f2a;
+  --cb-surface: #302838;
+  --cb-surface-raised: #382e40;
+  --cb-surface-soft: #403447;
+  --cb-text: #f2e7f0;
+  --cb-text-soft: #e0cddd;
+  --cb-text-muted: #c8b5c7;
+  --cb-border: #59495d;
+  --cb-accent: #d28eae;
+  --cb-accent-strong: #efbfd3;
+  --cb-accent-soft: #49364c;
+  --cb-accent-contrast: #261e2a;
+  --cb-control: #29232f;
+  --cb-shadow-color: 0, 0, 0;
+  color: var(--cb-text);
+  background-color: var(--cb-bg);
+}
+
+/* Shared surfaces and typography across Home, Photos, Music, Notes, Friends and overlays. */
+body, body .app { color: var(--cb-text); background-color: var(--cb-bg); }
+body .app { background-image: radial-gradient(circle at 12% 14%, color-mix(in srgb, var(--cb-accent-soft) 68%, transparent) 0 1px, transparent 1.5px); }
+body .app > header .brand b,
+body #content .heading h2, body #content .toolbar h3,
+body #content .feed-list > h3, body #content .shared-songs-title,
+body #content .friend-section-title h3, body #content .tile h3,
+body .auth-card h2, body .notification-card h2 { color: var(--cb-text); }
+body .app > header .brand small, body .app > header .crumb,
+body #content .heading p, body #content .tile p,
+body #content .daily p, body .toolbar > span,
+body .auth-hint, body .friend-profile-bio { color: var(--cb-text-muted); }
+body #content .tile, body #content .home-feature-card,
+body #content .daily, body #content .chat-page,
+body #content .friend-row, body .auth-gate .auth-card,
+body #notificationGate .notification-card,
+body .photo-lightbox-card, body .music-player-card,
+body .notification-row, body .notification-settings,
+body .profile-theme-preview, body .song-picks {
+  color: var(--cb-text);
+  background-color: var(--cb-surface);
+  border-color: var(--cb-border);
+}
+body #content .chat-composer, body .friend-search-input-wrap,
+body .notification-preferences, body .empty {
+  color: var(--cb-text-soft);
+  background-color: var(--cb-surface-raised);
+  border-color: var(--cb-border);
+}
+body #content input:not([type="file"]), body #content textarea,
+body .auth-gate input:not([type="checkbox"]):not([type="radio"]),
+body .auth-gate textarea, body .friend-search-bar input {
+  color: var(--cb-text);
+  background-color: var(--cb-control);
+  border-color: var(--cb-border);
+}
+body #content input::placeholder, body #content textarea::placeholder,
+body .auth-gate input::placeholder { color: var(--cb-text-muted); }
+body .primary, body #content .primary, body .auth-gate .primary {
+  background: linear-gradient(135deg, var(--cb-accent), var(--cb-accent-strong));
+  color: var(--cb-accent-contrast);
+}
+body .app #nav button.active {
+  color: var(--cb-accent-strong);
+  background: var(--cb-accent-soft);
+  border-color: var(--cb-border);
+}
+body .app #nav {
+  border-color: var(--cb-border);
+}
+body .app > header .round {
+  color: var(--cb-accent-strong);
+  border-color: var(--cb-border);
+  background: var(--cb-surface);
+}
+body .profile-theme-preview, body .tile-art, body .memory,
+body .music-player-art { border-color: var(--cb-border); }
+body .notification-row small, body .notification-row time,
+body .music-player-caption, body .music-player-timeline { color: var(--cb-text-muted); }
+body[data-mode="dark"] .app,
+body[data-mode="dark"] .app #nav,
+body[data-mode="dark"] .chat-composer,
+body[data-mode="dark"] .notification-row,
+body[data-mode="dark"] .notification-settings {
+  background-color: var(--cb-surface);
+  border-color: var(--cb-border);
+}
+body[data-mode="dark"] .app #nav button { color: var(--cb-text-muted); }
+body[data-mode="dark"] .app #nav button.active {
+  color: var(--cb-accent-strong);
+  background: var(--cb-accent-soft);
+  box-shadow: none;
+}
+body[data-mode="dark"] .tile-art { filter: brightness(.9) saturate(.88); }
+body[data-mode="dark"] .chat-bubble { color: var(--cb-text); }
+body[data-mode="dark"] .auth-gate { color: var(--cb-text); }

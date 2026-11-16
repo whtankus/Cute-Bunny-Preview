@@ -1065,3 +1065,10 @@ body[data-mode="dark"] .app > header .brand > b {
 body[data-mode="dark"] .app > header .brand b small {
   color: #ead4e5;
 }
+
+
+/* Nudge the header row a little closer to the top edge. */
+.app > header {
+  transform: translateY(-4px);
+  margin-bottom: -4px;
+}

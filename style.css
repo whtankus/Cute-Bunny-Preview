@@ -12716,3 +12716,28 @@ body[data-mode="dark"] .chat-bubble-wrap>.chat-bubble.is-single-character:active
   border-color: transparent !important;
   box-shadow: none !important;
 }
+
+
+/* Notes transparency: remove any remaining wrapper/pseudo-element surface so the app wallpaper shows through. */
+.app main:has(> #content .chat-page),
+#content:has(.chat-page),
+#content .chat-page,
+#content .chat-page .chat-thread {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+#content:has(.chat-page)::before,
+#content:has(.chat-page)::after,
+#content .chat-page::before,
+#content .chat-page::after,
+#content .chat-page .chat-thread::before,
+#content .chat-page .chat-thread::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}

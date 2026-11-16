@@ -914,7 +914,7 @@ function readStreakHeartMilestones() {
 }
 function saveStreakHeartMilestones(count) {
   const earned = readStreakHeartMilestones();
-  [1, 5, 10, 25, 50, 100, 250, 500].forEach(value => { if (count >= value) earned.add(value); });
+  [10, 100, 250, 500, 750, 1000].forEach(value => { if (count >= value) earned.add(value); });
   try { localStorage.setItem(streakStorageKey('heart-milestones'), JSON.stringify([...earned].sort((a,b) => a-b))); } catch {}
 }
 function readStreakDailyQuests(dateKey) {
@@ -1350,14 +1350,12 @@ function renderStreakPage() {
   const heartCount = Math.max(0, Number(me.heartCount) || 0);
   saveStreakHeartMilestones(heartCount);
   const heartMilestones = [
-    {hearts:1, name:'First Heart', icon:'💗'},
-    {hearts:5, name:'Little Love', icon:'💕'},
-    {hearts:10, name:'Heart Collector', icon:'💖'},
-    {hearts:25, name:'Kind Heart', icon:'💝'},
-    {hearts:50, name:'Love Grows', icon:'💞'},
-    {hearts:100, name:'Heart Garden', icon:'❤️'},
-    {hearts:250, name:'Endless Love', icon:'💘'},
-    {hearts:500, name:'Heart of Gold', icon:'💓'}
+    {hearts:10, name:'Little Keepsake', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M13 25 36 13l23 12v27H13Z" fill="#f5d9e4" stroke="#c98da8" stroke-width="2.2" stroke-linejoin="round"/><path d="M10 24h52v8H10z" fill="#e8b9cb" stroke="#c98da8" stroke-width="2"/><path d="M29 23c0-8 14-8 14 0-1 5-7 8-7 8s-6-3-7-8Z" fill="#d77e9e"/><path d="M36 32v20" stroke="#c98da8" stroke-width="2"/></svg>'},
+    {hearts:100, name:'Sweet Letter', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><rect x="10" y="17" width="52" height="36" rx="7" fill="#fff0e8" stroke="#c98da8" stroke-width="2.2"/><path d="m12 22 24 19 24-19" fill="none" stroke="#d89bb2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M28 13c0-6 9-7 9 0 0-7 10-6 9 0-1 5-9 10-9 10s-8-5-9-10Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.2"/></svg>'},
+    {hearts:250, name:'Blushing Bouquet', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M22 30 36 55 50 30" fill="#d9e7ce" stroke="#91aa82" stroke-width="2"/><path d="M36 53V29M36 43 24 34M36 40l12-10" stroke="#91aa82" stroke-width="2.5" stroke-linecap="round"/><g fill="#f4c5d5" stroke="#c98da8" stroke-width="1.5"><circle cx="23" cy="20" r="7"/><circle cx="36" cy="13" r="7"/><circle cx="49" cy="20" r="7"/></g><g fill="#e6a1b9"><circle cx="23" cy="20" r="2.5"/><circle cx="36" cy="13" r="2.5"/><circle cx="49" cy="20" r="2.5"/></g><path d="m22 45 14 10 14-10" fill="none" stroke="#c98da8" stroke-width="3" stroke-linecap="round"/></svg>'},
+    {hearts:500, name:'Golden Treasure', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m36 8 7 8 12-1-2 12 8 9-10 7-3 12-12-4-12 4-3-12-10-7 8-9-2-12 12 1Z" fill="#f7e8b8" stroke="#c7a45f" stroke-width="2"/><path d="m36 19 12 11-12 17-12-17Z" fill="#e8a4ba" stroke="#bd7895" stroke-width="2"/><path d="m24 30 12 4 12-4M36 34v13" fill="none" stroke="#fff4e7" stroke-width="2"/></svg>'},
+    {hearts:750, name:'Love Guardian', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m13 27 6-14 12 8 5-12 5 12 12-8 6 14-9 24H22Z" fill="#e9dff4" stroke="#a58bb8" stroke-width="2" stroke-linejoin="round"/><path d="M25 31c0-7 10-8 11 0 2-8 12-7 12 0-1 7-12 15-12 15S26 38 25 31Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.4"/><circle cx="19" cy="17" r="2" fill="#d7b56e"/><circle cx="53" cy="17" r="2" fill="#d7b56e"/></svg>'},
+    {hearts:1000, name:'Everlasting Love', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><circle cx="36" cy="32" r="25" fill="#fff0e7" stroke="#d5a2b5" stroke-width="2"/><circle cx="36" cy="32" r="20" fill="none" stroke="#e6c1ce" stroke-width="1.5" stroke-dasharray="2 3"/><path d="M24 29c0-9 12-10 12 0 1-10 13-9 13 0-1 9-13 18-13 18S25 38 24 29Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.5"/><path d="m16 12 3 4 5 1-5 2-3 5-2-5-5-2 5-1Z" fill="#d6b66f"/><path d="m56 10 2 4 4 2-4 1-2 4-2-4-4-1 4-2Z" fill="#d6b66f"/></svg>'}
   ];
   const earnedHearts = readStreakHeartMilestones();
   const heartBadges = heartMilestones.map(item => {
@@ -1365,7 +1363,7 @@ function renderStreakPage() {
     const percentage = unlocked ? 100 : Math.min(100, heartCount / item.hearts * 100);
     const status = unlocked ? 'Heart unlocked' : (item.hearts - heartCount) + ' hearts to go';
     return '<article class="streak-milestone sg-milestone' + (unlocked ? ' is-earned' : ' is-locked') + '">' +
-      '<span class="sg-milestone-art sg-heart-milestone-art" aria-hidden="true">' + item.icon + '</span>' +
+      '<span class="sg-milestone-art sg-heart-milestone-art">' + item.art + '</span>' +
       '<span class="sg-milestone-copy"><small class="sg-milestone-day">' + item.hearts + ' HEARTS</small><b>' + item.name +
       '</b><em>' + status + '</em></span>' +
       '<span class="sg-milestone-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' +
@@ -1374,27 +1372,20 @@ function renderStreakPage() {
   }).join('');
   const dailyQuestState = readStreakDailyQuests(todayKey);
   const dailyQuestItems = [
-    {id:'hearts', title:'Send 3 hearts to friends', description:'Like three different memories shared by your friends.', progress:Math.min(3, dailyQuestState.hearts.length), target:3, icon:'💗', done:dailyQuestState.hearts.length >= 3},
-    {id:'photo', title:'Share a photo', description:'Add one photo to your shared scrapbook.', progress:dailyQuestState.photo ? 1 : 0, target:1, icon:'📸', done:dailyQuestState.photo},
-    {id:'kissNote', title:'Send a kiss note', description:'Send a friend a Notes message containing 💋.', progress:dailyQuestState.kissNote ? 1 : 0, target:1, icon:'💌', done:dailyQuestState.kissNote}
+    {id:'hearts', title:'Like 3 friends’ photos', description:'Tap the heart on three different friends’ memories.', progress:Math.min(3, dailyQuestState.hearts.length), target:3, icon:'♡', done:dailyQuestState.hearts.length >= 3},
+    {id:'photo', title:'Share 1 photo', description:'Add one photo to your shared scrapbook.', progress:dailyQuestState.photo ? 1 : 0, target:1, icon:'▧', done:dailyQuestState.photo},
+    {id:'kissNote', title:'Send a kiss in Notes', description:'Send a Notes message with 💋 in it.', progress:dailyQuestState.kissNote ? 1 : 0, target:1, icon:'✉', done:dailyQuestState.kissNote}
   ];
-  const selectedQuest = dailyQuestItems[streakSelectedDailyQuest] || dailyQuestItems[0];
   const completedQuests = dailyQuestItems.filter(item => item.done).length;
-  const dailyQuestMarkup = '<section class="sg-daily-quest-card">' +
-    '<div class="sg-daily-quest-top"><span class="sg-daily-quest-icon" aria-hidden="true">' + selectedQuest.icon + '</span>' +
-    '<span class="sg-daily-quest-step">QUEST ' + (streakSelectedDailyQuest + 1) + ' OF 3</span>' +
-    '<span class="sg-daily-quest-status' + (selectedQuest.done ? ' is-done' : '') + '">' + (selectedQuest.done ? 'Completed ✓' : 'In progress') + '</span></div>' +
-    '<h4>' + selectedQuest.title + '</h4><p>' + selectedQuest.description + '</p>' +
-    '<div class="sg-daily-quest-progress"><span style="width:' + (selectedQuest.progress / selectedQuest.target * 100) + '%"></span></div>' +
-    '<small class="sg-daily-quest-count">' + selectedQuest.progress + ' / ' + selectedQuest.target + ' completed today</small>' +
-    '<div class="sg-daily-quest-picker" role="group" aria-label="Choose a daily quest">' +
-    dailyQuestItems.map((item,index) => '<button type="button" data-streak-quest-select="' + index + '" class="' +
-      (index === streakSelectedDailyQuest ? 'is-active ' : '') + (item.done ? 'is-done' : '') +
-      '" aria-pressed="' + (index === streakSelectedDailyQuest) + '" aria-label="Show quest ' + (index + 1) + ': ' + item.title + '">' +
-      '<span>' + (item.done ? '✓' : String(index + 1).padStart(2,'0')) + '</span></button>').join('') +
-    '</div></section>' +
-    '<div class="sg-daily-quest-footer"><span>' + completedQuests + ' of 3 daily quests completed</span>' +
-    (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete all three to earn your Daily Bloom badge</small>') + '</div>';
+  const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
+    dailyQuestItems.map((item,index) => '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
+      '<span class="sg-daily-quest-icon" aria-hidden="true">' + item.icon + '</span>' +
+      '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
+      '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : 'To do') + '</span></div>' +
+      '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div>' +
+      '<small class="sg-daily-quest-count">' + item.progress + ' / ' + item.target + '</small></div></article>').join('') +
+    '</div><div class="sg-daily-quest-footer"><span>' + completedQuests + ' of 3 done today</span>' +
+    (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Finish all 3 to earn your Daily Bloom badge</small>') + '</div>';
 
   const todayDate = new Date(todayKey + 'T00:00:00Z');
   const mondayOffset = (todayDate.getUTCDay() + 6) % 7;
@@ -1670,9 +1661,9 @@ function renderStreakPage() {
     '</div>',
 
     '<div class="sg-garden-switcher" role="tablist" aria-label="Your garden details">' +
-      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" data-streak-garden-tab="flowers" role="tab" aria-selected="' + (streakGardenActiveTab === 'flowers') + '"><span>🌷</span><b>Your Flowers</b></button>' +
-      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" data-streak-garden-tab="hearts" role="tab" aria-selected="' + (streakGardenActiveTab === 'hearts') + '"><span>💗</span><b>Your Hearts</b></button>' +
-      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" data-streak-garden-tab="daily" role="tab" aria-selected="' + (streakGardenActiveTab === 'daily') + '"><span>☀️</span><b>Daily Quest</b></button></div>',
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" data-streak-garden-tab="daily" role="tab" aria-selected="' + (streakGardenActiveTab === 'daily') + '"><span class="sg-switch-icon sg-switch-daily" aria-hidden="true">✧</span><b>Daily Quest</b></button>' +
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" data-streak-garden-tab="hearts" role="tab" aria-selected="' + (streakGardenActiveTab === 'hearts') + '"><span class="sg-switch-icon sg-switch-hearts" aria-hidden="true">♡</span><b>Your Hearts</b></button>' +
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" data-streak-garden-tab="flowers" role="tab" aria-selected="' + (streakGardenActiveTab === 'flowers') + '"><span class="sg-switch-icon sg-switch-flowers" aria-hidden="true">✿</span><b>Your Flowers</b></button></div>',
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" id="sgFlowersPanel" role="tabpanel"' + (streakGardenActiveTab === 'flowers' ? '' : ' hidden') + '>' +
       '<section class="sg-milestones-section"><div class="sg-section-heading"><div><h3>Your Flowers</h3><p>' + earned.size + ' of ' + milestones.length + ' garden milestones unlocked</p></div></div>' +
       '<div class="sg-milestone-route">' + badges + '</div></section></section>',

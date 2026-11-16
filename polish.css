@@ -552,3 +552,27 @@ body[data-mode="dark"] #notificationGate .notification-card {
   background: #302838;
   color: #f2e7f0;
 }
+
+
+/* Native-style PWA install action, shown only when Android/Chrome offers installation. */
+.install-app-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 10px auto 0;
+  padding: 10px 18px;
+  border: 1px solid #e6cbd8;
+  border-radius: 999px;
+  background: rgba(255, 253, 251, .82);
+  color: #9d5879;
+  font: 800 .88rem/1.2 Nunito, sans-serif;
+  box-shadow: 0 5px 14px rgba(91, 62, 88, .07);
+  cursor: pointer;
+}
+.install-app-button:active { transform: scale(.98); }
+body[data-mode="dark"] .install-app-button {
+  border-color: #66536b;
+  background: #302838;
+  color: #f0bfd3;
+}

@@ -41,6 +41,7 @@
       <h1>Cute Bunny <span>♡</span></h1>
       <p class="intro">A pocketful of photos, favorite songs, and tiny moments worth keeping.</p>
       <button class="primary" id="enter">Let's begin ♡</button>
+      <button type="button" class="install-app-button hidden" id="installAppButton">Install Cute Bunny app ↓</button>
       <small>take a breath · stay a little ☁</small>
     </div>
     <div class="ground"></div>
@@ -292,6 +293,34 @@
   <script src="supabase-config.js"></script>
   <script src="app.js?v=165723"></script>
   <script>
+    (() => {
+      let deferredInstallPrompt = null;
+      const installButton = document.getElementById("installAppButton");
+      const isStandalone = () =>
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.matchMedia("(display-mode: minimal-ui)").matches ||
+        window.navigator.standalone === true;
+
+      if (installButton && !isStandalone()) {
+        window.addEventListener("beforeinstallprompt", event => {
+          event.preventDefault();
+          deferredInstallPrompt = event;
+          installButton.classList.remove("hidden");
+        });
+        installButton.addEventListener("click", async () => {
+          if (!deferredInstallPrompt) return;
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          installButton.classList.add("hidden");
+        });
+      }
+      window.addEventListener("appinstalled", () => {
+        deferredInstallPrompt = null;
+        installButton?.classList.add("hidden");
+      });
+    })();
+
     if (!window.Capacitor?.isNativePlatform?.() && "serviceWorker" in navigator) {
       let reloadingForWorkerUpdate = false;
 

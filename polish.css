@@ -816,11 +816,12 @@ body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px
 .auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-activity-status {
   color: #55bd82 !important;
 }
-.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-joined > time,
-.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates > small {
-  color: var(--profile-chip-text) !important;
-  background: var(--profile-chip-bg) !important;
-  border-color: var(--profile-chip-border) !important;
+/* The joined-date chip uses the wallpaper's neutral chip palette.
+   Statistic badges deliberately keep their own gold, pink and rose accents. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-joined > time {
+  color: #514052 !important;
+  background: rgba(255,255,255,.92) !important;
+  border-color: rgba(91,65,91,.2) !important;
   text-shadow: none !important;
 }
 .auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-follow {

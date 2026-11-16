@@ -732,3 +732,25 @@ body[data-mode="dark"] .app #nav button.active {
 body[data-mode="dark"] .tile-art { filter: brightness(.9) saturate(.88); }
 body[data-mode="dark"] .chat-bubble { color: var(--cb-text); }
 body[data-mode="dark"] .auth-gate { color: var(--cb-text); }
+
+
+/* Theme picker swatches use the same palette tokens as the live application. */
+.theme-swatch.peach { background: linear-gradient(145deg, #fff0df, #d58b68); }
+.theme-swatch.berry { background: linear-gradient(145deg, #f9e4ed, #c65f91); }
+.theme-swatch.midnight { background: linear-gradient(145deg, #eee5f3, #80628f); }
+body[data-mode="dark"] .theme-swatch.peach { background: linear-gradient(145deg, #604638, #d58b68); }
+body[data-mode="dark"] .theme-swatch.berry { background: linear-gradient(145deg, #633d52, #c65f91); }
+body[data-mode="dark"] .theme-swatch.midnight { background: linear-gradient(145deg, #46384f, #a78ab7); }
+
+/* Keep legacy components from retaining rose-only text, borders and controls. */
+body[data-theme="peach"] .app > header .brand > span,
+body[data-theme="peach"] .app > header .round,
+body[data-theme="peach"] #nav button.active { border-color: var(--cb-border); }
+body[data-theme="berry"] .app > header .brand > span,
+body[data-theme="berry"] .app > header .round,
+body[data-theme="berry"] #nav button.active { border-color: var(--cb-border); }
+body[data-theme="midnight"] .app > header .brand > span,
+body[data-theme="midnight"] .app > header .round,
+body[data-theme="midnight"] #nav button.active { border-color: var(--cb-border); }
+body[data-theme] .theme-choice.is-selected { border-color: var(--cb-accent); }
+body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px var(--cb-accent-soft), 0 0 0 4px var(--cb-accent); }

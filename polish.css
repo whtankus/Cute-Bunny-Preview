@@ -1470,3 +1470,28 @@ body[data-theme] #content .chat-page .chat-thread {
   border:0!important;
   box-shadow:none!important;
 }
+
+
+/* Final Notes frame reset: remove the full outline/border, not just its colour. */
+html body.notes-page-active #content .chat-page,
+html body.notes-page-active #content .chat-page .chat-thread,
+html body #content .chat-page,
+html body #content .chat-page .chat-thread {
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+  background-image:none!important;
+  border-radius:0!important;
+  filter:none!important;
+}
+html body.notes-page-active #content .chat-page::before,
+html body.notes-page-active #content .chat-page::after,
+html body.notes-page-active #content .chat-page .chat-thread::before,
+html body.notes-page-active #content .chat-page .chat-thread::after {
+  content:none!important;
+  display:none!important;
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+}

@@ -13088,3 +13088,13 @@ body[data-mode="dark"] .happy-things-grid>.streak-tile>.streak-art-trigger{
 @media(prefers-reduced-motion:reduce){
   .happy-things-grid .streak-plant-svg svg{animation:none!important}
 }
+
+
+/* v116 — keep the happy-things artwork free of floating glyph badges. */
+.happy-things-grid .happy-art-sparkle{display:none!important;content:none!important}
+.happy-things-grid>.tile>.happy-note-thumbnail::before,
+.happy-things-grid>.tile>.happy-note-thumbnail::after,
+.happy-things-grid>.tile>.happy-photo-thumbnail::before,
+.happy-things-grid>.tile>.happy-photo-thumbnail::after,
+.happy-things-grid>.tile>.happy-music-thumbnail::before,
+.happy-things-grid>.tile>.happy-music-thumbnail::after{content:none!important;display:none!important}

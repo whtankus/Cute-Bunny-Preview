@@ -13174,3 +13174,21 @@ body.notes-page-active:not(.notes-header-hidden) .app > header {
 }
 
 
+
+
+/* v118 — richer scrapbook illustrations with gentle, slow movement. */
+.happy-things-grid>.tile>.happy-note-thumbnail svg,
+.happy-things-grid>.tile>.happy-music-thumbnail svg{width:min(100%,238px)!important;max-height:120px!important;overflow:visible}
+.happy-things-grid .note-artwork{transform-box:fill-box;transform-origin:50% 78%;animation:note-scrapbook-float 8.8s ease-in-out infinite}
+.happy-things-grid .music-artwork{transform-box:fill-box;transform-origin:50% 78%;animation:music-record-float 9.6s ease-in-out infinite}
+.happy-things-grid .streak-artwork{transform-box:fill-box;transform-origin:50% 92%;animation:streak-garden-sway 9.2s ease-in-out infinite}
+.happy-things-grid>.tile>.happy-note-thumbnail:hover .note-artwork,
+.happy-things-grid>.tile>.happy-music-thumbnail:hover .music-artwork{animation-play-state:paused}
+@keyframes note-scrapbook-float{0%,100%{transform:translateY(1px) rotate(-.35deg)}50%{transform:translateY(-3px) rotate(.35deg)}}
+@keyframes music-record-float{0%,100%{transform:translateY(1px) rotate(.3deg)}50%{transform:translateY(-3px) rotate(-.3deg)}}
+@keyframes streak-garden-sway{0%,100%{transform:translateY(1px) rotate(-.8deg)}50%{transform:translateY(-2px) rotate(.8deg)}}
+.happy-things-grid>.tile>.happy-note-thumbnail{background:radial-gradient(ellipse at 50% 100%,#f4dce6 0%,#fff2f5 53%,#f8eff5 100%)!important}
+.happy-things-grid>.tile>.happy-music-thumbnail{background:radial-gradient(ellipse at 50% 100%,#e4d9f0 0%,#f4effa 53%,#faf1f4 100%)!important}
+body[data-mode="dark"] .happy-things-grid .happy-note-thumbnail{background:radial-gradient(ellipse at 50% 100%,#583e4d,#403543 76%)!important}
+body[data-mode="dark"] .happy-things-grid .happy-music-thumbnail{background:radial-gradient(ellipse at 50% 100%,#4c3e5d,#383344 76%)!important}
+@media(prefers-reduced-motion:reduce){.happy-things-grid .note-artwork,.happy-things-grid .music-artwork,.happy-things-grid .streak-artwork{animation:none!important}}

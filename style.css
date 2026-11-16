@@ -11561,7 +11561,6 @@ body[data-mode="dark"] .auth-card.friend-profile-card.is-own-profile #friendProf
 .auth-card.friend-profile-card[data-wallpaper="starlight"]{color:#fff!important}
 .auth-card.friend-profile-card[data-wallpaper="starlight"] h2,
 .auth-card.friend-profile-card[data-wallpaper="starlight"] p,
-.auth-card.friend-profile-card[data-wallpaper="starlight"] small,
 .auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileHandle{color:#fff!important}
 .auth-card.friend-profile-card[data-wallpaper="hearts"]{
   background:radial-gradient(ellipse at 14% 16%,rgba(255,173,199,.7),transparent 32%),radial-gradient(ellipse at 88% 82%,rgba(226,184,255,.66),transparent 36%),linear-gradient(145deg,#ffe8ef 0%,#ffdce9 48%,#f2e3ff 100%)!important
@@ -13098,3 +13097,80 @@ body[data-mode="dark"] .happy-things-grid>.streak-tile>.streak-art-trigger{
 .happy-things-grid>.tile>.happy-photo-thumbnail::after,
 .happy-things-grid>.tile>.happy-music-thumbnail::before,
 .happy-things-grid>.tile>.happy-music-thumbnail::after{content:none!important;display:none!important}
+
+
+/* Perfect-1 profile and Notes refinements retained alongside current Streak Garden work. */
+/* Starlight profile: keep semantic tag colours independent of wallpaper text. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > #friendProfileTitleTag {
+  color: #c09236 !important;
+  background: #fffaf0 !important;
+  border: 1px solid #f0e4c9 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-flower,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-flower b {
+  color: #a95f83 !important;
+  background: #fff7fb !important;
+  border-color: #f2dce8 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-heart,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-heart b {
+  color: #df557d !important;
+  background: #fff5f7 !important;
+  border-color: #f2dce4 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileJoined {
+  color: #514052 !important;
+  background: rgba(255,255,255,.92) !important;
+  border-color: rgba(91,65,91,.2) !important;
+  text-shadow: none !important;
+}
+
+
+/* Hidden profile title badges must stay hidden; flex badge styling must not reveal them. */
+.auth-card.friend-profile-card #friendProfileGarden > #friendProfileTitleTag[hidden]{display:none!important;}
+
+
+/* Notes: remove only the chat-thread wallpaper; keep individual message bubbles styled. */
+.chat-thread {
+  background: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+
+/* Notes transparency: remove any remaining wrapper/pseudo-element surface so the app wallpaper shows through. */
+.app main:has(> #content .chat-page),
+#content:has(.chat-page),
+#content .chat-page,
+#content .chat-page .chat-thread {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+#content:has(.chat-page)::before,
+#content:has(.chat-page)::after,
+#content .chat-page::before,
+#content .chat-page::after,
+#content .chat-page .chat-thread::before,
+#content .chat-page .chat-thread::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+
+/* Keep the Notes masthead aligned with the app-wide raised header position.
+   Do not override the separate slide-away transform used while the keyboard is open. */
+body.notes-page-active:not(.notes-header-hidden) .app > header {
+  transform: translate3d(0, -4px, 0) !important;
+}
+
+

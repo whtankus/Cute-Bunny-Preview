@@ -1280,3 +1280,12 @@ body[data-mode="dark"][data-theme="buttercup"] {
   --cb-control: #302b1d;
   --cb-shadow-color: 0, 0, 0;
 }
+
+
+/* Preserve each selected palette's accent identity in dark mode as well. */
+body[data-mode="dark"][data-theme="lavender"] { --cb-accent:#b69ad8; --cb-accent-strong:#e4d4f5; --cb-accent-soft:#463752; --cb-border:#5e4d70; }
+body[data-mode="dark"][data-theme="mint"] { --cb-accent:#82bc93; --cb-accent-strong:#d0ecd5; --cb-accent-soft:#304837; --cb-border:#496553; }
+body[data-mode="dark"][data-theme="sky"] { --cb-accent:#83b8d1; --cb-accent-strong:#d2eaf5; --cb-accent-soft:#2f4655; --cb-border:#4a6474; }
+body[data-mode="dark"][data-theme="peach"] { --cb-accent:#d89a78; --cb-accent-strong:#f3d0b9; --cb-accent-soft:#4c342a; --cb-border:#6b4d3d; }
+body[data-mode="dark"][data-theme="berry"] { --cb-accent:#d77da8; --cb-accent-strong:#f4c0d8; --cb-accent-soft:#4b2e40; --cb-border:#69435a; }
+body[data-mode="dark"][data-theme="midnight"] { --cb-accent:#a98abb; --cb-accent-strong:#e0c9ee; --cb-accent-soft:#40334a; --cb-border:#5a4867; }

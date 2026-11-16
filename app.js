@@ -554,9 +554,8 @@ function syncBrowserThemeColor() {
   const meta = $('meta[name="theme-color"]');
   if (!meta) return;
   const palette = { rose: '#fcf7f2', lavender: '#f7f4fc', mint: '#f3faf4', sky: '#f3f9fc', peach: '#fff7ef', berry: '#fff4f8', midnight: '#f5eff8', sage: '#f2f6ed', buttercup: '#fbf8e9' };
-  meta.setAttribute('content', document.body.dataset.mode === 'dark'
-    ? '#241e2c'
-    : (palette[document.body.dataset.theme] || palette.rose));
+  const activeSurface = getComputedStyle(document.body).getPropertyValue('--cb-bg').trim();
+  meta.setAttribute('content', activeSurface || (palette[document.body.dataset.theme] || palette.rose));
 }
 
 function setTheme(theme) {

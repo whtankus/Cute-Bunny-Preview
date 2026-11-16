@@ -844,3 +844,21 @@ body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px
   }
 }
 
+/* Starlight: preserve each profile statistic tag's own accent colour. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates .friend-profile-queen {
+  color:#c09236 !important;background:#fffaf0 !important;border-color:#f0e4c9 !important;
+  text-shadow:none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates .friend-profile-flower {
+  color:#a95f83 !important;background:#fff7fb !important;border-color:#f2dce8 !important;
+  text-shadow:none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates .friend-profile-heart {
+  color:#df557d !important;background:#fff5f7 !important;border-color:#f2dce4 !important;
+  text-shadow:none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-joined > time {
+  color:#514052 !important;background:rgba(255,255,255,.92) !important;
+  border-color:rgba(91,65,91,.2) !important;text-shadow:none !important;
+}
+

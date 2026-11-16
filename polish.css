@@ -806,11 +806,15 @@ body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px
   --profile-chip-border: rgba(231,222,255,.42);
   color: var(--profile-text) !important;
 }
-.auth-card.friend-profile-card[data-wallpaper="starlight"] :is(h2,p,small,time,span),
-.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-bio,
-.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-activity-status {
+.auth-card.friend-profile-card[data-wallpaper="starlight"] :is(h2,p),
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileHandle,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-bio {
   color: var(--profile-text) !important;
   text-shadow: 0 1px 3px rgba(16,14,45,.55);
+}
+/* Keep presence text readable without recolouring semantic statistic badges. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-activity-status {
+  color: #55bd82 !important;
 }
 .auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-joined > time,
 .auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates > small {
@@ -891,4 +895,10 @@ body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px
   background: rgba(255,255,255,.92) !important;
   border-color: rgba(91,65,91,.2) !important;
   text-shadow: none !important;
+}
+
+
+/* The badge row uses flex, but an absent title badge must respect its hidden attribute. */
+.auth-card.friend-profile-card #friendProfileGarden > #friendProfileTitleTag[hidden] {
+  display: none !important;
 }

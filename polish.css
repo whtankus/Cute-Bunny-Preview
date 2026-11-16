@@ -1072,3 +1072,18 @@ body[data-mode="dark"] .app > header .brand b small {
   transform: translateY(-4px);
   margin-bottom: -4px;
 }
+
+
+/* Notes: the Notes panel surface is defined in polish.css (loaded after style.css).
+   Remove that panel fill so the main app background remains visible behind messages.
+   Message bubbles and the composer retain their own individual surfaces. */
+body #content .chat-page,
+body[data-mode="dark"] #content .chat-page,
+body #content .chat-thread,
+body[data-mode="dark"] #content .chat-thread {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}

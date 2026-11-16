@@ -11561,7 +11561,6 @@ body[data-mode="dark"] .auth-card.friend-profile-card.is-own-profile #friendProf
 .auth-card.friend-profile-card[data-wallpaper="starlight"]{color:#fff!important}
 .auth-card.friend-profile-card[data-wallpaper="starlight"] h2,
 .auth-card.friend-profile-card[data-wallpaper="starlight"] p,
-.auth-card.friend-profile-card[data-wallpaper="starlight"] small,
 .auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileHandle{color:#fff!important}
 .auth-card.friend-profile-card[data-wallpaper="hearts"]{
   background:radial-gradient(ellipse at 14% 16%,rgba(255,173,199,.7),transparent 32%),radial-gradient(ellipse at 88% 82%,rgba(226,184,255,.66),transparent 36%),linear-gradient(145deg,#ffe8ef 0%,#ffdce9 48%,#f2e3ff 100%)!important
@@ -12704,3 +12703,7 @@ body[data-mode="dark"] .chat-bubble-wrap>.chat-bubble.is-single-character:active
   border-color: rgba(91,65,91,.2) !important;
   text-shadow: none !important;
 }
+
+
+/* Hidden profile title badges must stay hidden; flex badge styling must not reveal them. */
+.auth-card.friend-profile-card #friendProfileGarden > #friendProfileTitleTag[hidden]{display:none!important;}

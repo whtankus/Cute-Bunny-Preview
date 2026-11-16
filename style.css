@@ -12707,3 +12707,12 @@ body[data-mode="dark"] .chat-bubble-wrap>.chat-bubble.is-single-character:active
 
 /* Hidden profile title badges must stay hidden; flex badge styling must not reveal them. */
 .auth-card.friend-profile-card #friendProfileGarden > #friendProfileTitleTag[hidden]{display:none!important;}
+
+
+/* Notes: remove only the chat-thread wallpaper; keep individual message bubbles styled. */
+.chat-thread {
+  background: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}

@@ -1793,3 +1793,9 @@ body[data-theme] .app > header {
   .auth-card.profile-card .profile-settings-theme-grid {gap:6px!important}
   .auth-card.profile-card .profile-settings-theme-grid button {min-height:64px!important}
 }
+
+
+/* Place the Seen label two pixels lower above the Notes composer. */
+#content .chat-page .chat-composer>.chat-seen-status {
+  top:-11px!important;
+}

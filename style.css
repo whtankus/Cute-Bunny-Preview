@@ -12740,3 +12740,60 @@ body[data-mode="dark"] .sg-daily-quest-picker button.is-done{border-color:#70836
   .sg-garden-switch>b{font-size:.6rem}
   .sg-garden-switch>span{font-size:1.05rem}
 }
+
+
+/* Streak Garden polish: soft segmented tabs, illustrated heart awards, and clear daily checklist. */
+.streak-garden-page .sg-garden-switcher{gap:8px;padding:6px;border:1px solid #ead9e2;border-radius:23px;background:linear-gradient(125deg,#fff9f6 0%,#f8eef4 55%,#f1eef8 100%);box-shadow:0 8px 22px #876a7b10}
+.streak-garden-page .sg-garden-switch{position:relative;min-height:62px;gap:8px;padding:9px 10px;border:1px solid transparent;border-radius:17px;color:#947c90;transition:transform .22s ease,background .22s ease,box-shadow .22s ease}
+.streak-garden-page .sg-garden-switch:before{content:"";position:absolute;inset:4px;border-radius:13px;background:transparent;transition:background .22s ease}
+.streak-garden-page .sg-garden-switch>*{position:relative;z-index:1}
+.streak-garden-page .sg-garden-switch .sg-switch-icon{display:grid;place-items:center;width:31px;height:31px;border-radius:11px;background:#f4e8ed;color:#b77d98;font:700 1.25rem/1 Quicksand,sans-serif;box-shadow:inset 0 1px 2px #fff}
+.streak-garden-page .sg-garden-switch .sg-switch-daily{background:#f8efd9;color:#b28c4f}
+.streak-garden-page .sg-garden-switch .sg-switch-hearts{background:#f7e4eb;color:#bf7897}
+.streak-garden-page .sg-garden-switch .sg-switch-flowers{background:#e9f0e3;color:#78966f}
+.streak-garden-page .sg-garden-switch>b{font-size:.79rem;letter-spacing:.05px}
+.streak-garden-page .sg-garden-switch.is-active{transform:translateY(-1px);border-color:#e8cbd8;background:#fffdfb;color:#a45e80;box-shadow:0 5px 12px #bd82951c,inset 0 0 0 1px #fff}
+.streak-garden-page .sg-garden-switch.is-active:before{background:linear-gradient(135deg,#fff8f8,#fff)}
+.streak-garden-page .sg-garden-switch.is-active .sg-switch-icon{box-shadow:0 3px 8px #b982981e}
+.streak-garden-page .sg-heart-milestone-art{font-size:initial;background:radial-gradient(circle at 50% 35%,#fffdf8,#f7e8ee 78%)}
+.streak-garden-page .sg-heart-milestone-art svg{width:68px;height:60px;overflow:visible;filter:drop-shadow(0 3px 2px #b67e9418);transition:transform .25s ease,filter .25s ease}
+.streak-garden-page .sg-milestone:hover .sg-heart-milestone-art svg{transform:translateY(-3px) rotate(-3deg)}
+.streak-garden-page .sg-milestone.is-locked .sg-heart-milestone-art svg{filter:grayscale(.28) saturate(.7);opacity:.78}
+.streak-garden-page .sg-milestone.is-earned .sg-heart-milestone-art{background:radial-gradient(circle at 50% 35%,#fffdf7,#f7e1e9);border-color:#e5bfd0}
+.streak-garden-page .sg-daily-quest-list{position:relative;z-index:1;display:grid;gap:9px}
+.streak-garden-page .sg-daily-quest-card{display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:11px;padding:12px 13px;border-radius:16px;box-shadow:0 3px 10px #805f7409}
+.streak-garden-page .sg-daily-quest-card.is-done{border-color:#d7e3d0;background:linear-gradient(110deg,#fbfff8,#fffdfb)}
+.streak-garden-page .sg-daily-quest-icon{width:39px;height:39px;border-radius:13px;background:#f8e9ef;color:#b87593;font:700 1.45rem/1 Quicksand,sans-serif}
+.streak-garden-page .sg-daily-quest-card:nth-child(2) .sg-daily-quest-icon{background:#f8efdf;color:#b28d58}
+.streak-garden-page .sg-daily-quest-card:nth-child(3) .sg-daily-quest-icon{background:#eee9f7;color:#9580b0}
+.streak-garden-page .sg-daily-quest-copy{min-width:0}
+.streak-garden-page .sg-daily-quest-title-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.streak-garden-page .sg-daily-quest-title-row>b{color:#6c536d;font:800 .86rem/1.25 Nunito,sans-serif}
+.streak-garden-page .sg-daily-quest-card h4{display:none}
+.streak-garden-page .sg-daily-quest-card p{margin:3px 0 7px;font-size:.72rem;line-height:1.35}
+.streak-garden-page .sg-daily-quest-status{margin:0;padding:4px 8px;font-size:.59rem}
+.streak-garden-page .sg-daily-quest-progress{height:5px;margin:0 0 4px}
+.streak-garden-page .sg-daily-quest-count{font-size:.61rem}
+.streak-garden-page .sg-daily-quest-footer{margin-top:11px}
+body[data-mode="dark"] .streak-garden-page .sg-garden-switcher{border-color:#59495d;background:linear-gradient(125deg,#39303e,#342d3a)}
+body[data-mode="dark"] .streak-garden-page .sg-garden-switch{color:#c7b4c6}
+body[data-mode="dark"] .streak-garden-page .sg-garden-switch.is-active{border-color:#856078;background:#4a3948;color:#f1cbdc}
+body[data-mode="dark"] .streak-garden-page .sg-garden-switch .sg-switch-icon{background:#51404d;color:#e5b8cc}
+body[data-mode="dark"] .streak-garden-page .sg-garden-switch .sg-switch-daily{background:#514936;color:#e4c98e}
+body[data-mode="dark"] .streak-garden-page .sg-garden-switch .sg-switch-flowers{background:#3f4c3d;color:#c5d9b8}
+body[data-mode="dark"] .streak-garden-page .sg-daily-quest-card.is-done{border-color:#61765b;background:#354236}
+body[data-mode="dark"] .streak-garden-page .sg-daily-quest-title-row>b{color:#f0deeb}
+body[data-mode="dark"] .streak-garden-page .sg-heart-milestone-art{background:radial-gradient(circle at 50% 35%,#51404b,#3d3541)}
+@media(max-width:620px){
+ .streak-garden-page .sg-garden-switcher{gap:5px;padding:5px;border-radius:19px}
+ .streak-garden-page .sg-garden-switch{min-height:67px;gap:5px;padding:7px 2px;border-radius:14px}
+ .streak-garden-page .sg-garden-switch .sg-switch-icon{width:28px;height:28px;font-size:1.15rem}
+ .streak-garden-page .sg-garden-switch>b{font-size:.65rem}
+ .streak-garden-page .sg-daily-quest-card{grid-template-columns:35px minmax(0,1fr);gap:9px;padding:10px}
+ .streak-garden-page .sg-daily-quest-icon{width:34px;height:34px}
+ .streak-garden-page .sg-daily-quest-title-row>b{font-size:.78rem}
+}
+@media(max-width:360px){
+ .streak-garden-page .sg-garden-switch>b{font-size:.59rem}
+ .streak-garden-page .sg-garden-switch .sg-switch-icon{width:25px;height:25px}
+}

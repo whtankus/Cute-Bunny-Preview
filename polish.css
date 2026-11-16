@@ -1191,3 +1191,92 @@ body[data-mode="dark"] .app > header .brand > b small {
 @media (prefers-reduced-motion: reduce) {
   .happy-photo-thumbnail svg { animation: none !important; }
 }
+
+
+/* Complete the palette system: Sage and Buttercup use the same app-wide tokens. */
+body[data-theme="sage"] {
+  --cb-bg: #f2f6ed;
+  --cb-surface: #fcfff9;
+  --cb-surface-raised: #f7faef;
+  --cb-surface-soft: #e8f0df;
+  --cb-text: #4e5e49;
+  --cb-text-soft: #65775d;
+  --cb-text-muted: #819078;
+  --cb-border: #d6e2cc;
+  --cb-accent: #819b70;
+  --cb-accent-strong: #5e7651;
+  --cb-accent-soft: #e1ebd8;
+  --cb-control: #fbfdf8;
+  --cb-shadow-color: 76, 98, 68;
+}
+body[data-theme="buttercup"] {
+  --cb-bg: #fbf8e9;
+  --cb-surface: #fffef8;
+  --cb-surface-raised: #fffbed;
+  --cb-surface-soft: #f5efcf;
+  --cb-text: #5f5438;
+  --cb-text-soft: #796a49;
+  --cb-text-muted: #94845e;
+  --cb-border: #e9dfb8;
+  --cb-accent: #c6a64a;
+  --cb-accent-strong: #92752c;
+  --cb-accent-soft: #f5edc9;
+  --cb-control: #fffef9;
+  --cb-shadow-color: 113, 93, 45;
+}
+.profile-settings-theme-grid button {
+  border-color: var(--cb-border);
+  background: var(--cb-surface);
+  color: var(--cb-text-soft);
+  transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.profile-settings-theme-grid button:hover {
+  border-color: var(--cb-accent);
+  transform: translateY(-2px);
+}
+.profile-settings-theme-grid button.is-selected {
+  border: 1.5px solid var(--cb-accent) !important;
+  background: var(--cb-accent-soft) !important;
+  color: var(--cb-accent-strong) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cb-accent) 22%, transparent), 0 5px 12px rgba(var(--cb-shadow-color), .10) !important;
+}
+.profile-settings-theme-grid button.is-selected .theme-swatch {
+  box-shadow: 0 0 0 2px var(--cb-surface), 0 0 0 4px var(--cb-accent) !important;
+}
+.profile-settings-theme-grid [data-settings-theme-choice="buttercup"] .theme-swatch {
+  background: linear-gradient(145deg, #fff8cf, #d5b65d) !important;
+}
+body[data-mode="dark"] .profile-settings-theme-grid button {
+  border-color: var(--cb-border);
+  background: var(--cb-surface);
+  color: var(--cb-text-soft);
+}
+body[data-mode="dark"] .profile-settings-theme-grid button.is-selected {
+  border-color: var(--cb-accent) !important;
+  background: var(--cb-accent-soft) !important;
+  color: var(--cb-accent-strong) !important;
+}
+body[data-mode="dark"] .profile-settings-theme-grid [data-settings-theme-choice="buttercup"] .theme-swatch {
+  background: linear-gradient(145deg, #65552d, #d5b65d) !important;
+}
+body[data-mode="dark"][data-theme="sage"] {
+  --cb-accent: #a8c493;
+  --cb-accent-strong: #dcebd2;
+  --cb-accent-soft: #354331;
+  --cb-border: #50634d;
+}
+body[data-mode="dark"][data-theme="buttercup"] {
+  --cb-bg: #282619;
+  --cb-surface: #35301f;
+  --cb-surface-raised: #3e3824;
+  --cb-surface-soft: #4a4127;
+  --cb-text: #f7f0d8;
+  --cb-text-soft: #e6d9ae;
+  --cb-text-muted: #c8b987;
+  --cb-border: #655a36;
+  --cb-accent: #d5b65d;
+  --cb-accent-strong: #f4dfa0;
+  --cb-accent-soft: #514526;
+  --cb-control: #302b1d;
+  --cb-shadow-color: 0, 0, 0;
+}

@@ -1091,11 +1091,6 @@ body[data-mode="dark"] #content .chat-thread {
 
 /* Notes-only header refinement: match the solid page/status-bar surface
    instead of using a translucent glass effect. */
-body.notes-page-active #app > header .brand > span {
-  border-color: transparent !important;
-  background: transparent !important;
-  box-shadow: none !important;
-}
 body.notes-page-active #app > header {
   background: var(--cb-bg) !important;
   border-bottom: 1px solid var(--cb-border) !important;
@@ -1105,9 +1100,4 @@ body.notes-page-active #app > header {
 body.notes-page-active[data-mode="dark"] #app > header {
   background: var(--cb-bg) !important;
   border-bottom-color: var(--cb-border) !important;
-}
-body.notes-page-active[data-mode="dark"] #app > header .brand > span {
-  border-color: transparent !important;
-  background: transparent !important;
-  box-shadow: none !important;
 }

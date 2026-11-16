@@ -48,7 +48,8 @@ let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
 let notesKeyboardDismissed = false;
 let streakSelectedWeekDate = '';
-let streakGardenActiveTab = 'promises';
+let streakGardenActiveTab = 'daily';
+let streakSelectedDailyQuest = 0;
 let streakPetalGame = { cards: [], flipped: [], matched: [], moves: 0, locked: false, completed: false, newBest: false };
 let streakCountdownInterval = null, streakCountdownDayKey = '';
 let presenceStatus = 'closed';
@@ -823,14 +824,18 @@ function streakWidget() {
   const subtitle = count ? count + (count === 1 ? ' day in a row' : ' days in a row') : 'Start your streak today ♡';
   const thumbnailLabel = count ? 'Open your ' + count + '-day streak garden' : 'Open your streak garden';
   return '<article class="tile streak-tile"><div class="tile-art streak-art streak-art-trigger" data-open-streak role="button" tabindex="0" aria-label="' + esc(thumbnailLabel) + '">' +
-    '<span class="streak-plant-illustration" aria-hidden="true">' +
-      '<span class="streak-plant-flower streak-plant-flower-one">🌸</span>' +
-      '<span class="streak-plant-flower streak-plant-flower-two">🌼</span>' +
-      '<span class="streak-plant-flower streak-plant-flower-three">🌷</span>' +
-      '<span class="streak-plant-leaf streak-plant-leaf-one">🌿</span>' +
-      '<span class="streak-plant-leaf streak-plant-leaf-two">🍃</span>' +
-      '<span class="streak-plant-pot"><i>♡</i></span>' +
-    '</span></div>' +
+    '<span class="streak-plant-illustration streak-plant-svg" aria-hidden="true">' +
+      '<svg viewBox="0 0 240 132" role="img" aria-hidden="true">' +
+        '<ellipse cx="120" cy="119" rx="65" ry="7" fill="#a98a9b" opacity=".16"/>' +
+        '<path d="M118 103Q94 78 78 65M120 103Q119 69 121 45M123 103Q148 78 163 62" fill="none" stroke="#789b78" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M101 88Q75 63 62 81Q78 101 101 88ZM137 87Q159 59 178 76Q165 99 137 87Z" fill="#a9c59c" stroke="#779775" stroke-width="2"/>' +
+        '<path d="M120 76Q100 54 92 36M121 64Q140 43 147 25" fill="none" stroke="#789b78" stroke-width="3.5" stroke-linecap="round"/>' +
+        '<g transform="translate(92 29)"><circle r="8" fill="#e7a9bd"/><g fill="#f4cbd6"><ellipse cy="-10" rx="5" ry="8"/><ellipse cy="10" rx="5" ry="8"/><ellipse cx="-10" rx="8" ry="5"/><ellipse cx="10" rx="8" ry="5"/></g><circle r="4" fill="#e5bd72"/></g>' +
+        '<g transform="translate(148 22)"><circle r="7" fill="#e7b96f"/><g fill="#f7df9f"><ellipse cy="-9" rx="4.5" ry="7"/><ellipse cy="9" rx="4.5" ry="7"/><ellipse cx="-9" rx="7" ry="4.5"/><ellipse cx="9" rx="7" ry="4.5"/></g><circle r="3.5" fill="#c88e70"/></g>' +
+        '<g transform="translate(120 44)"><circle r="6" fill="#c89acb"/><g fill="#e4c8e9"><ellipse cy="-8" rx="4" ry="6"/><ellipse cy="8" rx="4" ry="6"/><ellipse cx="-8" rx="6" ry="4"/><ellipse cx="8" rx="6" ry="4"/></g><circle r="3" fill="#e8c77e"/></g>' +
+        '<path d="M82 91H158L151 119Q120 129 89 119Z" fill="#e7a9bd" stroke="#c77f9e" stroke-width="2.5"/><path d="M88 96Q120 104 152 96" fill="none" stroke="#fff4f4" stroke-width="3" opacity=".85"/><path d="M104 109q16-12 32 0-16 12-32 0Z" fill="#fff4f2" opacity=".95"/><path d="M120 105v9" stroke="#c77f9e" stroke-width="1.5"/>' +
+        '<path d="m48 28 3 7 7 3-7 3-3 7-3-7-7-3 7-3Zm145 26 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#d5b36e"/><path d="M183 20c-5-7-15-2-11 5 2 4 11 10 11 10s9-6 11-10c4-7-6-12-11-5Z" fill="#e7a9bd"/>' +
+      '</svg></span></div>' +
     '<h3>Your streak</h3><p data-streak-live-subtitle title="' + esc(subtitle) + '">' + esc(subtitle) + '</p><button type="button" class="primary streak-open-button" data-open-streak>Open streak →</button></article>';
 }
 
@@ -904,6 +909,46 @@ async function recordLoginStreak() {
 
 function streakStorageKey(suffix) {
   return 'cuteBunnyStreak:' + String(me?.id || me?.username || 'guest') + ':' + suffix;
+}
+
+function readStreakHeartMilestones() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(streakStorageKey('heart-milestones')) || '[]');
+    return new Set(Array.isArray(saved) ? saved.map(Number) : []);
+  } catch { return new Set(); }
+}
+function saveStreakHeartMilestones(count) {
+  const earned = readStreakHeartMilestones();
+  [10, 100, 250, 500, 750, 1000].forEach(value => { if (count >= value) earned.add(value); });
+  try { localStorage.setItem(streakStorageKey('heart-milestones'), JSON.stringify([...earned].sort((a,b) => a-b))); } catch {}
+}
+function readStreakDailyQuests(dateKey) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(streakStorageKey('daily-quests:' + dateKey)) || '{}');
+    return {
+      hearts: Array.isArray(saved.hearts) ? [...new Set(saved.hearts.map(String))] : [],
+      photo: saved.photo === true,
+      kissNote: saved.kissNote === true,
+      badge: saved.badge === true
+    };
+  } catch { return {hearts:[], photo:false, kissNote:false, badge:false}; }
+}
+function writeStreakDailyQuests(dateKey, state) {
+  try { localStorage.setItem(streakStorageKey('daily-quests:' + dateKey), JSON.stringify(state)); } catch {}
+}
+function recordStreakDailyQuest(kind, value = '') {
+  if (!me) return;
+  const timezone = normalizeStreakTimeZone(me.streak_timezone || getBrowserStreakTimeZone());
+  const dateKey = streakDateInTimeZone(timezone);
+  const state = readStreakDailyQuests(dateKey);
+  if (kind === 'heart' && value && !state.hearts.includes(String(value))) state.hearts.push(String(value));
+  if (kind === 'photo') state.photo = true;
+  if (kind === 'kiss-note') state.kissNote = true;
+  const newlyCompleted = !state.badge && state.hearts.length >= 3 && state.photo && state.kissNote;
+  if (newlyCompleted) state.badge = true;
+  writeStreakDailyQuests(dateKey, state);
+  if (newlyCompleted) toast('Daily Bloom badge unlocked! You completed all three quests ♡');
+  if (page === 'streak') renderStreakPage();
 }
 function streakDateKey(date) {
   return date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0') + '-' + String(date.getUTCDate()).padStart(2, '0');
@@ -1305,8 +1350,46 @@ function renderStreakPage() {
   const base = previousMilestone ? previousMilestone.days : 0;
   const progress = next ? Math.max(0, Math.min(100, ((count - base) / Math.max(1, next.days - base)) * 100)) : 100;
   const left = next ? Math.max(0, next.days - count) : 0;
-  if (!streakPetalGame.cards.length) resetStreakPetalGame();
   const allTimeGoalCompletions = countSavedStreakGoalCompletions();
+
+  const heartCount = Math.max(0, Number(me.heartCount) || 0);
+  saveStreakHeartMilestones(heartCount);
+  const heartMilestones = [
+    {hearts:10, name:'Little Keepsake', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M13 25 36 13l23 12v27H13Z" fill="#f5d9e4" stroke="#c98da8" stroke-width="2.2" stroke-linejoin="round"/><path d="M10 24h52v8H10z" fill="#e8b9cb" stroke="#c98da8" stroke-width="2"/><path d="M29 23c0-8 14-8 14 0-1 5-7 8-7 8s-6-3-7-8Z" fill="#d77e9e"/><path d="M36 32v20" stroke="#c98da8" stroke-width="2"/><path d="m23 18 5-5m16 5 5-5" stroke="#fff8f4" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {hearts:100, name:'Sweet Letter', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><rect x="10" y="17" width="52" height="36" rx="7" fill="#fff0e8" stroke="#c98da8" stroke-width="2.2"/><path d="m12 22 24 19 24-19" fill="none" stroke="#d89bb2" stroke-width="2.5" stroke-linecap="round"/><path d="M28 13c0-6 9-7 9 0 0-7 10-6 9 0-1 5-9 10-9 10s-8-5-9-10Z" fill="#d77e9e"/><path d="M19 47h15m-15-5h9" stroke="#d8b4c2" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {hearts:250, name:'Blushing Bouquet', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M22 30 36 55 50 30" fill="#d9e7ce" stroke="#91aa82" stroke-width="2"/><path d="M36 53V29M36 43 24 34M36 40l12-10" stroke="#91aa82" stroke-width="2.5" stroke-linecap="round"/><g fill="#f4c5d5" stroke="#c98da8" stroke-width="1.5"><circle cx="23" cy="20" r="7"/><circle cx="36" cy="13" r="7"/><circle cx="49" cy="20" r="7"/></g><g fill="#e6a1b9"><circle cx="23" cy="20" r="2.5"/><circle cx="36" cy="13" r="2.5"/><circle cx="49" cy="20" r="2.5"/></g><path d="m22 45 14 10 14-10" fill="none" stroke="#c98da8" stroke-width="3" stroke-linecap="round"/></svg>'},
+    {hearts:500, name:'Golden Treasure', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m36 8 7 8 12-1-2 12 8 9-10 7-3 12-12-4-12 4-3-12-10-7 8-9-2-12 12 1Z" fill="#f7e8b8" stroke="#c7a45f" stroke-width="2"/><path d="m36 19 12 11-12 17-12-17Z" fill="#e8a4ba" stroke="#bd7895" stroke-width="2"/><path d="m24 30 12 4 12-4M36 34v13" fill="none" stroke="#fff4e7" stroke-width="2"/><circle cx="36" cy="28" r="3" fill="#fff5d9"/></svg>'},
+    {hearts:750, name:'Love Guardian', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m13 27 6-14 12 8 5-12 5 12 12-8 6 14-9 24H22Z" fill="#e9dff4" stroke="#a58bb8" stroke-width="2" stroke-linejoin="round"/><path d="M25 31c0-7 10-8 11 0 2-8 12-7 12 0-1 7-12 15-12 15S26 38 25 31Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.4"/><circle cx="19" cy="17" r="2" fill="#d7b56e"/><circle cx="53" cy="17" r="2" fill="#d7b56e"/><path d="M18 48q-5 5-1 9m37-9q5 5 1 9" fill="none" stroke="#a58bb8" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {hearts:1000, name:'Everlasting Love', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><circle cx="36" cy="32" r="25" fill="#fff0e7" stroke="#d5a2b5" stroke-width="2"/><circle cx="36" cy="32" r="20" fill="none" stroke="#e6c1ce" stroke-width="1.5" stroke-dasharray="2 3"/><path d="M24 29c0-9 12-10 12 0 1-10 13-9 13 0-1 9-13 18-13 18S25 38 24 29Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.5"/><path d="m16 12 3 4 5 1-5 2-3 5-2-5-5-2 5-1Zm40-2 2 4 4 2-4 1-2 4-2-4-4-1 4-2Z" fill="#d6b66f"/><path d="M15 39q-5-5-7 0m49 0q5-5 7 0" fill="none" stroke="#91aa82" stroke-width="2" stroke-linecap="round"/></svg>'}
+  ];
+  const earnedHearts = readStreakHeartMilestones();
+  const heartBadges = heartMilestones.map(item => {
+    const unlocked = earnedHearts.has(item.hearts);
+    const percentage = unlocked ? 100 : Math.min(100, heartCount / item.hearts * 100);
+    const status = unlocked ? 'Heart unlocked' : (item.hearts - heartCount) + ' hearts to go';
+    return '<article class="streak-milestone sg-milestone' + (unlocked ? ' is-earned' : ' is-locked') + '">' +
+      '<span class="sg-milestone-art sg-heart-milestone-art">' + item.art + '</span>' +
+      '<span class="sg-milestone-copy"><small class="sg-milestone-day">' + item.hearts + ' HEARTS</small><b>' + item.name +
+      '</b><em>' + status + '</em></span>' +
+      '<span class="sg-milestone-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' +
+      Math.round(percentage) + '"><i style="width:' + percentage + '%"></i></span>' +
+      '<small class="sg-milestone-progress-copy">' + Math.min(heartCount, item.hearts) + ' / ' + item.hearts + ' hearts</small></article>';
+  }).join('');
+  const dailyQuestState = readStreakDailyQuests(todayKey);
+  const dailyQuestItems = [
+    {id:'hearts', title:'Like 3 friends’ photos', description:'Tap ♥ on three different friends’ photos.', progress:Math.min(3, dailyQuestState.hearts.length), target:3, icon:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 32S6 23 6 14c0-7 9-10 14-2 5-8 14-5 14 2 0 9-14 18-14 18Z" fill="#df91ad" stroke="#b86f8d" stroke-width="1.8"/><path d="m12 15 4 4 7-8" fill="none" stroke="#fff8f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>', done:dailyQuestState.hearts.length >= 3},
+    {id:'photo', title:'Share 1 photo', description:'Add a photo to your scrapbook.', progress:dailyQuestState.photo ? 1 : 0, target:1, icon:'<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="8" width="30" height="25" rx="6" fill="#f4dfbd" stroke="#c49b65" stroke-width="1.8"/><circle cx="14" cy="16" r="3" fill="#fff8e9"/><path d="m8 29 9-9 5 5 4-4 7 8" fill="none" stroke="#91a77e" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 5v7m-3.5-3.5h7" stroke="#c49b65" stroke-width="1.8" stroke-linecap="round"/></svg>', done:dailyQuestState.photo},
+    {id:'kissNote', title:'Send a kiss in Notes', description:'Send a Notes message with 💋.', progress:dailyQuestState.kissNote ? 1 : 0, target:1, icon:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 9h30v21H19l-8 5v-5H5Z" fill="#e9e2f4" stroke="#a28bbd" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 19c0-5 6-6 6-1 1-5 7-4 7 1-1 4-7 8-7 8s-6-4-6-8Z" fill="#d77e9e"/></svg>', done:dailyQuestState.kissNote}
+  ];
+  const completedQuests = dailyQuestItems.filter(item => item.done).length;
+  const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
+    dailyQuestItems.map(item => '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
+      '<span class="sg-daily-quest-icon" aria-hidden="true">' + item.icon + '</span>' +
+      '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
+      '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
+      '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>').join('') +
+    '</div><div class="sg-daily-quest-footer"><span>' + completedQuests + ' / 3 quests complete</span>' +
+    (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete all 3 to earn your Daily Bloom</small>') + '</div>';
 
   const todayDate = new Date(todayKey + 'T00:00:00Z');
   const mondayOffset = (todayDate.getUTCDay() + 6) % 7;
@@ -1581,31 +1664,22 @@ function renderStreakPage() {
       '<div class="sg-week-row">' + week.join('') + '</div></section>',
     '</div>',
 
-    '<section class="sg-game-section sg-game-compact"><div class="sg-petal-banner-copy">' +
-      '<div class="sg-compact-section-heading"><h3>Petal Pairs</h3><b id="streakGamePairsLeft">6 pairs left</b></div>' +
-      '<p class="sg-petal-banner-note">Find and match the hidden pairs</p>' +
-      '</div>' +
-      '<div class="sg-petal-board" id="streakGameBoard" aria-label="Petal pairs memory game with six pairs"></div></section>',
-    '<section class="sg-friends-section sg-friends-compact"><div class="sg-friends-heading"><h3>Friends in Bloom</h3></div>' +
-      streakFriendsMarkup() + '</section>',
-    '<div class="sg-bottom-tabs-wrap">',
-    '<div class="sg-bottom-tabs" role="tablist" aria-label="Garden details">' +
-      '<button type="button" class="sg-bottom-tab' + (streakGardenActiveTab === 'promises' ? ' is-active' : '') + '" id="sgPromisesTab" role="tab" aria-controls="sgPromisesPanel" aria-selected="' + (streakGardenActiveTab === 'promises') + '" data-streak-garden-tab="promises"><span class="sg-tab-icon" aria-hidden="true">♡</span><span class="sg-tab-label">Your Little Promises</span></button>' +
-      '<button type="button" class="sg-bottom-tab' + (streakGardenActiveTab === 'milestones' ? ' is-active' : '') + '" id="sgMilestonesTab" role="tab" aria-controls="sgMilestonesPanel" aria-selected="' + (streakGardenActiveTab === 'milestones') + '" data-streak-garden-tab="milestones"><span class="sg-tab-icon" aria-hidden="true">✿</span><span class="sg-tab-label">Your Garden Milestones</span></button></div>',
-    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'promises' ? ' is-active' : '') + '" id="sgPromisesPanel" role="tabpanel" aria-labelledby="sgPromisesTab"' + (streakGardenActiveTab === 'promises' ? '' : ' hidden') + '>' +
-      '<section class="sg-goals-section"><div class="sg-section-heading"><div><h3>Your Little Promises</h3><p>Optional goals for today</p></div><span class="sg-goal-count" id="streakGoalProgress">' + completed + ' / ' + goals.length + '</span></div>' +
-      '<div class="sg-goal-progress"><span id="streakGoalProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (goals.length ? Math.round(completed / goals.length * 100) : 0) + '" style="width:' + (goals.length ? completed / goals.length * 100 : 0) + '%"></span></div>' +
-      '<div class="sg-goal-list" id="streakGoalsList">' + goalMarkup + '</div>' +
-      '<p class="sg-alltime-goals" id="sgAllTimeGoalCount"' + (allTimeGoalCompletions ? '' : ' hidden') + '>' + allTimeGoalCompletions + ' goals completed</p>' +
-      '<button type="button" class="sg-add-goal" id="streakAddGoal"><span>＋</span> Add a goal</button>' +
-      '<form class="sg-add-form hidden" id="streakGoalForm"><input class="input" id="streakGoalInput" maxlength="56" placeholder="Add a little goal…" required><button type="submit" class="primary">Plant goal</button></form></section></section>',
-    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'milestones' ? ' is-active' : '') + '" id="sgMilestonesPanel" role="tabpanel" aria-labelledby="sgMilestonesTab"' + (streakGardenActiveTab === 'milestones' ? '' : ' hidden') + '>' +
-      '<section class="sg-milestones-section"><div class="sg-section-heading"><div><h3>Your Garden Milestones</h3><p>' + earned.size + ' of ' + milestones.length + ' blooms unlocked</p></div></div>' +
+    '<div class="sg-garden-switcher" role="tablist" aria-label="Your garden details">' +
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" data-streak-garden-tab="daily" role="tab" aria-selected="' + (streakGardenActiveTab === 'daily') + '"><span class="sg-switch-icon sg-switch-daily" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="8" y="6" width="16" height="21" rx="3" fill="#fffaf4" stroke="currentColor" stroke-width="1.8"/><path d="M12 5.5h8a2 2 0 0 1 2 2V9H10V7.5a2 2 0 0 1 2-2Z" fill="#f6e4c5" stroke="currentColor" stroke-width="1.5"/><path d="m12 14 1.8 1.8 3-3.2M12 21l1.8 1.8 3-3.2M19 14h2M19 21h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="sg-switch-label"><b>Daily Quest</b></span></button>' +
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" data-streak-garden-tab="hearts" role="tab" aria-selected="' + (streakGardenActiveTab === 'hearts') + '"><span class="sg-switch-icon sg-switch-hearts" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 27S4.5 19.5 4.5 11.5c0-6 7.5-8 11.5-.8 4-7.2 11.5-5.2 11.5.8C27.5 19.5 16 27 16 27Z" fill="currentColor"/><path d="m11 15 3.5 3.5 7-8" fill="none" stroke="#fffaf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="sg-switch-label"><b>Your Hearts</b></span></button>' +
+      '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" data-streak-garden-tab="flowers" role="tab" aria-selected="' + (streakGardenActiveTab === 'flowers') + '"><span class="sg-switch-icon sg-switch-flowers" aria-hidden="true"><svg viewBox="0 0 32 32"><g fill="currentColor"><ellipse cx="16" cy="7" rx="4" ry="6"/><ellipse cx="16" cy="7" rx="4" ry="6" transform="rotate(60 16 16)"/><ellipse cx="16" cy="7" rx="4" ry="6" transform="rotate(120 16 16)"/></g><circle cx="16" cy="16" r="4" fill="#f2c875"/><path d="M16 21v7" stroke="#78966f" stroke-width="2" stroke-linecap="round"/></svg></span><span class="sg-switch-label"><b>Your Flowers</b></span></button></div>',
+    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" id="sgFlowersPanel" role="tabpanel"' + (streakGardenActiveTab === 'flowers' ? '' : ' hidden') + '>' +
+      '<section class="sg-milestones-section"><div class="sg-section-heading"><div><h3>Your Flowers</h3><p>' + earned.size + ' of ' + milestones.length + ' garden milestones unlocked</p></div></div>' +
       '<div class="sg-milestone-route">' + badges + '</div></section></section>',
+    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" id="sgHeartsPanel" role="tabpanel"' + (streakGardenActiveTab === 'hearts' ? '' : ' hidden') + '>' +
+      '<section class="sg-milestones-section sg-hearts-section"><div class="sg-section-heading"><div><h3>Your Hearts</h3><p>' + heartCount + ' hearts received · ' + earnedHearts.size + ' of ' + heartMilestones.length + ' milestones unlocked</p></div></div>' +
+      '<div class="sg-milestone-route">' + heartBadges + '</div></section></section>',
+    '<section class="sg-tab-panel' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" id="sgDailyPanel" role="tabpanel"' + (streakGardenActiveTab === 'daily' ? '' : ' hidden') + '>' +
+      '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>A little kindness makes the garden bloom</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
+      dailyQuestMarkup + '</section></section>',
     '</div>',
     '</div>',
   ].join('');
-  renderStreakPetalGame();
   startStreakCountdown();
   syncPresenceUI();
 }
@@ -1676,6 +1750,7 @@ async function popLoveHeart(card, event) {
       ? await sb.from('memory_likes').insert({ memory_id: item.id, user_id: me.id })
       : await sb.from('memory_likes').delete().eq('memory_id', item.id).eq('user_id', me.id);
     if (result.error) throw result.error;
+    if (nextLiked) recordStreakDailyQuest('heart', memoryId);
     return true;
   } catch (error) {
     item.liked_by_me = wasLiked; item.like_count = previousCount; paint();
@@ -2157,9 +2232,9 @@ function render(options = {}) {
       <div class="toolbar"><h3>Your happy things</h3><span>${visibleFeed.length} shared memories</span></div>
       <div class="grid happy-things-grid">
         ${streakWidget()}
-        <article class="tile"><button type="button" class="tile-art note-art happy-thing-art" data-happy-go="notes" aria-label="Open Little Love Notes">💌</button><h3>Little Love Notes</h3><p>${notes.length} saved notes</p><button class="primary" data-go="notes">Open notes →</button></article>
-        <article class="tile"><button type="button" class="tile-art photo-art happy-thing-art" data-happy-go="gallery" aria-label="Open Photo Garden">🌸</button><h3>Photo Garden</h3><p>${pics.length} shared photos</p><button class="primary" data-go="gallery">Open photos →</button></article>
-        <article class="tile"><button type="button" class="tile-art music-art happy-thing-art" data-happy-go="music" aria-label="Open Cozy Playlist">🎧<span>♫</span></button><h3>Cozy Playlist</h3><p>${songs.length} shared songs</p><button class="primary" data-go="music">Open music →</button></article>
+        <article class="tile"><button type="button" class="tile-art note-art happy-thing-art happy-note-thumbnail" data-happy-go="notes" aria-label="Open Little Love Notes"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><ellipse cx="110" cy="112" rx="64" ry="8" fill="#c98ca5" opacity=".16"/><path d="M55 40 110 82l55-42v59H55Z" fill="#e6a2b9" stroke="#c47b98" stroke-width="2.5" stroke-linejoin="round"/><rect x="55" y="25" width="110" height="78" rx="12" fill="#fffaf7" stroke="#d89bb1" stroke-width="2.5"/><path d="m58 35 52 42 52-42" fill="#f8e2e9" stroke="#d89bb1" stroke-width="2.5" stroke-linejoin="round"/><path d="M79 44h19m-19 8h12" stroke="#d9a9b9" stroke-width="2.5" stroke-linecap="round"/><path d="M177 24c-5-7-14-2-11 5 2 4 11 10 11 10s9-6 11-10c3-7-6-12-11-5Z" fill="#e6a1b9"/></svg></button><h3>Little Love Notes</h3><p>${notes.length} saved notes</p><button class="primary" data-go="notes">Open notes →</button></article>
+        <article class="tile"><button type="button" class="tile-art photo-art happy-thing-art happy-photo-thumbnail" data-happy-go="gallery" aria-label="Open Photo Garden"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><ellipse cx="110" cy="112" rx="63" ry="8" fill="#8fae8b" opacity=".17"/><rect x="68" y="20" width="84" height="91" rx="13" fill="#fffaf4" stroke="#c4d5b8" stroke-width="2.5" transform="rotate(-5 110 65)"/><rect x="79" y="29" width="84" height="91" rx="13" fill="#fffdf8" stroke="#b9cda9" stroke-width="2.5" transform="rotate(5 120 74)"/><rect x="88" y="38" width="68" height="69" rx="8" fill="#e8f0df"/><circle cx="122" cy="65" r="12" fill="#f2c6d1"/><circle cx="122" cy="51" r="7" fill="#e8a7ba"/><circle cx="136" cy="65" r="7" fill="#e8a7ba"/><circle cx="122" cy="79" r="7" fill="#e8a7ba"/><circle cx="108" cy="65" r="7" fill="#e8a7ba"/><circle cx="122" cy="65" r="5" fill="#e4be73"/><path d="M93 96q15-25 29-7t28-2" fill="none" stroke="#8da77e" stroke-width="3" stroke-linecap="round"/></svg></button><h3>Photo Garden</h3><p>${pics.length} shared photos</p><button class="primary" data-go="gallery">Open photos →</button></article>
+        <article class="tile"><button type="button" class="tile-art music-art happy-thing-art happy-music-thumbnail" data-happy-go="music" aria-label="Open Cozy Playlist"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><ellipse cx="110" cy="112" rx="65" ry="8" fill="#9982b5" opacity=".16"/><path d="M70 72V57a40 40 0 0 1 80 0v15" fill="none" stroke="#a58abb" stroke-width="12" stroke-linecap="round"/><rect x="61" y="64" width="27" height="43" rx="13" fill="#d7c5e9" stroke="#9f83b9" stroke-width="2.5"/><rect x="132" y="64" width="27" height="43" rx="13" fill="#d7c5e9" stroke="#9f83b9" stroke-width="2.5"/><rect x="68" y="73" width="13" height="25" rx="6.5" fill="#f7edf9"/><rect x="139" y="73" width="13" height="25" rx="6.5" fill="#f7edf9"/><path d="M38 40q-8 9 0 18m145-20q8 9 0 18" fill="none" stroke="#b9a0cf" stroke-width="3" stroke-linecap="round"/><path d="m44 94 3 7 7 3-7 3-3 7-3-7-7-3 7-3Zm143-65 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#d8b66e"/></svg></button><h3>Cozy Playlist</h3><p>${songs.length} shared songs</p><button class="primary" data-go="music">Open music →</button></article>
       </div>
       <div class="feed-list">
         <h3>Your memory history</h3>
@@ -2895,6 +2970,7 @@ async function sendChatMessage() {
       .select('id,owner_id,kind,text,created_at')
       .single();
     if (sendError) throw sendError;
+    if (/💋|😘|😗|😙|😚|😽/u.test(text)) recordStreakDailyQuest('kiss-note');
     const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
     feed = feed.map(m => String(m.id) === tempId ? record : m);
     renderNotesPage({ followLatest: true });
@@ -4442,22 +4518,20 @@ document.addEventListener('click', async e => {
     return;
   }
 
-  const streakFriendButton = e.target.closest('[data-streak-friend]');
-  if (streakFriendButton) {
-    const friend = friends.find(user => user.username === streakFriendButton.dataset.streakFriend);
-    if (friend) showFriendProfile(friend);
-    return;
-  }
-  const petalCard = e.target.closest('[data-streak-game-card]');
-  if (petalCard) {
-    flipStreakPetalCard(petalCard.dataset.streakGameCard);
+  const questChoice = e.target.closest('[data-streak-quest-select]');
+  if (questChoice) {
+    const nextQuest = Number(questChoice.dataset.streakQuestSelect);
+    if (Number.isInteger(nextQuest) && nextQuest >= 0 && nextQuest <= 2) {
+      streakSelectedDailyQuest = nextQuest;
+      renderStreakPage();
+    }
     return;
   }
 
   const gardenTabButton = e.target.closest('[data-streak-garden-tab]');
   if (gardenTabButton) {
     const tabName = gardenTabButton.dataset.streakGardenTab;
-    if (tabName !== 'milestones' && tabName !== 'promises') return;
+    if (!['flowers', 'hearts', 'daily'].includes(tabName)) return;
     streakGardenActiveTab = tabName;
     const gardenTabs = gardenTabButton.closest('.streak-garden-page');
     gardenTabs?.querySelectorAll('[data-streak-garden-tab]').forEach(button => {
@@ -4466,7 +4540,7 @@ document.addEventListener('click', async e => {
       button.setAttribute('aria-selected', String(active));
     });
     gardenTabs?.querySelectorAll('.sg-tab-panel').forEach(panel => {
-      const active = panel.id === (tabName === 'milestones' ? 'sgMilestonesPanel' : 'sgPromisesPanel');
+      const active = panel.id === ({flowers:'sgFlowersPanel',hearts:'sgHeartsPanel',daily:'sgDailyPanel'})[tabName];
       panel.hidden = !active;
       panel.classList.toggle('is-active', active);
       if (active) {
@@ -5121,6 +5195,7 @@ document.addEventListener('change', async e => {
       previewUrl
     };
     feed = feed.map(m => String(m.id) === tempId ? item : m);
+    if (kind === 'photo') recordStreakDailyQuest('photo');
     render();
     toast('Added to your shared scrapbook ♡');
   } catch (err) {

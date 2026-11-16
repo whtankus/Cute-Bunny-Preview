@@ -551,14 +551,15 @@ function openAuth(mode = 'register') {
 function syncBrowserThemeColor() {
   const meta = $('meta[name="theme-color"]');
   if (!meta) return;
-  const palette = { rose: '#fdf1ea', lavender: '#f7f4fc', mint: '#f3faf4', sky: '#f3f9fc' };
+  const palette = { rose: '#fcf7f2', lavender: '#f7f4fc', mint: '#f3faf4', sky: '#f3f9fc', peach: '#fff7ef', berry: '#fff4f8', midnight: '#f5eff8' };
   meta.setAttribute('content', document.body.dataset.mode === 'dark'
     ? '#241e2c'
     : (palette[document.body.dataset.theme] || palette.rose));
 }
 
 function setTheme(theme) {
-  document.body.dataset.theme = ['rose', 'lavender', 'mint', 'sky'].includes(theme) ? theme : 'rose';
+  const supportedThemes = ['rose', 'lavender', 'mint', 'sky', 'peach', 'berry', 'midnight'];
+  document.body.dataset.theme = supportedThemes.includes(theme) ? theme : 'rose';
   syncBrowserThemeColor();
 }
 
@@ -731,7 +732,7 @@ document.addEventListener('touchmove', event => {
   const towardHistory = page === 'notes' ? fingerDelta > 0 : fingerDelta < 0;
   if (towardHistory) { feedHistoryScrollArmed = true; requestAnimationFrame(tryAutoLoadFeedHistory); }
 }, { passive: true });
-const themeNames = { rose: 'Rose garden', lavender: 'Lavender skies', mint: 'Mint meadow', sky: 'Bluebird day' };
+const themeNames = { rose: 'Rose garden', lavender: 'Lavender skies', mint: 'Mint meadow', sky: 'Bluebird day', peach: 'Peach glow', berry: 'Berry bloom', midnight: 'Midnight lilac' };
 const profileSkinNames = { cat: 'Cat skin', bird: 'Bird skin', vampire: 'Vampire skin', fairy: 'Fairy skin', galaxy: 'Galaxy skin' };
 
 // Let the browser's active locale and device clock preference choose 12-hour or

@@ -1176,3 +1176,18 @@ body[data-mode="dark"] .app > header .brand > b small {
   .app > header .brand > b { padding-inline: 9px; }
   .app > header .brand > b small { display: none; }
 }
+
+
+/* Photo Garden thumbnail: gentle floating motion to match the other happy-thing plates. */
+.happy-photo-thumbnail svg {
+  transform-origin: 50% 58%;
+  animation: photo-garden-thumbnail-float 3.4s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes photo-garden-thumbnail-float {
+  0%, 100% { transform: translateY(0) rotate(-.35deg) scale(1); }
+  50% { transform: translateY(-3px) rotate(.45deg) scale(1.012); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .happy-photo-thumbnail svg { animation: none !important; }
+}

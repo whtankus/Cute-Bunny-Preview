@@ -12797,3 +12797,48 @@ body[data-mode="dark"] .streak-garden-page .sg-heart-milestone-art{background:ra
  .streak-garden-page .sg-garden-switch>b{font-size:.59rem}
  .streak-garden-page .sg-garden-switch .sg-switch-icon{width:25px;height:25px}
 }
+
+
+/* v108 — tighten Streak Garden typography and align heart milestone cards. */
+.streak-garden-page .sg-tab-panel .sg-section-heading h3{font-size:17px!important;line-height:1.2!important}
+.streak-garden-page .sg-tab-panel .sg-section-heading p{font-size:11px!important;line-height:1.4!important}
+.streak-garden-page .sg-garden-switch{min-height:54px!important;padding:7px 8px!important;gap:6px!important}
+.streak-garden-page .sg-garden-switch>b{font-size:.68rem!important;line-height:1.15!important}
+.streak-garden-page .sg-garden-switch .sg-switch-icon{width:27px!important;height:27px!important;font-size:1.05rem!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-route{grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch!important;gap:9px!important}
+.streak-garden-page .sg-hearts-section .sg-milestone{
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;
+  min-width:0!important;min-height:158px!important;height:100%!important;padding:10px 8px 9px!important;
+  gap:5px!important;text-align:center!important;
+}
+.streak-garden-page .sg-hearts-section .sg-heart-milestone-art{
+  display:grid!important;place-items:center!important;flex:0 0 46px!important;width:46px!important;height:46px!important;margin:0 auto 2px!important;
+}
+.streak-garden-page .sg-hearts-section .sg-heart-milestone-art svg{display:block!important;width:43px!important;height:39px!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-copy{
+  display:flex!important;flex:1 1 auto!important;align-items:center!important;justify-content:flex-start!important;
+  width:100%!important;min-width:0!important;gap:3px!important;text-align:center!important;
+}
+.streak-garden-page .sg-hearts-section .sg-milestone-day{font-size:8px!important;line-height:1.2!important;letter-spacing:.45px!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-copy b{font-size:10px!important;line-height:1.22!important;overflow-wrap:anywhere!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-copy em{font-size:9px!important;line-height:1.25!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-progress{display:block!important;flex:0 0 4px!important;width:100%!important;height:4px!important;margin-top:2px!important}
+.streak-garden-page .sg-hearts-section .sg-milestone-progress-copy{display:block!important;width:100%!important;font-size:8px!important;line-height:1.2!important;text-align:center!important}
+.streak-garden-page .sg-daily-quest-title-row>b{font-size:.76rem!important;line-height:1.25!important}
+.streak-garden-page .sg-daily-quest-card p{font-size:.66rem!important;line-height:1.35!important}
+.streak-garden-page .sg-daily-quest-status,.streak-garden-page .sg-daily-quest-count{font-size:.56rem!important}
+@media(max-width:620px){
+  .streak-garden-page .sg-tab-panel .sg-section-heading h3{font-size:15px!important}
+  .streak-garden-page .sg-tab-panel .sg-section-heading p{font-size:10px!important}
+  .streak-garden-page .sg-garden-switch{min-height:51px!important;padding:6px 3px!important;gap:4px!important}
+  .streak-garden-page .sg-garden-switch>b{font-size:.58rem!important}
+  .streak-garden-page .sg-garden-switch .sg-switch-icon{width:24px!important;height:24px!important;font-size:.95rem!important}
+  .streak-garden-page .sg-hearts-section .sg-milestone-route{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .streak-garden-page .sg-hearts-section .sg-milestone{min-height:148px!important;padding:9px 7px!important}
+  .streak-garden-page .sg-hearts-section .sg-heart-milestone-art{flex-basis:42px!important;width:42px!important;height:42px!important}
+  .streak-garden-page .sg-hearts-section .sg-heart-milestone-art svg{width:40px!important;height:36px!important}
+  .streak-garden-page .sg-hearts-section .sg-milestone-copy b{font-size:9px!important}
+  .streak-garden-page .sg-hearts-section .sg-milestone-copy em{font-size:8px!important}
+}
+body[data-mode="dark"] .streak-garden-page .sg-hearts-section .sg-milestone{background:#403541!important;border-color:#5d4b5c!important}
+body[data-mode="dark"] .streak-garden-page .sg-hearts-section .sg-milestone.is-earned{background:#394638!important;border-color:#60785a!important}

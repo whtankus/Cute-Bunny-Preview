@@ -1799,3 +1799,50 @@ body[data-theme] .app > header {
 #content .chat-page .chat-composer>.chat-seen-status {
   top:-11px!important;
 }
+
+
+/* A little kindness: make the daily message the visual focus, with a fresh flourish on each tap. */
+#content .daily {
+  position:relative!important; isolation:isolate; overflow:hidden;
+  gap:15px!important; min-height:88px; padding:15px 19px!important;
+  border:1px solid #ebd5df!important; border-radius:22px!important;
+  background:radial-gradient(circle at 94% 12%,rgba(255,226,190,.58),transparent 29%),linear-gradient(118deg,#fff8f4 0%,#fff5f8 48%,#f5f0fb 100%)!important;
+  box-shadow:0 9px 24px rgba(142,99,126,.10),inset 0 1px 0 rgba(255,255,255,.95)!important;
+  transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;
+}
+#content .daily::after {
+  content:"✦  ·  ♡  ·  ✧"; position:absolute; z-index:-1; right:15px; bottom:8px;
+  color:rgba(190,137,163,.25); font:1.05rem Quicksand,sans-serif; letter-spacing:5px; pointer-events:none;
+}
+#content .daily-icon {
+  position:relative; flex:0 0 52px!important; width:52px!important; height:52px!important;
+  border:1px solid rgba(225,184,202,.7); border-radius:18px!important;
+  background:linear-gradient(145deg,#fff0cf,#f9dce8 62%,#eee4fa)!important;
+  box-shadow:0 5px 12px rgba(177,117,148,.14),inset 0 1px 0 #fff;
+  font-size:1.75rem!important; filter:drop-shadow(0 3px 3px rgba(151,104,129,.12));
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s ease;
+}
+#content .daily small {display:block;margin-bottom:5px;color:#a56f8a!important;font-size:.66rem!important;font-weight:900;letter-spacing:1.35px!important}
+#content .daily p {
+  position:relative; z-index:1; margin:0!important; max-width:560px; color:#654d69!important;
+  font:700 clamp(1.18rem,2.7vw,1.48rem)/1.35 Quicksand,Nunito,sans-serif!important;
+  letter-spacing:-.025em; text-wrap:pretty;
+}
+#content .daily:has(.kindness-pop) {border-color:#dfb9cb!important;box-shadow:0 12px 30px rgba(166,105,141,.17),inset 0 1px 0 #fff!important}
+#content .daily:has(.kindness-pop) .daily-icon {transform:rotate(-11deg) scale(1.12);filter:drop-shadow(0 6px 7px rgba(151,104,129,.22))}
+#content .daily p.kindness-pop {animation:kindnessBloom .72s cubic-bezier(.2,.8,.25,1) both}
+@keyframes kindnessBloom {
+  0%{opacity:0;transform:translateY(9px) scale(.97);filter:blur(3px)}
+  55%{opacity:1;transform:translateY(-2px) scale(1.025);filter:blur(0)}
+  100%{opacity:1;transform:translateY(0) scale(1);filter:none}
+}
+@media(max-width:520px) {
+  #content .daily {min-height:82px;padding:12px 13px!important;gap:12px!important}
+  #content .daily-icon {flex-basis:46px!important;width:46px!important;height:46px!important;font-size:1.55rem!important;border-radius:16px!important}
+  #content .daily small {font-size:.58rem!important;letter-spacing:1.05px!important}
+  #content .daily p {font-size:clamp(1.08rem,4.4vw,1.28rem)!important;line-height:1.35!important}
+}
+@media(prefers-reduced-motion:reduce) {
+  #content .daily,#content .daily-icon {transition:none!important}
+  #content .daily p.kindness-pop {animation:none!important}
+}

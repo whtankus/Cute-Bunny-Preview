@@ -1672,12 +1672,6 @@ function renderStreakPage() {
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" id="sgDailyPanel" role="tabpanel"' + (streakGardenActiveTab === 'daily' ? '' : ' hidden') + '>' +
       '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>A little kindness makes the garden bloom</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
       dailyQuestMarkup + '</section></section>',
-    '<section class="sg-goals-section"><div class="sg-section-heading"><div><h3>Your Little Promises</h3><p>Optional goals for today</p></div><span class="sg-goal-count" id="streakGoalProgress">' + completed + ' / ' + goals.length + '</span></div>' +
-      '<div class="sg-goal-progress"><span id="streakGoalProgressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + (goals.length ? Math.round(completed / goals.length * 100) : 0) + '" style="width:' + (goals.length ? completed / goals.length * 100 : 0) + '%"></span></div>' +
-      '<div class="sg-goal-list" id="streakGoalsList">' + goalMarkup + '</div>' +
-      '<p class="sg-alltime-goals" id="sgAllTimeGoalCount"' + (allTimeGoalCompletions ? '' : ' hidden') + '>' + allTimeGoalCompletions + ' goals completed</p>' +
-      '<button type="button" class="sg-add-goal" id="streakAddGoal"><span>＋</span> Add a goal</button>' +
-      '<form class="sg-add-form hidden" id="streakGoalForm"><input class="input" id="streakGoalInput" maxlength="56" placeholder="Add a little goal…" required><button type="submit" class="primary">Plant goal</button></form></section>',
     '</div>',
     '</div>',
   ].join('');

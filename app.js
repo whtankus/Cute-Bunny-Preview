@@ -1345,7 +1345,6 @@ function renderStreakPage() {
   const base = previousMilestone ? previousMilestone.days : 0;
   const progress = next ? Math.max(0, Math.min(100, ((count - base) / Math.max(1, next.days - base)) * 100)) : 100;
   const left = next ? Math.max(0, next.days - count) : 0;
-  if (!streakPetalGame.cards.length) resetStreakPetalGame();
   const allTimeGoalCompletions = countSavedStreakGoalCompletions();
 
   const heartCount = Math.max(0, Number(me.heartCount) || 0);
@@ -4527,18 +4526,6 @@ document.addEventListener('click', async e => {
       gardenArt.classList.add('sg-water-pop');
       window.setTimeout(() => gardenArt.classList.remove('sg-water-pop'), 620);
     }
-    return;
-  }
-
-  const streakFriendButton = e.target.closest('[data-streak-friend]');
-  if (streakFriendButton) {
-    const friend = friends.find(user => user.username === streakFriendButton.dataset.streakFriend);
-    if (friend) showFriendProfile(friend);
-    return;
-  }
-  const petalCard = e.target.closest('[data-streak-game-card]');
-  if (petalCard) {
-    flipStreakPetalCard(petalCard.dataset.streakGameCard);
     return;
   }
 

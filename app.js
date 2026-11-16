@@ -2420,6 +2420,7 @@ async function saveProfileSettings() {
     const saved = await api('/me', { method: 'PUT', body: JSON.stringify({ username, displayName, bio, theme, mascot, gender, notificationPreferences }) });
     me = { ...me, ...saved, username: saved.username || username, displayName: saved.displayName || saved.display_name || displayName, bio: saved.bio ?? bio, theme: saved.theme || theme, mascot: saved.mascot || mascot, gender, notification_preferences: saved.notification_preferences || notificationPreferences };
     setTheme(me.theme);
+    delete document.documentElement.dataset.themePreview;
     try { localStorage.setItem('cuteBunnyReduceMotion', String(reduceMotionEnabled)); } catch {}
     document.documentElement.classList.toggle('reduce-app-motion', reduceMotionEnabled);
     const gate = $('#friendProfileGate');
@@ -4366,7 +4367,9 @@ document.addEventListener('click', event => {
   const buddy = target?.closest?.('[data-settings-buddy-choice]');
   if (theme) {
     document.querySelectorAll('[data-settings-theme-choice]').forEach(button => { const active = button === theme; button.classList.toggle('is-selected', active); button.setAttribute('aria-checked', String(active)); });
+    // Live preview the complete app palette immediately; Save persists it to Supabase.
     setTheme(theme.dataset.settingsThemeChoice);
+    document.documentElement.dataset.themePreview = theme.dataset.settingsThemeChoice;
   }
   if (buddy) document.querySelectorAll('[data-settings-buddy-choice]').forEach(button => { const active = button === buddy; button.classList.toggle('is-selected', active); button.setAttribute('aria-checked', String(active)); });
 }, true);

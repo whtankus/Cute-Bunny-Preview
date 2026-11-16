@@ -1,0 +1,1103 @@
+/* Cute Bunny — Android-first visual system layer.
+   Kept separate from the legacy stylesheet so each improvement is reversible. */
+:root {
+  color-scheme: light;
+  --cb-ink: #554457;
+  --cb-ink-soft: #725d73;
+  --cb-muted: #88758a;
+  --cb-muted-strong: #756176;
+  --cb-rose: #bd6f91;
+  --cb-rose-deep: #a9577c;
+  --cb-rose-soft: #f8e5ec;
+  --cb-lavender: #eee8f8;
+  --cb-cream: #fcf7f2;
+  --cb-paper: #fffdfb;
+  --cb-line: #eadde5;
+  --cb-shadow: 0 12px 30px rgba(91, 62, 88, .085);
+  --cb-shadow-soft: 0 5px 16px rgba(91, 62, 88, .065);
+  --cb-radius-lg: 24px;
+  --cb-radius-md: 18px;
+  --cb-focus: 0 0 0 3px rgba(189, 111, 145, .24);
+  --cb-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+body {
+  min-height: 100%;
+  color: var(--cb-ink);
+  background-color: var(--cb-cream);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button, input, textarea, select {
+  font: inherit;
+}
+button, [role="button"], a, input, textarea, select, label {
+  -webkit-tap-highlight-color: transparent;
+}
+button, [role="button"], a {
+  touch-action: manipulation;
+}
+button:focus-visible, [role="button"]:focus-visible, a:focus-visible,
+input:focus-visible, textarea:focus-visible, select:focus-visible,
+summary:focus-visible {
+  outline: none;
+  box-shadow: var(--cb-focus);
+}
+::selection {
+  color: #513d53;
+  background: #f2cbd9;
+}
+.app {
+  min-height: 100svh;
+  min-height: 100dvh;
+  background-color: var(--cb-cream);
+  background-image:
+    radial-gradient(circle at 12% 14%, rgba(229, 203, 220, .20) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 84% 38%, rgba(214, 201, 232, .17) 0 1px, transparent 1.5px);
+  background-size: 26px 26px, 32px 32px;
+}
+.app > header {
+  box-sizing: border-box;
+  width: min(100%, 1040px);
+  min-height: 68px;
+  height: auto;
+  padding: max(9px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 9px max(16px, env(safe-area-inset-left, 0px));
+  gap: 12px;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.app > header .brand {
+  min-width: 0;
+  min-height: 46px;
+  gap: 10px;
+  border-radius: 15px;
+  padding: 4px 8px 4px 3px;
+}
+.app > header .brand > span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #f0dfe7;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #fffaf6, #f7e8f0);
+  box-shadow: 0 3px 9px rgba(119, 79, 111, .08);
+  font-size: 1.35rem;
+}
+.app > header .brand b {
+  min-width: 0;
+  color: var(--cb-ink);
+  font: 800 .98rem/1.1 Quicksand, Nunito, sans-serif;
+  letter-spacing: -.02em;
+}
+.app > header .brand small {
+  margin-top: 4px;
+  color: var(--cb-muted-strong);
+  font: 700 .68rem/1.15 Nunito, sans-serif;
+  letter-spacing: .01em;
+}
+.app > header .crumb {
+  min-width: 0;
+  margin-inline: auto;
+  color: var(--cb-muted-strong);
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-align: center;
+}
+.app > header .crumb b {
+  color: var(--cb-ink-soft);
+}
+.header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+.app > header .round {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  border: 1px solid #eddee6;
+  background: rgba(255, 253, 251, .94);
+  color: var(--cb-rose-deep);
+  box-shadow: var(--cb-shadow-soft);
+  transition: transform .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+.app > header .round:active {
+  transform: scale(.94);
+}
+main {
+  width: min(100%, 1040px);
+  padding-inline: 0;
+}
+#content {
+  width: 100%;
+  max-width: 900px;
+  margin-inline: auto;
+  padding: clamp(16px, 3vw, 30px) clamp(14px, 3.5vw, 28px) calc(34px + var(--cb-safe-bottom));
+}
+#content > .heading {
+  margin: 8px 0 22px;
+  padding-inline: 4px;
+}
+#content > .heading h2 {
+  color: var(--cb-ink);
+  font-size: clamp(1.45rem, 4vw, 1.9rem);
+  line-height: 1.18;
+  letter-spacing: -.035em;
+}
+#content > .heading p {
+  max-width: 38rem;
+  margin: 7px auto 0;
+  color: var(--cb-muted-strong);
+  font-size: .92rem;
+  line-height: 1.55;
+}
+#content .home-welcome {
+  margin-bottom: 18px;
+}
+#content .home-welcome h2 {
+  font-size: clamp(1.55rem, 4.5vw, 2rem);
+}
+#content .home-hero {
+  min-height: 218px;
+  padding: clamp(20px, 4vw, 30px);
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 92% 14%, rgba(255,255,255,.72) 0 3px, transparent 4px),
+    linear-gradient(118deg, #f7dfe7 0%, #eee7f8 62%, #fff0dc 100%);
+  box-shadow: 0 12px 26px rgba(117, 79, 111, .10), inset 0 1px 0 rgba(255,255,255,.8);
+}
+#content .home-hero h3 {
+  color: #59445e;
+  font-size: clamp(1.28rem, 4vw, 1.65rem);
+  line-height: 1.2;
+}
+#content .home-hero p {
+  color: #6f5c73;
+  font-size: .92rem;
+  line-height: 1.65;
+}
+#content .home-hero .hero-art {
+  flex-shrink: 0;
+  filter: drop-shadow(0 9px 12px rgba(103, 76, 106, .12));
+}
+#content .daily {
+  border: 1px solid #eee0e7;
+  border-radius: 19px;
+  background: rgba(255, 253, 251, .92);
+  box-shadow: var(--cb-shadow-soft);
+}
+#content .daily p {
+  color: var(--cb-ink-soft);
+  font-size: .91rem;
+  line-height: 1.5;
+}
+#content .toolbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 27px 3px 14px;
+}
+#content .toolbar h3,
+#content .feed-list > h3,
+#content .shared-songs-title,
+#content .friend-section-title h3 {
+  color: var(--cb-ink);
+  font: 800 1.12rem/1.25 Quicksand, Nunito, sans-serif;
+  letter-spacing: -.02em;
+}
+#content .toolbar > span {
+  color: var(--cb-muted-strong);
+  font-size: .76rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+#content .grid {
+  gap: clamp(11px, 2.4vw, 16px);
+}
+#content .tile,
+#content .home-feature-card {
+  min-width: 0;
+  border: 1px solid var(--cb-line);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-paper);
+  box-shadow: var(--cb-shadow-soft);
+}
+#content .tile {
+  padding: 13px;
+}
+#content .tile h3 {
+  color: var(--cb-ink);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+#content .tile p {
+  color: var(--cb-muted-strong);
+  line-height: 1.45;
+}
+#content .tile-art {
+  border-radius: 17px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+}
+#content .primary,
+.auth-gate .primary,
+#content button.primary {
+  min-height: 44px;
+  border: 1px solid rgba(255,255,255,.36);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c77f9d, #b96e91);
+  color: #fff;
+  font-size: .88rem;
+  font-weight: 900;
+  letter-spacing: .005em;
+  box-shadow: 0 4px 0 #a75e80, 0 8px 18px rgba(167, 94, 128, .16);
+}
+#content .primary:focus-visible,
+.auth-gate .primary:focus-visible {
+  box-shadow: var(--cb-focus), 0 4px 0 #a75e80;
+}
+#content .primary:active,
+.auth-gate .primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #a75e80, 0 4px 10px rgba(167, 94, 128, .12);
+}
+#content .input,
+.auth-gate input:not([type="checkbox"]):not([type="radio"]),
+.auth-gate textarea,
+#content input:not([type="file"]),
+#content textarea {
+  min-height: 44px;
+  border: 1px solid #e6d7e1;
+  border-radius: 14px;
+  background: #fffefd;
+  color: var(--cb-ink);
+  font-size: 16px;
+  box-shadow: inset 0 1px 2px rgba(82, 57, 79, .035);
+}
+#content .input::placeholder,
+.auth-gate input::placeholder,
+#content textarea::placeholder {
+  color: #89778b;
+  opacity: 1;
+}
+#content .upload-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  margin: 0 auto 18px;
+  padding: 11px 20px;
+  cursor: pointer;
+}
+#content .photo-garden-grid,
+#content .music-grid {
+  gap: 14px;
+}
+#content .music-grid .tile {
+  overflow: hidden;
+}
+#content .music-grid .tile h3 {
+  overflow-wrap: anywhere;
+}
+#content .chat-page {
+  min-height: min(76dvh, 820px);
+  border: 1px solid var(--cb-line);
+  border-radius: 22px;
+  background: rgba(255, 253, 251, .94);
+  box-shadow: var(--cb-shadow);
+  overflow: clip;
+}
+#content .chat-thread {
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #d7b8c9 transparent;
+}
+#content .chat-composer {
+  padding: 12px;
+  padding-bottom: max(12px, var(--cb-safe-bottom));
+  border-top: 1px solid #eee2e9;
+  background: rgba(255, 253, 251, .97);
+}
+#content .chat-composer .input {
+  min-height: 44px;
+  max-height: 132px;
+  padding: 11px 14px;
+  line-height: 1.4;
+}
+#content .chat-composer #chatSend {
+  width: 46px;
+  min-width: 46px;
+  min-height: 44px;
+}
+#content .chat-message-text {
+  overflow-wrap: anywhere;
+}
+#content .friend-search-section,
+#content .own-profile-section,
+#content .following-list {
+  margin-block: 16px;
+}
+#content .friend-search-bar {
+  gap: 10px;
+}
+#content .friend-search-input-wrap {
+  min-height: 46px;
+  border-radius: 16px;
+  background: #fffdfb;
+}
+#content .friend-search-bar #searchFriends {
+  min-height: 44px !important;
+}
+#content .friend-row {
+  border: 1px solid var(--cb-line);
+  border-radius: 18px;
+  background: rgba(255, 253, 251, .96);
+  box-shadow: var(--cb-shadow-soft);
+}
+#content .friend-profile-card,
+.auth-gate .auth-card,
+.auth-gate .notification-card {
+  border: 1px solid rgba(234, 221, 229, .95);
+  box-shadow: 0 22px 60px rgba(72, 49, 72, .18);
+}
+#content .empty {
+  border-color: #dfcbd9;
+  background: #fffdfb;
+  color: var(--cb-muted-strong);
+  line-height: 1.55;
+}
+.auth-gate {
+  padding: max(14px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px));
+  overscroll-behavior: contain;
+}
+.auth-gate .auth-card {
+  max-height: calc(100dvh - 28px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#notificationGate .notification-card {
+  max-height: calc(100dvh - 28px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#nav {
+  padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 800px) {
+  #content {
+    padding-top: 34px;
+  }
+  #content .happy-things-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .app > header {
+    min-height: 62px;
+    padding-inline: max(12px, env(safe-area-inset-left, 0px)) max(12px, env(safe-area-inset-right, 0px));
+    gap: 7px;
+  }
+  .app > header .crumb {
+    display: none;
+  }
+  #content {
+    padding: 15px 13px calc(28px + var(--cb-safe-bottom));
+  }
+  #content .home-hero {
+    min-height: 196px;
+    gap: 8px;
+  }
+  #content .home-hero .hero-art {
+    width: 118px;
+    height: 118px;
+    flex-basis: 118px;
+  }
+  #content .happy-things-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #content .tile {
+    padding: 11px;
+  }
+  #content .chat-page {
+    min-height: calc(100dvh - 128px);
+    border-radius: 18px;
+  }
+}
+@media (max-width: 380px) {
+  .app > header .brand {
+    gap: 7px;
+  }
+  .app > header .brand b {
+    font-size: .88rem;
+  }
+  .app > header .brand small {
+    max-width: 150px;
+    font-size: .62rem;
+  }
+  .app > header .brand > span {
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+  }
+  .header-actions {
+    gap: 5px;
+  }
+  .app > header .round {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+  #content .home-hero {
+    padding: 17px;
+  }
+  #content .home-hero .hero-art {
+    width: 96px;
+    height: 96px;
+    flex-basis: 96px;
+  }
+  #content .home-hero h3 {
+    font-size: 1.2rem;
+  }
+  #content .home-hero p {
+    font-size: .82rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+body[data-mode="dark"] {
+  color-scheme: dark;
+  --cb-ink: #f1e6ef;
+  --cb-ink-soft: #e0cddd;
+  --cb-muted: #c2adbf;
+  --cb-muted-strong: #d0bdd0;
+  --cb-paper: #302838;
+  --cb-line: #59495d;
+  --cb-cream: #241f2a;
+  background-color: #241f2a;
+}
+body[data-mode="dark"] .app {
+  background-color: #241f2a;
+  background-image: radial-gradient(circle at 12% 14%, rgba(171, 133, 169, .09) 0 1px, transparent 1.5px);
+}
+body[data-mode="dark"] .app > header {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+body[data-mode="dark"] .app > header .brand b,
+body[data-mode="dark"] #content > .heading h2,
+body[data-mode="dark"] #content .toolbar h3,
+body[data-mode="dark"] #content .feed-list > h3,
+body[data-mode="dark"] #content .shared-songs-title,
+body[data-mode="dark"] #content .friend-section-title h3,
+body[data-mode="dark"] #content .tile h3 {
+  color: #f2e7f0;
+}
+body[data-mode="dark"] #content .tile,
+body[data-mode="dark"] #content .home-feature-card,
+body[data-mode="dark"] #content .daily,
+body[data-mode="dark"] #content .chat-page,
+body[data-mode="dark"] #content .friend-row {
+  border-color: #59495d;
+  background: #302838;
+}
+body[data-mode="dark"] #content .tile p,
+body[data-mode="dark"] #content > .heading p,
+body[data-mode="dark"] #content .daily p {
+  color: #d0bdd0;
+}
+body[data-mode="dark"] #content .input,
+body[data-mode="dark"] #content input:not([type="file"]),
+body[data-mode="dark"] #content textarea {
+  border-color: #66566b;
+  background: #29232f;
+  color: #f2e7f0;
+}
+body[data-mode="dark"] #content .chat-composer {
+  border-color: #59495d;
+  background: #302838;
+}
+body[data-mode="dark"] .app > header .round {
+  border-color: #59495d;
+  background: #302838;
+  color: #efbfd3;
+}
+body[data-mode="dark"] .auth-gate .auth-card,
+body[data-mode="dark"] #notificationGate .notification-card {
+  border-color: #59495d;
+  background: #302838;
+  color: #f2e7f0;
+}
+
+
+/* Native-style PWA install action, shown only when Android/Chrome offers installation. */
+.install-app-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 10px auto 0;
+  padding: 10px 18px;
+  border: 1px solid #e6cbd8;
+  border-radius: 999px;
+  background: rgba(255, 253, 251, .82);
+  color: #9d5879;
+  font: 800 .88rem/1.2 Nunito, sans-serif;
+  box-shadow: 0 5px 14px rgba(91, 62, 88, .07);
+  cursor: pointer;
+}
+.install-app-button:active { transform: scale(.98); }
+body[data-mode="dark"] .install-app-button {
+  border-color: #66536b;
+  background: #302838;
+  color: #f0bfd3;
+}
+
+
+/* App-wide colour system: shared semantic tokens keep every screen in sync. */
+body {
+  --cb-bg: #fcf7f2;
+  --cb-surface: #fffdfb;
+  --cb-surface-raised: #fffaf7;
+  --cb-surface-soft: #f8edf1;
+  --cb-text: #554457;
+  --cb-text-soft: #725d73;
+  --cb-text-muted: #88758a;
+  --cb-border: #eadde5;
+  --cb-accent: #bd6f91;
+  --cb-accent-strong: #a9577c;
+  --cb-accent-soft: #f8e5ec;
+  --cb-accent-contrast: #ffffff;
+  --cb-control: #fffefd;
+  --cb-shadow-color: 91, 62, 88;
+}
+body[data-theme="lavender"] {
+  --cb-bg: #f7f4fc; --cb-surface: #fffdfd; --cb-surface-raised: #faf7ff;
+  --cb-surface-soft: #eee8f8; --cb-text: #51465f; --cb-text-soft: #6f6280;
+  --cb-text-muted: #857a96; --cb-border: #e3d9ef; --cb-accent: #9c80c2;
+  --cb-accent-strong: #795d9f; --cb-accent-soft: #eee5f8; --cb-control: #fffefe;
+  --cb-shadow-color: 83, 67, 112;
+}
+body[data-theme="mint"] {
+  --cb-bg: #f3faf4; --cb-surface: #fcfffc; --cb-surface-raised: #f7fff8;
+  --cb-surface-soft: #e7f4eb; --cb-text: #405a49; --cb-text-soft: #587360;
+  --cb-text-muted: #758b7b; --cb-border: #d7e9dc; --cb-accent: #6fa982;
+  --cb-accent-strong: #4d8762; --cb-accent-soft: #e1f1e5; --cb-control: #fdfffd;
+  --cb-shadow-color: 63, 105, 76;
+}
+body[data-theme="sky"] {
+  --cb-bg: #f3f9fc; --cb-surface: #fcfeff; --cb-surface-raised: #f7fcff;
+  --cb-surface-soft: #e6f1f7; --cb-text: #405768; --cb-text-soft: #587184;
+  --cb-text-muted: #748b9b; --cb-border: #d7e6ee; --cb-accent: #6da6c0;
+  --cb-accent-strong: #4e829c; --cb-accent-soft: #e1f0f7; --cb-control: #fdfeff;
+  --cb-shadow-color: 61, 91, 112;
+}
+body[data-theme="peach"] {
+  --cb-bg: #fff7ef; --cb-surface: #fffdfa; --cb-surface-raised: #fffaf4;
+  --cb-surface-soft: #fcebdd; --cb-text: #654b42; --cb-text-soft: #806052;
+  --cb-text-muted: #987d6d; --cb-border: #f0dfd1; --cb-accent: #d58b68;
+  --cb-accent-strong: #ad694b; --cb-accent-soft: #fae8dc; --cb-control: #fffefd;
+  --cb-shadow-color: 122, 83, 61;
+}
+body[data-theme="berry"] {
+  --cb-bg: #fff4f8; --cb-surface: #fffdfd; --cb-surface-raised: #fff8fb;
+  --cb-surface-soft: #f9e4ed; --cb-text: #613f53; --cb-text-soft: #80536b;
+  --cb-text-muted: #986f86; --cb-border: #efd7e2; --cb-accent: #c65f91;
+  --cb-accent-strong: #a64273; --cb-accent-soft: #f8dce9; --cb-control: #fffefe;
+  --cb-shadow-color: 117, 57, 87;
+}
+body[data-theme="midnight"] {
+  --cb-bg: #f5eff8; --cb-surface: #fefbff; --cb-surface-raised: #faf6fd;
+  --cb-surface-soft: #eee5f3; --cb-text: #51445d; --cb-text-soft: #6c5b7b;
+  --cb-text-muted: #857895; --cb-border: #e2d7e9; --cb-accent: #80628f;
+  --cb-accent-strong: #674c79; --cb-accent-soft: #e8dbef; --cb-control: #fffefe;
+  --cb-shadow-color: 81, 62, 96;
+}
+body[data-mode="dark"] {
+  --cb-bg: #241f2a;
+  --cb-surface: #302838;
+  --cb-surface-raised: #382e40;
+  --cb-surface-soft: #403447;
+  --cb-text: #f2e7f0;
+  --cb-text-soft: #e0cddd;
+  --cb-text-muted: #c8b5c7;
+  --cb-border: #59495d;
+  --cb-accent: #d28eae;
+  --cb-accent-strong: #efbfd3;
+  --cb-accent-soft: #49364c;
+  --cb-accent-contrast: #261e2a;
+  --cb-control: #29232f;
+  --cb-shadow-color: 0, 0, 0;
+  color: var(--cb-text);
+  background-color: var(--cb-bg);
+}
+
+/* Shared surfaces and typography across Home, Photos, Music, Notes, Friends and overlays. */
+body, body .app { color: var(--cb-text); background-color: var(--cb-bg); }
+body .app { background-image: radial-gradient(circle at 12% 14%, color-mix(in srgb, var(--cb-accent-soft) 68%, transparent) 0 1px, transparent 1.5px); }
+body .app > header .brand b,
+body #content .heading h2, body #content .toolbar h3,
+body #content .feed-list > h3, body #content .shared-songs-title,
+body #content .friend-section-title h3, body #content .tile h3,
+body .auth-card h2, body .notification-card h2 { color: var(--cb-text); }
+body .app > header .brand small, body .app > header .crumb,
+body #content .heading p, body #content .tile p,
+body #content .daily p, body .toolbar > span,
+body .auth-hint, body .friend-profile-bio { color: var(--cb-text-muted); }
+body #content .tile, body #content .home-feature-card,
+body #content .daily, body #content .chat-page,
+body #content .friend-row, body .auth-gate .auth-card,
+body #notificationGate .notification-card,
+body .photo-lightbox-card, body .music-player-card,
+body .notification-row, body .notification-settings,
+body .profile-theme-preview, body .song-picks {
+  color: var(--cb-text);
+  background-color: var(--cb-surface);
+  border-color: var(--cb-border);
+}
+body #content .chat-composer, body .friend-search-input-wrap,
+body .notification-preferences, body .empty {
+  color: var(--cb-text-soft);
+  background-color: var(--cb-surface-raised);
+  border-color: var(--cb-border);
+}
+body #content input:not([type="file"]), body #content textarea,
+body .auth-gate input:not([type="checkbox"]):not([type="radio"]),
+body .auth-gate textarea, body .friend-search-bar input {
+  color: var(--cb-text);
+  background-color: var(--cb-control);
+  border-color: var(--cb-border);
+}
+body #content input::placeholder, body #content textarea::placeholder,
+body .auth-gate input::placeholder { color: var(--cb-text-muted); }
+body .primary, body #content .primary, body .auth-gate .primary {
+  background: linear-gradient(135deg, var(--cb-accent), var(--cb-accent-strong));
+  color: var(--cb-accent-contrast);
+}
+body .app #nav button.active {
+  color: var(--cb-accent-strong);
+  background: var(--cb-accent-soft);
+  border-color: var(--cb-border);
+}
+body .app #nav {
+  border-color: var(--cb-border);
+}
+body .app > header .round {
+  color: var(--cb-accent-strong);
+  border-color: var(--cb-border);
+  background: var(--cb-surface);
+}
+body .profile-theme-preview, body .tile-art, body .memory,
+body .music-player-art { border-color: var(--cb-border); }
+body .notification-row small, body .notification-row time,
+body .music-player-caption, body .music-player-timeline { color: var(--cb-text-muted); }
+body[data-mode="dark"] .app,
+body[data-mode="dark"] .app #nav,
+body[data-mode="dark"] .chat-composer,
+body[data-mode="dark"] .notification-row,
+body[data-mode="dark"] .notification-settings {
+  background-color: var(--cb-surface);
+  border-color: var(--cb-border);
+}
+body[data-mode="dark"] .app #nav button { color: var(--cb-text-muted); }
+body[data-mode="dark"] .app #nav button.active {
+  color: var(--cb-accent-strong);
+  background: var(--cb-accent-soft);
+  box-shadow: none;
+}
+body[data-mode="dark"] .tile-art { filter: brightness(.9) saturate(.88); }
+body[data-mode="dark"] .chat-bubble { color: var(--cb-text); }
+body[data-mode="dark"] .auth-gate { color: var(--cb-text); }
+
+
+/* Theme picker swatches use the same palette tokens as the live application. */
+.theme-swatch.peach { background: linear-gradient(145deg, #fff0df, #d58b68); }
+.theme-swatch.berry { background: linear-gradient(145deg, #f9e4ed, #c65f91); }
+.theme-swatch.midnight { background: linear-gradient(145deg, #eee5f3, #80628f); }
+body[data-mode="dark"] .theme-swatch.peach { background: linear-gradient(145deg, #604638, #d58b68); }
+body[data-mode="dark"] .theme-swatch.berry { background: linear-gradient(145deg, #633d52, #c65f91); }
+body[data-mode="dark"] .theme-swatch.midnight { background: linear-gradient(145deg, #46384f, #a78ab7); }
+
+/* Keep legacy components from retaining rose-only text, borders and controls. */
+body[data-theme="peach"] .app > header .brand > span,
+body[data-theme="peach"] .app > header .round,
+body[data-theme="peach"] #nav button.active { border-color: var(--cb-border); }
+body[data-theme="berry"] .app > header .brand > span,
+body[data-theme="berry"] .app > header .round,
+body[data-theme="berry"] #nav button.active { border-color: var(--cb-border); }
+body[data-theme="midnight"] .app > header .brand > span,
+body[data-theme="midnight"] .app > header .round,
+body[data-theme="midnight"] #nav button.active { border-color: var(--cb-border); }
+body[data-theme] .theme-choice.is-selected { border-color: var(--cb-accent); }
+body[data-theme] .theme-choice.is-selected .theme-swatch { box-shadow: 0 0 0 3px var(--cb-accent-soft), 0 0 0 4px var(--cb-accent); }
+
+/* Profile wallpaper contrast: decorative themes must never reduce text legibility. */
+.auth-card.friend-profile-card[data-wallpaper] {
+  --profile-text: #493b4a;
+  --profile-muted: #68566b;
+  --profile-chip-bg: rgba(255,255,255,.88);
+  --profile-chip-text: #514052;
+  --profile-chip-border: rgba(91,65,91,.20);
+}
+.auth-card.friend-profile-card[data-wallpaper="normal"],
+.auth-card.friend-profile-card[data-wallpaper="blossom"],
+.auth-card.friend-profile-card[data-wallpaper="clouds"],
+.auth-card.friend-profile-card[data-wallpaper="hearts"] {
+  color: var(--profile-text) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="normal"] :is(h2,p,small,time,span),
+.auth-card.friend-profile-card[data-wallpaper="blossom"] :is(h2,p,small,time,span),
+.auth-card.friend-profile-card[data-wallpaper="clouds"] :is(h2,p,small,time,span),
+.auth-card.friend-profile-card[data-wallpaper="hearts"] :is(h2,p,small,time,span) {
+  color: var(--profile-text);
+}
+.auth-card.friend-profile-card[data-wallpaper="normal"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="blossom"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="clouds"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="hearts"] .friend-profile-bio,
+.auth-card.friend-profile-card[data-wallpaper="normal"] .friend-profile-activity-status,
+.auth-card.friend-profile-card[data-wallpaper="blossom"] .friend-profile-activity-status,
+.auth-card.friend-profile-card[data-wallpaper="clouds"] .friend-profile-activity-status,
+.auth-card.friend-profile-card[data-wallpaper="hearts"] .friend-profile-activity-status {
+  color: var(--profile-muted) !important;
+}
+/* Only the joined-date chip uses the neutral wallpaper chip palette.
+   Statistic tags keep their own semantic gold, pink and rose colours. */
+.auth-card.friend-profile-card[data-wallpaper] .friend-profile-joined > time {
+  color: var(--profile-chip-text) !important;
+  background: var(--profile-chip-bg) !important;
+  border: 1px solid var(--profile-chip-border) !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper] .friend-profile-follow {
+  color: #fff !important;
+  background: linear-gradient(135deg,#a9577c,#854565) !important;
+  border: 1px solid rgba(255,255,255,.72) !important;
+  box-shadow: 0 2px 0 rgba(76,39,65,.28) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] {
+  --profile-text: #fff8ff;
+  --profile-muted: #eee4ff;
+  --profile-chip-bg: rgba(35,31,73,.88);
+  --profile-chip-text: #fff8ff;
+  --profile-chip-border: rgba(231,222,255,.42);
+  color: var(--profile-text) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] :is(h2,p),
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileHandle,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-bio {
+  color: var(--profile-text) !important;
+  text-shadow: 0 1px 3px rgba(16,14,45,.55);
+}
+/* Keep presence text readable without recolouring semantic statistic badges. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-activity-status {
+  color: #55bd82 !important;
+}
+/* The joined-date chip uses the wallpaper's neutral chip palette.
+   Statistic badges deliberately keep their own gold, pink and rose accents. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-joined > time {
+  color: #514052 !important;
+  background: rgba(255,255,255,.92) !important;
+  border-color: rgba(91,65,91,.2) !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-follow {
+  color: #30264e !important;
+  background: linear-gradient(135deg,#fff0b9,#e7d7ff) !important;
+  border-color: rgba(255,255,255,.8) !important;
+}
+.auth-card.friend-profile-card[data-wallpaper] .friend-profile-eyebrow {
+  color: var(--profile-muted) !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-eyebrow {
+  color: #fff0c9 !important;
+}
+@media (prefers-contrast: more) {
+  .auth-card.friend-profile-card[data-wallpaper] {
+    --profile-chip-bg: #fff;
+    --profile-chip-text: #241b29;
+    --profile-chip-border: #55415c;
+  }
+  .auth-card.friend-profile-card[data-wallpaper="starlight"] {
+    --profile-chip-bg: #211b45;
+    --profile-chip-text: #fff;
+    --profile-chip-border: #fff;
+  }
+}
+
+/* Starlight: preserve each profile statistic tag's own accent colour. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates .friend-profile-queen {
+  color:#c09236 !important;background:#fffaf0 !important;border-color:#f0e4c9 !important;
+  text-shadow:none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates .friend-profile-flower {
+  color:#a95f83 !important;background:#fff7fb !important;border-color:#f2dce8 !important;
+  text-shadow:none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-stat-plates .friend-profile-heart {
+  color:#df557d !important;background:#fff5f7 !important;border-color:#f2dce4 !important;
+  text-shadow:none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-joined > time {
+  color:#514052 !important;background:rgba(255,255,255,.92) !important;
+  border-color:rgba(91,65,91,.2) !important;text-shadow:none !important;
+}
+
+
+
+/* Starlight: target the actual profile tag elements by ID so the wallpaper's
+   broad white-text rule cannot recolour their individual semantic palettes. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > #friendProfileTitleTag {
+  color: #c09236 !important;
+  background: #fffaf0 !important;
+  border: 1px solid #f0e4c9 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-flower,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-flower b {
+  color: #a95f83 !important;
+  background: #fff7fb !important;
+  border-color: #f2dce8 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-heart,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileGarden > .friend-profile-heart b {
+  color: #df557d !important;
+  background: #fff5f7 !important;
+  border-color: #f2dce4 !important;
+  text-shadow: none !important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileJoined {
+  color: #514052 !important;
+  background: rgba(255,255,255,.92) !important;
+  border-color: rgba(91,65,91,.2) !important;
+  text-shadow: none !important;
+}
+
+
+/* The badge row uses flex, but an absent title badge must respect its hidden attribute. */
+.auth-card.friend-profile-card #friendProfileGarden > #friendProfileTitleTag[hidden] {
+  display: none !important;
+}
+
+
+/* Header identity: pair the Cute Bunny title with the pet icon tile. */
+.app > header .brand > b {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 38px;
+  padding: 5px 11px 5px 12px;
+  border: 1px solid #f0dfe7;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #fffaf6, #f7e8f0);
+  box-shadow: 0 3px 9px rgba(119, 79, 111, .07);
+}
+.app > header .brand b small {
+  margin-top: 4px;
+  color: #8a7186;
+}
+body[data-mode="dark"] .app > header .brand > b {
+  border-color: rgba(225, 198, 220, .22);
+  background: linear-gradient(145deg, rgba(91, 69, 99, .92), rgba(69, 57, 82, .96));
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .16);
+  color: #fff1f7;
+}
+body[data-mode="dark"] .app > header .brand b small {
+  color: #e1cadd;
+}
+@media (max-width: 380px) {
+  .app > header .brand > b {
+    padding-inline: 8px;
+  }
+}
+
+
+/* Header brand capsule and tighter safe-area alignment. */
+.app > header {
+  min-height: 62px;
+  padding-top: max(3px, env(safe-area-inset-top, 0px));
+  padding-bottom: 6px;
+}
+.app > header .brand {
+  min-height: 44px;
+  padding: 3px 9px 3px 4px;
+  gap: 8px;
+  border: 1px solid #f0dfe7;
+  border-radius: 999px;
+  background: rgba(255, 250, 247, .94);
+  box-shadow: 0 3px 10px rgba(119, 79, 111, .07);
+}
+.app > header .brand > span {
+  border-radius: 50%;
+}
+.app > header .brand > b {
+  min-height: 38px;
+  padding: 5px 13px 5px 11px;
+  border-radius: 999px;
+  box-shadow: none;
+}
+@media (max-width: 520px) {
+  .app > header {
+    min-height: 56px;
+    padding-top: max(2px, env(safe-area-inset-top, 0px));
+    padding-bottom: 4px;
+  }
+  .app > header .brand {
+    min-height: 42px;
+  }
+}
+@media (max-width: 380px) {
+  .app > header .brand > b {
+    padding-inline: 9px;
+  }
+}
+body[data-mode="dark"] .app > header .brand {
+  border-color: rgba(225, 198, 220, .22);
+  background: rgba(49, 39, 58, .92);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
+}
+
+
+/* Compact header identity: separate icon and name surfaces, matching the action pills. */
+.app > header .brand {
+  min-height: 42px;
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.app > header .brand > span,
+.app > header .brand > b {
+  border: 1px solid #eddee6;
+  background: rgba(255, 253, 251, .94);
+  box-shadow: var(--cb-shadow-soft);
+}
+.app > header .brand > span {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font-size: 1.25rem;
+}
+.app > header .brand > b {
+  min-height: 38px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  box-shadow: var(--cb-shadow-soft);
+}
+.app > header .brand b small {
+  margin-top: 3px;
+}
+body[data-mode="dark"] .app > header .brand > span,
+body[data-mode="dark"] .app > header .brand > b {
+  border-color: rgba(225, 198, 220, .22);
+  background: rgba(255, 253, 251, .10);
+  box-shadow: var(--cb-shadow-soft);
+}
+@media (max-width: 380px) {
+  .app > header .brand { gap: 6px; }
+  .app > header .brand > b { padding-inline: 8px; }
+}
+
+
+/* Final header positioning and soft laminated baby-pink / pale-mauve identity tiles. */
+.app > header {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: 3px;
+  min-height: 58px;
+}
+.app > header .brand > span,
+.app > header .brand > b {
+  border: 1px solid #e9d4e1;
+  background: linear-gradient(145deg, #fff0f4 0%, #f7e5ee 48%, #eee6f4 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.88), inset 0 -1px 0 rgba(202,164,190,.10), 0 3px 9px rgba(133,94,126,.10);
+}
+.app > header .brand > span {
+  border-radius: 50%;
+}
+.app > header .brand > b {
+  border-radius: 999px;
+}
+.app > header .brand b small {
+  color: #8c7189;
+}
+@media (max-width: 520px) {
+  .app > header {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: 2px;
+    min-height: 53px;
+  }
+}
+body[data-mode="dark"] .app > header .brand > span,
+body[data-mode="dark"] .app > header .brand > b {
+  border-color: rgba(224, 190, 216, .28);
+  background: linear-gradient(145deg, rgba(103, 73, 96, .96) 0%, rgba(83, 67, 97, .96) 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.08), 0 3px 10px rgba(0,0,0,.20);
+}
+body[data-mode="dark"] .app > header .brand b small {
+  color: #ead4e5;
+}
+
+
+/* Nudge the header row a little closer to the top edge. */
+.app > header {
+  transform: translateY(-4px);
+  margin-bottom: -4px;
+}
+
+
+/* Notes: the Notes panel surface is defined in polish.css (loaded after style.css).
+   Remove that panel fill so the main app background remains visible behind messages.
+   Message bubbles and the composer retain their own individual surfaces. */
+body #content .chat-page,
+body[data-mode="dark"] #content .chat-page,
+body #content .chat-thread,
+body[data-mode="dark"] #content .chat-thread {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+
+/* Notes-only header refinement: match the solid page/status-bar surface
+   instead of using a translucent glass effect. */
+body.notes-page-active #app > header {
+  background: var(--cb-bg) !important;
+  border-bottom: 1px solid var(--cb-border) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+body.notes-page-active[data-mode="dark"] #app > header {
+  background: var(--cb-bg) !important;
+  border-bottom-color: var(--cb-border) !important;
+}

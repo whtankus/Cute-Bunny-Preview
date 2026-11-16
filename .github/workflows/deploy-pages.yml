@@ -40,7 +40,7 @@ jobs:
           path: dist
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/improvement/android-first-polish'
     needs: build
     runs-on: ubuntu-latest
     permissions:

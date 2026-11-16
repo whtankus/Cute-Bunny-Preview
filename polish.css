@@ -1087,3 +1087,27 @@ body[data-mode="dark"] #content .chat-thread {
   border-color: transparent !important;
   box-shadow: none !important;
 }
+
+
+/* Header refinement: remove the separate tile behind the bunny icon and
+   give the entire top masthead a subtle translucent glass surface. */
+#app > header .brand > span {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#app > header {
+  background: rgba(255, 247, 251, .48) !important;
+  border-bottom: 1px solid rgba(232, 210, 225, .34) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.12) !important;
+  backdrop-filter: blur(16px) saturate(1.12) !important;
+}
+body[data-mode="dark"] #app > header {
+  background: rgba(39, 31, 46, .48) !important;
+  border-bottom-color: rgba(130, 105, 139, .24) !important;
+}
+body[data-mode="dark"] #app > header .brand > span {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}

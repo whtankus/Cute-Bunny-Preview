@@ -13028,3 +13028,63 @@ body[data-mode="dark"] .happy-things-grid>.tile>.happy-note-thumbnail{background
 body[data-mode="dark"] .happy-things-grid>.tile>.happy-photo-thumbnail{background:radial-gradient(ellipse at 50% 100%,#40503d,#343d38 75%)!important;border-color:#52614d!important}
 body[data-mode="dark"] .happy-things-grid>.tile>.happy-music-thumbnail{background:radial-gradient(ellipse at 50% 100%,#4a3e59,#383344 75%)!important;border-color:#5a4c68!important}
 @media(prefers-reduced-motion:reduce){.happy-things-grid .happy-art-sparkle{animation:none!important}.happy-things-grid>.tile>.happy-thing-art svg{transition:none!important}}
+
+
+/* v114 — richer bespoke artwork for notes, playlist, and the streak garden. */
+.happy-things-grid>.tile>.happy-note-thumbnail,
+.happy-things-grid>.tile>.happy-music-thumbnail{
+  min-height:112px!important;
+  background-size:cover!important;
+}
+.happy-things-grid>.tile>.happy-note-thumbnail svg,
+.happy-things-grid>.tile>.happy-music-thumbnail svg{
+  width:min(100%,232px)!important;
+  max-height:118px!important;
+}
+.happy-things-grid>.tile>.happy-note-thumbnail svg{filter:drop-shadow(0 6px 5px #a56e841e)!important}
+.happy-things-grid>.tile>.happy-music-thumbnail svg{filter:drop-shadow(0 6px 5px #8975a51f)!important}
+.happy-things-grid>.tile>.happy-note-thumbnail:hover svg{transform:translateY(-4px) rotate(-1deg) scale(1.04)!important}
+.happy-things-grid>.tile>.happy-music-thumbnail:hover svg{transform:translateY(-4px) rotate(1deg) scale(1.04)!important}
+.happy-things-grid>.streak-tile>.streak-art-trigger{
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  min-height:112px!important;height:112px!important;flex:0 0 112px!important;
+  border:1px solid #fff!important;border-radius:17px!important;
+  background:radial-gradient(ellipse at 50% 100%,#f5dce8 0%,#f5eafa 56%,#e8f3ee 100%)!important;
+  box-shadow:inset 0 1px 0 #ffffffa8,0 4px 13px #92758a0c!important;
+}
+.happy-things-grid>.streak-tile>.streak-art-trigger:before,
+.happy-things-grid>.streak-tile>.streak-art-trigger:after{
+  content:"";position:absolute;z-index:0;border-radius:50%;pointer-events:none;
+}
+.happy-things-grid>.streak-tile>.streak-art-trigger:before{
+  width:116px;height:116px;left:-27px;top:-58px;
+  background:radial-gradient(circle,#fff9f5b8 0 3px,transparent 4px),radial-gradient(circle at 70% 70%,#fff8f5 0 2px,transparent 3px);
+  border:1px solid #ffffff80;
+}
+.happy-things-grid>.streak-tile>.streak-art-trigger:after{
+  width:90px;height:90px;right:-26px;bottom:-55px;
+  background:#ffffff38;border:1px solid #ffffff80;
+}
+.happy-things-grid .streak-plant-svg{
+  position:relative!important;z-index:1!important;display:grid!important;place-items:center!important;
+  width:100%!important;height:100%!important;
+}
+.happy-things-grid .streak-plant-svg svg{
+  display:block;width:min(100%,230px);height:100%;max-height:112px;overflow:visible;
+  filter:drop-shadow(0 5px 4px #8e71821c);
+  animation:streak-bloom-float 4s ease-in-out infinite;
+}
+@keyframes streak-bloom-float{0%,100%{transform:translateY(1px)}50%{transform:translateY(-3px)}}
+body[data-mode="dark"] .happy-things-grid>.streak-tile>.streak-art-trigger{
+  background:radial-gradient(ellipse at 50% 100%,#543c4c,#42394d 58%,#34433f 100%)!important;
+  border-color:#66546a!important;
+}
+@media(max-width:520px){
+  .happy-things-grid>.tile>.happy-note-thumbnail,
+  .happy-things-grid>.tile>.happy-music-thumbnail{min-height:98px!important}
+  .happy-things-grid>.streak-tile>.streak-art-trigger{min-height:98px!important;height:98px!important;flex-basis:98px!important}
+  .happy-things-grid .streak-plant-svg svg{max-height:98px}
+}
+@media(prefers-reduced-motion:reduce){
+  .happy-things-grid .streak-plant-svg svg{animation:none!important}
+}

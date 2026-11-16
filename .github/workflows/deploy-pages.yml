@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - 'improvement/**'
   workflow_dispatch:
 
 permissions:
@@ -47,5 +48,6 @@ jobs:
           path: dist
 
       - name: Deploy testing website
+        if: github.ref == 'refs/heads/main'
         id: deployment
         uses: actions/deploy-pages@v4

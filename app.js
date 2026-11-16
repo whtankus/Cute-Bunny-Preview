@@ -14,6 +14,7 @@ const sb = window.supabase && cfg.supabaseUrl && !cfg.supabaseUrl.startsWith('PA
   : null;
 
 let token = localStorage.getItem('cuteBunnyToken') || '', me = null, page = 'home', feed = [], friends = [], friendResults = [], friendQuery = '';
+const APP_THEMES = Object.freeze(['rose', 'lavender', 'mint', 'sky', 'peach', 'berry', 'midnight', 'sage', 'buttercup']);
 let appPageStack = ['home'], appBackGuardInstalled = false, appBackExitArmedUntil = 0, appBackExitPending = false;
 let mediaObjectUrls = [], mediaUrlCache = new Map(), mediaHydrationInFlight = new Map(), pendingMediaUrls = new Map();
 const memoryLikeInFlight = new Set();
@@ -243,7 +244,7 @@ async function api(path, options = {}) {
       username,
       display_name: body.displayName,
       bio: body.bio,
-      theme: body.theme,
+      theme: APP_THEMES.includes(body.theme) ? body.theme : (me?.theme || 'rose'),
       mascot: body.mascot,
       gender: ['male', 'female'].includes(body.gender) ? body.gender : (me?.gender || null)
     };
@@ -559,8 +560,7 @@ function syncBrowserThemeColor() {
 }
 
 function setTheme(theme) {
-  const supportedThemes = ['rose', 'lavender', 'mint', 'sky', 'peach', 'berry', 'midnight', 'sage', 'buttercup'];
-  document.body.dataset.theme = supportedThemes.includes(theme) ? theme : 'rose';
+  document.body.dataset.theme = APP_THEMES.includes(theme) ? theme : 'rose';
   syncBrowserThemeColor();
 }
 
@@ -602,6 +602,9 @@ async function refresh() {
     api('/notes/my-read-cursors').catch(error => { console.warn('Note read cursors could not be loaded:', error?.message || error); return [] })
   ]);
   me = results[0];
+  // The database profile is the source of truth for the colour palette.
+  // Re-apply it on every refresh, not only during the initial session restore.
+  setTheme(me?.theme);
   const feedById = new Map();
   [...results[1], ...(results[3] || []), ...(results[4] || [])].forEach(item => feedById.set(String(item.id), item));
   feed = [...feedById.values()].sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));

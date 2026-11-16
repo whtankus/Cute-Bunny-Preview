@@ -1462,3 +1462,13 @@ body[data-mode="dark"][data-theme] .primary {color:#2b2330!important;}
 @media(prefers-reduced-motion:reduce){
  body[data-theme] button.primary,body[data-theme] .primary{transition:none!important}
 }
+
+
+/* Remove the decorative wallpaper/panel behind the Notes conversation. */
+#content .chat-page .chat-thread,
+body[data-theme] #content .chat-page .chat-thread {
+  background:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}

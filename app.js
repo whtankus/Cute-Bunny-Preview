@@ -4417,6 +4417,17 @@ document.addEventListener('click', event => {
   panel?.classList.remove('hidden');
 }, true);
 
+// Close profile settings when the user taps anywhere outside the panel.
+// The flower button remains a toggle: tap once to open, again to close.
+document.addEventListener('click', event => {
+  let target = event.target;
+  if (target && target.nodeType !== 1) target = target.parentElement;
+  const panel = document.querySelector('#profileSettingsPanel');
+  if (!panel || panel.classList.contains('hidden')) return;
+  if (target?.closest?.('#profileSettingsPanel, #profileSettingsTrigger')) return;
+  panel.classList.add('hidden');
+}, true);
+
 
 // Submit the friend search form on Enter as well as its Search button.
 document.addEventListener('submit', e => {

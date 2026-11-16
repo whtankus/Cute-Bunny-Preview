@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "build": "node scripts/build-preview.js",
-    "check": "node --check app.js && node --check sw.js && node --check scripts/build-preview.js && node --check scripts/configure-android-native.js",
+    "check": "node --check app.js && node --check sw.js && node --check scripts/build-preview.js && node --check scripts/configure-android-native.js && node scripts/check-config.js",
+    "check:config": "node scripts/check-config.js",
+    "dev": "python3 -m http.server 4173",
     "android:sync": "npm run build && cap sync android",
     "android:open": "cap open android"
   },

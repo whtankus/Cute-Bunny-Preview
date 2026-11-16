@@ -1357,8 +1357,6 @@ body[data-theme] #content .friend-row,
 body[data-theme] #content .home-feature-card,
 body[data-theme] #content .note-compose,
 body[data-theme] #content .chat-page,
-body[data-theme] .auth-gate .auth-card,
-body[data-theme] #friendProfileGate .auth-card,
 body[data-theme] #notificationGate .notification-card,
 body[data-theme] .profile-settings-panel,
 body[data-theme] .notification-row,
@@ -1471,29 +1469,4 @@ body[data-theme] #content .chat-page .chat-thread {
   background-image:none!important;
   border:0!important;
   box-shadow:none!important;
-}
-
-
-/* Open profiles are personal canvases: app theme palettes must never recolour
-   the owner's or a friend's profile card, wallpaper, text, or statistic badges. */
-body[data-theme] #friendProfileGate .friend-profile-card {
-  color:inherit!important;
-  background:initial!important;
-  border-color:initial!important;
-  box-shadow:0 22px 60px rgba(72,49,72,.18)!important;
-}
-body[data-theme] #friendProfileGate .friend-profile-card :is(h1,h2,h3,h4,p,small,time,span,b,strong,label) {
-  color:inherit;
-}
-body[data-theme] #friendProfileGate .friend-profile-card .friend-profile-bio,
-body[data-theme] #friendProfileGate .friend-profile-card .friend-profile-activity-status,
-body[data-theme] #friendProfileGate .friend-profile-card .friend-profile-eyebrow {
-  color:var(--profile-muted)!important;
-}
-body[data-theme] #friendProfileGate .friend-profile-card .friend-profile-follow {
-  color:inherit;
-}
-/* Preserve wallpaper-specific foreground rules and each profile's own badge colours. */
-body[data-theme] #friendProfileGate .friend-profile-card[data-wallpaper] {
-  background:var(--profile-wallpaper,initial)!important;
 }

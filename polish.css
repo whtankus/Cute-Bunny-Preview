@@ -1510,3 +1510,11 @@ body[data-theme] .home-note-memory .chat-message.is-friend .chat-bubble {
   border:1px solid var(--cb-border)!important;
   box-shadow:0 3px 0 color-mix(in srgb,var(--cb-accent) 24%,var(--cb-border))!important;
 }
+
+
+/* Header follows the exact active theme base colour, matching the browser status bar. */
+body[data-theme] .app > header {
+  background:var(--cb-bg)!important;
+  background-color:var(--cb-bg)!important;
+  border-bottom-color:var(--cb-border)!important;
+}

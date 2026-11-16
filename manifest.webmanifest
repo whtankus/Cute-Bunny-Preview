@@ -7,8 +7,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#fdf8f1",
-  "theme_color": "#fdf1ea",
+  "background_color": "#fcf7f2",
+  "theme_color": "#fcf7f2",
   "icons": [
     {
       "src": "bunny-app-icon-192.png",

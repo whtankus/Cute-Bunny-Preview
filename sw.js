@@ -1,9 +1,9 @@
-const CACHE_NAME = "cute-bunny-shell-v242";
+const CACHE_NAME = "cute-bunny-shell-v243";
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./style.css?v=v121",
-  "./polish.css?v=18",
+  "./polish.css?v=19",
   "./app.js?v=v122",
   "./manifest.webmanifest",
   "./supabase-config.js",

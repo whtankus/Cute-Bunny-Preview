@@ -2647,18 +2647,40 @@ function showFriendProfile(user) {
       const collectionItems = $('#friendProfileCollectionItems');
       if (collectionItems) collectionItems.innerHTML = ownedItems.length ? ownedItems.slice(0,6).map(item => '<span class="friend-profile-collection-item' + ((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id ? ' is-equipped' : '') + '" title="' + esc(item.name) + '"><span>' + item.icon + '</span><small>' + esc(item.name) + '</small></span>').join('') : '<p class="friend-profile-empty">Your first little treasure is waiting in the Garden Shop ♡</p>';
     }
-    const streak = Number(user.login_streak) || 0;
-    const badges = [
-      {art:'login',name:'First Bloom',earned:streak>=1},
-      {art:'bloom-7',name:'Week in Bloom',earned:streak>=7},
-      {art:'bloom-5',name:'30-Day Garden',earned:streak>=30},
-      {art:'photo',name:'Memory Keeper',earned:photos>=5},
-      {art:'kissNote',name:'Little Writer',earned:notes>=5},
-      {art:'song',name:'Playlist Curator',earned:songs>=3},
-      {art:'hearts',name:'Heart Keeper',earned:Number(user.heartCount)>=100}
+    const streak = Math.max(0, Number(user.login_streak) || 0);
+    const heartTotal = Math.max(0, Number(user.heartCount) || 0);
+    const flowerMilestones = [
+      {goal:3,title:'Tiny sprout',icon:'✿'},
+      {goal:7,title:'First flower',icon:'🌼'},
+      {goal:14,title:'Little garden',icon:'🌷'},
+      {goal:30,title:'Growing plant',icon:'🌸'},
+      {goal:50,title:'Golden bouquet',icon:'💐'},
+      {goal:100,title:'Blooming garden',icon:'🌟'},
+      {goal:180,title:'Magical garden',icon:'🏵️'},
+      {goal:365,title:'Eternal garden',icon:'💮'}
     ];
+    const heartMilestones = [
+      {goal:10,title:'Little Keepsake',icon:'🎁'},
+      {goal:100,title:'Sweet Letter',icon:'💌'},
+      {goal:250,title:'Blushing Bouquet',icon:'💐'},
+      {goal:500,title:'Golden Treasure',icon:'🏆'},
+      {goal:750,title:'Love Guardian',icon:'👑'},
+      {goal:1000,title:'Everlasting Love',icon:'💗'}
+    ];
+    const milestoneCards = (items,total,unit) => items.map(item => {
+      const unlocked = total >= item.goal;
+      const progress = Math.min(100, Math.round(total / item.goal * 100));
+      const remaining = Math.max(0,item.goal-total);
+      return '<article class="friend-profile-milestone'+(unlocked?' is-unlocked':' is-locked')+'">'+
+        '<span class="friend-profile-milestone-art" aria-hidden="true">'+item.icon+'</span>'+
+        '<span class="friend-profile-milestone-copy"><b>'+item.title+'</b><small>'+item.goal.toLocaleString()+' '+unit+'</small></span>'+
+        '<span class="friend-profile-milestone-state">'+(unlocked?'Unlocked':remaining.toLocaleString()+' to go')+'</span>'+
+        '<span class="friend-profile-milestone-track"><i style="width:'+progress+'%"></i></span></article>';
+    }).join('');
     const badgeList = $('#friendProfileBadgeList');
-    if (badgeList) badgeList.innerHTML = badges.filter(item=>item.earned).length ? badges.filter(item=>item.earned).map(item=>'<span class="friend-profile-badge"><span class="friend-profile-badge-art">'+gardenIllustration(item.art)+'</span><small>'+item.name+'</small></span>').join('') : '<p class="friend-profile-empty">A first little achievement is just around the corner ♡</p>';
+    if (badgeList) badgeList.innerHTML =
+      '<section class="friend-profile-milestone-group"><div class="friend-profile-milestone-heading"><span>🌷</span><div><b>Your Flowers</b><small>'+flowerMilestones.filter(x=>streak>=x.goal).length+' of '+flowerMilestones.length+' unlocked · '+streak+' day streak</small></div></div><div class="friend-profile-milestone-grid">'+milestoneCards(flowerMilestones,streak,'days')+'</div></section>'+
+      '<section class="friend-profile-milestone-group"><div class="friend-profile-milestone-heading"><span>💗</span><div><b>Your Hearts</b><small>'+heartMilestones.filter(x=>heartTotal>=x.goal).length+' of '+heartMilestones.length+' unlocked · '+heartTotal.toLocaleString()+' hearts</small></div></div><div class="friend-profile-milestone-grid">'+milestoneCards(heartMilestones,heartTotal,'hearts')+'</div></section>';
   }
   $('#friendProfileFollow').textContent = isOwnProfile ? '✧ Theme' : (user.isFollowing ? 'Following' : 'Follow ♡');
   $('#friendProfileFollow').disabled = false;

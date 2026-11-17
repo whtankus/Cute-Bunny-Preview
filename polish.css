@@ -2498,3 +2498,13 @@ body, .app, #content { -webkit-tap-highlight-color: transparent; }
   #content > .achievement-garden .achievement-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important}
   #content > .achievement-garden .achievement-card {padding:8px!important}
 }
+
+/* Remove the unintended blank strip above the app header. */
+#app {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+#app > header {
+  margin-top: 0 !important;
+  transform: none !important;
+}

@@ -921,12 +921,36 @@ function readStreakDailyQuests(dateKey) {
       hearts: Array.isArray(saved.hearts) ? [...new Set(saved.hearts.map(String))] : [],
       photo: saved.photo === true,
       kissNote: saved.kissNote === true,
+      note: Math.max(0, Number(saved.note) || 0),
+      song: saved.song === true,
+      login: saved.login === true,
       badge: saved.badge === true
     };
-  } catch { return {hearts:[], photo:false, kissNote:false, badge:false}; }
+  } catch { return {hearts:[], photo:false, kissNote:false, note:0, song:false, login:false, badge:false}; }
 }
 function writeStreakDailyQuests(dateKey, state) {
   try { localStorage.setItem(streakStorageKey('daily-quests:' + dateKey), JSON.stringify(state)); } catch {}
+}
+function getDailyQuestRotation(dateKey) {
+  const pool = [
+    {id:'hearts', title:'Spread 3 hearts', description:'Like three different memories.', target:3, icon:'💗', progress:state => Math.min(3,state.hearts.length), done:state => state.hearts.length >= 3},
+    {id:'photo', title:'Share a photo', description:'Add one photo to your garden.', target:1, icon:'🌷', progress:state => state.photo ? 1 : 0, done:state => state.photo},
+    {id:'kissNote', title:'Send a kiss', description:'Send a Notes message with a kiss emoji.', target:1, icon:'💋', progress:state => state.kissNote ? 1 : 0, done:state => state.kissNote},
+    {id:'note', title:'Write a little note', description:'Send one message in Notes.', target:1, icon:'💌', progress:state => Math.min(1,state.note), done:state => state.note >= 1},
+    {id:'song', title:'Add to the soundtrack', description:'Share one song in your cozy playlist.', target:1, icon:'🎵', progress:state => state.song ? 1 : 0, done:state => state.song},
+    {id:'login', title:'Visit your garden', description:'Check in to Cute Bunny today.', target:1, icon:'🐰', progress:state => state.login ? 1 : 0, done:state => state.login}
+  ];
+  // Stable per account and local calendar day: the same three quests remain all day.
+  const seedText = String(me?.id || me?.username || 'guest') + ':' + dateKey;
+  let seed = 2166136261;
+  for (let i=0;i<seedText.length;i++) seed = Math.imul(seed ^ seedText.charCodeAt(i),16777619);
+  const shuffled = pool.slice();
+  for (let i=shuffled.length-1;i>0;i--) {
+    seed = (Math.imul(seed,1664525)+1013904223) >>> 0;
+    const j = seed % (i+1);
+    [shuffled[i],shuffled[j]] = [shuffled[j],shuffled[i]];
+  }
+  return shuffled.slice(0,3);
 }
 function recordStreakDailyQuest(kind, value = '') {
   if (!me) return;
@@ -936,10 +960,14 @@ function recordStreakDailyQuest(kind, value = '') {
   if (kind === 'heart' && value && !state.hearts.includes(String(value))) state.hearts.push(String(value));
   if (kind === 'photo') state.photo = true;
   if (kind === 'kiss-note') state.kissNote = true;
-  const newlyCompleted = !state.badge && state.hearts.length >= 3 && state.photo && state.kissNote;
+  if (kind === 'note') state.note = Math.min(99,state.note + 1);
+  if (kind === 'song') state.song = true;
+  if (kind === 'login') state.login = true;
+  const quests = getDailyQuestRotation(dateKey);
+  const newlyCompleted = !state.badge && quests.every(quest => quest.done(state));
   if (newlyCompleted) state.badge = true;
   writeStreakDailyQuests(dateKey, state);
-  if (newlyCompleted) toast('Daily Bloom badge unlocked! You completed all three quests ♡');
+  if (newlyCompleted) toast('Daily Bloom earned! You completed today’s three quests ♡');
   if (page === 'streak') renderStreakPage();
 }
 function streakDateKey(date) {
@@ -1007,6 +1035,7 @@ function updateStreakCountdownLabels() {
   if (streakCountdownDayKey && todayKey !== streakCountdownDayKey) {
     streakCountdownDayKey = todayKey;
     void recordLoginStreak();
+        recordStreakDailyQuest('login');
     if (page === 'streak') renderStreakPage();
   }
   const remaining = streakTimeRemaining(timezone);
@@ -1368,11 +1397,11 @@ function renderStreakPage() {
       '<small class="sg-milestone-progress-copy">' + Math.min(heartCount, item.hearts) + ' / ' + item.hearts + ' hearts</small></article>';
   }).join('');
   const dailyQuestState = readStreakDailyQuests(todayKey);
-  const dailyQuestItems = [
-    {id:'hearts', title:'Like 3 friends’ photos', description:'Tap ♥ on three different friends’ photos.', progress:Math.min(3, dailyQuestState.hearts.length), target:3, icon:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 32S6 23 6 14c0-7 9-10 14-2 5-8 14-5 14 2 0 9-14 18-14 18Z" fill="#df91ad" stroke="#b86f8d" stroke-width="1.8"/><path d="m12 15 4 4 7-8" fill="none" stroke="#fff8f4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>', done:dailyQuestState.hearts.length >= 3},
-    {id:'photo', title:'Share 1 photo', description:'Add a photo to your scrapbook.', progress:dailyQuestState.photo ? 1 : 0, target:1, icon:'<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="8" width="30" height="25" rx="6" fill="#f4dfbd" stroke="#c49b65" stroke-width="1.8"/><circle cx="14" cy="16" r="3" fill="#fff8e9"/><path d="m8 29 9-9 5 5 4-4 7 8" fill="none" stroke="#91a77e" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M27 5v7m-3.5-3.5h7" stroke="#c49b65" stroke-width="1.8" stroke-linecap="round"/></svg>', done:dailyQuestState.photo},
-    {id:'kissNote', title:'Send a kiss in Notes', description:'Send a Notes message with 💋.', progress:dailyQuestState.kissNote ? 1 : 0, target:1, icon:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 9h30v21H19l-8 5v-5H5Z" fill="#e9e2f4" stroke="#a28bbd" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 19c0-5 6-6 6-1 1-5 7-4 7 1-1 4-7 8-7 8s-6-4-6-8Z" fill="#d77e9e"/></svg>', done:dailyQuestState.kissNote}
-  ];
+  const dailyQuestItems = getDailyQuestRotation(todayKey).map(quest => {
+    const progress = Math.min(quest.target,quest.progress(dailyQuestState));
+    const done = quest.done(dailyQuestState);
+    return {...quest,progress,done};
+  });
   const completedQuests = dailyQuestItems.filter(item => item.done).length;
   const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
     dailyQuestItems.map(item => '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
@@ -1381,7 +1410,7 @@ function renderStreakPage() {
       '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
       '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>').join('') +
     '</div><div class="sg-daily-quest-footer"><span>' + completedQuests + ' / 3 quests complete</span>' +
-    (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete all 3 to earn your Daily Bloom</small>') + '</div>';
+    (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete today’s 3 quests to earn your Daily Bloom</small>') + '</div>';
 
   const todayDate = new Date(todayKey + 'T00:00:00Z');
   const mondayOffset = (todayDate.getUTCDay() + 6) % 7;
@@ -3094,6 +3123,7 @@ async function sendChatMessage() {
       .select('id,owner_id,kind,text,created_at')
       .single();
     if (sendError) throw sendError;
+    recordStreakDailyQuest('note');
     if (/💋|😘|😗|😙|😚|😽/u.test(text)) recordStreakDailyQuest('kiss-note');
     const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
     feed = feed.map(m => String(m.id) === tempId ? record : m);
@@ -5391,6 +5421,7 @@ document.addEventListener('change', async e => {
     };
     feed = feed.map(m => String(m.id) === tempId ? item : m);
     if (kind === 'photo') recordStreakDailyQuest('photo');
+    if (kind === 'song') recordStreakDailyQuest('song');
     render();
     toast('Added to your shared scrapbook ♡');
   } catch (err) {

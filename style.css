@@ -14274,3 +14274,28 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
   #profileGate .theme-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(min-width:900px){#profileGate .auth-card.profile-card{max-width:900px!important;margin:auto!important;min-height:calc(100dvh - 28px)!important}}
+
+
+/* Notes header polish: remove the status-area edge shadow and use a solid theme-matched masthead. */
+.app > header {
+  box-shadow: none !important;
+}
+.app > header::before,
+.app > header::after {
+  content: none !important;
+  display: none !important;
+  box-shadow: none !important;
+}
+body.notes-page-active .app > header,
+body.notes-page-active.notes-header-hidden .app > header {
+  background-color: inherit !important;
+  background-image: none !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  transform: translate3d(0, 0, 0) !important;
+}
+
+/* Keep the Notes masthead flush with the status area; override the old 4px lift. */
+body.notes-page-active:not(.notes-header-hidden) .app > header {
+  transform: translate3d(0, 0, 0) !important;
+}

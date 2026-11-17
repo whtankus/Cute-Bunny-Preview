@@ -2680,11 +2680,12 @@ function showFriendProfile(user) {
       milestoneBadges(heartMilestones,heartTotal,'hearts')+
       '</div>';
   }
-  $('#friendProfileFollow').innerHTML = isOwnProfile ? '<span aria-hidden="true">✿</span>' : (user.isFollowing ? 'Following' : 'Follow ♡');
-  $('#friendProfileFollow').disabled = false;
-  $('#friendProfileFollow').setAttribute('aria-label', isOwnProfile ? 'Change profile theme' : (user.isFollowing ? 'Following' : 'Follow friend'));
-  $('#friendProfileFollow').title = isOwnProfile ? 'Change profile theme' : (user.isFollowing ? 'Following' : 'Follow friend');
+  $('#friendProfileFollow').innerHTML = '<span aria-hidden="true">✿</span>';
+  $('#friendProfileFollow').disabled = !isOwnProfile;
+  $('#friendProfileFollow').setAttribute('aria-label', isOwnProfile ? 'Change profile wallpaper' : 'Decorative flower');
+  $('#friendProfileFollow').title = isOwnProfile ? 'Change profile wallpaper' : '';
   $('#friendProfileFollow').dataset.themeAction = isOwnProfile ? 'true' : 'false';
+  $('#friendProfileFollow').dataset.decorative = isOwnProfile ? 'false' : 'true';
   $('#friendProfileFollow').classList.toggle('is-following', !!user.isFollowing);
   $('#friendProfileFollow').classList.toggle('is-own-profile', isOwnProfile);
   gate.classList.remove('hidden');
@@ -5235,6 +5236,7 @@ document.addEventListener('click', async e => {
     return;
   }
   const followBtn = e.target.closest('#friendProfileFollow, [data-follow]');
+  if (followBtn?.dataset.decorative === 'true') return;
   if (followBtn?.dataset.themeAction === 'true') {
     void cycleProfileWallpaper();
     return;

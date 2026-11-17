@@ -13848,3 +13848,31 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
   .friend-profile-bio-row .friend-profile-theme-button { flex-basis:30px!important;width:30px!important;min-width:30px!important;min-height:30px!important; }
   .friend-profile-milestone-badge { width:38px!important;height:38px!important;min-width:38px!important; }
 }
+
+
+/* Wider profile stage so the selected wallpaper artwork is visible edge to edge. */
+#friendProfileGate { padding:12px!important; }
+#friendProfileGate .auth-card.friend-profile-card {
+  width:min(720px,calc(100vw - 32px))!important;
+  max-width:720px!important;
+  max-height:94dvh!important;
+  padding:26px 28px 24px!important;
+  overflow-x:hidden!important;
+}
+.friend-profile-milestone-icons { gap:11px!important; }
+.friend-profile-milestone-badge {
+  width:48px!important;height:48px!important;min-width:48px!important;
+  padding:4px!important;
+}
+.friend-profile-milestone-svg { display:grid!important;place-items:center!important;width:100%!important;height:100%!important; }
+.friend-profile-milestone-svg svg { display:block!important;width:100%!important;height:100%!important; }
+@media(max-width:600px) {
+  #friendProfileGate { padding:8px!important; }
+  #friendProfileGate .auth-card.friend-profile-card {
+    width:calc(100vw - 16px)!important;
+    max-width:none!important;
+    max-height:94dvh!important;
+    padding:20px 16px 18px!important;
+  }
+  .friend-profile-milestone-badge { width:42px!important;height:42px!important;min-width:42px!important; }
+}

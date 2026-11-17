@@ -13878,3 +13878,17 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
 }
 
 
+
+
+/* Give the profile wallpaper a little more vertical breathing room: reveal more of the wallpaper above and below without changing the profile layout. */
+#friendProfileGate .auth-card.friend-profile-card {
+  min-height:clamp(500px,72dvh,580px)!important;
+  max-height:94dvh!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:600px) {
+  #friendProfileGate .auth-card.friend-profile-card {
+    min-height:clamp(470px,76dvh,550px)!important;
+    max-height:94dvh!important;
+  }
+}

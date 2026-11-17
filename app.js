@@ -2206,7 +2206,6 @@ function render(options = {}) {
 
   if (page === 'home') {
     c.innerHTML = `
-      <div class="heading home-welcome"><h2>Welcome, ${esc(me?.displayName || 'friend')} ♡</h2><p>Your little shared corner for favorite things.</p></div>
       <div class="hero home-hero">
         <div>
           <small>✿ MADE FOR LITTLE MOMENTS</small>

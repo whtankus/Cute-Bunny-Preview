@@ -13878,21 +13878,3 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
 }
 
 
-
-/* Give the existing horizontal profile plate more vertical room for the full theme artwork. */
-#friendProfileGate .auth-card.friend-profile-card {
-  width:min(560px,calc(100vw - 32px))!important;
-  max-width:560px!important;
-  height:min(720px,88dvh)!important;
-  max-height:94dvh!important;
-  overflow-x:hidden!important;
-  overflow-y:auto!important;
-}
-@media(max-width:600px) {
-  #friendProfileGate .auth-card.friend-profile-card {
-    width:calc(100vw - 16px)!important;
-    max-width:none!important;
-    height:min(680px,90dvh)!important;
-    max-height:94dvh!important;
-  }
-}

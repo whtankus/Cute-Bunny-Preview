@@ -13867,19 +13867,29 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
   overflow:visible!important;
   box-sizing:border-box!important;
 }
-#friendProfileGate .friend-profile-main-row,
-#friendProfileGate .friend-profile-heading {
-  display:flex!important;
-  flex-direction:column!important;
+/* Keep the original horizontal identity row inside the portrait card. */
+#friendProfileGate .friend-profile-main-row {
+  display:grid!important;
+  grid-template-columns:54px minmax(0,1fr) auto!important;
   align-items:center!important;
-  justify-content:center!important;
-  text-align:center!important;
+  justify-content:initial!important;
   gap:10px!important;
+  text-align:left!important;
+}
+#friendProfileGate .friend-profile-main-row .friend-profile-avatar-wrap,
+#friendProfileGate .friend-profile-main-row .friend-profile-avatar {
+  width:54px!important;
+  height:54px!important;
 }
 #friendProfileGate .friend-profile-identity {
-  width:100%!important;
+  width:auto!important;
+  min-width:0!important;
   justify-content:center!important;
-  text-align:center!important;
+  text-align:left!important;
+}
+#friendProfileGate .friend-profile-joined {
+  justify-self:end!important;
+  text-align:right!important;
 }
 #friendProfileGate .friend-profile-follow {
   width:auto!important;

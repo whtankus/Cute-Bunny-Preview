@@ -2632,3 +2632,27 @@ html body.notes-page-active #app::after {
   box-shadow: none !important;
   filter: none !important;
 }
+
+
+/* Notes header capsule shadow removal: the dark edge comes from the individual
+   avatar/name/action capsules, not just the header surface. Keep their shape,
+   fill and borders, but remove every raised/drop-shadow treatment. */
+html body.notes-page-active #app > header .brand,
+html body.notes-page-active #app > header .brand > span,
+html body.notes-page-active #app > header .brand > b,
+html body.notes-page-active #app > header .header-actions,
+html body.notes-page-active #app > header .header-actions > *,
+html body.notes-page-active #app > header .round,
+html body.notes-page-active #app > header button {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  text-shadow: none !important;
+}
+html body.notes-page-active #app > header .brand > span,
+html body.notes-page-active #app > header .brand > b,
+html body.notes-page-active #app > header .round,
+html body.notes-page-active #app > header button {
+  transform: none;
+}

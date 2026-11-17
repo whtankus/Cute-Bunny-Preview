@@ -981,14 +981,37 @@ function readGardenCollection() {
 function saveGardenCollection(value) {
   try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(value)); return true; } catch { return false; }
 }
+
+function gardenIllustration(kind) {
+  const art = {
+    'pink-tulips':'<path d="M32 53V34m0 12c-12-13-20-5-15 2 5 5 11 3 15-2Zm0-8c12-13 20-5 15 2-5 5-11 3-15-2Z" fill="#91ad83" stroke="#718f70" stroke-width="2"/><path d="M32 34c-13-3-13-18-3-20 0-9 13-9 14 0 10 3 8 18-5 20Z" fill="#e9a1b8" stroke="#bd7895" stroke-width="2"/><path d="M32 34c-7-8-5-16 1-20 7 5 7 13-1 20Z" fill="#f7c7d5"/>',
+    'moon-lantern':'<path d="M32 8v8m-12-2h24M23 18h18l-2 29H25Z" fill="#f4d9a5" stroke="#b68d59" stroke-width="2.5"/><path d="M27 23c-3 8 1 15 8 17-8 3-15-3-15-10 0-5 3-8 7-10Z" fill="#fff4ce"/><path d="M22 48h20m-15 5h10" stroke="#b68d59" stroke-width="2" stroke-linecap="round"/>',
+    'tiny-mushroom':'<path d="M17 34c0-13 8-23 17-23s17 10 17 23Z" fill="#e99aac" stroke="#b9798e" stroke-width="2.5"/><path d="M29 34v17c0 5 12 5 12 0V34Z" fill="#fff0df" stroke="#c8a98d" stroke-width="2"/><circle cx="26" cy="24" r="3" fill="#fff2e8"/><circle cx="41" cy="18" r="2.5" fill="#fff2e8"/><circle cx="44" cy="29" r="2" fill="#fff2e8"/>',
+    'golden-bell':'<path d="M19 43c5-6 3-23 13-23s8 17 13 23Z" fill="#f2d17d" stroke="#b9954f" stroke-width="2.5"/><path d="M16 44h32m-18-27a2 2 0 1 1 4 0" stroke="#b9954f" stroke-width="2.5" stroke-linecap="round"/><circle cx="32" cy="48" r="4" fill="#d6a95b"/><path d="m14 17 4 3m32-3-4 3" stroke="#e0bd71" stroke-width="2.5" stroke-linecap="round"/>',
+    'bunny-bow':'<path d="M31 32C14 9 7 24 22 36L31 32Zm2 0c17-23 24-8 9 4l-9-4Z" fill="#e99bb7" stroke="#b97896" stroke-width="2.5"/><circle cx="32" cy="33" r="5" fill="#f6d4df" stroke="#b97896" stroke-width="2"/>',
+    'flower-crown':'<path d="M12 42c5-22 35-22 40 0" fill="none" stroke="#8eaa7d" stroke-width="4" stroke-linecap="round"/><g stroke="#b97998" stroke-width="1.5"><circle cx="17" cy="32" r="6" fill="#f2b2c5"/><circle cx="28" cy="25" r="7" fill="#f6d9a4"/><circle cx="42" cy="31" r="6" fill="#d9c8ee"/></g><g fill="#fff3e6"><circle cx="17" cy="32" r="2"/><circle cx="28" cy="25" r="2.2"/><circle cx="42" cy="31" r="2"/></g>',
+    'starry-hat':'<path d="M15 42 27 12c2-5 8-5 10 0l12 30Z" fill="#b7a3d7" stroke="#8873ad" stroke-width="2.5"/><path d="M12 43h40" stroke="#8873ad" stroke-width="4" stroke-linecap="round"/><path d="m31 20 2 4 4 1-4 2-2 4-2-4-4-2 4-1Z" fill="#ffe6a6"/><circle cx="40" cy="34" r="2" fill="#fff1cf"/>',
+    'hearts':'<path d="M32 49S12 37 12 24c0-10 14-13 20-2 6-11 20-8 20 2 0 13-20 25-20 25Z" fill="#e99bb7" stroke="#b97896" stroke-width="2.5"/><path d="m19 20 3-4m23 4-3-4" stroke="#fff0e6" stroke-width="2.5" stroke-linecap="round"/>',
+    'photo':'<rect x="12" y="17" width="40" height="31" rx="6" fill="#f8e5d6" stroke="#b98b78" stroke-width="2.5"/><circle cx="24" cy="27" r="4" fill="#efc879"/><path d="m15 43 12-12 8 8 6-6 8 10" fill="#a9c49b" stroke="#789477" stroke-width="2"/>',
+    'kissNote':'<path d="M13 19h38v29H13Z" fill="#fff1e8" stroke="#c98da8" stroke-width="2.5"/><path d="m14 21 18 14 18-14" fill="none" stroke="#c98da8" stroke-width="2.5"/><path d="M32 30c-7-9-16 0 0 12 16-12 7-21 0-12Z" fill="#e99bb7"/>',
+    'note':'<path d="M17 12h30v39H17Z" fill="#fff8ec" stroke="#c5a98b" stroke-width="2.5"/><path d="M23 23h18m-18 7h18m-18 7h12" stroke="#c98da8" stroke-width="2.5" stroke-linecap="round"/>',
+    'song':'<path d="M35 12v29a7 7 0 1 1-5-6V18l20-4v23a7 7 0 1 1-5-6V10Z" fill="#c9b8e4" stroke="#8d79ae" stroke-width="2.5"/>',
+    'login':'<path d="M32 50V27m0 14c-17-19-25-7-16 1 5 4 11 2 16-1Zm0-11c14-16 23-5 15 2-5 4-10 2-15-2Z" fill="#a8c49a" stroke="#789477" stroke-width="2"/><path d="M32 27c-13-3-13-17-3-19 0-8 13-8 14 0 10 3 8 16-5 19Z" fill="#e9a1b8" stroke="#bd7895" stroke-width="2"/>',
+    'bloom-3':'<path d="M32 51V35m0 9c-12-12-18-4-13 2 4 4 9 2 13-2Z" stroke="#789477" stroke-width="2.5" fill="#b6cba9"/><g fill="#e9a1b8"><ellipse cx="32" cy="22" rx="6" ry="11"/><ellipse cx="32" cy="22" rx="6" ry="11" transform="rotate(72 32 22)"/><ellipse cx="32" cy="22" rx="6" ry="11" transform="rotate(144 32 22)"/></g><circle cx="32" cy="22" r="5" fill="#f4d17d"/>',
+    'bloom-5':'<path d="M32 54V32m0 13c-14-13-22-5-15 3 5 4 11 2 15-3Z" stroke="#789477" stroke-width="2.5" fill="#b6cba9"/><g fill="#e9a1b8"><ellipse cx="32" cy="20" rx="6" ry="12"/><ellipse cx="32" cy="20" rx="6" ry="12" transform="rotate(60 32 20)"/><ellipse cx="32" cy="20" rx="6" ry="12" transform="rotate(120 32 20)"/></g><circle cx="32" cy="20" r="5" fill="#f4d17d"/><path d="M14 14 17 9m30 5-3-5" stroke="#d5b16b" stroke-width="2"/>',
+    'bloom-7':'<path d="M32 55V32m0 15c-14-14-22-5-15 3 5 4 11 2 15-3Z" stroke="#789477" stroke-width="2.5" fill="#b6cba9"/><g fill="#e99bb7" stroke="#c47e9c" stroke-width="1"><ellipse cx="32" cy="19" rx="6" ry="13"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(45 32 19)"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(90 32 19)"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(135 32 19)"/></g><circle cx="32" cy="19" r="6" fill="#f4d17d"/><path d="m13 17 3-5m35 5-3-5" stroke="#d5b16b" stroke-width="2"/>'
+  };
+  return '<svg viewBox="0 0 64 64" role="img" focusable="false" aria-hidden="true">' + (art[kind] || art['pink-tulips']) + '</svg>';
+}
+
 const GARDEN_COLLECTIBLES = [
-  {id:'pink-tulips',name:'Pink Tulip Patch',icon:'🌷',cost:30,type:'garden'},
-  {id:'moon-lantern',name:'Moon Lantern',icon:'🏮',cost:45,type:'garden'},
-  {id:'tiny-mushroom',name:'Tiny Mushroom',icon:'🍄',cost:60,type:'garden'},
-  {id:'golden-bell',name:'Golden Garden Bell',icon:'🔔',cost:80,type:'garden'},
-  {id:'bunny-bow',name:'Blush Bunny Bow',icon:'🎀',cost:35,type:'bunny'},
-  {id:'flower-crown',name:'Flower Crown',icon:'👑',cost:65,type:'bunny'},
-  {id:'starry-hat',name:'Starry Night Hat',icon:'✨',cost:90,type:'bunny'}
+  {id:'pink-tulips',name:'Pink Tulip Patch',art:gardenIllustration('pink-tulips'),cost:30,type:'garden'},
+  {id:'moon-lantern',name:'Moon Lantern',art:gardenIllustration('moon-lantern'),cost:45,type:'garden'},
+  {id:'tiny-mushroom',name:'Tiny Mushroom',art:gardenIllustration('tiny-mushroom'),cost:60,type:'garden'},
+  {id:'golden-bell',name:'Golden Garden Bell',art:gardenIllustration('golden-bell'),cost:80,type:'garden'},
+  {id:'bunny-bow',name:'Blush Bunny Bow',art:gardenIllustration('bunny-bow'),cost:35,type:'bunny'},
+  {id:'flower-crown',name:'Flower Crown',art:gardenIllustration('flower-crown'),cost:65,type:'bunny'},
+  {id:'starry-hat',name:'Starry Night Hat',art:gardenIllustration('starry-hat'),cost:90,type:'bunny'}
 ];
 function buyGardenCollectible(id) {
   const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
@@ -1556,9 +1579,9 @@ function renderStreakPage() {
   const petalRewards = readPetalRewards();
   const chestClaimed = Object.prototype.hasOwnProperty.call(petalRewards, 'chest:' + todayKey);
   const petalRewardsMarkup = '<div class="sg-petal-rewards" aria-label="Petal Points rewards">' +
-    '<div class="sg-petal-balance"><span aria-hidden="true">✿</span><div><b>' + petalRewardBalance(petalRewards) + ' Petal Points</b><small>Earn 10 per daily quest · 25 from the daily chest</small></div></div>' +
+    '<div class="sg-petal-balance"><span class="sg-petal-balance-art">' + gardenIllustration('bloom-5') + '</span><div><b>' + petalRewardBalance(petalRewards) + ' Petal Points</b><small>Earn 10 per daily quest · 25 from the daily chest</small></div></div>' +
     '<button type="button" class="sg-petal-chest" data-claim-petal-chest' + (completedQuests !== 3 || chestClaimed ? ' disabled' : '') + '>' +
-    '<span aria-hidden="true">🎁</span> ' + (chestClaimed ? 'Chest collected today' : completedQuests === 3 ? 'Open daily chest · +25' : 'Complete 3 quests to unlock chest') + '</button>' +
+    '<span class="sg-chest-art">' + gardenIllustration('golden-bell') + '</span> ' + (chestClaimed ? 'Chest collected today' : completedQuests === 3 ? 'Open daily chest · +25' : 'Complete 3 quests to unlock chest') + '</button>' +
     '<small class="sg-petal-note">Rewards are saved in this browser for your account; they do not sync between devices.</small></div>';
   const collection = readGardenCollection();
   const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Spend your Petal Points on tiny treasures</p></div></div><div class="sg-collectible-grid">' +
@@ -1569,17 +1592,17 @@ function renderStreakPage() {
       return '<article class="sg-collectible-card' + (equipped ? ' is-equipped' : '') + '"><span class="sg-collectible-art" aria-hidden="true">' + item.icon + '</span><b>' + item.name + '</b><small>' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
     }).join('') + '</div><div class="sg-equipped-summary">Garden: ' + (GARDEN_COLLECTIBLES.find(item => item.id === collection.equipped)?.name || 'Original look') + ' · Bunny: ' + (GARDEN_COLLECTIBLES.find(item => item.id === collection.bunny)?.name || 'Original look') + '</div></section>';
   const weeklyProgress = getWeeklyBloomProgress(todayKey);
-  const weeklyTiers = [{days:3,points:30,title:'Little Bloom',icon:'🌱'},{days:5,points:50,title:'Garden Glow',icon:'🌼'},{days:7,points:100,title:'Full Bloom',icon:'💐'}];
+  const weeklyTiers = [{days:3,points:30,title:'Little Bloom',art:gardenIllustration('bloom-3')},{days:5,points:50,title:'Garden Glow',art:gardenIllustration('bloom-5')},{days:7,points:100,title:'Full Bloom',art:gardenIllustration('bloom-7')}];
   const weeklyMarkup = '<section class="sg-weekly-rewards"><div class="sg-section-heading"><div><h3>Weekly Bloom Rewards</h3><p>Complete daily quests on different days</p></div><span class="sg-goal-count">' + weeklyProgress.completedDays.length + ' / 7 days</span></div><div class="sg-weekly-tier-list">' +
     weeklyTiers.map(tier => {
       const key = 'weekly:' + weeklyProgress.monday + ':' + tier.days;
       const claimed = Object.prototype.hasOwnProperty.call(petalRewards, key);
       const unlocked = weeklyProgress.completedDays.length >= tier.days;
-      return '<article class="sg-weekly-tier' + (unlocked ? ' is-unlocked' : '') + '"><span aria-hidden="true">' + tier.icon + '</span><div><b>' + tier.title + '</b><small>' + tier.days + ' completed days · +' + tier.points + ' petals</small></div><button type="button" data-claim-weekly="' + tier.days + '"' + (!unlocked || claimed ? ' disabled' : '') + '>' + (claimed ? 'Claimed ✓' : unlocked ? 'Collect' : 'Locked') + '</button></article>';
+      return '<article class="sg-weekly-tier' + (unlocked ? ' is-unlocked' : '') + '"><span class="sg-weekly-art">' + tier.art + '</span><div><b>' + tier.title + '</b><small>' + tier.days + ' completed days · +' + tier.points + ' petals</small></div><button type="button" data-claim-weekly="' + tier.days + '"' + (!unlocked || claimed ? ' disabled' : '') + '>' + (claimed ? 'Claimed ✓' : unlocked ? 'Collect' : 'Locked') + '</button></article>';
     }).join('') + '</div></section>';
   const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
     dailyQuestItems.map(item => '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
-      '<span class="sg-daily-quest-icon" aria-hidden="true">' + item.icon + '</span>' +
+      '<span class="sg-daily-quest-icon">' + gardenIllustration(item.id === 'hearts' ? 'hearts' : item.id) + '</span>' +
       '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
       '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
       '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>').join('') +

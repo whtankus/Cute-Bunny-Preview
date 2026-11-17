@@ -7,8 +7,8 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#fcf7f2",
-  "theme_color": "#fcf7f2",
+  "background_color": "#fdf8f1",
+  "theme_color": "#fdf1ea",
   "icons": [
     {
       "src": "bunny-app-icon-192.png",
@@ -28,13 +28,5 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ],
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "prefer_related_applications": false
+  ]
 }

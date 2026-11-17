@@ -13993,3 +13993,21 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
   background:rgba(255,239,247,.58)!important;
   border-color:rgba(224,174,197,.72)!important;
 }
+
+
+/* Softer, rounder glass corners and a matching flower control. */
+#friendProfileGate .friend-profile-bio-row .friend-profile-bio {
+  border-radius:20px!important;
+}
+#friendProfileGate .friend-profile-collection,
+#friendProfileGate .friend-profile-badges {
+  border-radius:24px!important;
+}
+#friendProfileGate .friend-profile-collection-item,
+#friendProfileGate .friend-profile-badge,
+#friendProfileGate .friend-profile-milestone-badge {
+  border-radius:17px!important;
+}
+#friendProfileGate .friend-profile-bio-row .friend-profile-theme-button {
+  border-radius:15px!important;
+}

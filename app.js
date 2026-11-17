@@ -4949,8 +4949,7 @@ document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
   const panel = document.querySelector('#profileSettingsPanel');
   if (!panel || panel.classList.contains('hidden')) return;
-  panel.classList.add('hidden');
-  document.querySelector('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
+  restoreProfileSettingsToMain();
 });
 
 

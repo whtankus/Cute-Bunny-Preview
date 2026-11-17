@@ -2215,8 +2215,8 @@ function render(options = {}) {
           <button class="primary" data-go="friends">Find your friend ♡</button>
         </div>
         <button class="hero-art bunny-button" id="bunnyBuddy" aria-label="Open your profile">
-          <span>☁️</span><span>${esc(me?.mascot || '🐰')}</span><span>🌷</span>
-          <svg class="doodle-bouquet" viewBox="0 0 90 70" aria-hidden="true"><path d="M45 66Q39 42 29 27M45 66Q46 38 47 20M45 66Q56 42 72 30"/><path d="M39 54q-13-13-21-5 7 12 21 5M51 53q12-15 21-7-6 13-21 7"/><g class="bloom"><circle cx="29" cy="22" r="5"/><circle cx="23" cy="22" r="4"/><circle cx="35" cy="22" r="4"/><circle cx="29" cy="16" r="4"/><circle cx="29" cy="28" r="4"/></g><g class="bloom lavender"><circle cx="47" cy="16" r="5"/><circle cx="41" cy="16" r="4"/><circle cx="53" cy="16" r="4"/><circle cx="47" cy="10" r="4"/><circle cx="47" cy="22" r="4"/></g><g class="bloom peach"><circle cx="73" cy="27" r="5"/><circle cx="67" cy="27" r="4"/><circle cx="79" cy="27" r="4"/><circle cx="73" cy="21" r="4"/><circle cx="73" cy="33" r="4"/></g></svg>
+          <span>☁️</span><span>${esc(me?.mascot || '🐰')}</span><span class="hero-side-flower" aria-hidden="true"><svg viewBox="0 0 48 58"><defs><linearGradient id="sidePetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f9dce7"/><stop offset="1" stop-color="#d98eae"/></linearGradient><radialGradient id="sideCore"><stop stop-color="#fff0b8"/><stop offset="1" stop-color="#e9b85f"/></radialGradient></defs><path d="M24 31Q22 44 24 55" fill="none" stroke="#78977d" stroke-width="2.4" stroke-linecap="round"/><path d="M23 46Q11 36 7 43Q13 53 23 49Z" fill="#b8cfad" stroke="#78977d" stroke-width="1.2"/><path d="M25 49Q34 38 41 43Q38 53 25 52Z" fill="#c9d9b9" stroke="#78977d" stroke-width="1.2"/><g fill="url(#sidePetal)" stroke="#fff8f2" stroke-width="1.6"><ellipse cx="24" cy="17" rx="5.4" ry="9" transform="rotate(0 24 17)"/><ellipse cx="24" cy="17" rx="5.4" ry="9" transform="rotate(60 24 17)"/><ellipse cx="24" cy="17" rx="5.4" ry="9" transform="rotate(120 24 17)"/></g><g fill="none" stroke="#fff7f1" stroke-width=".8" opacity=".75"><path d="M24 10Q23 14 24 16M16 17Q20 17 22 18M28 18Q31 16 33 14"/></g><circle cx="24" cy="17" r="4.2" fill="url(#sideCore)" stroke="#fff8f2" stroke-width="1.4"/><circle cx="22.5" cy="15.5" r="1" fill="#fff9dc" opacity=".9"/></svg></span>
+          <svg class="doodle-bouquet" viewBox="0 0 94 72" aria-hidden="true"><defs><linearGradient id="petalPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe6ed"/><stop offset="1" stop-color="#dc8eaa"/></linearGradient><linearGradient id="petalLilac" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0e7ff"/><stop offset="1" stop-color="#bba4dc"/></linearGradient><linearGradient id="petalPeach" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0d2"/><stop offset="1" stop-color="#e9b778"/></linearGradient><radialGradient id="flowerGold"><stop stop-color="#fff2bd"/><stop offset="1" stop-color="#e6ad59"/></radialGradient></defs><g class="stems" fill="none" stroke="#78977d" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M46 66Q27 43 17 24M46 66Q40 39 42 15M46 66Q58 43 76 25"/><path d="M37 56Q22 48 15 55Q23 65 39 60M51 57Q66 46 76 54Q69 65 51 61"/></g><g fill="#b8cfad" stroke="#78977d" stroke-width="1.3"><path d="M31 49Q15 35 10 43Q16 55 31 49Z"/><path d="M57 50Q70 34 81 42Q76 55 57 50Z"/></g><g fill="none" stroke="#e8f0df" stroke-width=".8" opacity=".9"><path d="M14 44Q21 46 27 48M61 47Q69 44 77 43"/></g><g stroke="#fff9f3" stroke-width="1.45"><g fill="url(#petalPink)"><ellipse cx="17" cy="19" rx="4.1" ry="7.3"/><ellipse cx="17" cy="19" rx="4.1" ry="7.3" transform="rotate(72 17 19)"/><ellipse cx="17" cy="19" rx="4.1" ry="7.3" transform="rotate(144 17 19)"/><ellipse cx="17" cy="19" rx="4.1" ry="7.3" transform="rotate(216 17 19)"/><ellipse cx="17" cy="19" rx="4.1" ry="7.3" transform="rotate(288 17 19)"/></g><g fill="url(#petalLilac)"><path d="M42 5C35 9 34 17 42 22C50 17 49 9 42 5Z"/><path d="M42 5C50 9 50 17 42 22C34 17 34 9 42 5Z" transform="rotate(60 42 14)"/><path d="M42 5C50 9 50 17 42 22C34 17 34 9 42 5Z" transform="rotate(120 42 14)"/></g><g fill="url(#petalPeach)"><ellipse cx="76" cy="21" rx="4.8" ry="8"/><ellipse cx="76" cy="21" rx="4.8" ry="8" transform="rotate(72 76 21)"/><ellipse cx="76" cy="21" rx="4.8" ry="8" transform="rotate(144 76 21)"/><ellipse cx="76" cy="21" rx="4.8" ry="8" transform="rotate(216 76 21)"/><ellipse cx="76" cy="21" rx="4.8" ry="8" transform="rotate(288 76 21)"/></g></g><g fill="url(#flowerGold)" stroke="#fff9f1" stroke-width="1.2"><circle cx="17" cy="19" r="3.1"/><circle cx="42" cy="14" r="3.1"/><circle cx="76" cy="21" r="3.3"/></g><g fill="#fff8e8" opacity=".9"><circle cx="16" cy="18" r=".8"/><circle cx="41" cy="13" r=".8"/><circle cx="75" cy="20" r=".9"/></g><g fill="#f2c5d5" opacity=".85"><circle cx="29" cy="28" r="1.5"/><circle cx="59" cy="29" r="1.7"/><circle cx="87" cy="39" r="1.4"/></g></svg>
           <i>✦</i>
         </button>
       </div>
@@ -2344,97 +2344,124 @@ function showFriendProfile(user) {
 
 
 function profileSettingsMarkup() {
-  return `<section class="profile-settings-panel hidden" id="profileSettingsPanel" aria-label="Profile settings">
-      <div class="profile-settings-heading"><h3>Settings</h3></div>
-      <nav class="profile-settings-tabs" aria-label="Settings sections"><button type="button" class="is-active" data-settings-tab="profile" aria-pressed="true">Profile</button><button type="button" data-settings-tab="chat" aria-pressed="false">Chat</button><button type="button" data-settings-tab="account" aria-pressed="false">Account</button><button type="button" data-settings-tab="other" aria-pressed="false">Others</button></nav>
-      <div class="profile-settings-section profile-editor-settings" data-settings-section="profile">
-        <h4>Edit your profile</h4><p>Make this little corner feel like you.</p>
-        <div class="profile-settings-fields"><label>Display name<input id="profileEditDisplay" maxlength="60" autocomplete="name" placeholder="Your name"></label><label>Username<input id="profileEditUsername" maxlength="24" autocomplete="username" spellcheck="false" placeholder="your_username"></label></div>
-        <label>About you<input id="profileEditBio" maxlength="300" placeholder="A little hello…"></label>
-        <label class="profile-settings-choice-label">Your colors</label>
-        <div class="profile-settings-theme-grid" role="radiogroup" aria-label="Choose profile colors">
-          <button type="button" data-settings-theme-choice="rose" aria-checked="false" role="radio"><i class="theme-swatch rose">🌷</i><span>Rose garden</span></button>
-          <button type="button" data-settings-theme-choice="lavender" aria-checked="false" role="radio"><i class="theme-swatch lavender">☁️</i><span>Lavender skies</span></button>
-          <button type="button" data-settings-theme-choice="mint" aria-checked="false" role="radio"><i class="theme-swatch mint">🍃</i><span>Mint meadow</span></button>
-          <button type="button" data-settings-theme-choice="sky" aria-checked="false" role="radio"><i class="theme-swatch sky">🐦</i><span>Bluebird day</span></button>
-          <button type="button" data-settings-theme-choice="peach" aria-checked="false" role="radio"><i class="theme-swatch peach">🍑</i><span>Peach glow</span></button>
-          <button type="button" data-settings-theme-choice="berry" aria-checked="false" role="radio"><i class="theme-swatch berry">🫐</i><span>Berry bloom</span></button>
-          <button type="button" data-settings-theme-choice="midnight" aria-checked="false" role="radio"><i class="theme-swatch midnight">🌙</i><span>Midnight lilac</span></button>
-          <button type="button" data-settings-theme-choice="sage" aria-checked="false" role="radio"><i class="theme-swatch sage">🌿</i><span>Sage garden</span></button>
-          <button type="button" data-settings-theme-choice="buttercup" aria-checked="false" role="radio"><i class="theme-swatch buttercup">🌼</i><span>Buttercup cream</span></button>
+  const themeOptions = [
+    ['rose','🌷','Rose garden'],['lavender','☁️','Lavender skies'],['mint','🍃','Mint meadow'],
+    ['sky','🐦','Bluebird day'],['peach','🍑','Peach glow'],['berry','🫐','Berry bloom'],
+    ['midnight','🌙','Midnight lilac'],['sage','🌿','Sage garden'],['buttercup','🌼','Buttercup']
+  ];
+  const buddyOptions = [['🐰','Bunny'],['🐱','Kitty'],['🐻','Bear'],['🐸','Frog']];
+  return `<section class="profile-settings-panel hidden" id="profileSettingsPanel" aria-label="Profile settings" aria-modal="false">
+    <div class="profile-settings-heading">
+      <div><small>YOUR LITTLE CORNER</small><h3>Settings</h3><p>Make this space feel like yours.</p></div>
+      <button type="button" class="profile-settings-close" id="profileSettingsClose" aria-label="Close profile settings">×</button>
+    </div>
+    <div class="profile-settings-tabs" role="tablist" aria-label="Settings sections">
+      <button type="button" class="profile-settings-tab is-active" data-settings-tab="account" role="tab" aria-selected="true" aria-controls="profileSettingsAccount">Account</button>
+      <button type="button" class="profile-settings-tab" data-settings-tab="personal" role="tab" aria-selected="false" aria-controls="profileSettingsPersonal">Personal</button>
+      <button type="button" class="profile-settings-tab" data-settings-tab="appearance" role="tab" aria-selected="false" aria-controls="profileSettingsAppearance">Appearance</button>
+      <button type="button" class="profile-settings-tab" data-settings-tab="notifications" role="tab" aria-selected="false" aria-controls="profileSettingsNotifications">Alerts</button>
+    </div>
+    <div class="profile-settings-section profile-editor-settings" id="profileSettingsAccount" data-settings-section="account" role="tabpanel">
+      <div class="settings-section-intro"><span class="settings-section-icon">♡</span><div><b>Account details</b><small>Your unique identity in Cute Bunny.</small></div></div>
+      <label class="profile-settings-field">Username
+        <span class="profile-username-input"><span aria-hidden="true">@</span><input id="profileEditUsername" maxlength="24" autocomplete="username" spellcheck="false" placeholder="your_username"></span>
+      </label>
+      <p class="profile-settings-hint">Use 3–24 letters, numbers or underscores.</p>
+    </div>
+    <div class="profile-settings-section profile-editor-settings hidden" id="profileSettingsPersonal" data-settings-section="personal" role="tabpanel">
+      <div class="settings-section-intro"><span class="settings-section-icon">✿</span><div><b>About you</b><small>Personalize how your profile is represented.</small></div></div>
+      <div class="profile-settings-gender">
+        <label>Gender</label>
+        <div class="profile-gender-options" role="group" aria-label="Choose your gender">
+          <button type="button" data-profile-gender="male" aria-pressed="false">Male</button>
+          <button type="button" data-profile-gender="female" aria-pressed="false">Female</button>
         </div>
-        <label class="profile-settings-choice-label">Your little buddy</label>
-        <div class="profile-settings-buddy-grid" role="radiogroup" aria-label="Choose your buddy">
-          <button type="button" data-settings-buddy-choice="🐰" role="radio" aria-checked="false">🐰 <span>Bunny</span></button>
-          <button type="button" data-settings-buddy-choice="🐱" role="radio" aria-checked="false">🐱 <span>Kitty</span></button>
-          <button type="button" data-settings-buddy-choice="🐻" role="radio" aria-checked="false">🐻 <span>Bear</span></button>
-          <button type="button" data-settings-buddy-choice="🐸" role="radio" aria-checked="false">🐸 <span>Frog</span></button>
-        </div>
-        <div class="profile-settings-gender"><label>Profile title</label><div class="profile-gender-options" role="group" aria-label="Profile title"><button type="button" data-profile-gender="male">King</button><button type="button" data-profile-gender="female">Queen</button></div></div>
-        <p class="profile-settings-preview" id="profileGenderPreview">Choose a profile title or leave it blank.</p>
       </div>
-      <div class="profile-settings-section hidden" data-settings-section="chat"><h4>Chat</h4><label class="profile-setting-toggle"><span><b>Memory notifications</b><small>Get notified when a friend shares a memory.</small></span><input type="checkbox" id="profileSettingMemoryNotifications"></label><label class="profile-setting-toggle"><span><b>Friend activity notifications</b><small>Keep friend activity alerts enabled.</small></span><input type="checkbox" id="profileSettingBuddyNotifications"></label></div>
-      <div class="profile-settings-section hidden" data-settings-section="account"><h4>Account</h4><p>Your current Cute Bunny profile details.</p><div class="profile-settings-account"><span>Username</span><b id="profileSettingsUsername">—</b></div><div class="profile-settings-account"><span>Display name</span><b id="profileSettingsDisplayName">—</b></div></div>
-      <div class="profile-settings-section hidden" data-settings-section="other"><h4>Others</h4><p>Change the decorative wallpaper on your profile without changing its layout.</p><button type="button" class="profile-settings-wallpaper" id="profileSettingsWallpaper">Change profile theme</button><div class="profile-settings-extra"><h4>Accessibility</h4><label class="profile-setting-toggle"><span><b>Reduce animations</b><small>Limit decorative movement across the app.</small></span><input type="checkbox" id="profileSettingReduceMotion"></label></div></div>
-      <button type="button" class="primary profile-settings-save" id="profileSettingsSave">Save settings</button><p class="profile-settings-feedback" id="profileSettingsFeedback" role="status"></p>
-    </section>`;
+    </div>
+    <div class="profile-settings-section profile-editor-settings hidden" id="profileSettingsAppearance" data-settings-section="appearance" role="tabpanel">
+      <div class="settings-section-intro"><span class="settings-section-icon">✧</span><div><b>Your appearance</b><small>Choose the colours and little buddy you love.</small></div></div>
+      <input id="settingsThemeValue" type="hidden" value="rose">
+      <div class="settings-choice-heading">Colour theme</div>
+      <div class="settings-theme-grid" role="radiogroup" aria-label="Choose a colour theme">
+        ${themeOptions.map(([value,emoji,label]) => `<button type="button" class="settings-theme-choice" data-settings-theme-choice="${value}" role="radio" aria-checked="false"><span>${emoji}</span><small>${label}</small></button>`).join('')}
+      </div>
+      <input id="settingsBuddyValue" type="hidden" value="🐰">
+      <div class="settings-choice-heading">Little buddy</div>
+      <div class="settings-buddy-row" role="radiogroup" aria-label="Choose your little buddy">
+        ${buddyOptions.map(([value,label]) => `<button type="button" class="settings-buddy-choice" data-settings-buddy-choice="${value}" role="radio" aria-checked="false"><span>${value}</span><small>${label}</small></button>`).join('')}
+      </div>
+      <button type="button" class="settings-wallpaper-action" id="profileSettingsWallpaper">Change profile wallpaper <span>→</span></button>
+    </div>
+    <div class="profile-settings-section profile-editor-settings hidden" id="profileSettingsNotifications" data-settings-section="notifications" role="tabpanel">
+      <div class="settings-section-intro"><span class="settings-section-icon">♡</span><div><b>Your notifications</b><small>Choose what you want to hear about.</small></div></div>
+      <div class="settings-notification-card"><span>Photos, songs & notes</span><small>Updates shared in your little corner</small><button type="button" class="settings-open-notifications" id="profileSettingsOpenNotifications">Manage alerts →</button></div>
+      <div class="settings-notification-card"><span>Buddy hellos</span><small>When your friends stop by</small><button type="button" class="settings-open-notifications" data-open-notification-settings>Notification preferences →</button></div>
+    </div>
+    <div class="profile-settings-actions">
+      <p class="profile-settings-feedback" id="profileSettingsFeedback" role="status" aria-live="polite"></p>
+      <button type="button" class="primary profile-settings-save" id="profileSettingsSave"><span aria-hidden="true">♡</span> Save settings</button>
+    </div>
+  </section>`;
 }
 function renderProfileSettings() {
-  const gender = me?.gender || '';
-  const display = $('#profileEditDisplay'), usernameField = $('#profileEditUsername'), bioField = $('#profileEditBio');
-  if (display) display.value = me?.displayName || me?.display_name || '';
+  const usernameField = $('#profileEditUsername');
   if (usernameField) usernameField.value = me?.username || '';
-  if (bioField) bioField.value = me?.bio || '';
-  document.querySelectorAll('[data-profile-gender]').forEach(button => { button.classList.toggle('is-selected', button.dataset.profileGender === gender); button.setAttribute('aria-pressed', String(button.dataset.profileGender === gender)); });
-  document.querySelectorAll('[data-settings-theme-choice]').forEach(button => { const selected = button.dataset.settingsThemeChoice === (me?.theme || 'rose'); button.classList.toggle('is-selected', selected); button.setAttribute('aria-checked', String(selected)); });
-  document.querySelectorAll('[data-settings-buddy-choice]').forEach(button => { const selected = button.dataset.settingsBuddyChoice === (me?.mascot || '🐰'); button.classList.toggle('is-selected', selected); button.setAttribute('aria-checked', String(selected)); });
-  const preview = $('#profileGenderPreview');
-  if (preview) preview.textContent = gender === 'male' ? 'Preview: 👑 King' : gender === 'female' ? 'Preview: 👑 Queen' : 'Choose a profile title or leave it blank.';
-  const prefs = me?.notification_preferences || {};
-  const memory = $('#profileSettingMemoryNotifications'), buddy = $('#profileSettingBuddyNotifications');
-  if (memory) memory.checked = prefs.memories !== false;
-  if (buddy) buddy.checked = prefs.buddy !== false;
-  const reduceMotion = $('#profileSettingReduceMotion');
-  let reduceMotionEnabled = false;
-  try { reduceMotionEnabled = localStorage.getItem('cuteBunnyReduceMotion') === 'true'; } catch {}
-  if (reduceMotion) reduceMotion.checked = reduceMotionEnabled;
-  document.documentElement.classList.toggle('reduce-app-motion', reduceMotionEnabled);
-  const username = $('#profileSettingsUsername'), displayName = $('#profileSettingsDisplayName');
-  if (username) username.textContent = me?.username ? '@' + me.username : '—';
-  if (displayName) displayName.textContent = me?.displayName || me?.display_name || '—';
+  const gender = me?.gender || '';
+  const theme = me?.theme || 'rose';
+  const buddy = me?.mascot || '🐰';
+  const themeInput = $('#settingsThemeValue'), buddyInput = $('#settingsBuddyValue');
+  if (themeInput) themeInput.value = theme;
+  if (buddyInput) buddyInput.value = buddy;
+  document.querySelectorAll('[data-settings-theme-choice]').forEach(button => {
+    const selected = button.dataset.settingsThemeChoice === theme;
+    button.classList.toggle('is-selected', selected);
+    button.setAttribute('aria-checked', String(selected));
+  });
+  document.querySelectorAll('[data-settings-buddy-choice]').forEach(button => {
+    const selected = button.dataset.settingsBuddyChoice === buddy;
+    button.classList.toggle('is-selected', selected);
+    button.setAttribute('aria-checked', String(selected));
+  });
+  document.querySelectorAll('[data-profile-gender]').forEach(button => {
+    const selected = button.dataset.profileGender === gender;
+    button.classList.toggle('is-selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
 }
 async function saveProfileSettings() {
   if (!me?.id) return;
   const save = $('#profileSettingsSave'), feedback = $('#profileSettingsFeedback');
   const gender = document.querySelector('[data-profile-gender].is-selected')?.dataset.profileGender || null;
-  const username = String($('#profileEditUsername')?.value || me.username || '').trim().toLowerCase();
-  const displayName = String($('#profileEditDisplay')?.value || '').trim();
-  const bio = String($('#profileEditBio')?.value || '').trim();
-  const theme = document.querySelector('[data-settings-theme-choice].is-selected')?.dataset.settingsThemeChoice || me.theme || 'rose';
-  const mascot = document.querySelector('[data-settings-buddy-choice].is-selected')?.dataset.settingsBuddyChoice || me.mascot || '🐰';
-  if (!/^[a-z0-9_]{3,24}$/.test(username)) { if (feedback) feedback.textContent = 'Username must be 3–24 letters, numbers, or underscores.'; toast('Check your username ♡'); return; }
-  const notificationPreferences = { ...(me.notification_preferences || {}), memories: $('#profileSettingMemoryNotifications')?.checked !== false, buddy: $('#profileSettingBuddyNotifications')?.checked !== false };
-  const reduceMotionEnabled = $('#profileSettingReduceMotion')?.checked === true;
+  const username = String($('#profileEditUsername')?.value || '').trim().toLowerCase();
+  if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+    if (feedback) feedback.textContent = 'Username must be 3–24 letters, numbers, or underscores.';
+    toast('Check your username ♡');
+    return;
+  }
   if (save) save.disabled = true;
-  if (feedback) feedback.textContent = 'Saving your settings…';
+  if (feedback) feedback.textContent = 'Saving your changes…';
   try {
-    const saved = await api('/me', { method: 'PUT', body: JSON.stringify({ username, displayName, bio, theme, mascot, gender, notificationPreferences }) });
-    me = { ...me, ...saved, username: saved.username || username, displayName: saved.displayName || saved.display_name || displayName, bio: saved.bio ?? bio, theme: saved.theme || theme, mascot: saved.mascot || mascot, gender, notification_preferences: saved.notification_preferences || notificationPreferences };
-    setTheme(me.theme);
-    delete document.documentElement.dataset.themePreview;
-    try { localStorage.setItem('cuteBunnyReduceMotion', String(reduceMotionEnabled)); } catch {}
-    document.documentElement.classList.toggle('reduce-app-motion', reduceMotionEnabled);
+    const theme = $('#settingsThemeValue')?.value || me.theme || 'rose';
+    const mascot = $('#settingsBuddyValue')?.value || me.mascot || '🐰';
+    const saved = await api('/me', { method: 'PUT', body: JSON.stringify({ username, gender, theme, mascot }) });
+    me = { ...me, ...saved, username: saved.username || username, gender, theme, mascot };
+    setTheme(theme);
+    const topMascot = $('#topMascot');
+    if (topMascot) topMascot.textContent = mascot;
     const gate = $('#friendProfileGate');
     if (gate && !gate.classList.contains('hidden') && gate.dataset.ownProfile === 'true') showFriendProfile(me);
     renderProfileSettings();
-    if (feedback) feedback.textContent = 'Your settings are saved ♡';
-    toast('Profile settings saved ♡');
+    if (feedback) feedback.textContent = 'Your profile is updated ♡';
+    toast('Profile updated ♡');
     $('#profileSettingsPanel')?.classList.add('hidden');
+    $('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
     render();
   } catch (error) {
-    if (feedback) feedback.textContent = error.message || 'Could not save settings.';
-    toast(error.message || 'Could not save settings.');
-  } finally { if (save) save.disabled = false; }
+    if (feedback) feedback.textContent = error.message || 'Could not save your profile.';
+    toast(error.message || 'Could not save your profile.');
+  } finally {
+    if (save) save.disabled = false;
+  }
 }
 
 const PROFILE_WALLPAPERS = ['normal', 'blossom', 'clouds', 'starlight', 'hearts'];
@@ -3103,20 +3130,34 @@ async function sendNotesTyping(isTyping) {
 function receiveNotesTyping(payload) {
   const userId = String(payload?.user_id || '');
   if (!userId || userId === String(me?.id || '')) return;
+
+  // A conversation participant can be present in the followed-friends list or
+  // already represented by a message in this Notes thread. The latter keeps
+  // typing visible when the follow list has not refreshed yet.
   const friend = friends.find(item => String(item.id || item.user_id || '') === userId);
-  if (!friend) return;
+  const knownAuthor = feed.find(item =>
+    item.kind === 'note' &&
+    String(item.author?.id || item.owner_id || '') === userId
+  )?.author;
+  if (!friend && !knownAuthor) return;
+
   const sentAt = Number(payload?.sent_at || 0);
-  if (sentAt && Date.now() - sentAt > NOTES_TYPING_EXPIRY_MS + 500) return;
+  if (sentAt && Date.now() - sentAt > NOTES_TYPING_EXPIRY_MS + 1000) return;
   const existing = remoteTypingUsers.get(userId);
   if (existing?.timer) clearTimeout(existing.timer);
+
   if (!payload.is_typing || page !== 'notes' || document.hidden) {
     remoteTypingUsers.delete(userId);
     syncNotesTypingIndicator();
     return;
   }
+
+  const username = friend?.username || knownAuthor?.username || payload.username || 'Friend';
   const entry = {
-    username: friend.username || payload.username || 'Friend',
-    displayName: friend.displayName || friend.display_name || payload.display_name || friend.username || 'Friend',
+    username,
+    displayName: friend?.displayName || friend?.display_name ||
+      knownAuthor?.displayName || knownAuthor?.display_name ||
+      payload.display_name || username,
     timer: setTimeout(() => {
       remoteTypingUsers.delete(userId);
       syncNotesTypingIndicator();
@@ -4368,11 +4409,16 @@ document.addEventListener('click', event => {
   const buddy = target?.closest?.('[data-settings-buddy-choice]');
   if (theme) {
     document.querySelectorAll('[data-settings-theme-choice]').forEach(button => { const active = button === theme; button.classList.toggle('is-selected', active); button.setAttribute('aria-checked', String(active)); });
-    // Live preview the complete app palette immediately; Save persists it to Supabase.
-    setTheme(theme.dataset.settingsThemeChoice);
-    document.documentElement.dataset.themePreview = theme.dataset.settingsThemeChoice;
+    const value = theme.dataset.settingsThemeChoice;
+    const field = document.querySelector('#settingsThemeValue');
+    if (field) field.value = value;
+    setTheme(value);
   }
-  if (buddy) document.querySelectorAll('[data-settings-buddy-choice]').forEach(button => { const active = button === buddy; button.classList.toggle('is-selected', active); button.setAttribute('aria-checked', String(active)); });
+  if (buddy) {
+    document.querySelectorAll('[data-settings-buddy-choice]').forEach(button => { const active = button === buddy; button.classList.toggle('is-selected', active); button.setAttribute('aria-checked', String(active)); });
+    const field = document.querySelector('#settingsBuddyValue');
+    if (field) field.value = buddy.dataset.settingsBuddyChoice;
+  }
 }, true);
 
 // Settings category tabs: capture clicks before other delegated handlers.
@@ -4389,6 +4435,7 @@ document.addEventListener('click', event => {
   panel.querySelectorAll('[data-settings-tab]').forEach(button => {
     const active = button === tab;
     button.classList.toggle('is-active', active);
+    button.setAttribute('aria-selected', String(active));
     button.setAttribute('aria-pressed', String(active));
   });
   panel.querySelectorAll('[data-settings-section]').forEach(section => {
@@ -4396,37 +4443,44 @@ document.addEventListener('click', event => {
   });
 }, true);
 
-// Profile editor flower settings: handle in capture phase so other delegated
-// click handlers cannot swallow the button interaction.
+// Profile settings: the flower is a true toggle; taps outside close it,
+// while taps inside the panel never dismiss it.
 document.addEventListener('click', event => {
   let target = event.target;
   if (target && target.nodeType !== 1) target = target.parentElement;
   const trigger = target?.closest?.('#profileSettingsTrigger');
+  const panel = document.querySelector('#profileSettingsPanel');
+  if (!trigger && panel && !panel.classList.contains('hidden') &&
+      !target?.closest?.('#profileSettingsPanel')) {
+    panel.classList.add('hidden');
+    document.querySelector('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
+    return;
+  }
   if (!trigger) return;
   event.preventDefault();
   event.stopImmediatePropagation();
   const mount = document.querySelector('#profileSettingsMount');
   if (!mount) return;
   if (!document.querySelector('#profileSettingsPanel')) mount.innerHTML = profileSettingsMarkup();
-  const panel = document.querySelector('#profileSettingsPanel');
-  if (panel && !panel.classList.contains('hidden')) {
-    panel.classList.add('hidden');
+  const currentPanel = document.querySelector('#profileSettingsPanel');
+  const willOpen = !!currentPanel?.classList.contains('hidden');
+  if (!willOpen) {
+    currentPanel.classList.add('hidden');
+    trigger.setAttribute('aria-expanded', 'false');
     return;
   }
   renderProfileSettings();
-  panel?.classList.remove('hidden');
+  currentPanel?.classList.remove('hidden');
+  trigger.setAttribute('aria-expanded', 'true');
 }, true);
 
-// Close profile settings when the user taps anywhere outside the panel.
-// The flower button remains a toggle: tap once to open, again to close.
-document.addEventListener('click', event => {
-  let target = event.target;
-  if (target && target.nodeType !== 1) target = target.parentElement;
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
   const panel = document.querySelector('#profileSettingsPanel');
   if (!panel || panel.classList.contains('hidden')) return;
-  if (target?.closest?.('#profileSettingsPanel, #profileSettingsTrigger')) return;
   panel.classList.add('hidden');
-}, true);
+  document.querySelector('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
+});
 
 
 // Submit the friend search form on Enter as well as its Search button.
@@ -4640,7 +4694,7 @@ document.addEventListener('click', async e => {
   const removeStreakGoal = e.target.closest('[data-streak-remove-goal]');
   if (removeStreakGoal) { writeStreakGoals(readStreakGoals().filter(goal => goal.id !== removeStreakGoal.dataset.streakRemoveGoal)); renderStreakPage(); return; }
 
-  // Mascot button
+  // Mascot button — restore the earlier, soft CSS hop from the previous design.
   if (e.target.closest('#bunnyBuddy')) {
     playBoing();
     const bunny = $('#bunnyBuddy'), buddy = me?.mascot || '🐰';
@@ -4754,13 +4808,19 @@ document.addEventListener('click', async e => {
     return;
   }
 
-  if (e.target.closest('#profileSettingsClose')) { $('#profileSettingsPanel')?.classList.add('hidden'); return; }
+  if (e.target.closest('#profileSettingsClose')) { $('#profileSettingsPanel')?.classList.add('hidden'); $('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false'); return; }
   const settingsTab = e.target.closest('[data-settings-tab]');
   if (settingsTab) { const selected = settingsTab.dataset.settingsTab; document.querySelectorAll('[data-settings-tab]').forEach(button => { const active = button === settingsTab; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); }); document.querySelectorAll('[data-settings-section]').forEach(section => { const key = section.dataset.settingsSection; const visible = selected === 'other' ? ['other', 'accessibility', 'account'].includes(key) : key === selected; section.classList.toggle('hidden', !visible); }); return; }
   const genderChoice = e.target.closest('[data-profile-gender]');
   if (genderChoice) { document.querySelectorAll('[data-profile-gender]').forEach(button => button.classList.toggle('is-selected', button === genderChoice)); const preview = $('#profileGenderPreview'); if (preview) preview.textContent = genderChoice.dataset.profileGender === 'male' ? 'Preview: 👑 King' : 'Preview: 👑 Queen'; return; }
   if (e.target.closest('#profileSettingsSave')) { void saveProfileSettings(); return; }
   if (e.target.closest('#profileSettingsWallpaper')) { void cycleProfileWallpaper(); return; }
+  if (e.target.closest('#profileSettingsOpenNotifications, [data-open-notification-settings]')) {
+    $('#profileSettingsPanel')?.classList.add('hidden');
+    $('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
+    $('#notificationGate')?.classList.remove('hidden');
+    return;
+  }
 
   // Friend search & profile & follow
   // Friend search is handled by the form's submit event so typing/clicking
@@ -5125,6 +5185,7 @@ function syncNotesSeenReceiptVisibility(thread = $('#chatThread')) {
 document.addEventListener('scroll', event => {
   const thread = event.target;
   if (page !== 'notes' || thread?.id !== 'chatThread') return;
+
   syncNotesSeenReceiptVisibility(thread);
 
   const currentTop = Math.max(0, Math.round(thread.scrollTop));

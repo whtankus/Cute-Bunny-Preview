@@ -2709,3 +2709,55 @@ html body #app > header > button.brand#profileOpen::after {
   box-shadow: none !important;
   filter: none !important;
 }
+
+
+/* Hard reset for the shared profile trigger. This is a layout-only wrapper,
+   not a third capsule: keep its children/layout and remove all button chrome
+   in every interaction state and on every tab. */
+html body #app > header > #profileOpen.brand,
+html body #app > header > #profileOpen.brand:hover,
+html body #app > header > #profileOpen.brand:active,
+html body #app > header > #profileOpen.brand:focus,
+html body #app > header > #profileOpen.brand:focus-visible {
+  all: unset !important;
+  display: flex !important;
+  flex: 0 1 auto !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 9px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  text-shadow: none !important;
+  transform: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  color: inherit !important;
+  font: inherit !important;
+  cursor: pointer !important;
+}
+html body #app > header > #profileOpen.brand::before,
+html body #app > header > #profileOpen.brand::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+html body #app > header > #profileOpen.brand:active {
+  transform: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}

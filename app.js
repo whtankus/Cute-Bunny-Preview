@@ -971,6 +971,67 @@ function awardPetalReward(key, amount) {
   catch { return false; }
   return true;
 }
+function readGardenCollection() {
+  try {
+    const value = JSON.parse(localStorage.getItem(streakStorageKey('garden-collection')) || '{}');
+    return { owned: Array.isArray(value.owned) ? value.owned : [], equipped: value.equipped || 'none', bunny: value.bunny || 'none' };
+  } catch { return { owned: [], equipped: 'none', bunny: 'none' }; }
+}
+function saveGardenCollection(value) {
+  try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(value)); return true; } catch { return false; }
+}
+const GARDEN_COLLECTIBLES = [
+  {id:'pink-tulips',name:'Pink Tulip Patch',icon:'🌷',cost:30,type:'garden'},
+  {id:'moon-lantern',name:'Moon Lantern',icon:'🏮',cost:45,type:'garden'},
+  {id:'tiny-mushroom',name:'Tiny Mushroom',icon:'🍄',cost:60,type:'garden'},
+  {id:'golden-bell',name:'Golden Garden Bell',icon:'🔔',cost:80,type:'garden'},
+  {id:'bunny-bow',name:'Blush Bunny Bow',icon:'🎀',cost:35,type:'bunny'},
+  {id:'flower-crown',name:'Flower Crown',icon:'👑',cost:65,type:'bunny'},
+  {id:'starry-hat',name:'Starry Night Hat',icon:'✨',cost:90,type:'bunny'}
+];
+function buyGardenCollectible(id) {
+  const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
+  if (!item || !me) return;
+  const collection = readGardenCollection();
+  if (collection.owned.includes(id)) {
+    if (item.type === 'garden') collection.equipped = collection.equipped === id ? 'none' : id;
+    else collection.bunny = collection.bunny === id ? 'none' : id;
+    saveGardenCollection(collection);
+    renderStreakPage();
+    return;
+  }
+  const cost = item.cost;
+  const rewards = readPetalRewards();
+  if (petalRewardBalance(rewards) < cost) { toast('You need ' + (cost - petalRewardBalance(rewards)) + ' more Petal Points.'); return; }
+  const purchaseKey = 'purchase:' + id;
+  if (!awardPetalReward(purchaseKey, -cost)) return;
+  collection.owned.push(id);
+  if (item.type === 'garden') collection.equipped = id;
+  else collection.bunny = id;
+  saveGardenCollection(collection);
+  toast(item.name + ' added to your collection!');
+  renderStreakPage();
+}
+function getWeeklyBloomProgress(todayKey) {
+  const date = new Date(todayKey + 'T00:00:00.000Z');
+  const monday = shiftStreakDate(todayKey, -((date.getUTCDay() + 6) % 7));
+  const completedDays = [];
+  for (let i=0;i<7;i++) {
+    const key = shiftStreakDate(monday, i);
+    if (key > todayKey) continue;
+    const state = readStreakDailyQuests(key);
+    if (state.badge || getDailyQuestRotation(key).every(quest => quest.done(state))) completedDays.push(key);
+  }
+  return { monday, completedDays };
+}
+function claimWeeklyBloomReward(days, todayKey) {
+  const progress = getWeeklyBloomProgress(todayKey);
+  if (progress.completedDays.length < days) { toast('Complete ' + days + ' daily quest sets to unlock this weekly bloom.'); return; }
+  const rewardKey = 'weekly:' + progress.monday + ':' + days;
+  if (awardPetalReward(rewardKey, days === 3 ? 30 : days === 5 ? 50 : 100)) toast('Weekly Bloom reward collected! ✿');
+  else toast('This weekly reward has already been collected.');
+  renderStreakPage();
+}
 function claimDailyPetalChest() {
   if (!me) return;
   const dateKey = streakDateInTimeZone(normalizeStreakTimeZone(me.streak_timezone || getBrowserStreakTimeZone()));
@@ -1444,6 +1505,23 @@ function renderStreakPage() {
     '<button type="button" class="sg-petal-chest" data-claim-petal-chest' + (completedQuests !== 3 || chestClaimed ? ' disabled' : '') + '>' +
     '<span aria-hidden="true">🎁</span> ' + (chestClaimed ? 'Chest collected today' : completedQuests === 3 ? 'Open daily chest · +25' : 'Complete 3 quests to unlock chest') + '</button>' +
     '<small class="sg-petal-note">Rewards are saved in this browser for your account; they do not sync between devices.</small></div>';
+  const collection = readGardenCollection();
+  const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Spend your Petal Points on tiny treasures</p></div></div><div class="sg-collectible-grid">' +
+    GARDEN_COLLECTIBLES.map(item => {
+      const owned = collection.owned.includes(item.id);
+      const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
+      const affordable = petalRewardBalance(petalRewards) >= item.cost;
+      return '<article class="sg-collectible-card' + (equipped ? ' is-equipped' : '') + '"><span class="sg-collectible-art" aria-hidden="true">' + item.icon + '</span><b>' + item.name + '</b><small>' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
+    }).join('') + '</div><div class="sg-equipped-summary">Garden: ' + (GARDEN_COLLECTIBLES.find(item => item.id === collection.equipped)?.name || 'Original look') + ' · Bunny: ' + (GARDEN_COLLECTIBLES.find(item => item.id === collection.bunny)?.name || 'Original look') + '</div></section>';
+  const weeklyProgress = getWeeklyBloomProgress(todayKey);
+  const weeklyTiers = [{days:3,points:30,title:'Little Bloom',icon:'🌱'},{days:5,points:50,title:'Garden Glow',icon:'🌼'},{days:7,points:100,title:'Full Bloom',icon:'💐'}];
+  const weeklyMarkup = '<section class="sg-weekly-rewards"><div class="sg-section-heading"><div><h3>Weekly Bloom Rewards</h3><p>Complete daily quests on different days</p></div><span class="sg-goal-count">' + weeklyProgress.completedDays.length + ' / 7 days</span></div><div class="sg-weekly-tier-list">' +
+    weeklyTiers.map(tier => {
+      const key = 'weekly:' + weeklyProgress.monday + ':' + tier.days;
+      const claimed = Object.prototype.hasOwnProperty.call(petalRewards, key);
+      const unlocked = weeklyProgress.completedDays.length >= tier.days;
+      return '<article class="sg-weekly-tier' + (unlocked ? ' is-unlocked' : '') + '"><span aria-hidden="true">' + tier.icon + '</span><div><b>' + tier.title + '</b><small>' + tier.days + ' completed days · +' + tier.points + ' petals</small></div><button type="button" data-claim-weekly="' + tier.days + '"' + (!unlocked || claimed ? ' disabled' : '') + '>' + (claimed ? 'Claimed ✓' : unlocked ? 'Collect' : 'Locked') + '</button></article>';
+    }).join('') + '</div></section>';
   const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
     dailyQuestItems.map(item => '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
       '<span class="sg-daily-quest-icon" aria-hidden="true">' + item.icon + '</span>' +
@@ -1738,7 +1816,7 @@ function renderStreakPage() {
       '<div class="sg-milestone-route">' + heartBadges + '</div></section></section>',
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" id="sgDailyPanel" role="tabpanel"' + (streakGardenActiveTab === 'daily' ? '' : ' hidden') + '>' +
       '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>A little kindness makes the garden bloom</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
-      dailyQuestMarkup + petalRewardsMarkup + '</section></section>',
+      dailyQuestMarkup + petalRewardsMarkup + weeklyMarkup + collectibleMarkup + '</section></section>',
     '</div>',
     '</div>',
   ].join('');
@@ -4802,6 +4880,14 @@ document.addEventListener('click', async e => {
 
   if (e.target.closest('[data-claim-petal-chest]')) {
     claimDailyPetalChest();
+    return;
+  }
+  const collectibleButton = e.target.closest('[data-buy-collectible]');
+  if (collectibleButton) { buyGardenCollectible(collectibleButton.dataset.buyCollectible); return; }
+  const weeklyClaimButton = e.target.closest('[data-claim-weekly]');
+  if (weeklyClaimButton) {
+    const days = Number(weeklyClaimButton.dataset.claimWeekly);
+    if ([3,5,7].includes(days)) claimWeeklyBloomReward(days, streakDateInTimeZone(normalizeStreakTimeZone(me?.streak_timezone || getBrowserStreakTimeZone())));
     return;
   }
 

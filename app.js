@@ -5197,6 +5197,10 @@ document.addEventListener('click', async e => {
     return;
   }
 
+  if (e.target.closest('#friendProfileClose')) {
+    $('#friendProfileGate')?.classList.add('hidden');
+    return;
+  }
   // Friend search & profile & follow
   // Friend search is handled by the form's submit event so typing/clicking
   // inside the input never triggers a premature empty search.

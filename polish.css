@@ -2438,61 +2438,6 @@ body, .app, #content { -webkit-tap-highlight-color: transparent; }
 }
 
 
-/* Header: keep the app canvas clear; only Notes gets the solid masthead. */
-#app > header,
-body[data-mode="dark"] #app > header {
-  background:transparent!important;
-  background-color:transparent!important;
-  border-bottom-color:transparent!important;
-  box-shadow:none!important;
-  -webkit-backdrop-filter:none!important;
-  backdrop-filter:none!important;
-}
-body.notes-page-active #app > header,
-body.notes-page-active[data-mode="dark"] #app > header {
-  background:var(--cb-bg)!important;
-  background-color:var(--cb-bg)!important;
-  border-bottom:1px solid var(--cb-border)!important;
-}
-/* The brand name and @username are plain header text, not a second capsule. */
-#app > header .brand > b {
-  padding:0!important;
-  border:0!important;
-  border-radius:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  color:var(--cb-ink)!important;
-}
-#app > header .brand > b small {
-  padding:0!important;
-  border:0!important;
-  border-radius:0!important;
-  background:transparent!important;
-  box-shadow:none!important;
-  color:var(--cb-muted-strong)!important;
-}
-/* One clear, larger round frame for the selected pet. */
-#app > header .brand > span {
-  flex:0 0 48px!important;
-  width:48px!important;
-  height:48px!important;
-  border:2px solid #e9cbd9!important;
-  border-radius:50%!important;
-  background:linear-gradient(145deg,#fffaf7,#f5e2ec)!important;
-  box-shadow:0 3px 10px rgba(119,79,111,.11),inset 0 0 0 2px rgba(255,255,255,.7)!important;
-}
-body[data-mode="dark"] #app > header .brand > span {
-  border-color:#8c6c88!important;
-  background:linear-gradient(145deg,#49394f,#382e43)!important;
-  box-shadow:0 3px 10px rgba(0,0,0,.2),inset 0 0 0 2px rgba(255,255,255,.07)!important;
-}
-#topMascot .cb-buddy-illustration { width:40px!important;height:40px!important; }
-@media(max-width:520px) {
-  #app > header .brand > span {
-    flex-basis:46px!important;width:46px!important;height:46px!important;
-  }
-  #topMascot .cb-buddy-illustration { width:38px!important;height:38px!important; }
-}
 /* The jumping buddy should never flash a rectangular tap/focus frame. */
 .hero-art.bunny-button,
 .hero-art.bunny-button:active,

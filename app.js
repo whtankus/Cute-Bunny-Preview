@@ -2667,20 +2667,16 @@ function showFriendProfile(user) {
       {goal:750,title:'Love Guardian',icon:'👑'},
       {goal:1000,title:'Everlasting Love',icon:'💗'}
     ];
-    const milestoneCards = (items,total,unit) => items.map(item => {
+    const milestoneBadges = (items,total,unit) => items.map(item => {
       const unlocked = total >= item.goal;
-      const progress = Math.min(100, Math.round(total / item.goal * 100));
-      const remaining = Math.max(0,item.goal-total);
-      return '<article class="friend-profile-milestone'+(unlocked?' is-unlocked':' is-locked')+'">'+
-        '<span class="friend-profile-milestone-art" aria-hidden="true">'+item.icon+'</span>'+
-        '<span class="friend-profile-milestone-copy"><b>'+item.title+'</b><small>'+item.goal.toLocaleString()+' '+unit+'</small></span>'+
-        '<span class="friend-profile-milestone-state">'+(unlocked?'Unlocked':remaining.toLocaleString()+' to go')+'</span>'+
-        '<span class="friend-profile-milestone-track"><i style="width:'+progress+'%"></i></span></article>';
+      return '<span class="friend-profile-milestone-badge'+(unlocked?' is-unlocked':' is-locked')+'" title="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit)+'" aria-label="'+esc(item.title+' · '+(unlocked?'Unlocked':'Locked'))+'">'+item.icon+'</span>';
     }).join('');
     const badgeList = $('#friendProfileBadgeList');
     if (badgeList) badgeList.innerHTML =
-      '<section class="friend-profile-milestone-group"><div class="friend-profile-milestone-heading"><span>🌷</span><div><b>Your Flowers</b><small>'+flowerMilestones.filter(x=>streak>=x.goal).length+' of '+flowerMilestones.length+' unlocked · '+streak+' day streak</small></div></div><div class="friend-profile-milestone-grid">'+milestoneCards(flowerMilestones,streak,'days')+'</div></section>'+
-      '<section class="friend-profile-milestone-group"><div class="friend-profile-milestone-heading"><span>💗</span><div><b>Your Hearts</b><small>'+heartMilestones.filter(x=>heartTotal>=x.goal).length+' of '+heartMilestones.length+' unlocked · '+heartTotal.toLocaleString()+' hearts</small></div></div><div class="friend-profile-milestone-grid">'+milestoneCards(heartMilestones,heartTotal,'hearts')+'</div></section>';
+      '<div class="friend-profile-milestone-icons" aria-label="Achievement badge collection">'+
+      milestoneBadges(flowerMilestones,streak,'days')+
+      milestoneBadges(heartMilestones,heartTotal,'hearts')+
+      '</div>';
   }
   $('#friendProfileFollow').textContent = isOwnProfile ? '✧ Theme' : (user.isFollowing ? 'Following' : 'Follow ♡');
   $('#friendProfileFollow').disabled = false;

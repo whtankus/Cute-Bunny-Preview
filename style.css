@@ -13306,3 +13306,17 @@ body[data-mode="dark"] .achievement-progress{background:#594657}
 body[data-mode="dark"] .achievement-copy>small{color:#d3a5bd}
 @media(max-width:520px){.achievement-garden{padding:15px;border-radius:19px}.achievement-grid{grid-template-columns:1fr;gap:8px}.achievement-card{padding:11px}.achievement-copy p{min-height:0}}
 @media(prefers-reduced-motion:reduce){.achievement-card,.achievement-progress span{transition:none!important}}
+
+/* Preview-only daily Petal Points and reward chest */
+.sg-petal-rewards{display:grid;gap:12px;margin-top:16px;padding:17px;border:1px solid rgba(194,141,160,.24);border-radius:22px;background:linear-gradient(140deg,rgba(255,241,246,.88),rgba(245,237,255,.74));color:#6b4b60}
+.sg-petal-balance{display:flex;align-items:center;gap:12px}
+.sg-petal-balance>span{display:grid;place-items:center;width:46px;height:46px;flex:none;border-radius:16px;background:#f5d7e4;color:#ae678c;font-size:27px}
+.sg-petal-balance div{display:grid;gap:3px}
+.sg-petal-balance b{font-size:1.12rem}
+.sg-petal-balance small,.sg-petal-note{font-size:.82rem;line-height:1.45;opacity:.8}
+.sg-petal-chest{width:100%;min-height:46px;padding:10px 14px;border:1px solid #d9a8bb;border-radius:15px;background:#f6d8e5;color:#754b62;font:inherit;font-weight:700;cursor:pointer;transition:transform .2s ease,background .2s ease}
+.sg-petal-chest:not(:disabled):hover{transform:translateY(-2px);background:#f2c8d9}
+.sg-petal-chest:disabled{cursor:default;opacity:.7}
+.sg-petal-note{display:block}
+[data-theme="midnight"] .sg-petal-rewards,.dark .sg-petal-rewards{background:linear-gradient(140deg,rgba(98,62,91,.6),rgba(75,67,105,.6));color:inherit}
+@media(prefers-reduced-motion:reduce){.sg-petal-chest{transition:none}}

@@ -952,6 +952,37 @@ function getDailyQuestRotation(dateKey) {
   }
   return shuffled.slice(0,3);
 }
+/* Preview-only Petal Points: local, per-account reward ledger. */
+function readPetalRewards() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(streakStorageKey('petal-rewards')) || '{}');
+    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+  } catch { return {}; }
+}
+function petalRewardBalance(rewards = readPetalRewards()) {
+  return Object.values(rewards).reduce((sum, amount) => sum + (Number.isFinite(amount) && amount > 0 ? Math.min(100, amount) : 0), 0);
+}
+function awardPetalReward(key, amount) {
+  if (!me || !key) return false;
+  const rewards = readPetalRewards();
+  if (Object.prototype.hasOwnProperty.call(rewards, key)) return false;
+  rewards[key] = amount;
+  try { localStorage.setItem(streakStorageKey('petal-rewards'), JSON.stringify(rewards)); }
+  catch { return false; }
+  return true;
+}
+function claimDailyPetalChest() {
+  if (!me) return;
+  const dateKey = streakDateInTimeZone(normalizeStreakTimeZone(me.streak_timezone || getBrowserStreakTimeZone()));
+  const state = readStreakDailyQuests(dateKey);
+  if (!getDailyQuestRotation(dateKey).every(quest => quest.done(state))) {
+    toast('Complete all three daily quests to open your reward chest.');
+    return;
+  }
+  if (awardPetalReward('chest:' + dateKey, 25)) toast('Your daily chest opened! +25 Petal Points ✿');
+  else toast('Today’s reward chest has already been claimed.');
+  if (page === 'streak') renderStreakPage();
+}
 function recordStreakDailyQuest(kind, value = '') {
   if (!me) return;
   const timezone = normalizeStreakTimeZone(me.streak_timezone || getBrowserStreakTimeZone());
@@ -967,6 +998,9 @@ function recordStreakDailyQuest(kind, value = '') {
   const newlyCompleted = !state.badge && quests.every(quest => quest.done(state));
   if (newlyCompleted) state.badge = true;
   writeStreakDailyQuests(dateKey, state);
+  quests.forEach(quest => {
+    if (quest.done(state)) awardPetalReward('quest:' + dateKey + ':' + quest.id, 10);
+  });
   if (newlyCompleted) toast('Daily Bloom earned! You completed today’s three quests ♡');
   if (page === 'streak') renderStreakPage();
 }
@@ -1403,6 +1437,13 @@ function renderStreakPage() {
     return {...quest,progress,done};
   });
   const completedQuests = dailyQuestItems.filter(item => item.done).length;
+  const petalRewards = readPetalRewards();
+  const chestClaimed = Object.prototype.hasOwnProperty.call(petalRewards, 'chest:' + todayKey);
+  const petalRewardsMarkup = '<div class="sg-petal-rewards" aria-label="Petal Points rewards">' +
+    '<div class="sg-petal-balance"><span aria-hidden="true">✿</span><div><b>' + petalRewardBalance(petalRewards) + ' Petal Points</b><small>Earn 10 per daily quest · 25 from the daily chest</small></div></div>' +
+    '<button type="button" class="sg-petal-chest" data-claim-petal-chest' + (completedQuests !== 3 || chestClaimed ? ' disabled' : '') + '>' +
+    '<span aria-hidden="true">🎁</span> ' + (chestClaimed ? 'Chest collected today' : completedQuests === 3 ? 'Open daily chest · +25' : 'Complete 3 quests to unlock chest') + '</button>' +
+    '<small class="sg-petal-note">Rewards are saved in this browser for your account; they do not sync between devices.</small></div>';
   const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
     dailyQuestItems.map(item => '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
       '<span class="sg-daily-quest-icon" aria-hidden="true">' + item.icon + '</span>' +
@@ -1697,7 +1738,7 @@ function renderStreakPage() {
       '<div class="sg-milestone-route">' + heartBadges + '</div></section></section>',
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" id="sgDailyPanel" role="tabpanel"' + (streakGardenActiveTab === 'daily' ? '' : ' hidden') + '>' +
       '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>A little kindness makes the garden bloom</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
-      dailyQuestMarkup + '</section></section>',
+      dailyQuestMarkup + petalRewardsMarkup + '</section></section>',
     '</div>',
     '</div>',
   ].join('');
@@ -4756,6 +4797,11 @@ document.addEventListener('click', async e => {
         panel.classList.add('is-active');
       }
     });
+    return;
+  }
+
+  if (e.target.closest('[data-claim-petal-chest]')) {
+    claimDailyPetalChest();
     return;
   }
 

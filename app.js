@@ -2649,27 +2649,29 @@ function showFriendProfile(user) {
     }
     const streak = Math.max(0, Number(user.login_streak) || 0);
     const heartTotal = Math.max(0, Number(user.heartCount) || 0);
-    const flowerMilestones = [
-      {goal:3,title:'Tiny sprout',icon:'✿'},
-      {goal:7,title:'First flower',icon:'🌼'},
-      {goal:14,title:'Little garden',icon:'🌷'},
-      {goal:30,title:'Growing plant',icon:'🌸'},
-      {goal:50,title:'Golden bouquet',icon:'💐'},
-      {goal:100,title:'Blooming garden',icon:'🌟'},
-      {goal:180,title:'Magical garden',icon:'🏵️'},
-      {goal:365,title:'Eternal garden',icon:'💮'}
-    ];
+    const streak = Math.max(0, Number(user.login_streak) || 0);
+    const heartTotal = Math.max(0, Number(user.heartCount) || 0);
+  const flowerMilestones = [
+    {goal:3, icon:'🌱', title:'Tiny sprout'},
+    {goal:7, icon:'🌼', title:'First flower'},
+    {goal:14, icon:'🌷', title:'Little garden'},
+    {goal:30, icon:'🌸', title:'Growing plant'},
+    {goal:50, icon:'💐', title:'Golden bouquet'},
+    {goal:100, icon:'🌟', title:'Blooming garden'},
+    {goal:180, icon:'🏵️', title:'Magical garden'},
+    {goal:365, icon:'💮', title:'Eternal garden'}
+  ];
     const heartMilestones = [
-      {goal:10,title:'Little Keepsake',icon:'🎁'},
-      {goal:100,title:'Sweet Letter',icon:'💌'},
-      {goal:250,title:'Blushing Bouquet',icon:'💐'},
-      {goal:500,title:'Golden Treasure',icon:'🏆'},
-      {goal:750,title:'Love Guardian',icon:'👑'},
-      {goal:1000,title:'Everlasting Love',icon:'💗'}
-    ];
+    {goal:10, title:'Little Keepsake', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M13 25 36 13l23 12v27H13Z" fill="#f5d9e4" stroke="#c98da8" stroke-width="2.2" stroke-linejoin="round"/><path d="M10 24h52v8H10z" fill="#e8b9cb" stroke="#c98da8" stroke-width="2"/><path d="M29 23c0-8 14-8 14 0-1 5-7 8-7 8s-6-3-7-8Z" fill="#d77e9e"/><path d="M36 32v20" stroke="#c98da8" stroke-width="2"/><path d="m23 18 5-5m16 5 5-5" stroke="#fff8f4" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {goal:100, title:'Sweet Letter', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><rect x="10" y="17" width="52" height="36" rx="7" fill="#fff0e8" stroke="#c98da8" stroke-width="2.2"/><path d="m12 22 24 19 24-19" fill="none" stroke="#d89bb2" stroke-width="2.5" stroke-linecap="round"/><path d="M28 13c0-6 9-7 9 0 0-7 10-6 9 0-1 5-9 10-9 10s-8-5-9-10Z" fill="#d77e9e"/><path d="M19 47h15m-15-5h9" stroke="#d8b4c2" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {goal:250, title:'Blushing Bouquet', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M22 30 36 55 50 30" fill="#d9e7ce" stroke="#91aa82" stroke-width="2"/><path d="M36 53V29M36 43 24 34M36 40l12-10" stroke="#91aa82" stroke-width="2.5" stroke-linecap="round"/><g fill="#f4c5d5" stroke="#c98da8" stroke-width="1.5"><circle cx="23" cy="20" r="7"/><circle cx="36" cy="13" r="7"/><circle cx="49" cy="20" r="7"/></g><g fill="#e6a1b9"><circle cx="23" cy="20" r="2.5"/><circle cx="36" cy="13" r="2.5"/><circle cx="49" cy="20" r="2.5"/></g><path d="m22 45 14 10 14-10" fill="none" stroke="#c98da8" stroke-width="3" stroke-linecap="round"/></svg>'},
+    {goal:500, title:'Golden Treasure', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m36 8 7 8 12-1-2 12 8 9-10 7-3 12-12-4-12 4-3-12-10-7 8-9-2-12 12 1Z" fill="#f7e8b8" stroke="#c7a45f" stroke-width="2"/><path d="m36 19 12 11-12 17-12-17Z" fill="#e8a4ba" stroke="#bd7895" stroke-width="2"/><path d="m24 30 12 4 12-4M36 34v13" fill="none" stroke="#fff4e7" stroke-width="2"/><circle cx="36" cy="28" r="3" fill="#fff5d9"/></svg>'},
+    {goal:750, title:'Love Guardian', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m13 27 6-14 12 8 5-12 5 12 12-8 6 14-9 24H22Z" fill="#e9dff4" stroke="#a58bb8" stroke-width="2" stroke-linejoin="round"/><path d="M25 31c0-7 10-8 11 0 2-8 12-7 12 0-1 7-12 15-12 15S26 38 25 31Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.4"/><circle cx="19" cy="17" r="2" fill="#d7b56e"/><circle cx="53" cy="17" r="2" fill="#d7b56e"/><path d="M18 48q-5 5-1 9m37-9q5 5 1 9" fill="none" stroke="#a58bb8" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {goal:1000, title:'Everlasting Love', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><circle cx="36" cy="32" r="25" fill="#fff0e7" stroke="#d5a2b5" stroke-width="2"/><circle cx="36" cy="32" r="20" fill="none" stroke="#e6c1ce" stroke-width="1.5" stroke-dasharray="2 3"/><path d="M24 29c0-9 12-10 12 0 1-10 13-9 13 0-1 9-13 18-13 18S25 38 24 29Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.5"/><path d="m16 12 3 4 5 1-5 2-3 5-2-5-5-2 5-1Zm40-2 2 4 4 2-4 1-2 4-2-4-4-1 4-2Z" fill="#d6b66f"/><path d="M15 39q-5-5-7 0m49 0q5-5 7 0" fill="none" stroke="#91aa82" stroke-width="2" stroke-linecap="round"/></svg>'}
+  ];
     const milestoneBadges = (items,total,unit) => items.map(item => {
       const unlocked = total >= item.goal;
-      return '<span class="friend-profile-milestone-badge'+(unlocked?' is-unlocked':' is-locked')+'" title="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit)+'" aria-label="'+esc(item.title+' · '+(unlocked?'Unlocked':'Locked'))+'">'+item.icon+'</span>';
+      return '<span class="friend-profile-milestone-badge'+(unlocked?' is-unlocked':' is-locked')+'" title="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit)+'" aria-label="'+esc(item.title+' · '+(unlocked?'Unlocked':'Locked'))+'">'+(typeof item.icon === 'string' && item.icon.trim().startsWith('<svg') ? '<span class="friend-profile-milestone-svg">'+item.icon+'</span>' : item.icon)+'</span>';
     }).join('');
     const badgeList = $('#friendProfileBadgeList');
     if (badgeList) badgeList.innerHTML =

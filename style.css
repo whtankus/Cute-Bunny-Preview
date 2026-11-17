@@ -13788,3 +13788,49 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-section-heading>smal
 body[data-mode="dark"] .friend-profile-card .friend-profile-empty,
 body[data-mode="dark"] .friend-profile-card .friend-profile-milestone-badge { color:#604b60!important; }
 body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#fffafc!important; }
+
+
+/* Compact flower-only theme control placed beneath the profile bio. */
+.friend-profile-theme-row {
+  display:flex!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  margin:2px 0 8px!important;
+}
+.friend-profile-theme-row .friend-profile-follow {
+  display:grid!important;
+  place-items:center!important;
+  grid-column:auto!important;
+  justify-self:auto!important;
+  width:34px!important;
+  min-width:34px!important;
+  height:30px!important;
+  min-height:30px!important;
+  padding:0!important;
+  margin:0!important;
+  border-radius:12px!important;
+  font-size:17px!important;
+  line-height:1!important;
+  background:#fff7fb!important;
+  color:#98617f!important;
+  border:1px solid #edcddd!important;
+  box-shadow:0 2px 5px rgba(120,77,105,.08)!important;
+}
+.friend-profile-milestone-icons {
+  display:flex!important;
+  flex-wrap:wrap!important;
+  justify-content:flex-start!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+.friend-profile-milestone-badge {
+  width:42px!important;height:42px!important;min-width:42px!important;
+  border-radius:13px!important;
+}
+.friend-profile-milestone-svg svg { width:36px!important;height:34px!important; }
+.friend-profile-badges { margin-top:10px!important; }
+@media(max-width:430px) {
+  .friend-profile-theme-row { margin-top:0!important;margin-bottom:6px!important; }
+  .friend-profile-theme-row .friend-profile-follow { width:32px!important;height:29px!important;min-width:32px!important;min-height:29px!important; }
+  .friend-profile-milestone-badge { width:38px!important;height:38px!important;min-width:38px!important; }
+}

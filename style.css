@@ -14294,6 +14294,3 @@ body.notes-page-active.notes-header-hidden .app > header {
   box-shadow: none !important;
   transform: translate3d(0, 0, 0) !important;
 }
-body[data-mode="dark"].notes-page-active .app > header {
-  background-color: #241e2c !important;
-}

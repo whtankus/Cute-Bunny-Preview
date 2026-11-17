@@ -5245,7 +5245,8 @@ document.addEventListener('click', async e => {
           displayName: $('#profileDisplay').value.trim(),
           bio: $('#profileBio').value.trim(),
           theme: $('#profileTheme').value,
-          mascot: $('#profileMascot').value
+          mascot: $('#profileMascot').value,
+          gender: document.querySelector('[data-classic-gender].is-selected')?.dataset.classicGender || null
         })
       });
       me = { ...me, ...updated };
@@ -5253,8 +5254,13 @@ document.addEventListener('click', async e => {
       $('#profileHandle').textContent = '@' + username;
       $('#topMascot').textContent = me.mascot || '🐰';
       $('#profileGate').classList.add('hidden');
+      document.body.classList.remove('classic-profile-open');
       await refresh();
       syncPlayer();
+      if ($('#profileGate').dataset.returnToOwnProfile === 'true') {
+        $('#profileGate').dataset.returnToOwnProfile = 'false';
+        showFriendProfile(me);
+      }
       toast('Profile saved ♡');
     } catch (error) {
       toast(error.message);

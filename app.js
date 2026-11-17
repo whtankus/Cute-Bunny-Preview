@@ -960,7 +960,7 @@ function readPetalRewards() {
   } catch { return {}; }
 }
 function petalRewardBalance(rewards = readPetalRewards()) {
-  return Object.values(rewards).reduce((sum, amount) => sum + (Number.isFinite(amount) && amount > 0 ? Math.min(100, amount) : 0), 0);
+  return Object.values(rewards).reduce((sum, amount) => sum + (Number.isFinite(amount) ? Math.max(-1000, Math.min(100, amount)) : 0), 0);
 }
 function awardPetalReward(key, amount) {
   if (!me || !key) return false;

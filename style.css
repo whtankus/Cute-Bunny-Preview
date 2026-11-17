@@ -14299,3 +14299,34 @@ body.notes-page-active.notes-header-hidden .app > header {
 body.notes-page-active:not(.notes-header-hidden) .app > header {
   transform: translate3d(0, 0, 0) !important;
 }
+
+
+/* Notes top bar: eliminate the dark edge/scrim and use a soft translucent glass surface. */
+body.notes-page-active .app,
+body.notes-page-active .app > header {
+  box-shadow: none !important;
+  filter: none !important;
+}
+body.notes-page-active .app > header,
+body.notes-page-active.notes-header-hidden .app > header {
+  background: rgba(255, 247, 251, .64) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(22px) saturate(1.35) !important;
+  backdrop-filter: blur(22px) saturate(1.35) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, .28) !important;
+  box-shadow: none !important;
+  isolation: isolate;
+}
+body.notes-page-active .app > header::before,
+body.notes-page-active .app > header::after {
+  content: none !important;
+  display: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+body[data-mode="dark"].notes-page-active .app > header,
+body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
+  background: rgba(37, 29, 44, .68) !important;
+  border-bottom-color: rgba(255, 255, 255, .10) !important;
+}

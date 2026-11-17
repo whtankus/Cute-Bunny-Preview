@@ -2605,6 +2605,13 @@ function profileSettingsMarkup() {
         <span class="profile-username-input"><span aria-hidden="true">@</span><input id="profileEditUsername" maxlength="24" autocomplete="username" spellcheck="false" placeholder="your_username"></span>
       </label>
       <p class="profile-settings-hint">Use 3–24 letters, numbers or underscores.</p>
+      <label class="profile-settings-field">Display name
+        <input id="profileEditDisplayName" maxlength="40" autocomplete="name" placeholder="Your display name">
+      </label>
+      <label class="profile-settings-field">A little about you
+        <textarea id="profileEditBio" maxlength="180" rows="3" placeholder="Write a little introduction..."></textarea>
+        <small class="profile-bio-count" id="profileBioCount">0 / 180</small>
+      </label>
     </div>
     <div class="profile-settings-section profile-editor-settings hidden" id="profileSettingsPersonal" data-settings-section="personal" role="tabpanel">
       <div class="settings-section-intro"><span class="settings-section-icon">✿</span><div><b>About you</b><small>Personalize how your profile is represented.</small></div></div>
@@ -2624,6 +2631,11 @@ function profileSettingsMarkup() {
         ${themeOptions.map(([value,emoji,label]) => `<button type="button" class="settings-theme-choice" data-settings-theme-choice="${value}" role="radio" aria-checked="false"><span>${emoji}</span><small>${label}</small></button>`).join('')}
       </div>
       <input id="settingsBuddyValue" type="hidden" value="🐰">
+      <div class="profile-live-preview" id="profileLivePreview" aria-live="polite">
+        <span class="profile-live-avatar" id="profileLiveAvatar">🐰</span>
+        <span><b id="profileLiveName">Your name</b><small id="profileLiveHandle">@your_username</small></span>
+        <em>Live preview</em>
+      </div>
       <div class="settings-choice-heading">Little buddy</div>
       <div class="settings-buddy-row" role="radiogroup" aria-label="Choose your little buddy">
         ${buddyOptions.map(([value,label]) => `<button type="button" class="settings-buddy-choice" data-settings-buddy-choice="${value}" role="radio" aria-checked="false"><span>${value}</span><small>${label}</small></button>`).join('')}
@@ -2641,9 +2653,25 @@ function profileSettingsMarkup() {
     </div>
   </section>`;
 }
+function updateProfileLivePreview() {
+  const username = String($('#profileEditUsername')?.value || me?.username || 'your_username').trim();
+  const displayName = String($('#profileEditDisplayName')?.value || me?.displayName || me?.display_name || username).trim();
+  const mascot = $('#settingsBuddyValue')?.value || me?.mascot || '🐰';
+  const name = $('#profileLiveName'), handle = $('#profileLiveHandle'), avatar = $('#profileLiveAvatar');
+  if (name) name.textContent = displayName || 'Your name';
+  if (handle) handle.textContent = '@' + (username || 'your_username');
+  if (avatar) avatar.textContent = mascot;
+  const count = $('#profileBioCount'), bio = $('#profileEditBio');
+  if (count) count.textContent = (bio?.value || '').length + ' / 180';
+}
 function renderProfileSettings() {
   const usernameField = $('#profileEditUsername');
   if (usernameField) usernameField.value = me?.username || '';
+  const displayNameField = $('#profileEditDisplayName');
+  if (displayNameField) displayNameField.value = me?.displayName || me?.display_name || '';
+  const bioField = $('#profileEditBio');
+  if (bioField) bioField.value = me?.bio || '';
+  updateProfileLivePreview();
   const gender = me?.gender || '';
   const theme = me?.theme || 'rose';
   const buddy = me?.mascot || '🐰';
@@ -2681,8 +2709,10 @@ async function saveProfileSettings() {
   try {
     const theme = $('#settingsThemeValue')?.value || me.theme || 'rose';
     const mascot = $('#settingsBuddyValue')?.value || me.mascot || '🐰';
-    const saved = await api('/me', { method: 'PUT', body: JSON.stringify({ username, gender, theme, mascot }) });
-    me = { ...me, ...saved, username: saved.username || username, gender, theme, mascot };
+    const displayName = String($('#profileEditDisplayName')?.value || '').trim().slice(0,40);
+    const bio = String($('#profileEditBio')?.value || '').trim().slice(0,180);
+    const saved = await api('/me', { method: 'PUT', body: JSON.stringify({ username, gender, theme, mascot, displayName, bio }) });
+    me = { ...me, ...saved, username: saved.username || username, gender, theme, mascot, displayName: saved.displayName ?? displayName, display_name: saved.display_name ?? displayName, bio };
     setTheme(theme);
     const topMascot = $('#topMascot');
     if (topMascot) topMascot.textContent = mascot;
@@ -5063,6 +5093,8 @@ document.addEventListener('click', async e => {
   if (e.target.closest('#profileSettingsClose')) { $('#profileSettingsPanel')?.classList.add('hidden'); $('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false'); return; }
   const settingsTab = e.target.closest('[data-settings-tab]');
   if (settingsTab) { const selected = settingsTab.dataset.settingsTab; document.querySelectorAll('[data-settings-tab]').forEach(button => { const active = button === settingsTab; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); }); document.querySelectorAll('[data-settings-section]').forEach(section => { const key = section.dataset.settingsSection; const visible = selected === 'other' ? ['other', 'accessibility', 'account'].includes(key) : key === selected; section.classList.toggle('hidden', !visible); }); return; }
+  const liveBuddyChoice = e.target.closest('[data-settings-buddy-choice]');
+  if (liveBuddyChoice) { $('#settingsBuddyValue').value = liveBuddyChoice.dataset.settingsBuddyChoice; document.querySelectorAll('[data-settings-buddy-choice]').forEach(button => { const selected=button===liveBuddyChoice; button.classList.toggle('is-selected',selected); button.setAttribute('aria-checked',String(selected)); }); updateProfileLivePreview(); return; }
   const genderChoice = e.target.closest('[data-profile-gender]');
   if (genderChoice) { document.querySelectorAll('[data-profile-gender]').forEach(button => button.classList.toggle('is-selected', button === genderChoice)); const preview = $('#profileGenderPreview'); if (preview) preview.textContent = genderChoice.dataset.profileGender === 'male' ? 'Preview: 👑 King' : 'Preview: 👑 Queen'; return; }
   if (e.target.closest('#profileSettingsSave')) { void saveProfileSettings(); return; }
@@ -5291,6 +5323,7 @@ function isTouchNotesViewport() {
 }
 
 document.addEventListener('input', event => {
+  if (['profileEditUsername','profileEditDisplayName','profileEditBio'].includes(event.target.id)) updateProfileLivePreview();
   if (event.target.id !== 'chatInput') return;
   const field = event.target;
   if (field.value.trim()) startNotesTyping();

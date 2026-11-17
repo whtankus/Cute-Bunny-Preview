@@ -182,10 +182,8 @@
       <div class="classic-profile-gender">
         <span class="theme-picker-label">Gender</span>
         <div class="classic-gender-choices" role="group" aria-label="Choose your gender">
-          <button type="button" data-classic-gender="male" aria-pressed="false">Male</button>
-          <button type="button" data-classic-gender="female" aria-pressed="false">Female</button>
-          <button type="button" data-classic-gender="non_binary" aria-pressed="false">Non-binary</button>
-          <button type="button" data-classic-gender="prefer_not_to_say" aria-pressed="false">Prefer not to say</button>
+          <button type="button" data-classic-gender="male" aria-pressed="false">♂️ Male</button>
+          <button type="button" data-classic-gender="female" aria-pressed="false">♀️ Female</button>
         </div>
       </div>
       <label class="theme-picker-label">Your colors</label>
@@ -203,10 +201,10 @@
       <label class="theme-picker-label">Your little buddy</label>
       <input id="profileMascot" class="hidden" type="hidden" value="🐰">
       <div id="profileBuddyChoices" class="theme-choice-grid buddy-choice-grid" role="radiogroup" aria-label="Choose your little buddy">
-        <button type="button" class="theme-choice buddy-choice is-selected" data-buddy-choice="🐰" role="radio" aria-checked="true"><span class="theme-swatch buddy-swatch"><svg><use href="#cb-icon-bunny"/></svg></span><span>Bunny</span></button>
-        <button type="button" class="theme-choice buddy-choice" data-buddy-choice="🐱" role="radio" aria-checked="false"><span class="theme-swatch buddy-swatch"><svg><use href="#cb-icon-kitty"/></svg></span><span>Kitty</span></button>
-        <button type="button" class="theme-choice buddy-choice" data-buddy-choice="🐻" role="radio" aria-checked="false"><span class="theme-swatch buddy-swatch"><svg><use href="#cb-icon-bear"/></svg></span><span>Bear</span></button>
-        <button type="button" class="theme-choice buddy-choice" data-buddy-choice="🐸" role="radio" aria-checked="false"><span class="theme-swatch buddy-swatch"><svg><use href="#cb-icon-frog"/></svg></span><span>Frog</span></button>
+        <button type="button" class="theme-choice buddy-choice is-selected" data-buddy-choice="🐰" role="radio" aria-checked="true"><span class="theme-swatch buddy-swatch buddy-emoji" aria-hidden="true">🐰</span><span>Bunny</span></button>
+        <button type="button" class="theme-choice buddy-choice" data-buddy-choice="🐱" role="radio" aria-checked="false"><span class="theme-swatch buddy-swatch buddy-emoji" aria-hidden="true">🐱</span><span>Kitty</span></button>
+        <button type="button" class="theme-choice buddy-choice" data-buddy-choice="🐻" role="radio" aria-checked="false"><span class="theme-swatch buddy-swatch buddy-emoji" aria-hidden="true">🐻</span><span>Bear</span></button>
+        <button type="button" class="theme-choice buddy-choice" data-buddy-choice="🐸" role="radio" aria-checked="false"><span class="theme-swatch buddy-swatch buddy-emoji" aria-hidden="true">🐸</span><span>Frog</span></button>
       </div>
       <button class="primary auth-submit" id="profileSave">Save profile</button>
       <button class="auth-switch" id="signOut">Sign out</button>

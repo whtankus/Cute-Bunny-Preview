@@ -2656,3 +2656,31 @@ html body.notes-page-active #app > header .round,
 html body.notes-page-active #app > header button {
   transform: none;
 }
+
+
+/* Remove the outer brand button capsule on Notes. The avatar and title pills
+   remain separate; only their shared wrapper loses its surface and outline. */
+html body.notes-page-active #app > header > button.brand,
+html body.notes-page-active #app > header > .brand#profileOpen {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  padding: 0 !important;
+}
+html body.notes-page-active #app > header > button.brand::before,
+html body.notes-page-active #app > header > button.brand::after,
+html body.notes-page-active #app > header > .brand#profileOpen::before,
+html body.notes-page-active #app > header > .brand#profileOpen::after {
+  content: none !important;
+  display: none !important;
+  box-shadow: none !important;
+}

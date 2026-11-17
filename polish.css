@@ -1584,265 +1584,724 @@ body[data-theme] .app > header {
 }
 
 
-/* Profile settings layout repair: one active section at a time, with readable
-   controls and a consistent vertical flow across desktop and mobile. */
+/* Theme picker swatches for the five additional palettes. */
+.theme-swatch.peach { background: linear-gradient(145deg,#ffe0ca,#f4b995 55%,#d88f79); }
+.theme-swatch.berry { background: linear-gradient(145deg,#f8d8e7,#dca2c1 55%,#a96c91); }
+.theme-swatch.midnight { background: linear-gradient(145deg,#e8dff6,#b6a2d0 55%,#76628f); }
+.theme-swatch.sage { background: linear-gradient(145deg,#e5efd9,#b7cba6 55%,#829c78); }
+.theme-swatch.buttercup { background: linear-gradient(145deg,#fff4c4,#e9d88d 55%,#c5ad5f); }
+
+
+/* Profile settings refresh: compact editor, predictable close behaviour and a
+   persistent save action that remains reachable on short screens. */
+.auth-card.profile-card #profileSettingsMount { position:relative; z-index:12; }
+.auth-card.profile-card .profile-settings-trigger {
+  position:absolute!important; top:16px!important; right:16px!important; z-index:15!important;
+  display:grid!important; place-items:center!important; width:44px!important; height:44px!important;
+  border:1px solid #efcbd9!important; border-radius:16px!important;
+  background:linear-gradient(145deg,#fff9fc,#f7e4ee)!important;
+  color:#b76f91!important; font-size:1.45rem!important;
+  box-shadow:0 4px 0 #e8c6d5,0 8px 18px rgba(145,91,121,.13)!important;
+  cursor:pointer; transition:transform .18s ease,box-shadow .18s ease;
+}
+.auth-card.profile-card .profile-settings-trigger[aria-expanded="true"] {
+  transform:rotate(45deg); box-shadow:0 2px 0 #d9afc2!important;
+}
+.auth-card.profile-card .profile-settings-panel {
+  position:relative!important; z-index:14!important;
+  display:flex!important; flex-direction:column!important; gap:14px!important;
+  width:100%!important; max-height:min(76dvh,760px)!important;
+  margin:12px 0 16px!important; padding:16px!important;
+  overflow-y:auto!important; overflow-x:hidden!important; overscroll-behavior:contain;
+  border:1px solid #ecd7e1!important; border-radius:24px!important;
+  background:linear-gradient(160deg,#fffdfb 0%,#fff7fa 58%,#f8f4fc 100%)!important;
+  box-shadow:0 14px 34px rgba(103,68,94,.13)!important; text-align:left!important;
+}
+.auth-card.profile-card .profile-settings-panel.hidden { display:none!important; }
+.auth-card.profile-card .profile-settings-heading {
+  display:flex!important; align-items:center!important; justify-content:space-between!important;
+  gap:12px!important; padding:2px 2px 12px!important;
+  border-bottom:1px solid #f0e0e7!important;
+}
+.auth-card.profile-card .profile-settings-heading small {
+  display:block; margin-bottom:3px; color:#b17d98; font-size:.58rem;
+  font-weight:900; letter-spacing:1.25px;
+}
+.auth-card.profile-card .profile-settings-heading h3 {
+  margin:0!important; color:#76556e!important; font:800 1.22rem Quicksand,sans-serif!important;
+}
+.auth-card.profile-card .profile-settings-close {
+  display:grid!important; place-items:center!important; flex:0 0 36px!important;
+  width:36px!important; height:36px!important; padding:0!important;
+  border:1px solid #edd9e3!important; border-radius:12px!important;
+  background:#fff!important; color:#98748c!important; font-size:1.35rem!important;
+}
+.auth-card.profile-card .profile-settings-tabs {
+  display:grid!important; grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:6px!important; padding:5px!important; border-radius:15px!important;
+  background:#f5eaf0!important;
+}
+.auth-card.profile-card .profile-settings-tabs button {
+  min-width:0!important; min-height:38px!important; padding:7px 4px!important;
+  border:1px solid transparent!important; border-radius:11px!important;
+  background:transparent!important; color:#92788d!important;
+  font:800 .73rem Nunito,sans-serif!important; box-shadow:none!important;
+}
+.auth-card.profile-card .profile-settings-tabs button.is-active {
+  border-color:#efd4e0!important; background:#fff!important; color:#9d5f7e!important;
+  box-shadow:0 2px 7px rgba(130,82,109,.09)!important;
+}
+.auth-card.profile-card .profile-settings-section {
+  min-height:0!important; overflow:visible!important;
+}
+.auth-card.profile-card .profile-settings-panel .profile-settings-section h4 {
+  margin:0 0 5px!important; color:#75556f!important; font:800 .98rem Quicksand,sans-serif!important;
+}
+.auth-card.profile-card .profile-settings-panel .profile-settings-section>p {
+  margin:0 0 12px!important; color:#9b8296!important; font-size:.77rem!important; line-height:1.45!important;
+}
+.auth-card.profile-card .profile-settings-fields {
+  display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr))!important; gap:10px!important;
+}
+.auth-card.profile-card .profile-settings-panel label {
+  display:block!important; min-width:0!important; margin:10px 0!important;
+  color:#80677e!important; font-size:.75rem!important; font-weight:800!important;
+}
+.auth-card.profile-card .profile-settings-panel input:not([type=checkbox]) {
+  width:100%!important; min-width:0!important; min-height:43px!important;
+  margin-top:6px!important; padding:10px 12px!important;
+  border:1px solid #ead8e2!important; border-radius:12px!important;
+  background:#fff!important; color:#59465b!important; font:600 .83rem Nunito,sans-serif!important;
+}
+.auth-card.profile-card .profile-settings-panel .profile-settings-choice-label { margin:14px 0 7px!important; }
+.auth-card.profile-card .profile-settings-theme-grid { margin-top:6px!important; }
+.auth-card.profile-card .profile-settings-buddy-grid { display:grid!important; grid-template-columns:repeat(4,minmax(0,1fr))!important; gap:7px!important; }
+.auth-card.profile-card .profile-settings-buddy-grid button {
+  min-width:0!important; min-height:62px!important; display:grid!important; place-items:center!important;
+  gap:2px!important; padding:7px 3px!important; border:1px solid #eddae3!important;
+  border-radius:13px!important; background:#fff!important; color:#80677e!important;
+  font-size:1.3rem!important; box-shadow:none!important;
+}
+.auth-card.profile-card .profile-settings-buddy-grid button span { font-size:.64rem!important; font-weight:800!important; }
+.auth-card.profile-card .profile-settings-buddy-grid button.is-selected {
+  border-color:#d995b2!important; background:#fff0f5!important; box-shadow:inset 0 0 0 1px #e9b9cc!important;
+}
+.auth-card.profile-card .profile-settings-gender { margin-top:12px!important; }
+.auth-card.profile-card .profile-settings-actions {
+  position:sticky!important; bottom:0!important; z-index:5!important;
+  display:grid!important; grid-template-columns:minmax(0,1fr) minmax(145px,.9fr)!important;
+  align-items:center!important; gap:10px!important; margin:0 -16px -16px!important;
+  padding:12px 16px max(12px,env(safe-area-inset-bottom))!important;
+  border-top:1px solid #eedde5!important;
+  background:rgba(255,250,252,.97)!important; backdrop-filter:blur(14px);
+}
+.auth-card.profile-card .profile-settings-feedback {
+  min-width:0!important; margin:0!important; color:#98748b!important;
+  font-size:.7rem!important; line-height:1.35!important; text-align:left!important;
+}
+.auth-card.profile-card .profile-settings-save {
+  display:flex!important; align-items:center!important; justify-content:center!important;
+  gap:7px!important; width:100%!important; min-height:46px!important; margin:0!important;
+  padding:11px 14px!important; border:0!important; border-radius:14px!important;
+  background:linear-gradient(135deg,#d98eac,#bd6f92)!important; color:#fff!important;
+  font-size:.82rem!important; font-weight:900!important;
+  box-shadow:0 4px 0 #a95c7e,0 8px 15px rgba(169,92,126,.18)!important;
+}
+.auth-card.profile-card .profile-settings-save:disabled { opacity:.65!important; }
+@media(max-width:430px) {
+  .auth-card.profile-card .profile-settings-panel { max-height:min(72dvh,680px)!important; padding:13px!important; }
+  .auth-card.profile-card .profile-settings-actions { grid-template-columns:1fr!important; gap:7px!important; margin:0 -13px -13px!important; padding:10px 13px max(10px,env(safe-area-inset-bottom))!important; }
+  .auth-card.profile-card .profile-settings-feedback { text-align:center!important; }
+  .auth-card.profile-card .profile-settings-fields { grid-template-columns:1fr!important; gap:0!important; }
+  .auth-card.profile-card .profile-settings-tabs button { font-size:.67rem!important; }
+  .auth-card.profile-card .profile-settings-buddy-grid button { min-height:56px!important; }
+}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-panel {
+  background:linear-gradient(160deg,#342b3c,#302738 60%,#352d43)!important;
+  border-color:#59465e!important;
+}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-heading { border-color:#59465e!important; }
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-tabs { background:#292330!important; }
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-tabs button.is-active { background:#4b394f!important; color:#f5dce9!important; border-color:#66506b!important; }
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-panel label { color:#e5d5e5!important; }
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-panel input:not([type=checkbox]),
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-buddy-grid button { background:#2c2434!important; color:#f4eaf2!important; border-color:#5c4b63!important; }
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-actions { background:rgba(48,39,55,.97)!important; border-color:#59465e!important; }
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-trigger { background:linear-gradient(145deg,#493747,#40354d)!important; border-color:#6a5268!important; color:#f2cfe0!important; }
+@media(prefers-reduced-motion:reduce) {
+  .auth-card.profile-card .profile-settings-trigger,
+  .auth-card.profile-card .profile-settings-save { transition:none!important; }
+}
+
+/* Bring the illustrated bloom in beside the jumping buddy rather than leaving
+   it detached at the far edge of the hero artwork. */
+.hero-art .doodle-bouquet {
+  left:48px!important; bottom:15px!important; width:76px!important; height:60px!important;
+  transform:translateX(-50%)!important;
+}
+@media(max-width:520px) {
+  .hero-art .doodle-bouquet {
+    left:43px!important; bottom:12px!important; width:64px!important; height:52px!important;
+  }
+}
+
+
+/* Compact profile editor: username and gender only. */
+.auth-card.profile-card .profile-settings-panel {display:flex!important;flex-direction:column!important;gap:18px!important;width:min(100%,390px)!important;max-height:min(68dvh,520px)!important;padding:18px!important;overflow-y:auto!important;overflow-x:hidden!important;border:1px solid #efd9e4!important;border-radius:22px!important;background:linear-gradient(155deg,#fffafd,#fff1f6 58%,#f5f0ff)!important;box-shadow:0 18px 48px rgba(126,78,108,.2)!important}
+.auth-card.profile-card .profile-settings-panel.hidden {display:none!important}
+.auth-card.profile-card .profile-settings-heading {padding:0 0 13px!important;border-bottom:1px solid #f0dce6!important}
+.auth-card.profile-card .profile-settings-heading h3 {font-size:1.2rem!important}
+.auth-card.profile-card .profile-editor-settings {display:grid!important;gap:18px!important;padding:4px 0!important}
+.auth-card.profile-card .profile-settings-field {display:grid!important;gap:9px!important;color:#80677e!important;font-size:.82rem!important;font-weight:800!important}
+.auth-card.profile-card .profile-username-input {display:flex!important;align-items:center!important;gap:9px!important;min-height:50px!important;padding:0 14px!important;border:1px solid #ead2df!important;border-radius:15px!important;background:#fff!important;color:#bd789a!important;font-size:1rem!important}
+.auth-card.profile-card .profile-username-input input {flex:1!important;min-width:0!important;height:46px!important;padding:0!important;border:0!important;outline:0!important;background:transparent!important;color:#59465b!important;font:700 .95rem Nunito,sans-serif!important;box-shadow:none!important}
+.auth-card.profile-card .profile-settings-gender {display:grid!important;gap:10px!important;margin:0!important}
+.auth-card.profile-card .profile-settings-gender>label {margin:0!important;color:#80677e!important;font-size:.82rem!important;font-weight:800!important}
+.auth-card.profile-card .profile-gender-options {display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+.auth-card.profile-card .profile-gender-options button {min-height:46px!important;border:1px solid #ead2df!important;border-radius:14px!important;background:#fff!important;color:#92758a!important;font-weight:800!important}
+.auth-card.profile-card .profile-gender-options button.is-selected {border-color:#d88eae!important;background:linear-gradient(135deg,#ffe8f1,#f1eaff)!important;color:#995b7c!important;box-shadow:inset 0 0 0 1px #e9b6cb!important}
+.auth-card.profile-card .profile-settings-actions {position:sticky!important;bottom:-18px!important;display:grid!important;grid-template-columns:1fr!important;gap:8px!important;margin:0 -18px -18px!important;padding:12px 18px max(12px,env(safe-area-inset-bottom))!important;border-top:1px solid #f0dce6!important;background:rgba(255,250,252,.97)!important;backdrop-filter:blur(14px)!important}
+.auth-card.profile-card .profile-settings-feedback {text-align:center!important}
+.auth-card.profile-card .profile-settings-save {min-height:48px!important;border-radius:15px!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-panel {background:linear-gradient(155deg,#342b3c,#302738 60%,#352d43)!important;border-color:#59465e!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-field,body[data-mode="dark"] .auth-card.profile-card .profile-settings-gender>label {color:#e5d5e5!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-username-input,body[data-mode="dark"] .auth-card.profile-card .profile-gender-options button {background:#2c2434!important;border-color:#5c4b63!important;color:#f4eaf2!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-actions {background:rgba(48,39,55,.97)!important;border-color:#59465e!important}
+@media(max-width:430px){.auth-card.profile-card .profile-settings-panel{width:min(100%,360px)!important;padding:15px!important}.auth-card.profile-card .profile-settings-actions{bottom:-15px!important;margin:0 -15px -15px!important;padding:11px 15px max(11px,env(safe-area-inset-bottom))!important}}
+
+/* Warm red accents for the expanded seven-flower bunny bouquet. */
+.doodle-bouquet .bloom.red{fill:#df8294!important;stroke:#fff8f2!important}
+
+
+/* 2026 refresh: calm, compact profile settings and a properly animated buddy. */
 .auth-card.profile-card .profile-settings-panel {
   display:flex!important;
   flex-direction:column!important;
-  align-items:stretch!important;
-  gap:12px!important;
+  gap:17px!important;
   width:100%!important;
-  max-height:min(76dvh,820px)!important;
-  margin:14px 0 0!important;
-  padding:clamp(12px,2.5vw,18px)!important;
-  overflow-x:hidden!important;
-  overflow-y:auto!important;
-  border:1px solid var(--cb-border,#efdce6)!important;
-  border-radius:22px!important;
-  background:var(--cb-surface,#fffafd)!important;
-  box-sizing:border-box!important;
+  max-width:420px!important;
+  max-height:none!important;
+  margin:14px auto 8px!important;
+  padding:19px!important;
+  overflow:visible!important;
+  border:1px solid #efd8e4!important;
+  border-radius:25px!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(239,222,250,.56),transparent 34%),
+    linear-gradient(150deg,#fffdfd 0%,#fff5f8 62%,#fbf7ff 100%)!important;
+  box-shadow:0 12px 30px rgba(133,88,116,.12),inset 0 1px 0 #fff!important;
 }
 .auth-card.profile-card .profile-settings-heading {
-  display:flex!important;
   align-items:center!important;
-  justify-content:space-between!important;
-  width:100%!important;
-  margin:0!important;
+  padding:0 0 14px!important;
+  border-bottom:1px solid #f0e1e9!important;
+}
+.auth-card.profile-card .profile-settings-heading small {
+  margin:0 0 5px!important;
+  color:#b77d9b!important;
+  font-size:.62rem!important;
+  letter-spacing:.15em!important;
 }
 .auth-card.profile-card .profile-settings-heading h3 {
-  margin:0!important;
-  font-size:clamp(19px,3vw,23px)!important;
+  color:#684d63!important;
+  font:800 1.32rem/1.15 Quicksand,sans-serif!important;
+}
+.auth-card.profile-card .profile-settings-close {
+  width:38px!important;height:38px!important;flex-basis:38px!important;
+  border:1px solid #f0dce6!important;border-radius:14px!important;
+  background:linear-gradient(145deg,#fff,#fff0f6)!important;
+  color:#a66f8c!important;font-size:1.45rem!important;
+  transition:transform .18s ease,background .18s ease!important;
+}
+.auth-card.profile-card .profile-settings-close:hover { transform:rotate(90deg)!important;background:#fce8f1!important; }
+.auth-card.profile-card .profile-editor-settings {
+  display:grid!important;gap:19px!important;padding:2px 0!important;
+}
+.auth-card.profile-card .profile-settings-field,
+.auth-card.profile-card .profile-settings-gender>label {
+  display:grid!important;gap:8px!important;margin:0!important;
+  color:#765e73!important;font-size:.82rem!important;font-weight:900!important;
+}
+.auth-card.profile-card .profile-settings-field::after {
+  content:"3–24 characters · letters, numbers or underscores";
+  color:#aa91a4;font-size:.68rem;font-weight:600;letter-spacing:.01em;
+}
+.auth-card.profile-card .profile-username-input {
+  display:flex!important;align-items:center!important;gap:10px!important;
+  min-height:52px!important;padding:0 15px!important;
+  border:1px solid #ead7e2!important;border-radius:16px!important;
+  background:rgba(255,255,255,.92)!important;color:#bd789a!important;
+  box-shadow:inset 0 1px 2px rgba(116,76,101,.04)!important;
+  transition:border-color .18s ease,box-shadow .18s ease!important;
+}
+.auth-card.profile-card .profile-username-input:focus-within {
+  border-color:#d99ab6!important;box-shadow:0 0 0 4px rgba(217,154,182,.16)!important;
+}
+.auth-card.profile-card .profile-username-input>span {
+  display:grid;place-items:center;width:26px;height:26px;border-radius:9px;
+  background:#fbedf3;color:#b77596;font-weight:900;
+}
+.auth-card.profile-card .profile-username-input input {
+  flex:1!important;min-width:0!important;height:48px!important;padding:0!important;
+  border:0!important;outline:0!important;background:transparent!important;
+  color:#59465b!important;font:800 .96rem Nunito,sans-serif!important;
+  box-shadow:none!important;
+}
+.auth-card.profile-card .profile-settings-gender {display:grid!important;gap:9px!important;margin:0!important}
+.auth-card.profile-card .profile-gender-options {
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;
+}
+.auth-card.profile-card .profile-gender-options button {
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;
+  min-height:50px!important;padding:10px!important;
+  border:1px solid #ead9e4!important;border-radius:15px!important;
+  background:rgba(255,255,255,.9)!important;color:#8e7488!important;
+  font:800 .84rem Nunito,sans-serif!important;box-shadow:0 2px 0 rgba(145,105,130,.05)!important;
+  transition:transform .16s ease,border-color .16s ease,background .16s ease,box-shadow .16s ease!important;
+}
+.auth-card.profile-card .profile-gender-options button::before {
+  display:grid;place-items:center;width:25px;height:25px;border-radius:9px;
+  background:#f9edf3;color:#b77a99;font-size:1rem;line-height:1;
+}
+.auth-card.profile-card .profile-gender-options [data-profile-gender="male"]::before {content:"♂"}
+.auth-card.profile-card .profile-gender-options [data-profile-gender="female"]::before {content:"♀"}
+.auth-card.profile-card .profile-gender-options button:hover {transform:translateY(-1px)!important;border-color:#e2b8cc!important}
+.auth-card.profile-card .profile-gender-options button.is-selected {
+  border:1.5px solid #d78eae!important;
+  background:linear-gradient(135deg,#fff0f5,#f4efff)!important;
+  color:#995c7d!important;
+  box-shadow:0 0 0 3px rgba(215,142,174,.13),0 3px 8px rgba(160,103,137,.08)!important;
+}
+.auth-card.profile-card .profile-settings-actions {
+  position:static!important;bottom:auto!important;z-index:auto!important;
+  display:flex!important;flex-direction:column!important;gap:9px!important;
+  margin:0!important;padding:14px 0 0!important;
+  border-top:1px solid #f0e1e9!important;background:transparent!important;
+  backdrop-filter:none!important;
+}
+.auth-card.profile-card .profile-settings-feedback {
+  min-height:1em!important;margin:0!important;text-align:center!important;
+  color:#98758e!important;font-size:.73rem!important;line-height:1.35!important;
+}
+.auth-card.profile-card .profile-settings-save {
+  width:100%!important;min-height:49px!important;margin:0!important;
+  border:1px solid #c982a2!important;border-radius:16px!important;
+  background:linear-gradient(135deg,#dfa2bb,#c77f9f)!important;color:#fff!important;
+  font:900 .88rem Nunito,sans-serif!important;letter-spacing:.01em;
+  box-shadow:0 4px 0 #ad6b8b,0 8px 16px rgba(173,107,139,.16)!important;
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease!important;
+}
+.auth-card.profile-card .profile-settings-save:hover {filter:brightness(1.035);transform:translateY(-1px)!important}
+.auth-card.profile-card .profile-settings-save:active {transform:translateY(2px)!important;box-shadow:0 2px 0 #ad6b8b!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-panel {
+  background:radial-gradient(circle at 100% 0%,rgba(112,81,126,.22),transparent 36%),linear-gradient(150deg,#342b3d,#302737 68%,#352d43)!important;
+  border-color:#59465e!important;
+}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-heading {border-color:#59465e!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-heading h3,
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-field,
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-gender>label {color:#f0e1ed!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-close,
+body[data-mode="dark"] .auth-card.profile-card .profile-username-input,
+body[data-mode="dark"] .auth-card.profile-card .profile-gender-options button {
+  background:#2b2433!important;border-color:#5d4a63!important;color:#f2e4ef!important;
+}
+body[data-mode="dark"] .auth-card.profile-card .profile-username-input input {color:#fff0f8!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-username-input>span,
+body[data-mode="dark"] .auth-card.profile-card .profile-gender-options button::before {background:#47364b;color:#efbfd5}
+body[data-mode="dark"] .auth-card.profile-card .profile-gender-options button.is-selected {
+  background:linear-gradient(135deg,#503849,#453b58)!important;border-color:#bd83a4!important;color:#ffe5f1!important;
+}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-actions {background:transparent!important;border-color:#59465e!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-feedback {color:#d8b9cf!important}
+
+/* The mascot span is inline in the hero markup; make it transformable so the hop works. */
+.hero-art.bunny-button {isolation:isolate;overflow:visible}
+.hero-art.bunny-button>span:nth-child(2) {
+  position:relative;z-index:2;display:inline-block;
+  transform-origin:50% 92%;will-change:transform;
+}
+.hero-art.bunny-button.bunny-happy>span:nth-child(2) {
+  animation:buddy-garden-hop .82s cubic-bezier(.22,.72,.28,1) 2!important;
+}
+@keyframes buddy-garden-hop {
+  0%,100% {transform:translateY(0) rotate(0) scale(1)}
+  18% {transform:translateY(2px) rotate(5deg) scale(1.12,.86)}
+  43% {transform:translateY(-25px) rotate(-11deg) scale(.98,1.08)}
+  62% {transform:translateY(-8px) rotate(7deg) scale(1.04,.97)}
+  78% {transform:translateY(1px) rotate(-3deg) scale(1.1,.9)}
+}
+.hero-art.bunny-button.bunny-happy::after {
+  content:"";position:absolute;z-index:3;left:50%;top:24%;
+  width:7px;height:7px;border-radius:50%;pointer-events:none;
+  background:#fff;box-shadow:-30px 13px 0 1px #f3a9c4,24px -8px 0 0 #e8c9f3,35px 15px 0 -1px #fff;
+  animation:buddy-garden-sparkle .8s ease-out both!important;
+}
+@keyframes buddy-garden-sparkle {
+  0% {opacity:0;transform:translate(-50%,12px) scale(.35)}
+  35% {opacity:1;transform:translate(-50%,-3px) scale(1)}
+  100% {opacity:0;transform:translate(-50%,-24px) scale(.55)}
+}
+@media(max-width:520px) {
+  .auth-card.profile-card .profile-settings-panel {max-width:100%!important;padding:16px!important;gap:15px!important}
+  .auth-card.profile-card .profile-settings-actions {padding-top:12px!important}
+  .hero-art.bunny-button.bunny-happy>span:nth-child(2) {animation-duration:.76s!important}
+}
+@media(prefers-reduced-motion:reduce) {
+  .hero-art.bunny-button.bunny-happy>span:nth-child(2),
+  .hero-art.bunny-button.bunny-happy::after {animation:none!important}
+}
+
+
+/* Hero layering: buddy behind the bouquet, with a matching illustrated flower beside it. */
+.hero-art.bunny-button {isolation:isolate;overflow:visible!important}
+.hero-art.bunny-button>span:nth-child(2) {position:absolute!important;z-index:1!important}
+.hero-art.bunny-button .doodle-bouquet {position:absolute!important;z-index:3!important;left:48px!important;bottom:15px!important}
+.hero-art.bunny-button>span:nth-child(3) {
+  position:absolute!important;z-index:4!important;left:calc(50% + 20px)!important;right:auto!important;
+  top:auto!important;bottom:30px!important;width:34px!important;height:43px!important;
+  display:block!important;filter:drop-shadow(0 3px 3px #8e688033);transform:rotate(7deg);
+}
+.hero-art.bunny-button .hero-side-flower svg {display:block;width:100%;height:100%;overflow:visible}
+@media(max-width:520px) {
+  .hero-art.bunny-button .doodle-bouquet {left:43px!important;bottom:12px!important;width:64px!important;height:52px!important}
+  .hero-art.bunny-button>span:nth-child(3) {left:calc(50% + 10px)!important;bottom:24px!important;width:28px!important;height:36px!important}
+}
+
+
+/* Preserve the new SVG petal and leaf fills against the legacy stem-path rule. */
+.hero-art .doodle-bouquet g[fill] path {
+  fill:inherit!important;
+  stroke:inherit!important;
+}
+.hero-art .doodle-bouquet .stems path {
+  fill:none!important;
+  stroke:#78977d!important;
+}
+.hero-art .doodle-bouquet {
+  filter:drop-shadow(0 3px 2px rgba(117,83,103,.16))!important;
+}
+.hero-art .hero-side-flower svg {
+  filter:drop-shadow(0 1px 1px rgba(117,83,103,.12));
+}
+
+
+/* 2026 profile settings: compact horizontal segmented navigation. */
+.auth-card.profile-card .profile-settings-panel {
+  width:min(100%,430px)!important;
+  padding:20px!important;
+  gap:16px!important;
+  border-radius:25px!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(234,190,211,.18),transparent 38%),
+    linear-gradient(150deg,#fffdfd 0%,#fff5f8 58%,#f6f1ff 100%)!important;
+  border:1px solid rgba(225,190,210,.78)!important;
+  box-shadow:0 22px 58px rgba(126,78,108,.2),inset 0 1px 0 #fff!important;
 }
 .auth-card.profile-card .profile-settings-tabs {
   display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
   gap:5px!important;
   width:100%!important;
-  margin:2px 0 0!important;
   padding:5px!important;
-  overflow:visible!important;
-  border:1px solid var(--cb-border,#efdce6)!important;
-  border-radius:15px!important;
-  background:var(--cb-accent-soft,#f8edf2)!important;
-  box-sizing:border-box!important;
-}
-.auth-card.profile-card .profile-settings-tabs button {
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  min-width:0!important;
-  min-height:38px!important;
-  padding:6px 3px!important;
-  border:0!important;
-  border-radius:11px!important;
-  background:transparent!important;
-  color:var(--cb-text-soft,#866c7b)!important;
-  font-size:clamp(10px,2.4vw,12px)!important;
-  font-weight:800!important;
-  white-space:nowrap!important;
-}
-.auth-card.profile-card .profile-settings-tabs button.is-active {
-  background:var(--cb-surface,#fff)!important;
-  color:var(--cb-accent-strong,#8a4f70)!important;
-  box-shadow:0 2px 8px rgba(var(--cb-shadow-color,117,68,91),.13)!important;
-}
-.auth-card.profile-card .profile-settings-section,
-.auth-card.profile-card .profile-settings-section[data-settings-section="profile"],
-.auth-card.profile-card .profile-settings-section[data-settings-section="chat"],
-.auth-card.profile-card .profile-settings-section[data-settings-section="account"],
-.auth-card.profile-card .profile-settings-section[data-settings-section="other"] {
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:stretch!important;
-  gap:11px!important;
-  width:100%!important;
-  min-width:0!important;
-  margin:0!important;
-  padding:clamp(12px,2.5vw,16px)!important;
-  border:1px solid var(--cb-border,#f0dfe8)!important;
+  border:1px solid #f0dce7!important;
   border-radius:17px!important;
-  background:color-mix(in srgb,var(--cb-surface,#fff) 92%,var(--cb-accent-soft,#f8edf2))!important;
-  box-sizing:border-box!important;
+  background:rgba(246,233,241,.78)!important;
 }
-/* This must outrank the section-specific display rules above. */
-.auth-card.profile-card .profile-settings-section.hidden,
-.auth-card.profile-card .profile-settings-section[data-settings-section].hidden {
-  display:none!important;
-}
-.auth-card.profile-card .profile-settings-section h4 {
-  margin:0!important;
-  font-size:14px!important;
-}
-.auth-card.profile-card .profile-settings-section>p {
-  margin:0!important;
-  font-size:12px!important;
-  line-height:1.5!important;
-}
-.auth-card.profile-card .profile-settings-fields {
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:10px!important;
-  width:100%!important;
-}
-.auth-card.profile-card .profile-settings-section label {
+.auth-card.profile-card .profile-settings-tab {
   display:flex!important;
-  flex-direction:column!important;
-  gap:6px!important;
-  min-width:0!important;
-  color:var(--cb-text-soft,#806b7b)!important;
-  font-size:12px!important;
-  font-weight:800!important;
-}
-.auth-card.profile-card .profile-settings-section input:not([type="checkbox"]) {
-  width:100%!important;
-  min-width:0!important;
-  min-height:40px!important;
-  padding:9px 11px!important;
-  border:1px solid var(--cb-border,#ead9e3)!important;
-  border-radius:12px!important;
-  box-sizing:border-box!important;
-}
-.auth-card.profile-card .profile-settings-choice-label {
-  margin:2px 0 -4px!important;
-}
-.auth-card.profile-card .profile-settings-theme-grid {
-  display:grid!important;
-  grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:8px!important;
-  width:100%!important;
-}
-.auth-card.profile-card .profile-settings-theme-grid button {
-  min-width:0!important;
-  min-height:68px!important;
-  padding:8px 4px!important;
-  border:1px solid var(--cb-border,#ead9e3)!important;
-  border-radius:13px!important;
-  background:var(--cb-surface,#fff)!important;
-  color:var(--cb-text-soft,#806b7b)!important;
-}
-.auth-card.profile-card .profile-settings-buddy-grid {
-  display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  gap:7px!important;
-}
-.auth-card.profile-card .profile-settings-buddy-grid button {
-  display:flex!important;
-  flex-direction:column!important;
   align-items:center!important;
   justify-content:center!important;
-  gap:4px!important;
-  min-width:0!important;
-  min-height:62px!important;
-  padding:7px 3px!important;
-  border:1px solid var(--cb-border,#ead9e3)!important;
-  border-radius:13px!important;
-  background:var(--cb-surface,#fff)!important;
-  font-size:19px!important;
-}
-.auth-card.profile-card .profile-settings-buddy-grid button span {
-  font-size:10px!important;
-}
-.auth-card.profile-card .profile-setting-toggle {
-  display:flex!important;
-  flex-direction:row!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  gap:12px!important;
-  width:100%!important;
-  padding:10px 0!important;
-  border-bottom:1px solid var(--cb-border,#f0e2e9)!important;
-}
-.auth-card.profile-card .profile-setting-toggle span {
-  display:grid!important;
-  gap:4px!important;
-  min-width:0!important;
-}
-.auth-card.profile-card .profile-setting-toggle b {font-size:12px!important}
-.auth-card.profile-card .profile-setting-toggle small {font-size:11px!important;line-height:1.4!important}
-.auth-card.profile-card .profile-setting-toggle input[type="checkbox"] {
-  flex:0 0 auto!important;
-  width:18px!important;
-  height:18px!important;
-}
-.auth-card.profile-card .profile-settings-account {
-  display:flex!important;
-  flex-direction:column!important;
-  gap:4px!important;
-  min-width:0!important;
-  padding:9px 0!important;
-  border-bottom:1px solid var(--cb-border,#f0e2e9)!important;
-}
-.auth-card.profile-card .profile-settings-account b {overflow-wrap:anywhere!important}
-.auth-card.profile-card .profile-settings-save {
-  width:100%!important;
   min-height:43px!important;
+  padding:9px 12px!important;
+  border:1px solid transparent!important;
+  border-radius:12px!important;
+  background:transparent!important;
+  color:#9b8194!important;
+  font:850 .82rem Nunito,sans-serif!important;
+  letter-spacing:.01em!important;
+  cursor:pointer!important;
+  transition:background .2s ease,color .2s ease,box-shadow .2s ease,transform .2s ease!important;
+}
+.auth-card.profile-card .profile-settings-tab.is-active {
+  color:#985b7c!important;
+  background:linear-gradient(135deg,#fff,#fff8fb)!important;
+  border-color:#efd7e3!important;
+  box-shadow:0 3px 9px rgba(151,104,132,.12),inset 0 1px 0 #fff!important;
+}
+.auth-card.profile-card .profile-settings-tab:active {transform:scale(.98)!important}
+.auth-card.profile-card .profile-editor-settings {
+  min-height:128px!important;
+  align-content:start!important;
+  gap:12px!important;
+  padding:4px 1px!important;
+  animation:settings-section-in .22s ease both;
+}
+@keyframes settings-section-in {
+  from {opacity:0;transform:translateY(5px)}
+  to {opacity:1;transform:translateY(0)}
+}
+.auth-card.profile-card .profile-settings-hint {
   margin:0!important;
+  color:#ad91a5!important;
+  font-size:.72rem!important;
+  line-height:1.45!important;
+}
+.auth-card.profile-card .profile-settings-gender {gap:11px!important}
+.auth-card.profile-card .profile-gender-options {
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;
+}
+.auth-card.profile-card .profile-gender-options button {
+  min-height:49px!important;
   border-radius:14px!important;
-  font-size:13px!important;
+  font-size:.86rem!important;
 }
-.auth-card.profile-card .profile-settings-feedback {
-  min-height:15px!important;
-  margin:0!important;
-  text-align:center!important;
-  font-size:11px!important;
+.auth-card.profile-card .profile-settings-heading {
+  align-items:center!important;
+  padding-bottom:14px!important;
 }
-@media(max-width:420px) {
-  .auth-card.profile-card .profile-settings-panel {gap:9px!important}
-  .auth-card.profile-card .profile-settings-tabs button {min-height:36px!important}
-  .auth-card.profile-card .profile-settings-fields {grid-template-columns:minmax(0,1fr)!important}
-  .auth-card.profile-card .profile-settings-theme-grid {gap:6px!important}
-  .auth-card.profile-card .profile-settings-theme-grid button {min-height:64px!important}
+.auth-card.profile-card .profile-settings-heading h3 {
+  margin:3px 0 0!important;
+  font-size:1.24rem!important;
+  letter-spacing:-.025em!important;
 }
-
-
-/* Place the Seen label two pixels lower above the Notes composer. */
-#content .chat-page .chat-composer>.chat-seen-status {
-  top:-11px!important;
+.auth-card.profile-card .profile-settings-close {
+  width:35px!important;height:35px!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  border:1px solid #efdce6!important;
+  color:#a97894!important;
+  box-shadow:0 2px 6px rgba(155,105,135,.08)!important;
 }
-
-
-/* A little kindness: make the daily message the visual focus, with a fresh flourish on each tap. */
-#content .daily {
-  position:relative!important; isolation:isolate; overflow:hidden;
-  gap:15px!important; min-height:88px; padding:15px 19px!important;
-  border:1px solid #ebd5df!important; border-radius:22px!important;
-  background:radial-gradient(circle at 94% 12%,rgba(255,226,190,.58),transparent 29%),linear-gradient(118deg,#fff8f4 0%,#fff5f8 48%,#f5f0fb 100%)!important;
-  box-shadow:0 9px 24px rgba(142,99,126,.10),inset 0 1px 0 rgba(255,255,255,.95)!important;
-  transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-tabs {
+  background:#292331!important;border-color:#58465e!important;
 }
-#content .daily::after {
-  content:"✦  ·  ♡  ·  ✧"; position:absolute; z-index:-1; right:15px; bottom:8px;
-  color:rgba(190,137,163,.25); font:1.05rem Quicksand,sans-serif; letter-spacing:5px; pointer-events:none;
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-tab {color:#c2aabd!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-tab.is-active {
+  background:linear-gradient(135deg,#493747,#40364d)!important;
+  border-color:#70576c!important;color:#ffe5f1!important;
 }
-#content .daily-icon {
-  position:relative; flex:0 0 52px!important; width:52px!important; height:52px!important;
-  border:1px solid rgba(225,184,202,.7); border-radius:18px!important;
-  background:linear-gradient(145deg,#fff0cf,#f9dce8 62%,#eee4fa)!important;
-  box-shadow:0 5px 12px rgba(177,117,148,.14),inset 0 1px 0 #fff;
-  font-size:1.75rem!important; filter:drop-shadow(0 3px 3px rgba(151,104,129,.12));
-  transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .35s ease;
-}
-#content .daily small {display:block;margin-bottom:5px;color:#a56f8a!important;font-size:.66rem!important;font-weight:900;letter-spacing:1.35px!important}
-#content .daily p {
-  position:relative; z-index:1; margin:0!important; max-width:560px; color:#654d69!important;
-  font:700 clamp(1.18rem,2.7vw,1.48rem)/1.35 Quicksand,Nunito,sans-serif!important;
-  letter-spacing:-.025em; text-wrap:pretty;
-}
-#content .daily:has(.kindness-pop) {border-color:#dfb9cb!important;box-shadow:0 12px 30px rgba(166,105,141,.17),inset 0 1px 0 #fff!important}
-#content .daily:has(.kindness-pop) .daily-icon {transform:rotate(-11deg) scale(1.12);filter:drop-shadow(0 6px 7px rgba(151,104,129,.22))}
-#content .daily p.kindness-pop {animation:kindnessBloom .72s cubic-bezier(.2,.8,.25,1) both}
-@keyframes kindnessBloom {
-  0%{opacity:0;transform:translateY(9px) scale(.97);filter:blur(3px)}
-  55%{opacity:1;transform:translateY(-2px) scale(1.025);filter:blur(0)}
-  100%{opacity:1;transform:translateY(0) scale(1);filter:none}
-}
-@media(max-width:520px) {
-  #content .daily {min-height:82px;padding:12px 13px!important;gap:12px!important}
-  #content .daily-icon {flex-basis:46px!important;width:46px!important;height:46px!important;font-size:1.55rem!important;border-radius:16px!important}
-  #content .daily small {font-size:.58rem!important;letter-spacing:1.05px!important}
-  #content .daily p {font-size:clamp(1.08rem,4.4vw,1.28rem)!important;line-height:1.35!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-hint {color:#c3a9bd!important}
+@media(max-width:430px) {
+  .auth-card.profile-card .profile-settings-panel {padding:16px!important;border-radius:22px!important}
+  .auth-card.profile-card .profile-settings-tab {min-height:41px!important}
 }
 @media(prefers-reduced-motion:reduce) {
-  #content .daily,#content .daily-icon {transition:none!important}
-  #content .daily p.kindness-pop {animation:none!important}
+  .auth-card.profile-card .profile-editor-settings,
+  .auth-card.profile-card .profile-settings-tab {animation:none!important;transition:none!important}
+}
+
+
+/* Cute Bunny settings hub — four clear sections with tactile pastel controls. */
+.auth-card.profile-card .profile-settings-panel{width:min(100%,450px)!important;max-height:min(78dvh,690px)!important;overflow-y:auto!important;padding:20px!important;gap:15px!important;border-radius:27px!important;background:radial-gradient(circle at 100% 0%,rgba(239,196,216,.25),transparent 34%),linear-gradient(150deg,#fffdfd,#fff4f8 58%,#f5f0ff)!important}
+.auth-card.profile-card .profile-settings-heading p{margin:5px 0 0!important;color:#a88b9f!important;font-size:.75rem!important}
+.auth-card.profile-card .profile-settings-tabs{display:flex!important;gap:5px!important;overflow-x:auto!important;padding:5px!important;border-radius:17px!important;background:#f4e8ef!important;scrollbar-width:none!important}
+.auth-card.profile-card .profile-settings-tabs::-webkit-scrollbar{display:none}
+.auth-card.profile-card .profile-settings-tab{flex:1 0 72px!important;min-height:42px!important;padding:8px 9px!important;border-radius:12px!important;font-size:.76rem!important;white-space:nowrap!important}
+.auth-card.profile-card .profile-settings-section{min-height:170px!important;gap:14px!important}
+.auth-card.profile-card .settings-section-intro{display:flex!important;align-items:center!important;gap:11px!important;padding:3px 0 7px!important}
+.auth-card.profile-card .settings-section-icon{display:grid!important;place-items:center!important;flex:0 0 39px!important;height:39px!important;border-radius:14px!important;background:linear-gradient(145deg,#ffe8f0,#eee7fb)!important;color:#bd7d9e!important;font-size:1.15rem!important}
+.auth-card.profile-card .settings-section-intro b{display:block!important;color:#765c72!important;font-size:.88rem!important;font-weight:900!important}
+.auth-card.profile-card .settings-section-intro small{display:block!important;margin-top:3px!important;color:#aa8fa2!important;font-size:.68rem!important;line-height:1.35!important}
+.auth-card.profile-card .settings-choice-heading{color:#856c80!important;font-size:.76rem!important;font-weight:900!important}
+.auth-card.profile-card .settings-theme-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+.auth-card.profile-card .settings-theme-choice{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;min-height:66px!important;padding:8px 4px!important;border:1px solid #eddae5!important;border-radius:15px!important;background:rgba(255,255,255,.85)!important;color:#8d7186!important}
+.auth-card.profile-card .settings-theme-choice>span{font-size:1.25rem!important;line-height:1!important}
+.auth-card.profile-card .settings-theme-choice small{font-size:.61rem!important;font-weight:800!important;text-align:center!important}
+.auth-card.profile-card .settings-theme-choice.is-selected{border-color:#d58eae!important;background:linear-gradient(145deg,#fff0f5,#f2edff)!important;box-shadow:0 0 0 2px rgba(213,142,174,.16)!important;color:#995c7d!important}
+.auth-card.profile-card .settings-buddy-row{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px!important}
+.auth-card.profile-card .settings-buddy-choice{display:flex!important;flex-direction:column!important;align-items:center!important;gap:4px!important;min-height:65px!important;padding:8px 3px!important;border:1px solid #eddae5!important;border-radius:15px!important;background:#fff!important;color:#8d7186!important}
+.auth-card.profile-card .settings-buddy-choice>span{font-size:1.45rem!important}
+.auth-card.profile-card .settings-buddy-choice small{font-size:.62rem!important;font-weight:800!important}
+.auth-card.profile-card .settings-buddy-choice.is-selected{border-color:#d58eae!important;background:linear-gradient(145deg,#fff0f5,#f2edff)!important;box-shadow:0 0 0 2px rgba(213,142,174,.16)!important}
+.auth-card.profile-card .settings-wallpaper-action,.auth-card.profile-card .settings-notification-card{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;width:100%!important;padding:12px 13px!important;border:1px solid #eddae5!important;border-radius:15px!important;background:rgba(255,255,255,.82)!important;color:#856a80!important;font-size:.76rem!important;font-weight:850!important;text-align:left!important}
+.auth-card.profile-card .settings-wallpaper-action span{color:#c27f9f!important;font-size:1.1rem!important}
+.auth-card.profile-card .settings-notification-card{display:grid!important;grid-template-columns:1fr auto!important}
+.auth-card.profile-card .settings-notification-card>span{font-size:.75rem!important}
+.auth-card.profile-card .settings-notification-card>small{grid-column:1!important;color:#aa8fa2!important;font-size:.64rem!important;font-weight:600!important}
+.auth-card.profile-card .settings-open-notifications{grid-column:2!important;grid-row:1/span 2!important;border:0!important;background:#f8edf3!important;border-radius:10px!important;padding:8px!important;color:#a66c8a!important;font-size:.65rem!important;font-weight:900!important}
+body[data-mode="dark"] .auth-card.profile-card .profile-settings-panel{background:radial-gradient(circle at 100% 0%,rgba(112,81,126,.2),transparent 34%),linear-gradient(150deg,#342b3d,#302737 68%,#352d43)!important}
+body[data-mode="dark"] .auth-card.profile-card .settings-section-intro b,body[data-mode="dark"] .auth-card.profile-card .settings-choice-heading{color:#f0e1ed!important}
+body[data-mode="dark"] .auth-card.profile-card .settings-section-intro small{color:#c3a9bd!important}
+body[data-mode="dark"] .auth-card.profile-card .settings-theme-choice,body[data-mode="dark"] .auth-card.profile-card .settings-buddy-choice,body[data-mode="dark"] .auth-card.profile-card .settings-wallpaper-action,body[data-mode="dark"] .auth-card.profile-card .settings-notification-card{background:#2b2433!important;border-color:#5d4a63!important;color:#f2e4ef!important}
+body[data-mode="dark"] .auth-card.profile-card .settings-open-notifications{background:#47364b!important;color:#efbfd5!important}
+@media(max-width:430px){.auth-card.profile-card .profile-settings-panel{padding:15px!important;max-height:80dvh!important}.auth-card.profile-card .settings-theme-grid{gap:6px!important}.auth-card.profile-card .settings-theme-choice{min-height:62px!important}}
+
+
+/* 2026-11-17 — app-wide soft motion and tactile interaction polish. */
+:root {
+  scroll-behavior: smooth;
+  --cb-ease-out: cubic-bezier(.2,.75,.25,1);
+  --cb-ease-spring: cubic-bezier(.2,.85,.25,1.18);
+}
+body, .app, #content { -webkit-tap-highlight-color: transparent; }
+.app > header,
+.app #nav,
+#content .tile,
+#content .daily,
+#content .friend-row,
+#content .home-feature-card,
+#content .chat-page,
+.profile-settings-panel,
+.notification-card,
+.auth-card,
+.photo-lightbox-card,
+.music-player-card {
+  transition:
+    background-color .28s var(--cb-ease-out),
+    border-color .28s var(--cb-ease-out),
+    box-shadow .28s var(--cb-ease-out),
+    color .2s ease,
+    transform .28s var(--cb-ease-out);
+}
+#content .tile,
+#content .daily,
+#content .friend-row,
+#content .home-feature-card,
+#content .chat-page,
+.profile-settings-panel,
+.notification-card,
+.auth-card,
+.photo-lightbox-card,
+.music-player-card {
+  box-shadow: 0 8px 24px rgba(var(--cb-shadow-color, 91,62,88),.055);
+}
+#content .tile,
+#content .daily,
+#content .friend-row,
+#content .home-feature-card {
+  border-radius: 22px;
+}
+#content button,
+#nav button,
+.app > header button,
+.profile-settings-panel button,
+.notification-card button,
+.auth-card button {
+  touch-action: manipulation;
+  transition:
+    transform .2s var(--cb-ease-out),
+    background-color .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease,
+    color .18s ease,
+    opacity .18s ease;
+}
+#content button:active,
+#nav button:active,
+.app > header button:active,
+.profile-settings-panel button:active,
+.notification-card button:active,
+.auth-card button:active {
+  transform: scale(.975);
+}
+#content button:focus-visible,
+#nav button:focus-visible,
+.app > header button:focus-visible,
+.profile-settings-panel button:focus-visible,
+.notification-card button:focus-visible,
+.auth-card button:focus-visible,
+#content input:focus-visible,
+#content textarea:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--cb-accent) 48%, transparent);
+  outline-offset: 3px;
+}
+#content .tile:hover,
+#content .daily:hover,
+#content .friend-row:hover,
+#content .home-feature-card:hover {
+  border-color: color-mix(in srgb, var(--cb-accent) 32%, var(--cb-border));
+  box-shadow: 0 13px 30px rgba(var(--cb-shadow-color, 91,62,88),.09);
+}
+#content .tile:active,
+#content .daily:active,
+#content .friend-row:active { transform: translateY(1px); }
+#nav button {
+  border-radius: 17px;
+  transition: transform .22s var(--cb-ease-spring), background .22s ease, color .2s ease;
+}
+#nav button.active { box-shadow: 0 4px 12px rgba(var(--cb-shadow-color,91,62,88),.08); }
+#content input:not([type="file"]),
+#content textarea,
+.auth-gate input:not([type="checkbox"]):not([type="radio"]),
+.auth-gate textarea {
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+#content input:focus,
+#content textarea:focus,
+.auth-gate input:focus,
+.auth-gate textarea:focus {
+  border-color: color-mix(in srgb, var(--cb-accent) 66%, white);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cb-accent-soft) 78%, transparent);
+  outline: 0;
+}
+#content img,
+#content .tile-art,
+#content .feed-photo,
+#content .memory img {
+  transition: filter .28s ease, transform .35s var(--cb-ease-out);
+}
+#content .feed-photo:hover { filter: saturate(1.035); }
+#content .chat-bubble {
+  transition: transform .18s var(--cb-ease-out), box-shadow .2s ease, background-color .2s ease;
+}
+#content .chat-bubble-wrap { animation: cb-message-arrive .24s var(--cb-ease-out) both; }
+@keyframes cb-message-arrive {
+  from { opacity: 0; transform: translateY(5px) scale(.992); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+#content > .heading,
+#content > .toolbar,
+#content > .happy-things-grid,
+#content > .home-hero {
+  animation: cb-page-arrive .3s var(--cb-ease-out) both;
+}
+@keyframes cb-page-arrive {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.profile-settings-panel .settings-theme-choice,
+.profile-settings-panel .settings-buddy-choice,
+.profile-settings-panel .settings-wallpaper-action,
+.profile-settings-panel .settings-notification-card {
+  transition: transform .2s var(--cb-ease-out), box-shadow .22s ease, border-color .22s ease, background .22s ease;
+}
+.profile-settings-panel .settings-theme-choice:hover,
+.profile-settings-panel .settings-buddy-choice:hover,
+.profile-settings-panel .settings-wallpaper-action:hover,
+.profile-settings-panel .settings-notification-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgba(var(--cb-shadow-color,91,62,88),.08);
+}
+.app > header { transition: background-color .25s ease, box-shadow .25s ease, border-color .25s ease; }
+#nowPlayingPanel { transform-origin: top right; animation: cb-panel-open .2s var(--cb-ease-out) both; }
+@keyframes cb-panel-open {
+  from { opacity: 0; transform: translateY(-5px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (hover:none) {
+  #content .tile:hover,
+  #content .daily:hover,
+  #content .friend-row:hover,
+  #content .home-feature-card:hover { box-shadow: inherit; }
+}
+@media (prefers-reduced-motion:reduce) {
+  :root { scroll-behavior: auto; }
+  #content .chat-bubble-wrap,
+  #content > .heading,
+  #content > .toolbar,
+  #content > .happy-things-grid,
+  #content > .home-hero,
+  #nowPlayingPanel { animation: none !important; }
+  #content button,
+  #nav button,
+  .app > header button,
+  #content .tile,
+  #content .daily,
+  #content .friend-row,
+  #content .home-feature-card,
+  #content .chat-bubble,
+  .profile-settings-panel,
+  .profile-settings-panel button { transition: none !important; }
 }

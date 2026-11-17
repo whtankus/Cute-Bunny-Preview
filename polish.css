@@ -2519,3 +2519,48 @@ body, .app, #content { -webkit-tap-highlight-color: transparent; }
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+
+
+/* Header cleanup: keep the app chrome transparent, including on Notes.
+   Remove the top/status-bar shadow and size the buddy icon to the name capsule. */
+html body #app > header,
+html body.notes-page-active #app > header,
+html body[data-theme] #app > header {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+html body #app > header::before,
+html body #app > header::after {
+  content: none !important;
+  display: none !important;
+  box-shadow: none !important;
+}
+html body #app > header .brand > span {
+  flex-basis: 50px !important;
+  width: 50px !important;
+  height: 50px !important;
+  min-width: 50px !important;
+  min-height: 50px !important;
+}
+html body #app > header .brand > b {
+  min-height: 50px !important;
+}
+@media (max-width: 520px) {
+  html body #app > header .brand > span {
+    flex-basis: 44px !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+  html body #app > header .brand > b {
+    min-height: 44px !important;
+  }
+}

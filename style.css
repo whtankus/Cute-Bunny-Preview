@@ -13850,29 +13850,67 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
 }
 
 
-/* Wider profile stage so the selected wallpaper artwork is visible edge to edge. */
-#friendProfileGate { padding:12px!important; }
-#friendProfileGate .auth-card.friend-profile-card {
-  width:min(720px,calc(100vw - 32px))!important;
-  max-width:720px!important;
-  max-height:94dvh!important;
-  padding:26px 28px 24px!important;
+/* Portrait friend profile: remove the oversized 720px stage and show the full
+   themed decoration above and below a narrower, vertically composed card. */
+#friendProfileGate {
+  padding:14px 12px!important;
+  overflow-y:auto!important;
   overflow-x:hidden!important;
 }
-.friend-profile-milestone-icons { gap:11px!important; }
-.friend-profile-milestone-badge {
-  width:48px!important;height:48px!important;min-width:48px!important;
-  padding:4px!important;
+#friendProfileGate .auth-card.friend-profile-card {
+  width:min(420px,calc(100vw - 32px))!important;
+  max-width:420px!important;
+  max-height:none!important;
+  min-height:0!important;
+  margin:12px auto!important;
+  padding:22px 20px 20px!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
 }
-.friend-profile-milestone-svg { display:grid!important;place-items:center!important;width:100%!important;height:100%!important; }
-.friend-profile-milestone-svg svg { display:block!important;width:100%!important;height:100%!important; }
+#friendProfileGate .friend-profile-main-row,
+#friendProfileGate .friend-profile-heading {
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  gap:10px!important;
+}
+#friendProfileGate .friend-profile-identity {
+  width:100%!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+#friendProfileGate .friend-profile-follow {
+  width:auto!important;
+  max-width:100%!important;
+}
+#friendProfileGate .friend-profile-bio-row {
+  align-items:stretch!important;
+}
+#friendProfileGate .friend-profile-activity-line {
+  justify-content:center!important;
+  text-align:center!important;
+}
+#friendProfileGate .friend-profile-milestone-icons {
+  justify-content:center!important;
+  gap:10px!important;
+}
+#friendProfileGate .friend-profile-milestone-badge {
+  width:44px!important;height:44px!important;min-width:44px!important;
+  padding:3px!important;
+}
+#friendProfileGate .friend-profile-milestone-svg {
+  display:grid!important;place-items:center!important;width:100%!important;height:100%!important;
+}
+#friendProfileGate .friend-profile-milestone-svg svg {
+  display:block!important;width:100%!important;height:100%!important;
+}
 @media(max-width:600px) {
-  #friendProfileGate { padding:8px!important; }
+  #friendProfileGate { padding:12px 8px!important; }
   #friendProfileGate .auth-card.friend-profile-card {
-    width:calc(100vw - 16px)!important;
-    max-width:none!important;
-    max-height:94dvh!important;
+    width:min(400px,calc(100vw - 24px))!important;
+    max-width:400px!important;
     padding:20px 16px 18px!important;
   }
-  .friend-profile-milestone-badge { width:42px!important;height:42px!important;min-width:42px!important; }
 }

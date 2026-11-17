@@ -2443,24 +2443,25 @@ function achievementGardenMarkup(items) {
     try { localStorage.setItem(key, JSON.stringify(saved)); } catch {}
   }
   const earnedCount = achievements.filter(item => !!saved[item.id]).length;
+  const remaining = achievements.filter(item => !saved[item.id]);
+  if (!remaining.length) return '';
   return `
     <section class="achievement-garden" aria-labelledby="achievementGardenTitle">
       <div class="achievement-garden-heading">
-        <div><small>A LITTLE COLLECTION OF WINS</small><h3 id="achievementGardenTitle">Achievement Garden <span aria-hidden="true">✿</span></h3><p>Every small moment helps your garden grow.</p></div>
+        <div><small>A FEW LITTLE GOALS</small><h3 id="achievementGardenTitle">Growing together <span aria-hidden="true">✿</span></h3><p>Small moments, lovely milestones.</p></div>
         <div class="achievement-count"><strong>${earnedCount}/${achievements.length}</strong><span>unlocked</span></div>
       </div>
       <div class="achievement-grid">
-        ${achievements.map(item => {
-          const earned = !!saved[item.id];
+        ${remaining.map(item => {
           const progress = Math.min(100, Math.round((item.value / item.goal) * 100));
           const amount = Math.min(item.value, item.goal);
-          return `<article class="achievement-card ${earned ? 'is-earned' : ''}">
-            <div class="achievement-medallion" aria-hidden="true">${item.icon}</div>
+          const art = item.id === 'first-memory' ? 'note' : item.id === 'photo-collector' ? 'photo' : item.id === 'love-letter' ? 'kissNote' : item.id === 'playlist-curator' ? 'song' : item.id === 'week-of-wonder' ? 'bloom-7' : 'hearts';
+          return `<article class="achievement-card">
+            <div class="achievement-medallion achievement-art" aria-hidden="true">${gardenIllustration(art)}</div>
             <div class="achievement-copy"><strong>${esc(item.title)}</strong><p>${esc(item.detail)}</p>
               <div class="achievement-progress" role="progressbar" aria-label="${esc(item.title)} progress" aria-valuemin="0" aria-valuemax="${item.goal}" aria-valuenow="${amount}"><span style="width:${progress}%"></span></div>
-              <small>${earned ? 'Unlocked ♡' : `${amount} / ${item.goal} ${esc(item.unit)}`}</small>
+              <small>${amount} / ${item.goal} ${esc(item.unit)}</small>
             </div>
-            <span class="achievement-status" aria-label="${earned ? 'Unlocked' : 'Locked'}">${earned ? '✓' : '✧'}</span>
           </article>`;
         }).join('')}
       </div>
@@ -2579,7 +2580,7 @@ function formatFriendProfileActivity(value) {
 function showFriendProfile(user) {
   if (!user) return;
   const gate = $('#friendProfileGate');
-  const isOwnProfile = String(user.id) === String(me?.id);
+  const isOwnProfile = !!(me?.id && user?.id && String(user.id) === String(me.id)) || (!!me?.username && String(user?.username || '').toLowerCase() === String(me.username).toLowerCase());
   gate.dataset.username = user.username;
   gate.dataset.following = String(!!user.isFollowing);
   gate.dataset.ownProfile = String(isOwnProfile);
@@ -2591,7 +2592,7 @@ function showFriendProfile(user) {
     profileCard.dataset.wallpaper = wallpaper;
     profileCard.classList.toggle('is-own-profile', isOwnProfile);
   }
-  $('#friendProfileBuddy').innerHTML = buddyIllustration(user.mascot || '🐰');
+  $('#friendProfileBuddy').textContent = user.mascot || '🐰';
   $('#friendProfileName').textContent = user.displayName || user.display_name || user.username;
   $('#friendProfileHandle').textContent = '@' + user.username;
   const joinedAt = user.created_at || user.createdAt || user.followedAt;
@@ -2621,16 +2622,23 @@ function showFriendProfile(user) {
   const highlights = $('#friendProfileHighlights');
   const collectionPanel = $('#friendProfileCollection');
   const badgesPanel = $('#friendProfileBadges');
-  if (highlights) highlights.hidden = !isOwnProfile;
+  if (highlights) highlights.hidden = false;
   if (collectionPanel) collectionPanel.hidden = !isOwnProfile;
-  if (badgesPanel) badgesPanel.hidden = !isOwnProfile;
+  if (badgesPanel) badgesPanel.hidden = false;
+  {
+    const profileFeed = isOwnProfile ? (Array.isArray(feed) ? feed : []) : [];
+    const photosPublic = Number(user.photo_count ?? user.photos_count ?? 0) || profileFeed.filter(item => item.kind === 'photo').length;
+    const notesPublic = Number(user.note_count ?? user.notes_count ?? 0) || profileFeed.filter(item => item.kind === 'note').length;
+    const songsPublic = Number(user.song_count ?? user.songs_count ?? 0) || profileFeed.filter(item => item.kind === 'song').length;
+    const petalsPublic = isOwnProfile && typeof petalRewardBalance === 'function' ? petalRewardBalance() : Number(user.petals ?? user.petal_points ?? 0);
+    [['friendProfilePhotos',photosPublic],['friendProfileNotes',notesPublic],['friendProfileSongs',songsPublic],['friendProfilePetals',petalsPublic]].forEach(([id,value]) => { const node=$('#'+id); if(node) node.textContent=Number(value).toLocaleString(); });
+  }
   if (isOwnProfile) {
     const ownFeed = Array.isArray(feed) ? feed : [];
     const photos = ownFeed.filter(item => item.kind === 'photo').length;
     const notes = ownFeed.filter(item => item.kind === 'note').length;
     const songs = ownFeed.filter(item => item.kind === 'song').length;
     const petals = typeof petalRewardBalance === 'function' ? petalRewardBalance() : 0;
-    [['friendProfilePhotos',photos],['friendProfileNotes',notes],['friendProfileSongs',songs],['friendProfilePetals',petals]].forEach(([id,value]) => { const node=$('#'+id); if(node) node.textContent=Number(value).toLocaleString(); });
     const collection = typeof readGardenCollection === 'function' ? readGardenCollection() : {owned:[],equipped:'none',bunny:'none'};
     const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
     const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
@@ -2640,18 +2648,18 @@ function showFriendProfile(user) {
     if (collectionItems) collectionItems.innerHTML = ownedItems.length ? ownedItems.slice(0,6).map(item => '<span class="friend-profile-collection-item' + ((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id ? ' is-equipped' : '') + '" title="' + esc(item.name) + '"><span>' + item.icon + '</span><small>' + esc(item.name) + '</small></span>').join('') : '<p class="friend-profile-empty">Your first little treasure is waiting in the Garden Shop ♡</p>';
     const streak = Number(user.login_streak) || Number(me?.login_streak) || 0;
     const badges = [
-      {icon:'🌱',name:'First Bloom',earned:streak>=1},
-      {icon:'🌼',name:'Week in Bloom',earned:streak>=7},
-      {icon:'🌟',name:'30-Day Garden',earned:streak>=30},
-      {icon:'📷',name:'Memory Keeper',earned:photos>=5},
-      {icon:'💌',name:'Little Writer',earned:notes>=5},
-      {icon:'🎵',name:'Playlist Curator',earned:songs>=3},
-      {icon:'💗',name:'Heart Keeper',earned:Number(user.heartCount||me?.heartCount)>=100}
+      {art:'login',name:'First Bloom',earned:streak>=1},
+      {art:'bloom-7',name:'Week in Bloom',earned:streak>=7},
+      {art:'bloom-5',name:'30-Day Garden',earned:streak>=30},
+      {art:'photo',name:'Memory Keeper',earned:photos>=5},
+      {art:'kissNote',name:'Little Writer',earned:notes>=5},
+      {art:'song',name:'Playlist Curator',earned:songs>=3},
+      {art:'hearts',name:'Heart Keeper',earned:Number(user.heartCount ?? me?.heartCount)>=100}
     ];
     const badgeList = $('#friendProfileBadgeList');
-    if (badgeList) badgeList.innerHTML = badges.filter(item=>item.earned).length ? badges.filter(item=>item.earned).map(item=>'<span class="friend-profile-badge"><span>'+item.icon+'</span><small>'+item.name+'</small></span>').join('') : '<p class="friend-profile-empty">Your first achievement is just around the corner ♡</p>';
+    if (badgeList) badgeList.innerHTML = badges.filter(item=>item.earned).length ? badges.filter(item=>item.earned).map(item=>'<span class="friend-profile-badge"><span class="friend-profile-badge-art">'+gardenIllustration(item.art)+'</span><small>'+item.name+'</small></span>').join('') : '<p class="friend-profile-empty">A first little achievement is just around the corner ♡</p>';
   }
-  $('#friendProfileFollow').textContent = isOwnProfile ? 'Edit profile' : (user.isFollowing ? 'Following' : 'Follow ♡');
+  $('#friendProfileFollow').textContent = isOwnProfile ? '✧ Theme' : (user.isFollowing ? 'Following' : 'Follow ♡');
   $('#friendProfileFollow').disabled = false;
   $('#friendProfileFollow').dataset.themeAction = isOwnProfile ? 'true' : 'false';
   $('#friendProfileFollow').classList.toggle('is-following', !!user.isFollowing);
@@ -5116,6 +5124,8 @@ document.addEventListener('click', async e => {
   }
   if (e.target.closest('#profileOpen, [data-open-profile]')) {
     if (!me) return;
+    showFriendProfile(me);
+    return;
     $('#profileName').textContent = me.displayName || me.username;
     $('#profileHandle').textContent = '@' + me.username;
     $('#profileCreated').textContent = formatProfileDate(me.created_at || me.createdAt);

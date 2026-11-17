@@ -2564,3 +2564,37 @@ html body #app > header .brand > b {
     min-height: 44px !important;
   }
 }
+
+
+/* Final Notes header cascade: override the later global transparent-header reset. */
+html body.notes-page-active #app > header,
+html body.notes-page-active.notes-header-hidden #app > header {
+  background: rgba(255, 247, 251, .64) !important;
+  background-color: rgba(255, 247, 251, .64) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, .30) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.4) !important;
+  backdrop-filter: blur(24px) saturate(1.4) !important;
+  filter: none !important;
+  isolation: isolate;
+}
+html body.notes-page-active #app,
+html body.notes-page-active #app > header {
+  filter: none !important;
+  box-shadow: none !important;
+}
+html body.notes-page-active #app > header::before,
+html body.notes-page-active #app > header::after {
+  content: none !important;
+  display: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+html body[data-mode="dark"].notes-page-active #app > header,
+html body[data-mode="dark"].notes-page-active.notes-header-hidden #app > header {
+  background: rgba(37, 29, 44, .70) !important;
+  background-color: rgba(37, 29, 44, .70) !important;
+  border-bottom-color: rgba(255, 255, 255, .12) !important;
+}

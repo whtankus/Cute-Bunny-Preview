@@ -4807,7 +4807,7 @@ document.addEventListener('click', event => {
   }
 }, true);
 
-// Long-press the owner's profile flower to open the original profile editor.
+// A normal tap on the owner's profile flower opens the classic full-screen profile editor.
 let profileFlowerHoldTimer = null;
 let profileFlowerPointerId = null;
 let profileFlowerStartX = 0;
@@ -4827,6 +4827,7 @@ function openProfileSettingsFromFlower() {
   }
   if (!panel) return;
   modalMount.appendChild(panel);
+  gate.querySelector('.friend-profile-card')?.classList.add('is-editing-profile');
   panel.classList.add('is-friend-profile-settings');
   renderProfileSettings();
   panel.classList.remove('hidden');
@@ -4846,6 +4847,7 @@ function restoreProfileSettingsToMain() {
   if (!panel) return;
   panel.classList.add('hidden');
   panel.classList.remove('is-friend-profile-settings');
+  document.querySelector('#friendProfileGate .friend-profile-card')?.classList.remove('is-editing-profile');
   const mainMount = document.querySelector('#profileSettingsMount');
   if (mainMount) mainMount.appendChild(panel);
   document.querySelector('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
@@ -4864,11 +4866,8 @@ document.addEventListener('pointerdown', event => {
   profileFlowerHoldTimer = setTimeout(() => {
     profileFlowerLongPressed = true;
     openProfileSettingsFromFlower();
-  }, 600);
-}, true);
-
-document.addEventListener('pointermove', event => {
-  if (event.pointerId !== profileFlowerPointerId) return;
+  }, 0);
+}, true);\n\ndocument.addEventListener('pointermove', event => {\n  if (event.pointerId !== profileFlowerPointerId) return;
   if (Math.hypot(event.clientX - profileFlowerStartX, event.clientY - profileFlowerStartY) > 10) {
     clearTimeout(profileFlowerHoldTimer);
     profileFlowerPointerId = null;

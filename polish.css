@@ -2405,3 +2405,34 @@ body, .app, #content { -webkit-tap-highlight-color: transparent; }
 .auth-card.profile-card .settings-theme-choice.theme-buttercup { color:#c49b45!important; }
 .auth-card.profile-card .settings-buddy-choice .buddy-choice-art { display:grid!important; place-items:center!important; min-height:46px!important; }
 .auth-card.profile-card .settings-buddy-choice .cb-buddy-illustration { width:44px!important; height:44px!important; }
+
+
+/* Illustrated achievement garden, weekly blooms and shop collectibles. */
+#content .sg-collectible-art,
+#content .sg-weekly-art,
+#content .sg-daily-quest-icon,
+#content .sg-petal-balance-art,
+#content .sg-chest-art {
+  display:grid; place-items:center; flex:0 0 auto;
+}
+#content .sg-collectible-art { width:76px; height:76px; margin:0 auto 8px; border-radius:23px; background:linear-gradient(145deg,#fff8f1,#f8e7ef); box-shadow:inset 0 1px 0 #fff,0 5px 14px rgba(151,103,126,.08); }
+#content .sg-collectible-art svg { width:66px; height:66px; filter:drop-shadow(0 3px 2px rgba(110,78,92,.10)); }
+#content .sg-weekly-art { width:58px; height:58px; border-radius:19px; background:linear-gradient(145deg,#fff8ed,#f7e7ed); }
+#content .sg-weekly-art svg { width:54px; height:54px; }
+#content .sg-daily-quest-icon { width:48px; height:48px; border-radius:16px; background:linear-gradient(145deg,#fff8ef,#f8e8ef); }
+#content .sg-daily-quest-icon svg { width:43px; height:43px; }
+#content .sg-petal-balance-art { width:46px; height:46px; border-radius:16px; background:#fff5e9; }
+#content .sg-petal-balance-art svg { width:43px; height:43px; }
+#content .sg-chest-art { display:inline-grid; width:26px; height:26px; vertical-align:middle; }
+#content .sg-chest-art svg { width:26px; height:26px; }
+#content .sg-collectible-card { overflow:hidden; }
+#content .sg-collectible-card.is-equipped .sg-collectible-art { background:linear-gradient(145deg,#f8f0d9,#f6e4eb); box-shadow:0 0 0 2px rgba(190,151,91,.28),inset 0 1px 0 #fff; }
+#content .sg-weekly-tier.is-unlocked .sg-weekly-art { background:linear-gradient(145deg,#f8f0d9,#f8e4ed); box-shadow:0 0 0 2px rgba(190,151,91,.24); }
+#content .sg-heart-milestone-art { display:grid; place-items:center; }
+#content .sg-heart-milestone-art svg { width:100%; height:100%; max-width:76px; filter:drop-shadow(0 3px 3px rgba(130,86,111,.10)); }
+@media(max-width:430px) {
+  #content .sg-collectible-art { width:66px; height:66px; }
+  #content .sg-collectible-art svg { width:58px; height:58px; }
+  #content .sg-weekly-art { width:52px; height:52px; }
+  #content .sg-weekly-art svg { width:48px; height:48px; }
+}

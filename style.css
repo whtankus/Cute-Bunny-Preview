@@ -13924,3 +13924,42 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
     padding:20px 16px 18px!important;
   }
 }
+
+
+/* Flat, precisely centered flower theme control and a small joined-date offset. */
+#friendProfileGate .friend-profile-bio-row .friend-profile-theme-button {
+  display:flex!important;
+  flex:0 0 34px!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:34px!important;
+  min-width:34px!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding:0!important;
+  margin:0 0 0 4px!important;
+  transform:none!important;
+  border:1px solid #e8c5d7!important;
+  border-radius:11px!important;
+  background:#fff5fa!important;
+  color:#a96f8c!important;
+  box-shadow:none!important;
+  filter:none!important;
+  text-shadow:none!important;
+  line-height:1!important;
+}
+#friendProfileGate .friend-profile-bio-row .friend-profile-theme-button span {
+  display:grid!important;
+  place-items:center!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+  font-size:18px!important;
+  transform:none!important;
+}
+#friendProfileGate .friend-profile-joined {
+  position:relative!important;
+  left:5px!important;
+}

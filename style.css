@@ -13790,22 +13790,32 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-milestone-badge { co
 body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#fffafc!important; }
 
 
-/* Compact flower-only theme control placed beneath the profile bio. */
-.friend-profile-theme-row {
+/* Compact bio row with the flower-only theme action at its trailing edge. */
+.friend-profile-bio-row {
   display:flex!important;
-  justify-content:flex-end!important;
-  align-items:center!important;
-  margin:2px 0 8px!important;
+  align-items:stretch!important;
+  gap:7px!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:7px 0 10px!important;
 }
-.friend-profile-theme-row .friend-profile-follow {
+.friend-profile-bio-row .friend-profile-bio {
+  flex:1 1 auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:8px 11px!important;
+  border-radius:13px!important;
+  font-size:.76rem!important;
+  line-height:1.35!important;
+}
+.friend-profile-bio-row .friend-profile-theme-button {
   display:grid!important;
   place-items:center!important;
-  grid-column:auto!important;
-  justify-self:auto!important;
-  width:34px!important;
-  min-width:34px!important;
-  height:30px!important;
-  min-height:30px!important;
+  flex:0 0 32px!important;
+  width:32px!important;
+  min-width:32px!important;
+  height:auto!important;
+  min-height:32px!important;
   padding:0!important;
   margin:0!important;
   border-radius:12px!important;
@@ -13830,7 +13840,8 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
 .friend-profile-milestone-svg svg { width:36px!important;height:34px!important; }
 .friend-profile-badges { margin-top:10px!important; }
 @media(max-width:430px) {
-  .friend-profile-theme-row { margin-top:0!important;margin-bottom:6px!important; }
-  .friend-profile-theme-row .friend-profile-follow { width:32px!important;height:29px!important;min-width:32px!important;min-height:29px!important; }
+  .friend-profile-bio-row { gap:6px!important;margin-top:6px!important;margin-bottom:8px!important; }
+  .friend-profile-bio-row .friend-profile-bio { padding:7px 9px!important;font-size:.72rem!important; }
+  .friend-profile-bio-row .friend-profile-theme-button { flex-basis:30px!important;width:30px!important;min-width:30px!important;min-height:30px!important; }
   .friend-profile-milestone-badge { width:38px!important;height:38px!important;min-width:38px!important; }
 }

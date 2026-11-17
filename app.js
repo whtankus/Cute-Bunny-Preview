@@ -2633,19 +2633,20 @@ function showFriendProfile(user) {
     const petalsPublic = isOwnProfile && typeof petalRewardBalance === 'function' ? petalRewardBalance() : Number(user.petals ?? user.petal_points ?? 0);
     [['friendProfilePhotos',photosPublic],['friendProfileNotes',notesPublic],['friendProfileSongs',songsPublic],['friendProfilePetals',petalsPublic]].forEach(([id,value]) => { const node=$('#'+id); if(node) node.textContent=Number(value).toLocaleString(); });
   }
-  if (isOwnProfile) {
+  {
     const ownFeed = isOwnProfile && Array.isArray(feed) ? feed : [];
     const photos = isOwnProfile ? ownFeed.filter(item => item.kind === 'photo').length : Number(user.photo_count ?? user.photos_count ?? 0);
     const notes = isOwnProfile ? ownFeed.filter(item => item.kind === 'note').length : Number(user.note_count ?? user.notes_count ?? 0);
     const songs = isOwnProfile ? ownFeed.filter(item => item.kind === 'song').length : Number(user.song_count ?? user.songs_count ?? 0);
-    const petals = typeof petalRewardBalance === 'function' ? petalRewardBalance() : 0;
-    const collection = typeof readGardenCollection === 'function' ? readGardenCollection() : {owned:[],equipped:'none',bunny:'none'};
-    const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
-    const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
-    const collectionCount = $('#friendProfileCollectionCount');
-    if (collectionCount) collectionCount.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
-    const collectionItems = $('#friendProfileCollectionItems');
-    if (collectionItems) collectionItems.innerHTML = ownedItems.length ? ownedItems.slice(0,6).map(item => '<span class="friend-profile-collection-item' + ((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id ? ' is-equipped' : '') + '" title="' + esc(item.name) + '"><span>' + item.icon + '</span><small>' + esc(item.name) + '</small></span>').join('') : '<p class="friend-profile-empty">Your first little treasure is waiting in the Garden Shop ♡</p>';
+    if (isOwnProfile) {
+      const collection = typeof readGardenCollection === 'function' ? readGardenCollection() : {owned:[],equipped:'none',bunny:'none'};
+      const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
+      const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
+      const collectionCount = $('#friendProfileCollectionCount');
+      if (collectionCount) collectionCount.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
+      const collectionItems = $('#friendProfileCollectionItems');
+      if (collectionItems) collectionItems.innerHTML = ownedItems.length ? ownedItems.slice(0,6).map(item => '<span class="friend-profile-collection-item' + ((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id ? ' is-equipped' : '') + '" title="' + esc(item.name) + '"><span>' + item.icon + '</span><small>' + esc(item.name) + '</small></span>').join('') : '<p class="friend-profile-empty">Your first little treasure is waiting in the Garden Shop ♡</p>';
+    }
     const streak = Number(user.login_streak) || 0;
     const badges = [
       {art:'login',name:'First Bloom',earned:streak>=1},

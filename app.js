@@ -2861,7 +2861,7 @@ async function cycleProfileWallpaper() {
     if (card) card.dataset.wallpaper = me.profile_wallpaper;
     const ownRow = document.querySelector('#content .own-profile-row');
     if (ownRow) ownRow.dataset.wallpaper = me.profile_wallpaper;
-    if (button) button.textContent = 'Themes';
+    if (button) button.innerHTML = '<span aria-hidden="true">✿</span>';
     toast('Wallpaper: ' + (PROFILE_WALLPAPER_LABELS[me.profile_wallpaper] || 'Normal') + ' ♡');
   } catch (error) {
     toast(error.message || 'Could not save wallpaper.');

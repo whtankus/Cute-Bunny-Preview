@@ -13811,6 +13811,9 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
 .friend-profile-bio-row .friend-profile-theme-button {
   display:grid!important;
   place-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  transform:translateX(4px)!important;
   flex:0 0 32px!important;
   width:32px!important;
   min-width:32px!important;

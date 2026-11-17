@@ -13727,3 +13727,64 @@ body[data-mode="dark"] .sg-pet-mood { color:#ead6e2; background:rgba(48,39,53,.8
   background:linear-gradient(145deg,#fff8fb,#f8eaf2)!important;
 }
 .friend-profile-badges .friend-profile-section-heading { margin-bottom:9px!important; }
+
+
+/* Final open-profile refinement: compact header spacing and theme-independent legibility. */
+.friend-profile-main-row { row-gap:6px!important; }
+.friend-profile-follow { margin-top:0!important; }
+.friend-profile-bio { margin-top:7px!important;margin-bottom:10px!important; }
+.friend-profile-activity-line { margin-top:0!important; }
+.friend-profile-milestone-svg { display:grid!important;place-items:center!important;width:100%;height:100%; }
+.friend-profile-milestone-svg svg { display:block!important;width:34px!important;height:32px!important; }
+.friend-profile-card,
+.friend-profile-card .friend-profile-eyebrow,
+.friend-profile-card .friend-profile-identity h2,
+.friend-profile-card .friend-profile-handle,
+.friend-profile-card .friend-profile-joined,
+.friend-profile-card .friend-profile-joined time,
+.friend-profile-card .friend-profile-bio,
+.friend-profile-card .friend-profile-activity-status,
+.friend-profile-card .friend-profile-section-heading,
+.friend-profile-card .friend-profile-section-heading>b,
+.friend-profile-card .friend-profile-section-heading>small,
+.friend-profile-card .friend-profile-empty,
+.friend-profile-card .friend-profile-milestone-badge {
+  color:#604b60!important;
+}
+.friend-profile-card .friend-profile-eyebrow { color:#8a617b!important; }
+.friend-profile-card .friend-profile-identity h2 { color:#60465d!important; }
+.friend-profile-card .friend-profile-bio { background:#fffafc!important;border-color:#efd9e5!important; }
+.friend-profile-card .friend-profile-activity-status { color:#477b61!important; }
+.friend-profile-card .friend-profile-section-heading>b { color:#73566f!important; }
+.friend-profile-card .friend-profile-section-heading>small { color:#987c93!important; }
+.friend-profile-card .friend-profile-milestone-badge.is-locked { color:#8d8290!important; }
+@media (prefers-color-scheme:dark) {
+  .friend-profile-card,
+  .friend-profile-card .friend-profile-eyebrow,
+  .friend-profile-card .friend-profile-identity h2,
+  .friend-profile-card .friend-profile-handle,
+  .friend-profile-card .friend-profile-joined,
+  .friend-profile-card .friend-profile-joined time,
+  .friend-profile-card .friend-profile-bio,
+  .friend-profile-card .friend-profile-activity-status,
+  .friend-profile-card .friend-profile-section-heading,
+  .friend-profile-card .friend-profile-section-heading>b,
+  .friend-profile-card .friend-profile-section-heading>small,
+  .friend-profile-card .friend-profile-empty,
+  .friend-profile-card .friend-profile-milestone-badge { color:#604b60!important; }
+  .friend-profile-card .friend-profile-bio { background:#fffafc!important; }
+}
+body[data-mode="dark"] .friend-profile-card,
+body[data-mode="dark"] .friend-profile-card .friend-profile-eyebrow,
+body[data-mode="dark"] .friend-profile-card .friend-profile-identity h2,
+body[data-mode="dark"] .friend-profile-card .friend-profile-handle,
+body[data-mode="dark"] .friend-profile-card .friend-profile-joined,
+body[data-mode="dark"] .friend-profile-card .friend-profile-joined time,
+body[data-mode="dark"] .friend-profile-card .friend-profile-bio,
+body[data-mode="dark"] .friend-profile-card .friend-profile-activity-status,
+body[data-mode="dark"] .friend-profile-card .friend-profile-section-heading,
+body[data-mode="dark"] .friend-profile-card .friend-profile-section-heading>b,
+body[data-mode="dark"] .friend-profile-card .friend-profile-section-heading>small,
+body[data-mode="dark"] .friend-profile-card .friend-profile-empty,
+body[data-mode="dark"] .friend-profile-card .friend-profile-milestone-badge { color:#604b60!important; }
+body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#fffafc!important; }

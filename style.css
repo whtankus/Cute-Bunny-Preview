@@ -14294,3 +14294,8 @@ body.notes-page-active.notes-header-hidden .app > header {
   box-shadow: none !important;
   transform: translate3d(0, 0, 0) !important;
 }
+
+/* Keep the Notes masthead flush with the status area; override the old 4px lift. */
+body.notes-page-active:not(.notes-header-hidden) .app > header {
+  transform: translate3d(0, 0, 0) !important;
+}

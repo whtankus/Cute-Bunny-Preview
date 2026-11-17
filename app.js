@@ -2838,8 +2838,7 @@ async function saveProfileSettings() {
     renderProfileSettings();
     if (feedback) feedback.textContent = 'Your profile is updated ♡';
     toast('Profile updated ♡');
-    $('#profileSettingsPanel')?.classList.add('hidden');
-    $('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
+    restoreProfileSettingsToMain();
     render();
   } catch (error) {
     if (feedback) feedback.textContent = error.message || 'Could not save your profile.';
@@ -4808,6 +4807,85 @@ document.addEventListener('click', event => {
   }
 }, true);
 
+// Long-press the owner's profile flower to open the original profile editor.
+let profileFlowerHoldTimer = null;
+let profileFlowerPointerId = null;
+let profileFlowerStartX = 0;
+let profileFlowerStartY = 0;
+let profileFlowerLongPressed = false;
+
+function openProfileSettingsFromFlower() {
+  const gate = document.querySelector('#friendProfileGate');
+  if (!gate || gate.classList.contains('hidden') || gate.dataset.ownProfile !== 'true') return;
+  const mainMount = document.querySelector('#profileSettingsMount');
+  const modalMount = document.querySelector('#friendProfileSettingsMount');
+  if (!mainMount || !modalMount) return;
+  let panel = document.querySelector('#profileSettingsPanel');
+  if (!panel) {
+    mainMount.innerHTML = profileSettingsMarkup();
+    panel = document.querySelector('#profileSettingsPanel');
+  }
+  if (!panel) return;
+  modalMount.appendChild(panel);
+  panel.classList.add('is-friend-profile-settings');
+  renderProfileSettings();
+  panel.classList.remove('hidden');
+  const tabs = panel.querySelectorAll('[data-settings-tab]');
+  const sections = panel.querySelectorAll('[data-settings-section]');
+  tabs.forEach(tab => {
+    const active = tab.dataset.settingsTab === 'account';
+    tab.classList.toggle('is-active', active);
+    tab.setAttribute('aria-selected', String(active));
+    tab.setAttribute('aria-pressed', String(active));
+  });
+  sections.forEach(section => section.classList.toggle('hidden', section.dataset.settingsSection !== 'account'));
+}
+
+function restoreProfileSettingsToMain() {
+  const panel = document.querySelector('#profileSettingsPanel');
+  if (!panel) return;
+  panel.classList.add('hidden');
+  panel.classList.remove('is-friend-profile-settings');
+  const mainMount = document.querySelector('#profileSettingsMount');
+  if (mainMount) mainMount.appendChild(panel);
+  document.querySelector('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
+}
+
+document.addEventListener('pointerdown', event => {
+  let target = event.target;
+  if (target && target.nodeType !== 1) target = target.parentElement;
+  const flower = target?.closest?.('#friendProfileGate #friendProfileFollow');
+  if (!flower || flower.dataset.themeAction !== 'true' || (event.pointerType === 'mouse' && event.button !== 0)) return;
+  clearTimeout(profileFlowerHoldTimer);
+  profileFlowerPointerId = event.pointerId;
+  profileFlowerStartX = event.clientX;
+  profileFlowerStartY = event.clientY;
+  profileFlowerLongPressed = false;
+  profileFlowerHoldTimer = setTimeout(() => {
+    profileFlowerLongPressed = true;
+    openProfileSettingsFromFlower();
+  }, 600);
+}, true);
+
+document.addEventListener('pointermove', event => {
+  if (event.pointerId !== profileFlowerPointerId) return;
+  if (Math.hypot(event.clientX - profileFlowerStartX, event.clientY - profileFlowerStartY) > 10) {
+    clearTimeout(profileFlowerHoldTimer);
+    profileFlowerPointerId = null;
+  }
+}, true);
+
+function cancelProfileFlowerHold(event) {
+  if (profileFlowerPointerId !== null && event.pointerId !== profileFlowerPointerId) return;
+  clearTimeout(profileFlowerHoldTimer);
+  profileFlowerPointerId = null;
+}
+document.addEventListener('pointerup', cancelProfileFlowerHold, true);
+document.addEventListener('pointercancel', cancelProfileFlowerHold, true);
+document.addEventListener('contextmenu', event => {
+  if (event.target.closest?.('#friendProfileGate #friendProfileFollow')) event.preventDefault();
+}, true);
+
 // Settings category tabs: capture clicks before other delegated handlers.
 document.addEventListener('click', event => {
   let target = event.target;
@@ -4836,11 +4914,17 @@ document.addEventListener('click', event => {
   let target = event.target;
   if (target && target.nodeType !== 1) target = target.parentElement;
   const trigger = target?.closest?.('#profileSettingsTrigger');
+  const flowerLongPressClick = target?.closest?.('#friendProfileGate #friendProfileFollow') && profileFlowerLongPressed;
   const panel = document.querySelector('#profileSettingsPanel');
+  if (flowerLongPressClick) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    profileFlowerLongPressed = false;
+    return;
+  }
   if (!trigger && panel && !panel.classList.contains('hidden') &&
       !target?.closest?.('#profileSettingsPanel')) {
-    panel.classList.add('hidden');
-    document.querySelector('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
+    restoreProfileSettingsToMain();
     return;
   }
   if (!trigger) return;
@@ -5204,7 +5288,7 @@ document.addEventListener('click', async e => {
     return;
   }
 
-  if (e.target.closest('#profileSettingsClose')) { $('#profileSettingsPanel')?.classList.add('hidden'); $('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false'); return; }
+  if (e.target.closest('#profileSettingsClose')) { restoreProfileSettingsToMain(); return; }
   const settingsTab = e.target.closest('[data-settings-tab]');
   if (settingsTab) { const selected = settingsTab.dataset.settingsTab; document.querySelectorAll('[data-settings-tab]').forEach(button => { const active = button === settingsTab; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); }); document.querySelectorAll('[data-settings-section]').forEach(section => { const key = section.dataset.settingsSection; const visible = selected === 'other' ? ['other', 'accessibility', 'account'].includes(key) : key === selected; section.classList.toggle('hidden', !visible); }); return; }
   const liveBuddyChoice = e.target.closest('[data-settings-buddy-choice]');
@@ -5214,13 +5298,13 @@ document.addEventListener('click', async e => {
   if (e.target.closest('#profileSettingsSave')) { void saveProfileSettings(); return; }
   if (e.target.closest('#profileSettingsWallpaper')) { void cycleProfileWallpaper(); return; }
   if (e.target.closest('#profileSettingsOpenNotifications, [data-open-notification-settings]')) {
-    $('#profileSettingsPanel')?.classList.add('hidden');
-    $('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
+    restoreProfileSettingsToMain();
     $('#notificationGate')?.classList.remove('hidden');
     return;
   }
 
   if (e.target.closest('#friendProfileClose')) {
+    restoreProfileSettingsToMain();
     $('#friendProfileGate')?.classList.add('hidden');
     return;
   }

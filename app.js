@@ -1035,7 +1035,7 @@ function updateStreakCountdownLabels() {
   if (streakCountdownDayKey && todayKey !== streakCountdownDayKey) {
     streakCountdownDayKey = todayKey;
     void recordLoginStreak();
-        recordStreakDailyQuest('login');
+    recordStreakDailyQuest('login');
     if (page === 'streak') renderStreakPage();
   }
   const remaining = streakTimeRemaining(timezone);
@@ -5457,6 +5457,7 @@ async function restoreSession() {
         await refresh();
         setUser(me);
         void recordLoginStreak();
+        recordStreakDailyQuest('login');
       }
     }
   } catch (e) {

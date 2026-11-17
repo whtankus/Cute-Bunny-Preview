@@ -19,9 +19,9 @@ if (missing.length) {
 const configPath = path.join(root, 'supabase-config.js');
 const hasLocalConfigFile = fs.existsSync(configPath);
 const configSource = hasLocalConfigFile ? fs.readFileSync(configPath, 'utf8') : '';
-const hasConfig = /window\\.CUTE_BUNNY_CONFIG\\s*=\\s*\\{/.test(configSource);
-const hasUrl = /supabaseUrl\\s*:\\s*['"][^'"]+['"]/.test(configSource);
-const hasKey = /supabaseAnonKey\\s*:\\s*['"][^'"]+['"]/.test(configSource);
+const hasConfig = /window\.CUTE_BUNNY_CONFIG\s*=\s*\{/.test(configSource);
+const hasUrl = /supabaseUrl\s*:\s*['"][^'"]+['"]/.test(configSource);
+const hasKey = /supabaseAnonKey\s*:\s*['"][^'"]+['"]/.test(configSource);
 
 const envUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const envKey = process.env.SUPABASE_PUBLISHABLE_KEY ||

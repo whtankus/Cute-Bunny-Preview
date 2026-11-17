@@ -579,7 +579,7 @@ function setUser(u) {
   try { localStorage.removeItem('cuteBunnyHearts:' + u.username); } catch {}
   setMode(localStorage.getItem('cuteBunnyMode:' + u.username) || 'light');
   setTheme(u.theme);
-  $('#topMascot').textContent = u.mascot || '🐰';
+  $('#topMascot').innerHTML = buddyIllustration(u.mascot || '🐰');
   $('#topName').textContent = '@' + u.username;
   $('#authGate').classList.add('hidden');
   $('#welcome').classList.add('hidden');
@@ -2568,7 +2568,7 @@ function showFriendProfile(user) {
     profileCard.dataset.wallpaper = wallpaper;
     profileCard.classList.toggle('is-own-profile', isOwnProfile);
   }
-  $('#friendProfileBuddy').textContent = user.mascot || '🐰';
+  $('#friendProfileBuddy').innerHTML = buddyIllustration(user.mascot || '🐰');
   $('#friendProfileName').textContent = user.displayName || user.display_name || user.username;
   $('#friendProfileHandle').textContent = '@' + user.username;
   const joinedAt = user.created_at || user.createdAt || user.followedAt;
@@ -2709,6 +2709,12 @@ function profileSettingsMarkup() {
     </div>
   </section>`;
 }
+function buddyIllustration(value) {
+  const icons = { '🐰':'bunny', '🐱':'kitty', '🐻':'bear', '🐸':'frog' };
+  const icon = icons[value] || 'bunny';
+  return '<svg class="cb-buddy-illustration" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#cb-icon-' + icon + '"></use></svg>';
+}
+
 function updateProfileLivePreview() {
   const username = String($('#profileEditUsername')?.value || me?.username || 'your_username').trim();
   const displayName = String($('#profileEditDisplayName')?.value || me?.displayName || me?.display_name || username).trim();
@@ -2716,7 +2722,7 @@ function updateProfileLivePreview() {
   const name = $('#profileLiveName'), handle = $('#profileLiveHandle'), avatar = $('#profileLiveAvatar');
   if (name) name.textContent = displayName || 'Your name';
   if (handle) handle.textContent = '@' + (username || 'your_username');
-  if (avatar) avatar.textContent = mascot;
+  if (avatar) avatar.innerHTML = buddyIllustration(mascot);
   const count = $('#profileBioCount'), bio = $('#profileEditBio');
   if (count) count.textContent = (bio?.value || '').length + ' / 180';
 }

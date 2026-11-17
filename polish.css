@@ -2598,3 +2598,37 @@ html body[data-mode="dark"].notes-page-active.notes-header-hidden #app > header 
   background-color: rgba(37, 29, 44, .70) !important;
   border-bottom-color: rgba(255, 255, 255, .12) !important;
 }
+
+
+/* Match the Notes masthead to the native status-bar blush and remove every dark edge. */
+html body.notes-page-active #app,
+html body.notes-page-active #app > header,
+html body.notes-page-active.notes-header-hidden #app > header {
+  background: #fff1f5 !important;
+  background-color: #fff1f5 !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+html body.notes-page-active #app > header .brand,
+html body.notes-page-active #app > header .brand > span,
+html body.notes-page-active #app > header .brand > b {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  filter: none !important;
+}
+html body.notes-page-active #app > header::before,
+html body.notes-page-active #app > header::after,
+html body.notes-page-active #app::before,
+html body.notes-page-active #app::after {
+  content: none !important;
+  display: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}

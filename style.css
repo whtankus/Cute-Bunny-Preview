@@ -14198,3 +14198,36 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
 @media(max-width:430px){
   #friendProfileGate .friend-profile-bio-row{width:100%!important;max-width:100%!important}
 }
+
+/* Hard override the own-profile button's older white button theme in every state. */
+#friendProfileGate #friendProfileFollow,
+#friendProfileGate #friendProfileFollow:visited,
+#friendProfileGate #friendProfileFollow:hover,
+#friendProfileGate #friendProfileFollow:active,
+#friendProfileGate #friendProfileFollow:focus,
+#friendProfileGate #friendProfileFollow:focus-visible,
+#friendProfileGate #friendProfileFollow:disabled,
+#friendProfileGate #friendProfileFollow.is-own-profile{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+  border-radius:50%!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 3px 10px rgba(111,79,103,.04)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+  backdrop-filter:blur(18px) saturate(145%)!important;
+  color:#a96f8c!important;
+  opacity:1!important;
+  filter:none!important;
+  outline:none!important;
+}
+#friendProfileGate #friendProfileFollow:hover,
+#friendProfileGate #friendProfileFollow:active,
+#friendProfileGate #friendProfileFollow:focus,
+#friendProfileGate #friendProfileFollow:focus-visible{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+}

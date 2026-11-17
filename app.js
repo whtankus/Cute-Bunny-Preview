@@ -4807,84 +4807,6 @@ document.addEventListener('click', event => {
   }
 }, true);
 
-// A normal tap on the owner's profile flower opens the classic full-screen profile editor.
-let profileFlowerHoldTimer = null;
-let profileFlowerPointerId = null;
-let profileFlowerStartX = 0;
-let profileFlowerStartY = 0;
-let profileFlowerLongPressed = false;
-
-function openProfileSettingsFromFlower() {
-  const gate = document.querySelector('#friendProfileGate');
-  if (!gate || gate.classList.contains('hidden') || gate.dataset.ownProfile !== 'true') return;
-  const mainMount = document.querySelector('#profileSettingsMount');
-  const modalMount = document.querySelector('#friendProfileSettingsMount');
-  if (!mainMount || !modalMount) return;
-  let panel = document.querySelector('#profileSettingsPanel');
-  if (!panel) {
-    mainMount.innerHTML = profileSettingsMarkup();
-    panel = document.querySelector('#profileSettingsPanel');
-  }
-  if (!panel) return;
-  modalMount.appendChild(panel);
-  gate.querySelector('.friend-profile-card')?.classList.add('is-editing-profile');
-  panel.classList.add('is-friend-profile-settings');
-  renderProfileSettings();
-  panel.classList.remove('hidden');
-  const tabs = panel.querySelectorAll('[data-settings-tab]');
-  const sections = panel.querySelectorAll('[data-settings-section]');
-  tabs.forEach(tab => {
-    const active = tab.dataset.settingsTab === 'account';
-    tab.classList.toggle('is-active', active);
-    tab.setAttribute('aria-selected', String(active));
-    tab.setAttribute('aria-pressed', String(active));
-  });
-  sections.forEach(section => section.classList.toggle('hidden', section.dataset.settingsSection !== 'account'));
-}
-
-function restoreProfileSettingsToMain() {
-  const panel = document.querySelector('#profileSettingsPanel');
-  if (!panel) return;
-  panel.classList.add('hidden');
-  panel.classList.remove('is-friend-profile-settings');
-  document.querySelector('#friendProfileGate .friend-profile-card')?.classList.remove('is-editing-profile');
-  const mainMount = document.querySelector('#profileSettingsMount');
-  if (mainMount) mainMount.appendChild(panel);
-  document.querySelector('#profileSettingsTrigger')?.setAttribute('aria-expanded', 'false');
-}
-
-document.addEventListener('pointerdown', event => {
-  let target = event.target;
-  if (target && target.nodeType !== 1) target = target.parentElement;
-  const flower = target?.closest?.('#friendProfileGate #friendProfileFollow');
-  if (!flower || flower.dataset.themeAction !== 'true' || (event.pointerType === 'mouse' && event.button !== 0)) return;
-  clearTimeout(profileFlowerHoldTimer);
-  profileFlowerPointerId = event.pointerId;
-  profileFlowerStartX = event.clientX;
-  profileFlowerStartY = event.clientY;
-  profileFlowerLongPressed = false;
-  profileFlowerHoldTimer = setTimeout(() => {
-    profileFlowerLongPressed = true;
-    openProfileSettingsFromFlower();
-  }, 0);
-}, true);\n\ndocument.addEventListener('pointermove', event => {\n  if (event.pointerId !== profileFlowerPointerId) return;
-  if (Math.hypot(event.clientX - profileFlowerStartX, event.clientY - profileFlowerStartY) > 10) {
-    clearTimeout(profileFlowerHoldTimer);
-    profileFlowerPointerId = null;
-  }
-}, true);
-
-function cancelProfileFlowerHold(event) {
-  if (profileFlowerPointerId !== null && event.pointerId !== profileFlowerPointerId) return;
-  clearTimeout(profileFlowerHoldTimer);
-  profileFlowerPointerId = null;
-}
-document.addEventListener('pointerup', cancelProfileFlowerHold, true);
-document.addEventListener('pointercancel', cancelProfileFlowerHold, true);
-document.addEventListener('contextmenu', event => {
-  if (event.target.closest?.('#friendProfileGate #friendProfileFollow')) event.preventDefault();
-}, true);
-
 // Settings category tabs: capture clicks before other delegated handlers.
 document.addEventListener('click', event => {
   let target = event.target;
@@ -4913,14 +4835,7 @@ document.addEventListener('click', event => {
   let target = event.target;
   if (target && target.nodeType !== 1) target = target.parentElement;
   const trigger = target?.closest?.('#profileSettingsTrigger');
-  const flowerLongPressClick = target?.closest?.('#friendProfileGate #friendProfileFollow') && profileFlowerLongPressed;
   const panel = document.querySelector('#profileSettingsPanel');
-  if (flowerLongPressClick) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    profileFlowerLongPressed = false;
-    return;
-  }
   if (!trigger && panel && !panel.classList.contains('hidden') &&
       !target?.closest?.('#profileSettingsPanel')) {
     restoreProfileSettingsToMain();

@@ -2684,7 +2684,7 @@ function profileSettingsMarkup() {
       <input id="settingsThemeValue" type="hidden" value="rose">
       <div class="settings-choice-heading">Colour theme</div>
       <div class="settings-theme-grid" role="radiogroup" aria-label="Choose a colour theme">
-        ${themeOptions.map(([value,emoji,label]) => `<button type="button" class="settings-theme-choice" data-settings-theme-choice="${value}" role="radio" aria-checked="false"><span>${emoji}</span><small>${label}</small></button>`).join('')}
+        ${themeOptions.map(([value,emoji,label]) => `<button type="button" class="settings-theme-choice theme-${value}" data-settings-theme-choice="${value}" role="radio" aria-checked="false"><span class="theme-illustration" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 5c3 0 4 5 4 8 3-3 7-5 9-3s0 7-3 9c4 0 8 2 8 5s-5 4-8 4c3 3 4 7 2 9s-7 0-9-3c0 4-2 7-5 7s-4-5-4-8c-3 3-7 4-9 2s0-7 3-9c-4 0-7-2-7-5s5-4 8-4c-3-3-4-7-2-9s7 0 9 3c0-4 2-6 4-6Z" fill="currentColor" opacity=".78"/><circle cx="20" cy="22" r="5" fill="#fff6e9" stroke="currentColor" stroke-width="1.5"/></svg></span><small>${label}</small></button>`).join('')}
       </div>
       <input id="settingsBuddyValue" type="hidden" value="🐰">
       <div class="profile-live-preview" id="profileLivePreview" aria-live="polite">
@@ -2694,7 +2694,7 @@ function profileSettingsMarkup() {
       </div>
       <div class="settings-choice-heading">Little buddy</div>
       <div class="settings-buddy-row" role="radiogroup" aria-label="Choose your little buddy">
-        ${buddyOptions.map(([value,label]) => `<button type="button" class="settings-buddy-choice" data-settings-buddy-choice="${value}" role="radio" aria-checked="false"><span>${value}</span><small>${label}</small></button>`).join('')}
+        ${buddyOptions.map(([value,label]) => `<button type="button" class="settings-buddy-choice" data-settings-buddy-choice="${value}" role="radio" aria-checked="false"><span class="buddy-choice-art">${buddyIllustration(value)}</span><small>${label}</small></button>`).join('')}
       </div>
       <button type="button" class="settings-wallpaper-action" id="profileSettingsWallpaper">Change profile wallpaper <span>→</span></button>
     </div>

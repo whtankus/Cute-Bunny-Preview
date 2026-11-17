@@ -2761,3 +2761,34 @@ html body #app > header > #profileOpen.brand:active {
   box-shadow: none !important;
   filter: none !important;
 }
+
+
+/* Final global cleanup: remove the wrapper itself and its paint layer.
+   The two children retain their own individual capsule visuals. */
+html body #app > header > #profileOpen.brand,
+html body #app > header > #profileOpen.brand:hover,
+html body #app > header > #profileOpen.brand:active,
+html body #app > header > #profileOpen.brand:focus,
+html body #app > header > #profileOpen.brand:focus-visible {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+html body #app > header > #profileOpen.brand::before,
+html body #app > header > #profileOpen.brand::after {
+  content: none !important;
+  display: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  filter: none !important;
+}

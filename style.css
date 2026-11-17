@@ -13245,3 +13245,29 @@ body[data-theme="sage"] .chat-bubble-wrap>.chat-bubble{background:linear-gradien
 body[data-theme="sage"] .chat-bubble-wrap.is-mine>.chat-bubble{background:linear-gradient(108deg,#f0f4e9,#e4eddc)!important;border-color:#cbd9bd!important}
 body[data-mode="dark"][data-theme="sage"] .chat-bubble-wrap>.chat-bubble{background:linear-gradient(108deg,#3c4b3b,#344331)!important;border-color:#647b5e!important;color:#f0f7e9!important;box-shadow:0 3px 0 #293a2a!important}
 body[data-mode="dark"][data-theme="sage"] .chat-bubble-wrap.is-mine>.chat-bubble{background:linear-gradient(108deg,#465640,#3b4b37)!important;border-color:#71876a!important}
+
+
+/* Streak Garden accessibility QA: visible keyboard focus and motion-safe game feedback. */
+.streak-garden-page .sg-game-compact .sg-petal-card:focus-visible {
+  outline:3px solid #9b668b!important;
+  outline-offset:3px!important;
+  z-index:3!important;
+}
+body[data-mode="dark"] .streak-garden-page .sg-game-compact .sg-petal-card:focus-visible {
+  outline-color:#f4c6dc!important;
+}
+.streak-garden-page .sg-game-compact .sg-petal-card {
+  -webkit-tap-highlight-color:transparent!important;
+  touch-action:manipulation!important;
+}
+@media(prefers-reduced-motion:reduce) {
+  .streak-garden-page .sg-game-compact .sg-petal-card,
+  .streak-garden-page .sg-game-compact .sg-petal-card:not(:disabled):hover,
+  .streak-garden-page .sg-game-compact .sg-petal-card:not(:disabled):active,
+  .streak-garden-page .sg-game-compact .sg-petal-card.is-celebrating,
+  .streak-garden-page .sg-game-compact .sg-petal-card.is-revealed .sg-petal-face {
+    animation:none!important;
+    transition:none!important;
+    transform:none!important;
+  }
+}

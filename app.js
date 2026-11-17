@@ -2667,9 +2667,8 @@ function showFriendProfile(user) {
     {goal:750, title:'Love Guardian', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m13 27 6-14 12 8 5-12 5 12 12-8 6 14-9 24H22Z" fill="#e9dff4" stroke="#a58bb8" stroke-width="2" stroke-linejoin="round"/><path d="M25 31c0-7 10-8 11 0 2-8 12-7 12 0-1 7-12 15-12 15S26 38 25 31Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.4"/><circle cx="19" cy="17" r="2" fill="#d7b56e"/><circle cx="53" cy="17" r="2" fill="#d7b56e"/><path d="M18 48q-5 5-1 9m37-9q5 5 1 9" fill="none" stroke="#a58bb8" stroke-width="2" stroke-linecap="round"/></svg>'},
     {goal:1000, title:'Everlasting Love', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><circle cx="36" cy="32" r="25" fill="#fff0e7" stroke="#d5a2b5" stroke-width="2"/><circle cx="36" cy="32" r="20" fill="none" stroke="#e6c1ce" stroke-width="1.5" stroke-dasharray="2 3"/><path d="M24 29c0-9 12-10 12 0 1-10 13-9 13 0-1 9-13 18-13 18S25 38 24 29Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.5"/><path d="m16 12 3 4 5 1-5 2-3 5-2-5-5-2 5-1Zm40-2 2 4 4 2-4 1-2 4-2-4-4-1 4-2Z" fill="#d6b66f"/><path d="M15 39q-5-5-7 0m49 0q5-5 7 0" fill="none" stroke="#91aa82" stroke-width="2" stroke-linecap="round"/></svg>'}
   ];
-    const milestoneBadges = (items,total,unit) => items.map(item => {
-      const unlocked = total >= item.goal;
-      return '<span class="friend-profile-milestone-badge'+(unlocked?' is-unlocked':' is-locked')+'" title="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit)+'" aria-label="'+esc(item.title+' · '+(unlocked?'Unlocked':'Locked'))+'">'+(typeof item.icon === 'string' && item.icon.trim().startsWith('<svg') ? '<span class="friend-profile-milestone-svg">'+item.icon+'</span>' : item.icon)+'</span>';
+    const milestoneBadges = (items,total,unit) => items.filter(item => total >= item.goal).map(item => {
+      return '<span class="friend-profile-milestone-badge is-unlocked" title="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit)+'" aria-label="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit+' · Unlocked')+'">'+(typeof item.icon === 'string' && item.icon.trim().startsWith('<svg') ? '<span class="friend-profile-milestone-svg">'+item.icon+'</span>' : item.icon)+'</span>';
     }).join('');
     const badgeList = $('#friendProfileBadgeList');
     if (badgeList) badgeList.innerHTML =
@@ -2678,8 +2677,10 @@ function showFriendProfile(user) {
       milestoneBadges(heartMilestones,heartTotal,'hearts')+
       '</div>';
   }
-  $('#friendProfileFollow').textContent = isOwnProfile ? '✧ Theme' : (user.isFollowing ? 'Following' : 'Follow ♡');
+  $('#friendProfileFollow').innerHTML = isOwnProfile ? '<span aria-hidden="true">✿</span>' : (user.isFollowing ? 'Following' : 'Follow ♡');
   $('#friendProfileFollow').disabled = false;
+  $('#friendProfileFollow').setAttribute('aria-label', isOwnProfile ? 'Change profile theme' : (user.isFollowing ? 'Following' : 'Follow friend'));
+  $('#friendProfileFollow').title = isOwnProfile ? 'Change profile theme' : (user.isFollowing ? 'Following' : 'Follow friend');
   $('#friendProfileFollow').dataset.themeAction = isOwnProfile ? 'true' : 'false';
   $('#friendProfileFollow').classList.toggle('is-following', !!user.isFollowing);
   $('#friendProfileFollow').classList.toggle('is-own-profile', isOwnProfile);

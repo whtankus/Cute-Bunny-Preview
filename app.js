@@ -2649,8 +2649,6 @@ function showFriendProfile(user) {
     }
     const streak = Math.max(0, Number(user.login_streak) || 0);
     const heartTotal = Math.max(0, Number(user.heartCount) || 0);
-    const streak = Math.max(0, Number(user.login_streak) || 0);
-    const heartTotal = Math.max(0, Number(user.heartCount) || 0);
   const flowerMilestones = [
     {goal:3, icon:'🌱', title:'Tiny sprout'},
     {goal:7, icon:'🌼', title:'First flower'},

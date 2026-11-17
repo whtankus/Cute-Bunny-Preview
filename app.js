@@ -5126,18 +5126,6 @@ document.addEventListener('click', async e => {
     if (!me) return;
     showFriendProfile(me);
     return;
-    $('#profileName').textContent = me.displayName || me.username;
-    $('#profileHandle').textContent = '@' + me.username;
-    $('#profileCreated').textContent = formatProfileDate(me.created_at || me.createdAt);
-    $('#profileDisplay').value = me.displayName || '';
-    $('#profileUsername').value = me.username || '';
-    $('#profileBio').value = me.bio || '';
-    $('#profileTheme').value = me.theme || 'rose';
-    $('#profileMascot').value = me.mascot || '🐰';
-    updateThemePreview(me.theme || 'rose');
-    updateBuddyChoices(me.mascot || '🐰');
-    $('#profileGate').classList.remove('hidden');
-    return;
   }
 
   // Profile save & sign out

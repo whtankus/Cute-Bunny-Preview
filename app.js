@@ -2183,6 +2183,63 @@ function renderNotesPage(options = {}) {
     observeNoteSeenMessages();
   });
 }
+
+/* Achievement Garden — milestones are derived from the signed-in user's real app activity. */
+function achievementGardenMarkup(items) {
+  const stats = {
+    memories: items.length,
+    photos: items.filter(item => item.kind === 'photo').length,
+    notes: items.filter(item => item.kind === 'note').length,
+    songs: items.filter(item => item.kind === 'song').length,
+    streak: Math.max(0, Number(me?.login_streak) || 0),
+    hearts: Math.max(0, Number(me?.heartCount) || 0)
+  };
+  const achievements = [
+    { id:'first-memory', icon:'📖', title:'First Little Memory', detail:'Save your first shared moment', value:stats.memories, goal:1, unit:'memory' },
+    { id:'photo-collector', icon:'🌷', title:'Photo Collector', detail:'Keep five photos in your garden', value:stats.photos, goal:5, unit:'photos' },
+    { id:'love-letter', icon:'💌', title:'Little Correspondent', detail:'Share five notes together', value:stats.notes, goal:5, unit:'notes' },
+    { id:'playlist-curator', icon:'🎶', title:'Playlist Curator', detail:'Add three songs to your playlist', value:stats.songs, goal:3, unit:'songs' },
+    { id:'week-of-wonder', icon:'🌼', title:'Week of Wonder', detail:'Reach a seven-day login streak', value:stats.streak, goal:7, unit:'days' },
+    { id:'heart-keeper', icon:'💗', title:'Heart Keeper', detail:'Collect one hundred hearts on your memories', value:stats.hearts, goal:100, unit:'hearts' }
+  ];
+  const key = 'cuteBunnyAchievements:' + String(me?.id || me?.username || 'guest');
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch {}
+  let changed = false;
+  achievements.forEach(item => {
+    if (item.value >= item.goal && !saved[item.id]) {
+      saved[item.id] = new Date().toISOString();
+      changed = true;
+    }
+  });
+  if (changed) {
+    try { localStorage.setItem(key, JSON.stringify(saved)); } catch {}
+  }
+  const earnedCount = achievements.filter(item => !!saved[item.id]).length;
+  return `
+    <section class="achievement-garden" aria-labelledby="achievementGardenTitle">
+      <div class="achievement-garden-heading">
+        <div><small>A LITTLE COLLECTION OF WINS</small><h3 id="achievementGardenTitle">Achievement Garden <span aria-hidden="true">✿</span></h3><p>Every small moment helps your garden grow.</p></div>
+        <div class="achievement-count"><strong>${earnedCount}/${achievements.length}</strong><span>unlocked</span></div>
+      </div>
+      <div class="achievement-grid">
+        ${achievements.map(item => {
+          const earned = !!saved[item.id];
+          const progress = Math.min(100, Math.round((item.value / item.goal) * 100));
+          const amount = Math.min(item.value, item.goal);
+          return `<article class="achievement-card ${earned ? 'is-earned' : ''}">
+            <div class="achievement-medallion" aria-hidden="true">${item.icon}</div>
+            <div class="achievement-copy"><strong>${esc(item.title)}</strong><p>${esc(item.detail)}</p>
+              <div class="achievement-progress" role="progressbar" aria-label="${esc(item.title)} progress" aria-valuemin="0" aria-valuemax="${item.goal}" aria-valuenow="${amount}"><span style="width:${progress}%"></span></div>
+              <small>${earned ? 'Unlocked ♡' : `${amount} / ${item.goal} ${esc(item.unit)}`}</small>
+            </div>
+            <span class="achievement-status" aria-label="${earned ? 'Unlocked' : 'Locked'}">${earned ? '✓' : '✧'}</span>
+          </article>`;
+        }).join('')}
+      </div>
+    </section>`;
+}
+
 function render(options = {}) {
   const c = $('#content');
   if (!c) return;
@@ -2222,6 +2279,7 @@ function render(options = {}) {
       <div class="daily" id="dailyCard" role="button" tabindex="0" aria-label="A little kindness for today. Tap for another reminder">
         <span class="daily-icon">🌼</span><div><small>A LITTLE KINDNESS FOR TODAY</small><p id="compliment">${esc(getKindness())}</p></div>
       </div>
+      ${achievementGardenMarkup(visibleFeed)}
       <div class="toolbar"><h3>Your happy things</h3><span>${visibleFeed.length} shared memories</span></div>
       <div class="grid happy-things-grid">
         ${streakWidget()}

@@ -61,6 +61,7 @@ const noteGraphemeSegmenter = typeof Intl.Segmenter === 'function'
   : null;
 const messagePressState = { timer:null, bubble:null, pointerId:null, startX:0, startY:0, longPressed:false, suppressClick:false, suppressTimer:null };
 const photoPressState = { timer:null, image:null, pointerId:null, startX:0, startY:0, suppressClick:false, suppressTimer:null, clickTimer:null, pendingPhotoId:null };
+const classicProfilePressState = { timer:null, button:null, pointerId:null, startX:0, startY:0, longPressed:false, suppressClick:false };
 const bubbleTapState = { timer:null, bubble:null };
 let lastTouchMemoryTap = { id: '', time: 0, tile: null };
 let suppressNativeMemoryDblclickUntil = 0;
@@ -2579,6 +2580,41 @@ function formatFriendProfileActivity(value) {
   return 'Last active ' + weeks + 'week ago';
 }
 
+function openClassicProfileEditor() {
+  if (!me) return;
+  const gate = $('#profileGate');
+  if (!gate) return;
+  $('#profileName').textContent = me.displayName || me.display_name || me.username || 'Your profile';
+  $('#profileHandle').textContent = '@' + (me.username || '');
+  $('#profileCreated').textContent = formatProfileDate(me.created_at || me.createdAt);
+  $('#profileDisplay').value = me.displayName || me.display_name || '';
+  $('#profileUsername').value = me.username || '';
+  $('#profileBio').value = me.bio || '';
+  $('#profileTheme').value = me.theme || 'rose';
+  $('#profileMascot').value = me.mascot || '🐰';
+  updateThemePreview(me.theme || 'rose');
+  updateBuddyChoices(me.mascot || '🐰');
+  document.querySelectorAll('[data-classic-gender]').forEach(button => {
+    const selected = button.dataset.classicGender === (me.gender || '');
+    button.classList.toggle('is-selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
+  gate.dataset.returnToOwnProfile = 'true';
+  $('#friendProfileGate')?.classList.add('hidden');
+  gate.classList.remove('hidden');
+  document.body.classList.add('classic-profile-open');
+  gate.scrollTop = 0;
+}
+function closeClassicProfileEditor() {
+  const gate = $('#profileGate');
+  if (!gate) return;
+  const returnToProfile = gate.dataset.returnToOwnProfile === 'true';
+  gate.classList.add('hidden');
+  gate.dataset.returnToOwnProfile = 'false';
+  document.body.classList.remove('classic-profile-open');
+  if (returnToProfile && me) showFriendProfile(me);
+}
+
 function showFriendProfile(user) {
   if (!user) return;
   const gate = $('#friendProfileGate');
@@ -4829,6 +4865,50 @@ document.addEventListener('click', event => {
   });
 }, true);
 
+// Long-press the flower on your own open profile to enter the classic profile editor.
+// A normal tap remains the existing wallpaper action.
+document.addEventListener('pointerdown', event => {
+  const button = event.target?.closest?.('#friendProfileFollow[data-theme-action="true"]');
+  if (!button || button.disabled) return;
+  clearTimeout(classicProfilePressState.timer);
+  classicProfilePressState.button = button;
+  classicProfilePressState.pointerId = event.pointerId;
+  classicProfilePressState.startX = event.clientX;
+  classicProfilePressState.startY = event.clientY;
+  classicProfilePressState.longPressed = false;
+  classicProfilePressState.timer = setTimeout(() => {
+    if (classicProfilePressState.button !== button) return;
+    classicProfilePressState.longPressed = true;
+    classicProfilePressState.suppressClick = true;
+    openClassicProfileEditor();
+  }, 560);
+}, true);
+document.addEventListener('pointermove', event => {
+  if (!classicProfilePressState.button || event.pointerId !== classicProfilePressState.pointerId) return;
+  if (Math.hypot(event.clientX - classicProfilePressState.startX, event.clientY - classicProfilePressState.startY) > 12) {
+    clearTimeout(classicProfilePressState.timer);
+    classicProfilePressState.timer = null;
+  }
+}, true);
+const finishClassicProfilePress = event => {
+  if (!classicProfilePressState.button) return;
+  if (event && event.pointerId !== classicProfilePressState.pointerId) return;
+  clearTimeout(classicProfilePressState.timer);
+  classicProfilePressState.timer = null;
+  classicProfilePressState.button = null;
+  classicProfilePressState.pointerId = null;
+};
+document.addEventListener('pointerup', finishClassicProfilePress, true);
+document.addEventListener('pointercancel', finishClassicProfilePress, true);
+document.addEventListener('click', event => {
+  if (!classicProfilePressState.suppressClick) return;
+  const button = event.target?.closest?.('#friendProfileFollow');
+  if (!button) return;
+  classicProfilePressState.suppressClick = false;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+}, true);
+
 // Profile settings: the flower is a true toggle; taps outside close it,
 // while taps inside the panel never dismiss it.
 document.addEventListener('click', event => {
@@ -4860,6 +4940,10 @@ document.addEventListener('click', event => {
 }, true);
 
 document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !$('#profileGate')?.classList.contains('hidden')) {
+    closeClassicProfileEditor();
+    return;
+  }
   if (event.key !== 'Escape') return;
   const panel = document.querySelector('#profileSettingsPanel');
   if (!panel || panel.classList.contains('hidden')) return;
@@ -5206,6 +5290,16 @@ document.addEventListener('click', async e => {
   if (settingsTab) { const selected = settingsTab.dataset.settingsTab; document.querySelectorAll('[data-settings-tab]').forEach(button => { const active = button === settingsTab; button.classList.toggle('is-active', active); button.setAttribute('aria-pressed', String(active)); }); document.querySelectorAll('[data-settings-section]').forEach(section => { const key = section.dataset.settingsSection; const visible = selected === 'other' ? ['other', 'accessibility', 'account'].includes(key) : key === selected; section.classList.toggle('hidden', !visible); }); return; }
   const liveBuddyChoice = e.target.closest('[data-settings-buddy-choice]');
   if (liveBuddyChoice) { $('#settingsBuddyValue').value = liveBuddyChoice.dataset.settingsBuddyChoice; document.querySelectorAll('[data-settings-buddy-choice]').forEach(button => { const selected=button===liveBuddyChoice; button.classList.toggle('is-selected',selected); button.setAttribute('aria-checked',String(selected)); }); updateProfileLivePreview(); return; }
+  const classicGenderChoice = e.target.closest('[data-classic-gender]');
+  if (classicGenderChoice) {
+    document.querySelectorAll('[data-classic-gender]').forEach(button => {
+      const selected = button === classicGenderChoice;
+      button.classList.toggle('is-selected', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+    return;
+  }
+  if (e.target.closest('#profileEditorClose')) { closeClassicProfileEditor(); return; }
   const genderChoice = e.target.closest('[data-profile-gender]');
   if (genderChoice) { document.querySelectorAll('[data-profile-gender]').forEach(button => button.classList.toggle('is-selected', button === genderChoice)); const preview = $('#profileGenderPreview'); if (preview) preview.textContent = genderChoice.dataset.profileGender === 'male' ? 'Preview: 👑 King' : 'Preview: 👑 Queen'; return; }
   if (e.target.closest('#profileSettingsSave')) { void saveProfileSettings(); return; }

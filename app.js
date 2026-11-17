@@ -781,7 +781,8 @@ function noteDayLabel(value) {
 function formatJoinDate(value) {
   if (!value) return 'A little while ago';
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? 'A little while ago' : new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+  if (Number.isNaN(date.getTime()) || date.getTime() > Date.now()) return 'A little while ago';
+  return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
 }
 
 function formatLastActive(value) {
@@ -1534,7 +1535,7 @@ function renderStreakPage() {
   ];
   const earnedHearts = readStreakHeartMilestones();
   const heartBadges = heartMilestones.map(item => {
-    const unlocked = earnedHearts.has(item.hearts);
+    const unlocked = heartCount >= item.hearts;
     const percentage = unlocked ? 100 : Math.min(100, heartCount / item.hearts * 100);
     const status = unlocked ? 'Heart unlocked' : (item.hearts - heartCount) + ' hearts to go';
     return '<article class="streak-milestone sg-milestone' + (unlocked ? ' is-earned' : ' is-locked') + '">' +
@@ -1637,7 +1638,7 @@ function renderStreakPage() {
     '<svg viewBox="0 0 100 88" aria-hidden="true"><path d="M50 80V40" stroke="#688b6c" stroke-width="5" stroke-linecap="round"/><path d="M50 67C22 48 17 63 29 73c8 6 15 1 21-6Zm0-14c23-25 37-8 24 4-8 7-16 2-24-4Z" fill="#83a47a"/><path d="M50 45C26 24 33 8 50 3c18 8 26 26 0 42Z" fill="#87a978"/><g fill="#e9a4bd"><circle cx="37" cy="22" r="8"/><circle cx="63" cy="24" r="9"/><circle cx="49" cy="11" r="9"/><circle cx="50" cy="34" r="9"/></g><g fill="#f1d17f"><circle cx="37" cy="22" r="3"/><circle cx="63" cy="24" r="3"/><circle cx="49" cy="11" r="3"/><circle cx="50" cy="34" r="3"/></g><path d="M20 80h60" stroke="#bd9a74" stroke-width="3" stroke-linecap="round"/></svg>'
   ];
   const badges = milestones.map((item, index) => {
-    const unlocked = earned.has(item.days);
+    const unlocked = count >= item.days;
     const daysLeft = Math.max(0, item.days - count);
     const milestoneProgress = unlocked ? 100 : Math.min(100, Math.max(0, count / item.days * 100));
     const status = unlocked ? 'Bloom unlocked' : daysLeft === 1 ? '1 day to go' : daysLeft + ' days to go';
@@ -1864,10 +1865,10 @@ function renderStreakPage() {
       '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" data-streak-garden-tab="hearts" role="tab" aria-selected="' + (streakGardenActiveTab === 'hearts') + '"><span class="sg-switch-icon sg-switch-hearts" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 27S4.5 19.5 4.5 11.5c0-6 7.5-8 11.5-.8 4-7.2 11.5-5.2 11.5.8C27.5 19.5 16 27 16 27Z" fill="currentColor"/><path d="m11 15 3.5 3.5 7-8" fill="none" stroke="#fffaf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="sg-switch-label"><b>Your Hearts</b></span></button>' +
       '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" data-streak-garden-tab="flowers" role="tab" aria-selected="' + (streakGardenActiveTab === 'flowers') + '"><span class="sg-switch-icon sg-switch-flowers" aria-hidden="true"><svg viewBox="0 0 32 32"><g fill="currentColor"><ellipse cx="16" cy="7" rx="4" ry="6"/><ellipse cx="16" cy="7" rx="4" ry="6" transform="rotate(60 16 16)"/><ellipse cx="16" cy="7" rx="4" ry="6" transform="rotate(120 16 16)"/></g><circle cx="16" cy="16" r="4" fill="#f2c875"/><path d="M16 21v7" stroke="#78966f" stroke-width="2" stroke-linecap="round"/></svg></span><span class="sg-switch-label"><b>Your Flowers</b></span></button></div>',
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'flowers' ? ' is-active' : '') + '" id="sgFlowersPanel" role="tabpanel"' + (streakGardenActiveTab === 'flowers' ? '' : ' hidden') + '>' +
-      '<section class="sg-milestones-section"><div class="sg-section-heading"><div><h3>Your Flowers</h3><p>' + earned.size + ' of ' + milestones.length + ' garden milestones unlocked</p></div></div>' +
+      '<section class="sg-milestones-section"><div class="sg-section-heading"><div><h3>Your Flowers</h3><p>' + milestones.filter(item => count >= item.days).length + ' of ' + milestones.length + ' garden milestones unlocked</p></div></div>' +
       '<div class="sg-milestone-route">' + badges + '</div></section></section>',
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" id="sgHeartsPanel" role="tabpanel"' + (streakGardenActiveTab === 'hearts' ? '' : ' hidden') + '>' +
-      '<section class="sg-milestones-section sg-hearts-section"><div class="sg-section-heading"><div><h3>Your Hearts</h3><p>' + heartCount + ' hearts received · ' + earnedHearts.size + ' of ' + heartMilestones.length + ' milestones unlocked</p></div></div>' +
+      '<section class="sg-milestones-section sg-hearts-section"><div class="sg-section-heading"><div><h3>Your Hearts</h3><p>' + heartCount + ' hearts received · ' + heartMilestones.filter(item => heartCount >= item.hearts).length + ' of ' + heartMilestones.length + ' milestones unlocked</p></div></div>' +
       '<div class="sg-milestone-route">' + heartBadges + '</div></section></section>',
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" id="sgDailyPanel" role="tabpanel"' + (streakGardenActiveTab === 'daily' ? '' : ' hidden') + '>' +
       '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>A little kindness makes the garden bloom</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
@@ -4388,6 +4389,7 @@ function hydrateMedia() {
 function formatProfileDate(value) {
   const date = new Date(value || Date.now());
   if (Number.isNaN(date.getTime())) return '';
+  if (date.getTime() > Date.now()) return 'Just joined';
   const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(date);
   return `${date.getDate()} ${month}, ${date.getFullYear()}`;
 }

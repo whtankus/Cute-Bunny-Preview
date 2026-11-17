@@ -2539,7 +2539,40 @@ function showFriendProfile(user) {
   $('#friendProfileStreakCount').textContent = friendGarden.count === null
     ? '— flower'
     : Number(friendGarden.count).toLocaleString() + ' flower';
-  $('#friendProfileFollow').textContent = isOwnProfile ? 'Themes' : (user.isFollowing ? 'Following' : 'Follow ♡');
+  const highlights = $('#friendProfileHighlights');
+  const collectionPanel = $('#friendProfileCollection');
+  const badgesPanel = $('#friendProfileBadges');
+  if (highlights) highlights.hidden = !isOwnProfile;
+  if (collectionPanel) collectionPanel.hidden = !isOwnProfile;
+  if (badgesPanel) badgesPanel.hidden = !isOwnProfile;
+  if (isOwnProfile) {
+    const ownFeed = Array.isArray(feed) ? feed : [];
+    const photos = ownFeed.filter(item => item.kind === 'photo').length;
+    const notes = ownFeed.filter(item => item.kind === 'note').length;
+    const songs = ownFeed.filter(item => item.kind === 'song').length;
+    const petals = typeof petalRewardBalance === 'function' ? petalRewardBalance() : 0;
+    [['friendProfilePhotos',photos],['friendProfileNotes',notes],['friendProfileSongs',songs],['friendProfilePetals',petals]].forEach(([id,value]) => { const node=$('#'+id); if(node) node.textContent=Number(value).toLocaleString(); });
+    const collection = typeof readGardenCollection === 'function' ? readGardenCollection() : {owned:[],equipped:'none',bunny:'none'};
+    const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
+    const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
+    const collectionCount = $('#friendProfileCollectionCount');
+    if (collectionCount) collectionCount.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
+    const collectionItems = $('#friendProfileCollectionItems');
+    if (collectionItems) collectionItems.innerHTML = ownedItems.length ? ownedItems.slice(0,6).map(item => '<span class="friend-profile-collection-item' + ((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id ? ' is-equipped' : '') + '" title="' + esc(item.name) + '"><span>' + item.icon + '</span><small>' + esc(item.name) + '</small></span>').join('') : '<p class="friend-profile-empty">Your first little treasure is waiting in the Garden Shop ♡</p>';
+    const streak = Number(user.login_streak) || Number(me?.login_streak) || 0;
+    const badges = [
+      {icon:'🌱',name:'First Bloom',earned:streak>=1},
+      {icon:'🌼',name:'Week in Bloom',earned:streak>=7},
+      {icon:'🌟',name:'30-Day Garden',earned:streak>=30},
+      {icon:'📷',name:'Memory Keeper',earned:photos>=5},
+      {icon:'💌',name:'Little Writer',earned:notes>=5},
+      {icon:'🎵',name:'Playlist Curator',earned:songs>=3},
+      {icon:'💗',name:'Heart Keeper',earned:Number(user.heartCount||me?.heartCount)>=100}
+    ];
+    const badgeList = $('#friendProfileBadgeList');
+    if (badgeList) badgeList.innerHTML = badges.filter(item=>item.earned).length ? badges.filter(item=>item.earned).map(item=>'<span class="friend-profile-badge"><span>'+item.icon+'</span><small>'+item.name+'</small></span>').join('') : '<p class="friend-profile-empty">Your first achievement is just around the corner ♡</p>';
+  }
+  $('#friendProfileFollow').textContent = isOwnProfile ? 'Edit profile' : (user.isFollowing ? 'Following' : 'Follow ♡');
   $('#friendProfileFollow').disabled = false;
   $('#friendProfileFollow').dataset.themeAction = isOwnProfile ? 'true' : 'false';
   $('#friendProfileFollow').classList.toggle('is-following', !!user.isFollowing);

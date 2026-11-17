@@ -813,7 +813,7 @@ function friendRow(user, isOwnProfile = false) {
   const presenceLabel = '';
   const wallpaper = ['normal', 'blossom', 'clouds', 'starlight', 'hearts'].includes(user.profile_wallpaper) ? user.profile_wallpaper : 'normal';
   const action = isOwnProfile
-    ? '<button class="primary follow-btn own-profile-action" type="button" data-open-own-profile>View profile</button>'
+    ? '<span class="own-profile-actions"><button class="primary follow-btn own-profile-action" type="button" data-open-own-profile>View profile</button><button class="profile-wallpaper-flower" type="button" data-own-wallpaper-change aria-label="Change profile wallpaper" title="Change profile wallpaper"><span aria-hidden="true">✿</span></button></span>'
     : '<button class="primary follow-btn" type="button" data-follow="' + esc(user.username) + '" data-following="' + !!user.isFollowing + '">' + (user.isFollowing ? 'Following' : 'Follow ♡') + '</button>';
   return '<article class="friend-row ' + (online ? 'is-online' : 'is-offline') + (isOwnProfile ? ' own-profile-row' : '') + '" data-friend-id="' + esc(user.id) + '" data-profile="' + esc(user.username) + '" data-wallpaper="' + wallpaper + '" data-own-profile="' + (isOwnProfile ? 'true' : 'false') + '"><div class="friend-main"><span class="friend-avatar">' + esc(user.mascot || '🐰') + '<i class="friend-online-dot" aria-hidden="true"></i></span><span class="friend-copy"><span class="friend-name-line"><b>' + esc(user.displayName || user.display_name || user.username) + '</b><small>@' + esc(user.username) + '</small></span><span class="friend-meta-line"><small class="sg-friend-presence">' + esc(presenceLabel) + '</small></span><span class="friend-stat-plates">' + (titleTag ? '<small class="friend-row-queen">' + esc(titleTag) + '</small>' : '') + '<small class="friend-row-streak">' + esc(flowerLabel) + '</small><small class="friend-row-hearts">' + esc(heartLabel) + '</small></span></span></div>' + action + '</article>';
 }
@@ -5227,6 +5227,10 @@ document.addEventListener('click', async e => {
   // Friend search & profile & follow
   // Friend search is handled by the form's submit event so typing/clicking
   // inside the input never triggers a premature empty search.
+  if (e.target.closest('[data-own-wallpaper-change]')) {
+    void cycleProfileWallpaper();
+    return;
+  }
   const friendLink = e.target.closest('[data-profile]');
   const friendCard = e.target.closest('.friend-row');
   if (friendLink || (friendCard && !e.target.closest('[data-follow]'))) {

@@ -2366,3 +2366,22 @@ body, .app, #content { -webkit-tap-highlight-color: transparent; }
     will-change: auto;
   }
 }
+
+/* Illustrated icon system + mobile safe-area/content fixes (2026-11-17). */
+.cb-icon-sprite { position:absolute; width:0; height:0; overflow:hidden; }
+#nav button i { display:grid!important; place-items:center!important; width:30px!important; height:30px!important; font-size:0!important; }
+#nav button i svg { display:block; width:28px; height:28px; overflow:visible; }
+.auth-card.profile-card .buddy-swatch { display:grid!important; place-items:center!important; }
+.auth-card.profile-card .buddy-swatch svg { width:34px!important; height:34px!important; display:block!important; }
+.auth-card.profile-card .profile-settings-field textarea { display:block!important; width:100%!important; min-height:92px!important; padding:12px 13px 30px!important; resize:vertical!important; }
+.auth-card.profile-card .profile-settings-field .profile-bio-count { display:block!important; position:static!important; margin:6px 2px 0 auto!important; width:max-content!important; line-height:1.3!important; }
+.auth-card.profile-card .profile-settings-field { display:flex!important; flex-direction:column!important; align-items:stretch!important; gap:7px!important; }
+.auth-card.profile-card .profile-settings-hint { margin:3px 0 9px!important; }
+.auth-card.profile-card .profile-settings-panel { padding-bottom:18px!important; }
+#content .sg-tab-panel { padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))!important; }
+#content .sg-milestone-route { padding-bottom:20px!important; scroll-padding-bottom:calc(120px + env(safe-area-inset-bottom,0px)); }
+#content .sg-milestones-section { padding-bottom:calc(26px + env(safe-area-inset-bottom,0px))!important; }
+@media(max-width:640px) {
+  #content { padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))!important; }
+  #content .sg-tab-panel { padding-bottom:calc(120px + env(safe-area-inset-bottom,0px))!important; }
+}

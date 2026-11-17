@@ -61,7 +61,7 @@ const noteGraphemeSegmenter = typeof Intl.Segmenter === 'function'
   : null;
 const messagePressState = { timer:null, bubble:null, pointerId:null, startX:0, startY:0, longPressed:false, suppressClick:false, suppressTimer:null };
 const photoPressState = { timer:null, image:null, pointerId:null, startX:0, startY:0, suppressClick:false, suppressTimer:null, clickTimer:null, pendingPhotoId:null };
-const classicProfilePressState = { timer:null, button:null, pointerId:null, startX:0, startY:0, longPressed:false, suppressClick:false };
+const classicProfilePressState = { timer:null, suppressTimer:null, button:null, pointerId:null, startX:0, startY:0, longPressed:false, suppressClick:false };
 const bubbleTapState = { timer:null, bubble:null };
 let lastTouchMemoryTap = { id: '', time: 0, tile: null };
 let suppressNativeMemoryDblclickUntil = 0;
@@ -4880,6 +4880,8 @@ document.addEventListener('pointerdown', event => {
     if (classicProfilePressState.button !== button) return;
     classicProfilePressState.longPressed = true;
     classicProfilePressState.suppressClick = true;
+    clearTimeout(classicProfilePressState.suppressTimer);
+    classicProfilePressState.suppressTimer = setTimeout(() => { classicProfilePressState.suppressClick = false; }, 900);
     openClassicProfileEditor();
   }, 560);
 }, true);
@@ -4905,6 +4907,8 @@ document.addEventListener('click', event => {
   const button = event.target?.closest?.('#friendProfileFollow');
   if (!button) return;
   classicProfilePressState.suppressClick = false;
+  clearTimeout(classicProfilePressState.suppressTimer);
+  classicProfilePressState.suppressTimer = null;
   event.preventDefault();
   event.stopImmediatePropagation();
 }, true);

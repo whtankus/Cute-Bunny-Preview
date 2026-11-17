@@ -1434,9 +1434,9 @@ function readVirtualPet() {
   try { saved = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch {}
   const elapsedHours = Math.max(0, Math.min(24 * 30, (now - (Number(saved.updatedAt) || now)) / 3600000));
   const pet = {
-    hunger: Math.max(0, Math.min(100, (Number(saved.hunger) || 82) - elapsedHours * 3)),
-    joy: Math.max(0, Math.min(100, (Number(saved.joy) || 78) - elapsedHours * 2)),
-    energy: Math.max(0, Math.min(100, (Number(saved.energy) || 88) - elapsedHours * 1.5)),
+    hunger: Math.max(0, Math.min(100, (Number.isFinite(Number(saved.hunger)) && saved.hunger !== undefined ? Number(saved.hunger) : 82) - elapsedHours * 3)),
+    joy: Math.max(0, Math.min(100, (Number.isFinite(Number(saved.joy)) && saved.joy !== undefined ? Number(saved.joy) : 78) - elapsedHours * 2)),
+    energy: Math.max(0, Math.min(100, (Number.isFinite(Number(saved.energy)) && saved.energy !== undefined ? Number(saved.energy) : 88) - elapsedHours * 1.5)),
     updatedAt: now,
     lastAction: saved.lastAction || ''
   };

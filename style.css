@@ -14232,3 +14232,45 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
   background-image:none!important;
 }
 
+
+
+/* Classic profile editor: a dedicated full-screen page, separate from Settings. */
+#profileGate {
+  padding: max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))!important;
+  place-items:stretch!important;overflow-y:auto!important;
+  background:linear-gradient(145deg,rgba(248,225,237,.96),rgba(235,226,247,.96) 52%,rgba(224,241,231,.96))!important;
+  backdrop-filter:blur(18px)!important;
+}
+#profileGate .auth-card.profile-card {
+  width:100%!important;max-width:none!important;min-height:100%!important;max-height:none!important;
+  margin:0!important;padding:clamp(24px,5vw,48px) clamp(18px,5vw,64px) 34px!important;
+  overflow:visible!important;border:1px solid rgba(255,255,255,.76)!important;border-radius:30px!important;
+  background:rgba(255,251,249,.82)!important;
+  box-shadow:0 18px 60px rgba(117,82,112,.12),inset 0 1px 0 rgba(255,255,255,.8)!important;text-align:left!important;
+}
+#profileGate .profile-card .auth-bunny,#profileGate .profile-title-row,#profileGate .profile-date,#profileGate .theme-picker-label{text-align:center!important}
+#profileGate .profile-title-row{justify-content:center!important}
+#profileGate .profile-name-row{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#profileGate .profile-editor-close{
+  position:absolute!important;top:14px!important;right:14px!important;z-index:9;width:42px;height:42px;
+  border:1px solid rgba(222,190,210,.72);border-radius:50%;background:rgba(255,255,255,.72);
+  color:#93647f;font-size:27px;line-height:1;cursor:pointer;
+}
+#profileGate .classic-profile-gender{margin:14px 0 18px}
+#profileGate .classic-profile-gender .theme-picker-label{display:block;margin:0 0 9px;color:#80667a;font-size:.82rem;font-weight:800}
+#profileGate .classic-gender-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+#profileGate .classic-gender-choices button{
+  min-height:42px;padding:9px 7px;border:1px solid #ead7e2;border-radius:14px;background:rgba(255,255,255,.8);
+  color:#876d80;font:inherit;font-size:.78rem;font-weight:750;cursor:pointer;transition:background .18s,border-color .18s,transform .18s;
+}
+#profileGate .classic-gender-choices button.is-selected{border-color:#d79dbb;background:#fbeaf2;color:#985d7c;box-shadow:0 3px 12px rgba(173,112,147,.12)}
+#profileGate .theme-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+#profileGate #profileSave{margin-top:18px}
+@media(max-width:560px){
+  #profileGate{padding:0!important}
+  #profileGate .auth-card.profile-card{min-height:100dvh!important;border-radius:0!important;padding:calc(env(safe-area-inset-top) + 58px) 17px calc(env(safe-area-inset-bottom) + 24px)!important}
+  #profileGate .profile-name-row{grid-template-columns:1fr!important}
+  #profileGate .classic-gender-choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #profileGate .theme-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(min-width:900px){#profileGate .auth-card.profile-card{max-width:900px!important;margin:auto!important;min-height:calc(100dvh - 28px)!important}}

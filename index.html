@@ -166,7 +166,7 @@
 
   <div id="profileGate" class="auth-gate hidden">
     <div class="auth-card profile-card">
-      <button type="button" class="profile-settings-trigger" id="profileSettingsTrigger" aria-label="Open profile settings" aria-expanded="false" aria-controls="profileSettingsPanel" title="Profile settings" style="--flower-speed:18s;--flower-delay:-5.2s">✿</button>
+      <button type="button" class="profile-editor-close" id="profileEditorClose" aria-label="Close profile editor">×</button>
       <small id="profileCreated" class="profile-date"></small>
       <div class="auth-bunny">🐰</div>
       <div class="profile-title-row">
@@ -179,6 +179,15 @@
         <label>Username<input id="profileUsername" maxlength="24" autocomplete="username"></label>
       </div>
       <label>About you<input id="profileBio" maxlength="300" placeholder="A little hello..."></label>
+      <div class="classic-profile-gender">
+        <span class="theme-picker-label">Gender</span>
+        <div class="classic-gender-choices" role="group" aria-label="Choose your gender">
+          <button type="button" data-classic-gender="male" aria-pressed="false">Male</button>
+          <button type="button" data-classic-gender="female" aria-pressed="false">Female</button>
+          <button type="button" data-classic-gender="non_binary" aria-pressed="false">Non-binary</button>
+          <button type="button" data-classic-gender="prefer_not_to_say" aria-pressed="false">Prefer not to say</button>
+        </div>
+      </div>
       <label class="theme-picker-label">Your colors</label>
       <input id="profileTheme" class="hidden" type="hidden" value="rose">
       <div id="profileThemeChoices" class="theme-choice-grid" role="radiogroup" aria-label="Pick your profile colors">

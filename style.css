@@ -14159,3 +14159,42 @@ body[data-mode="dark"] .friend-profile-card .friend-profile-bio { background:#ff
   border-color:rgba(255,255,255,.22)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 3px 10px rgba(111,79,103,.06)!important;
 }
+
+/* Open profile: keep the bio row full width and dock the flower at its far-right edge. */
+#friendProfileGate .friend-profile-bio-row{
+  display:flex!important;
+  width:100%!important;
+  max-width:100%!important;
+  align-items:center!important;
+  gap:10px!important;
+}
+#friendProfileGate .friend-profile-bio-row .friend-profile-bio{
+  flex:0 1 auto!important;
+  width:fit-content!important;
+  max-width:calc(100% - 54px)!important;
+  min-width:0!important;
+  margin-right:auto!important;
+  align-self:center!important;
+}
+#friendProfileGate .friend-profile-bio-row .friend-profile-theme-button{
+  margin-left:auto!important;
+  align-self:center!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  border:1px solid rgba(255,255,255,.16)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+  backdrop-filter:blur(18px) saturate(145%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 3px 10px rgba(111,79,103,.04)!important;
+}
+#friendProfileGate .friend-profile-bio-row .friend-profile-theme-button:hover,
+#friendProfileGate .friend-profile-bio-row .friend-profile-theme-button:active,
+#friendProfileGate .friend-profile-bio-row .friend-profile-theme-button:focus,
+#friendProfileGate .friend-profile-bio-row .friend-profile-theme-button:focus-visible{
+  background:transparent!important;
+  background-color:transparent!important;
+  border-color:rgba(255,255,255,.16)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 3px 10px rgba(111,79,103,.04)!important;
+}
+@media(max-width:430px){
+  #friendProfileGate .friend-profile-bio-row{width:100%!important;max-width:100%!important}
+}

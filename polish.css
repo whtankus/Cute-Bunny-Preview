@@ -3176,10 +3176,12 @@ body{color:var(--cb-ink);background:var(--cb-cream)}
 
 /* Profile editor: centered readable canvas, consistent form rhythm and responsive fields. */
 #profileGate{
-  display:flex!important;align-items:flex-start!important;justify-content:center!important;
+  align-items:flex-start!important;justify-content:center!important;
   padding:clamp(14px,3vw,30px)!important;overflow-y:auto!important;
   background:linear-gradient(145deg,rgba(248,231,239,.94),rgba(239,233,248,.94) 55%,rgba(234,242,232,.94))!important;
 }
+#profileGate:not(.hidden){display:flex!important}
+#profileGate.hidden{display:none!important}
 #profileGate .auth-card.profile-card{
   width:min(100%,760px)!important;max-width:760px!important;min-height:0!important;height:auto!important;
   margin:0 auto!important;padding:clamp(22px,4vw,38px)!important;

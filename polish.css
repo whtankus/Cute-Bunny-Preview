@@ -3373,3 +3373,205 @@ body[data-mode="dark"] #friendProfileGate .auth-card.friend-profile-card{border-
 .auth-card.profile-card .profile-settings-section{gap:9px!important}
 .auth-card.profile-card .profile-settings-field{margin:6px 0!important}
 .auth-card.profile-card .settings-section-intro{margin-bottom:7px!important}
+
+
+/* Settings panel refresh — clearer hierarchy, compact controls, and responsive spacing. */
+#profileGate { padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)); }
+#profileGate .profile-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: min(540px, 100%);
+  max-height: min(88dvh, 820px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 27px clamp(18px, 4vw, 30px) 22px;
+  border: 1px solid color-mix(in srgb, var(--cb-border, #eddde3) 88%, white);
+  border-radius: 27px;
+  background: linear-gradient(160deg, var(--cb-surface, #fffdfd), var(--cb-bg, #fff7fa));
+  box-shadow: 0 24px 70px rgba(89, 58, 83, .2);
+  scrollbar-width: thin;
+}
+#profileGate .settings-page-title {
+  margin: 2px 34px 5px;
+  text-align: center;
+  font-family: Quicksand, Nunito, sans-serif;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -.035em;
+  color: var(--cb-text, #59465b);
+}
+#profileGate .settings-page-title::after {
+  content: "A few little ways to make it yours";
+  display: block;
+  margin-top: 5px;
+  color: var(--cb-text-muted, #987f91);
+  font: 700 .72rem Nunito, sans-serif;
+  letter-spacing: .01em;
+}
+#profileGate .profile-editor-close {
+  position: absolute;
+  top: 15px;
+  right: 16px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--cb-border, #eddde3);
+  border-radius: 50%;
+  background: var(--cb-surface-raised, #fff7fa);
+  color: var(--cb-text-soft, #80536b);
+  font-size: 1.35rem;
+  line-height: 1;
+}
+#profileGate .profile-card > label,
+#profileGate .classic-profile-gender,
+#profileGate #profileThemeChoices,
+#profileGate #profileBuddyChoices {
+  min-width: 0;
+}
+#profileGate .profile-card > label:not(.theme-picker-label) {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 12px 13px;
+  border: 1px solid var(--cb-border, #eddde3);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--cb-surface, white) 84%, var(--cb-accent-soft, #f8dce9));
+  color: var(--cb-text, #59465b);
+  font-size: .78rem;
+  font-weight: 800;
+}
+#profileGate #profileBio {
+  width: 100%;
+  min-height: 42px;
+  resize: vertical;
+  padding: 10px 11px;
+  border: 1px solid var(--cb-border, #eddde3);
+  border-radius: 11px;
+  outline: none;
+  background: var(--cb-control, #fff);
+  color: var(--cb-text, #59465b);
+  font: 600 .88rem Nunito, sans-serif;
+}
+#profileGate #profileBio:focus-visible { border-color: var(--cb-accent, #cf829f); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cb-accent-soft, #f8dce9) 75%, transparent); }
+#profileGate .theme-picker-label {
+  display: block;
+  margin: 7px 2px 0;
+  color: var(--cb-text, #59465b);
+  font-size: .84rem;
+  font-weight: 900;
+}
+#profileGate .theme-picker-label::after {
+  content: "";
+  display: block;
+  width: 28px;
+  height: 3px;
+  margin-top: 5px;
+  border-radius: 9px;
+  background: var(--cb-accent, #cf829f);
+  opacity: .55;
+}
+#profileGate .classic-profile-gender {
+  margin: 0;
+  padding: 12px 13px;
+  border: 1px solid var(--cb-border, #eddde3);
+  border-radius: 16px;
+  background: var(--cb-surface, #fff);
+}
+#profileGate .classic-gender-choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 9px;
+}
+#profileGate .classic-gender-choices button {
+  min-height: 39px;
+  border: 1px solid var(--cb-border, #eddde3);
+  border-radius: 12px;
+  background: var(--cb-surface-raised, #fff7fa);
+  color: var(--cb-text-soft, #80536b);
+  font-size: .78rem;
+  font-weight: 800;
+}
+#profileGate .classic-gender-choices button[aria-pressed="true"] {
+  border-color: var(--cb-accent, #cf829f);
+  background: var(--cb-accent-soft, #f8dce9);
+  color: var(--cb-text, #59465b);
+}
+#profileGate .theme-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+#profileGate .theme-choice {
+  min-width: 0;
+  min-height: 74px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 5px;
+  border: 1px solid var(--cb-border, #eddde3);
+  border-radius: 15px;
+  background: var(--cb-surface, #fff);
+  color: var(--cb-text-soft, #80536b);
+  font-size: .68rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  transition: border-color .16s ease, background .16s ease, transform .16s ease;
+}
+#profileGate .theme-choice:active { transform: scale(.97); }
+#profileGate .theme-choice.is-selected {
+  border-color: var(--cb-accent, #cf829f);
+  background: color-mix(in srgb, var(--cb-accent-soft, #f8dce9) 72%, var(--cb-surface, white));
+  box-shadow: inset 0 0 0 1px var(--cb-accent, #cf829f);
+  color: var(--cb-text, #59465b);
+}
+#profileGate .theme-swatch {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  border-radius: 11px;
+  font-size: 1.1rem;
+}
+#profileGate .buddy-choice-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+#profileGate .buddy-choice { min-height: 72px; }
+#profileGate .buddy-choice .buddy-swatch { width: 36px; height: 36px; font-size: 1.45rem; }
+#profileGate #profileSave {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  width: 100%;
+  min-height: 46px;
+  margin: 8px 0 0;
+  border-radius: 15px;
+  font-size: .9rem;
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--cb-accent-strong, #a64273) 48%, transparent);
+}
+#profileGate #signOut {
+  margin: 0 auto;
+  padding: 7px 14px;
+  color: var(--cb-text-muted, #987f91);
+  font-size: .76rem;
+}
+body[data-mode="dark"] #profileGate .profile-card { border-color: var(--cb-border); }
+@media (max-width: 420px) {
+  #profileGate { padding-left: 9px; padding-right: 9px; }
+  #profileGate .profile-card { max-height: 91dvh; padding: 23px 14px 17px; border-radius: 23px; gap: 8px; }
+  #profileGate .settings-page-title { font-size: 1.38rem; }
+  #profileGate .theme-choice-grid { gap: 6px; }
+  #profileGate .theme-choice { min-height: 68px; font-size: .62rem; }
+  #profileGate .theme-swatch { width: 28px; height: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #profileGate .theme-choice { transition: none; }
+}

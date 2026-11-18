@@ -3589,3 +3589,77 @@ body[data-mode="dark"] #profileGate .theme-choice{
 @media(prefers-reduced-motion:reduce){
   #friendProfileGate .friend-profile-card :is(.friend-profile-bio,.friend-profile-collection,.friend-profile-badges){transition:none!important}
 }
+
+
+/* Let the selected profile wallpaper show through the bio and lower panels.
+   Use a soft tinted glass treatment instead of opaque white cards. */
+#friendProfileGate .friend-profile-card[data-wallpaper]{
+  --profile-surface:rgba(255,246,250,.48);
+  --profile-surface-soft:rgba(255,246,250,.34);
+  --profile-border:rgba(255,255,255,.38);
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="normal"]{
+  --profile-surface:rgba(255,244,249,.48);
+  --profile-surface-soft:rgba(255,244,249,.32);
+  --profile-border:rgba(255,255,255,.42);
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="blossom"],
+#friendProfileGate .friend-profile-card[data-wallpaper="hearts"]{
+  --profile-surface:rgba(255,235,244,.48);
+  --profile-surface-soft:rgba(255,235,244,.32);
+  --profile-border:rgba(255,255,255,.4);
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="clouds"]{
+  --profile-surface:rgba(235,246,255,.5);
+  --profile-surface-soft:rgba(235,246,255,.34);
+  --profile-border:rgba(255,255,255,.44);
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"]{
+  --profile-surface:rgba(35,31,58,.48);
+  --profile-surface-soft:rgba(35,31,58,.32);
+  --profile-border:rgba(239,229,255,.24);
+}
+#friendProfileGate .friend-profile-card .friend-profile-bio,
+#friendProfileGate .friend-profile-card .friend-profile-collection,
+#friendProfileGate .friend-profile-card .friend-profile-badges{
+  background:var(--profile-surface)!important;
+  border-color:var(--profile-border)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(118%)!important;
+  backdrop-filter:blur(12px) saturate(118%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 5px 16px rgba(61,43,62,.035)!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-section-heading>small{
+  background:var(--profile-surface-soft)!important;
+  border-color:var(--profile-border)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  backdrop-filter:blur(8px)!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-section-heading>span{
+  background:var(--profile-surface-soft)!important;
+  border-color:var(--profile-border)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  backdrop-filter:blur(8px)!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-bio,
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-collection,
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-badges{
+  background:var(--profile-surface)!important;
+  border-color:var(--profile-border)!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-collection-art{
+  background:rgba(255,255,255,.24)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+  backdrop-filter:blur(8px)!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-collection-art{
+  background:rgba(255,255,255,.16)!important;
+}
+@media(prefers-reduced-transparency:reduce){
+  #friendProfileGate .friend-profile-card .friend-profile-bio,
+  #friendProfileGate .friend-profile-card .friend-profile-collection,
+  #friendProfileGate .friend-profile-card .friend-profile-badges{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    background:var(--profile-surface)!important;
+  }
+}

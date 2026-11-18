@@ -1030,19 +1030,26 @@ async function hydrateGardenCollectionFromCloud() {
   await syncGardenCollectionToCloud(legacy);
   return legacy;
 }
-function renderFriendGardenCollection(collection, userId) {
+function renderFriendGardenCollection(collection, userId, isOwnProfile = false) {
   const gate = $('#friendProfileGate');
   if (!gate || gate.dataset.collectionUserId !== String(userId)) return;
+  const section = $('#friendProfileCollection');
   const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
   const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
   const count = $('#friendProfileCollectionCount');
   if (count) count.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
   const list = $('#friendProfileCollectionItems');
   if (!list) return;
-  list.innerHTML = ownedItems.length ? ownedItems.slice(0, 12).map(item => {
+  if (!ownedItems.length) {
+    if (section) section.hidden = !isOwnProfile;
+    list.innerHTML = isOwnProfile ? '<p class="friend-profile-empty">Collect your treasures in the shop ♡</p>' : '';
+    return;
+  }
+  if (section) section.hidden = false;
+  list.innerHTML = ownedItems.slice(0, 12).map(item => {
     const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
     return '<span class="friend-profile-collection-item garden-rarity-' + esc(item.rarity || 'common') + (equipped ? ' is-equipped' : '') + '" title="' + esc(item.name) + '" aria-label="' + esc(item.name + (equipped ? ', equipped' : '')) + '"><span class="friend-profile-collection-art">' + item.art + '</span><small class="friend-profile-collection-name">' + esc(item.name) + '</small>' + (equipped ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>';
-  }).join('') : '<p class="friend-profile-empty">No little treasures collected yet ♡</p>';
+  }).join('');
 }
 async function loadFriendGardenCollection(user, isOwnProfile) {
   const sequence = ++friendGardenRequestSequence;
@@ -1065,7 +1072,7 @@ async function loadFriendGardenCollection(user, isOwnProfile) {
     collection = normalizeGardenCollection(data || {});
   }
   if (sequence !== friendGardenRequestSequence || gate.dataset.collectionUserId !== String(user.id)) return;
-  renderFriendGardenCollection(collection, user.id);
+  renderFriendGardenCollection(collection, user.id, isOwnProfile);
 }
 
 function gardenIllustration(kind) {
@@ -2783,10 +2790,8 @@ function showFriendProfile(user) {
       renderFriendGardenCollection(collection, user.id);
       syncGardenCollectionToCloud(collection);
     } else {
-      const collectionCount = $('#friendProfileCollectionCount');
-      if (collectionCount) collectionCount.textContent = 'Loading treasures…';
-      const collectionItems = $('#friendProfileCollectionItems');
-      if (collectionItems) collectionItems.innerHTML = '<p class="friend-profile-empty">Gathering little treasures…</p>';
+      const collectionSection = $('#friendProfileCollection');
+      if (collectionSection) collectionSection.hidden = true;
       loadFriendGardenCollection(user, false);
     }
     const streak = Math.max(0, Number(user.login_streak) || 0);

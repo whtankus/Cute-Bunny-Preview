@@ -30,6 +30,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Run app shell regression tests
+        run: npm test
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

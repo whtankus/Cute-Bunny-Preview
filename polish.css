@@ -3459,3 +3459,133 @@ body[data-mode="dark"] #profileGate .theme-choice{
   width:100%!important;
   text-align:center!important;
 }
+
+
+/* Profile readability pass: calm the wallpaper effects and give every text
+   group a stable contrast surface without removing the user's chosen art. */
+#friendProfileGate .friend-profile-card[data-wallpaper]{
+  --profile-ink:#453847;
+  --profile-secondary:#705f72;
+  --profile-surface:rgba(255,252,254,.94);
+  --profile-border:rgba(117,83,109,.16);
+  color:var(--profile-ink)!important;
+  text-shadow:none!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper]:not([data-wallpaper="starlight"]) :is(h2,p,small,time,span,b,strong){
+  text-shadow:none!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper]:not([data-wallpaper="starlight"]) :is(.friend-profile-identity h2,#friendProfileHandle,.friend-profile-bio,.friend-profile-eyebrow,.friend-profile-section-heading,.friend-profile-section-heading>b,.friend-profile-activity-status){
+  color:var(--profile-ink)!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper]:not([data-wallpaper="starlight"]) #friendProfileHandle,
+#friendProfileGate .friend-profile-card[data-wallpaper]:not([data-wallpaper="starlight"]) .friend-profile-bio,
+#friendProfileGate .friend-profile-card[data-wallpaper]:not([data-wallpaper="starlight"]) .friend-profile-eyebrow,
+#friendProfileGate .friend-profile-card[data-wallpaper]:not([data-wallpaper="starlight"]) .friend-profile-activity-status{
+  color:var(--profile-secondary)!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-bio{
+  padding:11px 13px!important;
+  border:1px solid var(--profile-border)!important;
+  border-radius:15px!important;
+  background:var(--profile-surface)!important;
+  line-height:1.6!important;
+  text-shadow:none!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-collection,
+#friendProfileGate .friend-profile-card .friend-profile-badges{
+  border:1px solid var(--profile-border)!important;
+  border-radius:18px!important;
+  background:var(--profile-surface)!important;
+  box-shadow:0 5px 16px rgba(61,43,62,.045)!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-section-heading,
+#friendProfileGate .friend-profile-card .friend-profile-section-heading>b{
+  color:var(--profile-ink)!important;
+  text-shadow:none!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-section-heading>small{
+  color:#72596e!important;
+  background:#fff!important;
+  border-color:rgba(117,83,109,.16)!important;
+  text-shadow:none!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-section-heading>span{
+  color:#a66d89!important;
+  background:#f9edf3!important;
+  border:1px solid #f0dce7!important;
+  box-shadow:none!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-joined>time{
+  color:#5b4a5c!important;
+  background:rgba(255,255,255,.96)!important;
+  border:1px solid rgba(117,83,109,.16)!important;
+  text-shadow:none!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-stat-plates>*{
+  box-shadow:none!important;
+  text-shadow:none!important;
+  border:1px solid rgba(117,83,109,.14)!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-follow{
+  box-shadow:0 3px 9px rgba(92,55,79,.12)!important;
+  text-shadow:none!important;
+  filter:none!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-collection-item,
+#friendProfileGate .friend-profile-card .friend-profile-collection-art{
+  filter:none!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-collection-art{
+  background:linear-gradient(145deg,#fff,#fbf3f7)!important;
+  box-shadow:inset 0 0 0 1px rgba(117,83,109,.12)!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-collection-item.is-equipped{
+  background:rgba(247,232,240,.7)!important;
+  box-shadow:0 0 0 2px rgba(191,130,160,.18)!important;
+}
+#friendProfileGate .friend-profile-card .friend-profile-milestone-svg,
+#friendProfileGate .friend-profile-card .friend-profile-milestone-emoji{
+  filter:none!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"]{
+  --profile-ink:#fffaff;
+  --profile-secondary:#eee7f7;
+  --profile-surface:rgba(35,31,58,.88);
+  --profile-border:rgba(239,229,255,.2);
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] :is(.friend-profile-identity h2,#friendProfileHandle,.friend-profile-bio,.friend-profile-eyebrow,.friend-profile-section-heading,.friend-profile-section-heading>b,.friend-profile-activity-status){
+  color:var(--profile-ink)!important;
+  text-shadow:0 1px 2px rgba(15,12,35,.25)!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-bio,
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-collection,
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-badges{
+  background:var(--profile-surface)!important;
+  border-color:var(--profile-border)!important;
+  box-shadow:0 5px 18px rgba(10,8,28,.12)!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-section-heading>small{
+  color:#fff!important;
+  background:rgba(35,31,58,.82)!important;
+  border-color:rgba(239,229,255,.25)!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-section-heading>span{
+  color:#fff!important;
+  background:rgba(255,255,255,.13)!important;
+  border-color:rgba(255,255,255,.22)!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-activity-status{
+  color:#9de0b7!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-collection-art{
+  background:rgba(255,255,255,.94)!important;
+}
+#friendProfileGate .friend-profile-card[data-wallpaper="starlight"] .friend-profile-collection-item.is-equipped{
+  background:rgba(255,255,255,.1)!important;
+}
+#friendProfileGate .friend-profile-card :is(.friend-profile-bio,.friend-profile-collection,.friend-profile-badges){
+  transition:background-color .22s ease,border-color .22s ease,box-shadow .22s ease!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #friendProfileGate .friend-profile-card :is(.friend-profile-bio,.friend-profile-collection,.friend-profile-badges){transition:none!important}
+}

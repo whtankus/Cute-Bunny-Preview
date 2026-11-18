@@ -3139,3 +3139,187 @@ html body #app > header > #profileOpen.brand:active {
 .streak-garden-page .sg-daily-quest-list .sg-daily-quest-card:active{
   transform:scale(.992);
 }
+
+
+/* Cute Bunny visual consistency pass — shared layout, color, spacing and responsive rules. */
+:root{
+  --cb-ink:#554456;--cb-ink-soft:#705d70;--cb-muted:#8d7a8d;
+  --cb-rose:#c77f9d;--cb-rose-deep:#a95f80;--cb-rose-wash:#f8e8ee;
+  --cb-lavender-wash:#f0ebf8;--cb-sage-wash:#edf3e9;--cb-cream:#fcf8f3;
+  --cb-surface:#fffdfa;--cb-border:#eadfe5;
+  --cb-card-shadow:0 8px 24px rgba(94,67,88,.075);
+}
+body{color:var(--cb-ink);background:var(--cb-cream)}
+.app{background-color:var(--cb-cream)}
+#content{width:min(100%,960px);padding:clamp(16px,3vw,30px) clamp(14px,3.5vw,30px) calc(38px + env(safe-area-inset-bottom,0px))}
+#content>*{min-width:0}
+#content .heading{margin:8px 0 22px}
+#content .heading h2{letter-spacing:-.035em;line-height:1.18}
+#content .heading p{line-height:1.6}
+#content .toolbar{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 2px 12px}
+#content .tile,#content .empty,#content .daily,#content .daily-quest-card{
+  border-color:var(--cb-border);box-shadow:var(--cb-card-shadow)
+}
+#content button:not(.brand):not(.round):not(.sg-garden-switch):not(.sg-week-day){
+  transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,border-color .18s ease
+}
+#content input:not([type=checkbox]):not([type=radio]):not([type=range]),
+#content textarea,#content select,
+#profileGate input:not([type=checkbox]):not([type=radio]):not([type=range]){
+  min-height:44px;border:1px solid #e7d9e2;border-radius:14px;background:#fffdfd;color:var(--cb-ink);
+  box-shadow:inset 0 1px 2px rgba(83,58,78,.025)
+}
+#content input:focus,#content textarea:focus,#content select:focus,
+#profileGate input:focus{border-color:#d39ab2;outline:0;box-shadow:0 0 0 3px rgba(199,127,157,.15)}
+#content :is(h2,h3,h4){overflow-wrap:anywhere}
+#content :is(.tile,.panel,.section-card,.settings-card){border-radius:22px}
+
+/* Profile editor: centered readable canvas, consistent form rhythm and responsive fields. */
+#profileGate{
+  display:flex!important;align-items:flex-start!important;justify-content:center!important;
+  padding:clamp(14px,3vw,30px)!important;overflow-y:auto!important;
+  background:linear-gradient(145deg,rgba(248,231,239,.94),rgba(239,233,248,.94) 55%,rgba(234,242,232,.94))!important;
+}
+#profileGate .auth-card.profile-card{
+  width:min(100%,760px)!important;max-width:760px!important;min-height:0!important;height:auto!important;
+  margin:0 auto!important;padding:clamp(22px,4vw,38px)!important;
+  border:1px solid rgba(255,255,255,.9)!important;border-radius:28px!important;
+  background:rgba(255,253,251,.96)!important;box-shadow:0 20px 55px rgba(93,65,88,.14)!important;
+  text-align:left!important;overflow:visible!important;
+}
+#profileGate .profile-date{top:18px!important;left:clamp(18px,4vw,34px)!important}
+#profileGate .profile-editor-close{top:14px!important;right:14px!important;width:40px!important;height:40px!important}
+#profileGate .auth-bunny{margin:8px auto 4px!important}
+#profileGate .profile-title-row{margin:4px 0 18px!important;align-items:center!important}
+#profileGate .profile-title-row h2{font-size:clamp(1.35rem,3vw,1.8rem)!important}
+#profileGate .profile-name-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important}
+#profileGate .profile-card>label,#profileGate .profile-name-row>label{display:block!important;min-width:0!important;margin:12px 0!important;color:#765f73!important;font-size:.82rem!important;font-weight:800!important}
+#profileGate .profile-card label input{display:block!important;width:100%!important;margin-top:6px!important;padding:11px 13px!important}
+#profileGate .classic-profile-gender{margin:18px 0!important}
+#profileGate .classic-gender-choices{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+#profileGate .theme-picker-label{display:block!important;margin:20px 0 10px!important;color:#765f73!important;font-size:.82rem!important;font-weight:900!important;text-align:left!important}
+#profileGate .theme-choice-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+#profileGate .theme-choice{min-width:0!important;min-height:72px!important;padding:9px 7px!important;border:1px solid #eee1e8!important;border-radius:17px!important;background:#fff!important;color:#705d70!important}
+#profileGate .theme-choice.is-selected{border-color:#d59ab4!important;background:linear-gradient(145deg,#fff5f8,#f6f0fa)!important;box-shadow:0 0 0 2px rgba(199,127,157,.12)!important}
+#profileGate #profileSave{width:100%!important;min-height:48px!important;margin-top:22px!important}
+#profileGate #signOut{display:block!important;margin:12px auto 0!important}
+
+/* Friend profile: one vertical reading flow, no cramped side-by-side overflow. */
+#friendProfileGate{align-items:flex-start!important;padding:clamp(12px,3vw,28px)!important}
+#friendProfileGate .auth-card.friend-profile-card{
+  width:min(100%,620px)!important;max-width:620px!important;margin:8px auto!important;
+  padding:clamp(18px,3.5vw,30px)!important;border-radius:28px!important;
+  box-shadow:0 18px 48px rgba(91,65,87,.14)!important;
+}
+#friendProfileGate .friend-profile-main-row{
+  grid-template-columns:64px minmax(0,1fr) auto!important;gap:13px!important;
+  align-items:center!important;padding:8px 0 14px!important;
+}
+#friendProfileGate .friend-profile-avatar-wrap,
+#friendProfileGate .friend-profile-avatar{width:64px!important;height:64px!important}
+#friendProfileGate .friend-profile-identity{min-width:0!important}
+#friendProfileGate .friend-profile-identity h2{font-size:clamp(1.1rem,3vw,1.45rem)!important;overflow-wrap:anywhere}
+#friendProfileGate .friend-profile-bio-row{display:flex!important;gap:12px!important;margin:10px 0!important}
+#friendProfileGate .friend-profile-bio{min-width:0!important;flex:1!important;line-height:1.55!important}
+#friendProfileGate .friend-profile-activity-line{display:flex!important;flex-wrap:wrap!important;gap:10px!important;justify-content:space-between!important}
+#friendProfileGate .friend-profile-collection,#friendProfileGate .friend-profile-badges{margin-top:20px!important;padding-top:16px!important;border-top:1px solid rgba(177,142,164,.18)!important}
+#friendProfileGate .friend-profile-section-heading{display:flex!important;align-items:center!important;gap:8px!important;margin-bottom:12px!important}
+#friendProfileGate .friend-profile-collection-items{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+
+/* Streak Garden: align every section to one grid and reduce the oversized hero. */
+.streak-garden-page{gap:20px!important;padding-bottom:24px!important}
+.streak-garden-page .sg-page-heading{align-items:center!important;margin:0 2px 2px!important}
+.streak-garden-page .sg-page-heading h2{font-size:clamp(1.55rem,4vw,2rem)!important;letter-spacing:-.035em!important}
+.streak-garden-page .sg-hero-paper{
+  grid-template-columns:minmax(0,1fr) minmax(0,.9fr)!important;min-height:270px!important;
+  border-radius:26px!important;box-shadow:0 10px 28px rgba(107,77,93,.08)!important;
+}
+.streak-garden-page .sg-hero-copy{padding:clamp(18px,3vw,28px)!important}
+.streak-garden-page .sg-hero-scene{min-width:0!important;display:grid!important;place-items:center!important}
+.streak-garden-page .sg-week-section,
+.streak-garden-page .sg-daily-quests-section,
+.streak-garden-page .sg-hearts-section,
+.streak-garden-page .sg-calendar-section{
+  border:1px solid var(--cb-border)!important;border-radius:22px!important;
+  box-shadow:0 7px 22px rgba(94,67,88,.055)!important;
+}
+.streak-garden-page .sg-week-section{padding:17px!important}
+.streak-garden-page .sg-week-row{gap:clamp(2px,1vw,8px)!important}
+.streak-garden-page .sg-week-day{min-width:0!important;padding:8px 2px!important;border-radius:15px!important}
+.streak-garden-page .sg-week-flower{width:clamp(30px,5vw,38px)!important;height:clamp(30px,5vw,38px)!important}
+.streak-garden-page .sg-garden-switcher{
+  position:sticky;top:8px;z-index:4;gap:7px!important;padding:6px!important;
+  border-radius:19px!important;background:rgba(255,250,248,.92)!important;
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  box-shadow:0 8px 22px rgba(94,67,88,.09)!important;
+}
+.streak-garden-page .sg-garden-switch{min-height:54px!important;gap:7px!important;border-radius:14px!important}
+.streak-garden-page .sg-garden-switch.is-active{box-shadow:0 3px 10px rgba(169,95,128,.12)!important}
+.streak-garden-page .sg-daily-quests-section{padding:clamp(14px,2.5vw,20px)!important}
+.streak-garden-page .sg-daily-quest-list{gap:11px!important}
+.streak-garden-page .sg-daily-quest-card{grid-template-columns:44px minmax(0,1fr)!important;gap:12px!important;padding:13px!important}
+.streak-garden-page .sg-daily-quest-card p{font-size:.78rem!important;line-height:1.48!important}
+.streak-garden-page .sg-daily-quest-card .sg-daily-quest-title-row{flex-wrap:wrap!important}
+.streak-garden-page .sg-daily-quest-status{flex:none!important}
+.streak-garden-page .sg-section-heading{gap:10px!important}
+.streak-garden-page .sg-section-heading h3{line-height:1.25!important}
+.streak-garden-page .sg-calendar-grid{gap:5px!important}
+
+/* Dark mode receives matching surfaces and readable muted text instead of mixed light cards. */
+body[data-mode="dark"]{
+  --cb-ink:#f0e5ef;--cb-ink-soft:#d7c6d8;--cb-muted:#b9a9bb;
+  --cb-surface:#302936;--cb-border:#514354;--cb-card-shadow:0 10px 28px rgba(0,0,0,.2);
+  background:#211d27!important;color:var(--cb-ink)!important;
+}
+body[data-mode="dark"] .app{background-color:#211d27!important}
+body[data-mode="dark"] #content .tile,
+body[data-mode="dark"] #content .empty,
+body[data-mode="dark"] #content input,
+body[data-mode="dark"] #content textarea,
+body[data-mode="dark"] #content select{background:#302936!important;border-color:#514354!important;color:#f0e5ef!important}
+body[data-mode="dark"] #profileGate .auth-card.profile-card{background:#302936!important;border-color:#514354!important;color:#f0e5ef!important}
+body[data-mode="dark"] #profileGate .profile-card>label,
+body[data-mode="dark"] #profileGate .profile-name-row>label,
+body[data-mode="dark"] #profileGate .theme-picker-label{color:#e2d2e2!important}
+body[data-mode="dark"] #profileGate .theme-choice{background:#3a3040!important;border-color:#58465b!important;color:#f0e5ef!important}
+body[data-mode="dark"] .streak-garden-page .sg-garden-switcher{background:rgba(48,41,54,.94)!important;border-color:#514354!important}
+body[data-mode="dark"] .streak-garden-page .sg-week-section,
+body[data-mode="dark"] .streak-garden-page .sg-daily-quests-section,
+body[data-mode="dark"] .streak-garden-page .sg-hearts-section,
+body[data-mode="dark"] .streak-garden-page .sg-calendar-section{border-color:#514354!important}
+body[data-mode="dark"] #friendProfileGate .auth-card.friend-profile-card{border-color:#514354!important}
+
+/* Narrow screens: prevent clipped labels, squeezed controls and accidental horizontal scroll. */
+@media(max-width:600px){
+  #content{padding-inline:13px!important}
+  #profileGate{padding:10px!important}
+  #profileGate .auth-card.profile-card{padding:58px 17px 24px!important;border-radius:23px!important}
+  #profileGate .profile-name-row{grid-template-columns:1fr!important;gap:0!important}
+  #profileGate .theme-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #friendProfileGate{padding:8px!important}
+  #friendProfileGate .auth-card.friend-profile-card{width:100%!important;padding:18px 14px!important;border-radius:22px!important}
+  #friendProfileGate .friend-profile-main-row{grid-template-columns:52px minmax(0,1fr)!important;gap:10px!important}
+  #friendProfileGate .friend-profile-main-row .friend-profile-avatar-wrap,
+  #friendProfileGate .friend-profile-main-row .friend-profile-avatar{width:52px!important;height:52px!important}
+  #friendProfileGate .friend-profile-joined{grid-column:2;justify-self:start!important;text-align:left!important;margin-top:-5px}
+  #friendProfileGate .friend-profile-collection-items{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important}
+  .streak-garden-page .sg-hero-paper{grid-template-columns:minmax(0,1fr)!important;min-height:0!important}
+  .streak-garden-page .sg-hero-copy{padding:20px 20px 8px!important}
+  .streak-garden-page .sg-hero-scene{min-height:190px!important;padding:0 10px 12px!important}
+  .streak-garden-page .sg-garden-switcher{top:4px!important;gap:4px!important;padding:5px!important}
+  .streak-garden-page .sg-garden-switch{min-height:54px!important;flex-direction:column!important;gap:4px!important;padding:7px 3px!important}
+  .streak-garden-page .sg-garden-switch .sg-switch-label b{font-size:.68rem!important;white-space:normal!important;text-align:center!important}
+  .streak-garden-page .sg-week-section{padding:12px 8px!important}
+  .streak-garden-page .sg-week-day .sg-week-name{font-size:.58rem!important}
+  .streak-garden-page .sg-week-day .sg-week-date{font-size:.63rem!important}
+  .streak-garden-page .sg-daily-quest-card{grid-template-columns:38px minmax(0,1fr)!important;padding:11px!important;gap:10px!important}
+  .streak-garden-page .sg-daily-quest-icon{width:36px!important;height:36px!important}
+}
+@media(max-width:360px){
+  #friendProfileGate .friend-profile-collection-items{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .streak-garden-page .sg-garden-switch .sg-switch-label b{font-size:.62rem!important}
+  .streak-garden-page .sg-week-row{gap:0!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #content *,#profileGate *,#friendProfileGate *{scroll-behavior:auto!important;transition-duration:.01ms!important}
+}

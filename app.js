@@ -2750,7 +2750,6 @@ function render(options = {}) {
       <div class="daily" id="dailyCard" role="button" tabindex="0" aria-label="A little kindness for today. Tap for another reminder">
         <span class="daily-icon">🌼</span><div><small>A LITTLE KINDNESS FOR TODAY</small><p id="compliment">${esc(getKindness())}</p></div>
       </div>
-      ${achievementGardenMarkup(visibleFeed)}
       <div class="toolbar"><h3>Your happy things</h3><span>${visibleFeed.length} shared memories</span></div>
       <div class="grid happy-things-grid">
         ${streakWidget()}

@@ -3360,3 +3360,16 @@ body[data-mode="dark"] #friendProfileGate .auth-card.friend-profile-card{border-
 @media(min-width:900px){
   #profileGate .auth-card.profile-card{max-width:900px!important;margin:auto!important;min-height:calc(100dvh - 28px)!important}
 }
+
+
+/* Settings screen: remove identity header and tighten field rhythm. */
+#profileGate .settings-page-title{margin:0 0 12px!important;padding:0!important;font:800 clamp(1.35rem,3vw,1.7rem)/1.2 Quicksand,Nunito,sans-serif!important;color:var(--cb-text,#554457)!important;text-align:left!important}
+#profileGate .profile-card>label,#profileGate .profile-name-row>label{margin:7px 0!important}
+#profileGate .classic-profile-gender{margin:10px 0!important}
+#profileGate .theme-picker-label{margin:12px 0 7px!important}
+#profileGate .theme-choice-grid{gap:8px!important}
+#profileGate #profileSave{margin-top:14px!important}
+.auth-card.profile-card .profile-settings-panel{gap:9px!important;padding:12px!important}
+.auth-card.profile-card .profile-settings-section{gap:9px!important}
+.auth-card.profile-card .profile-settings-field{margin:6px 0!important}
+.auth-card.profile-card .settings-section-intro{margin-bottom:7px!important}

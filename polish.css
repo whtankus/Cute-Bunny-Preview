@@ -3273,3 +3273,209 @@ body[data-mode="dark"] #friendProfileGate .auth-card.friend-profile-card{border-
   .streak-garden-page .sg-garden-switch .sg-switch-label b{font-size:.62rem!important}
   .streak-garden-page .sg-week-row{gap:0!important}
 }
+
+
+/* Settings refresh: clean title, paired account fields, and a live palette preview. */
+#profileGate{
+  align-items:center!important;
+  justify-content:center!important;
+  padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))!important;
+  background:rgba(53,39,57,.48)!important;
+  -webkit-backdrop-filter:blur(9px)!important;
+  backdrop-filter:blur(9px)!important;
+}
+#profileGate .auth-card.profile-card{
+  display:block!important;
+  width:min(460px,100%)!important;
+  max-width:460px!important;
+  max-height:calc(100dvh - 24px)!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0 auto!important;
+  padding:26px clamp(17px,4vw,30px) 23px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  border:1px solid var(--settings-panel-border,#ead9e1)!important;
+  border-radius:27px!important;
+  background:var(--settings-panel-bg,linear-gradient(145deg,#fffdfb,#fff1f6 58%,#f5efff))!important;
+  box-shadow:0 22px 70px rgba(58,38,61,.24),inset 0 1px 0 rgba(255,255,255,.86)!important;
+  text-align:left!important;
+  transition:background .28s ease,border-color .28s ease,box-shadow .28s ease!important;
+}
+#profileGate .settings-page-title{
+  display:block!important;
+  margin:0 0 19px!important;
+  padding:0!important;
+  color:var(--settings-heading,#76566f)!important;
+  font:900 1.55rem/1.2 Quicksand,Nunito,sans-serif!important;
+  letter-spacing:-.025em!important;
+  text-align:left!important;
+}
+#profileGate #profileSettingsMount{display:block!important;margin:0!important}
+#profileGate .profile-name-row{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:12px!important;
+  align-items:start!important;
+  margin:0 0 12px!important;
+}
+#profileGate .profile-card>label,
+#profileGate .profile-name-row>label{
+  display:block!important;
+  min-width:0!important;
+  margin:12px 0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:var(--settings-label,#80677e)!important;
+  font-size:.79rem!important;
+  font-weight:850!important;
+  text-align:left!important;
+}
+#profileGate .profile-name-row>label{margin:0!important}
+#profileGate .profile-card label input{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:43px!important;
+  margin-top:7px!important;
+  padding:10px 12px!important;
+  border:1px solid var(--settings-input-border,#ead9e1)!important;
+  border-radius:13px!important;
+  background:rgba(255,255,255,.86)!important;
+  color:#59465b!important;
+  font:700 .86rem Nunito,sans-serif!important;
+  box-shadow:inset 0 1px 2px rgba(80,50,75,.035)!important;
+  transition:border-color .2s ease,box-shadow .2s ease,background .2s ease!important;
+}
+#profileGate .profile-card label input:focus{
+  outline:0!important;
+  border-color:var(--settings-accent,#d58eae)!important;
+  box-shadow:0 0 0 3px var(--settings-accent-soft,rgba(213,142,174,.16))!important;
+}
+#profileGate .classic-profile-gender{margin:16px 0!important}
+#profileGate .theme-picker-label{
+  display:block!important;
+  margin:18px 0 9px!important;
+  color:var(--settings-label,#80677e)!important;
+  font-size:.8rem!important;
+  font-weight:900!important;
+  text-align:left!important;
+}
+#profileGate .classic-gender-choices{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:9px!important;
+}
+#profileGate .classic-gender-choices button{
+  min-height:42px!important;
+  border:1px solid var(--settings-input-border,#ead9e1)!important;
+  border-radius:13px!important;
+  background:rgba(255,255,255,.78)!important;
+  color:var(--settings-label,#80677e)!important;
+  font-weight:850!important;
+}
+#profileGate .classic-gender-choices button.is-selected{
+  border-color:var(--settings-accent,#d58eae)!important;
+  background:var(--settings-accent-soft,rgba(213,142,174,.16))!important;
+  color:var(--settings-heading,#76566f)!important;
+}
+#profileGate .theme-choice-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:9px!important;
+  margin:8px 0 13px!important;
+}
+#profileGate .buddy-choice-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+#profileGate .theme-choice{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-width:0!important;
+  min-height:75px!important;
+  padding:9px 5px!important;
+  border:1px solid var(--settings-input-border,#ead9e1)!important;
+  border-radius:16px!important;
+  background:rgba(255,255,255,.78)!important;
+  color:var(--settings-label,#80677e)!important;
+  font-size:.68rem!important;
+  text-align:center!important;
+  transition:background .22s ease,border-color .22s ease,transform .18s ease,box-shadow .22s ease!important;
+}
+#profileGate .theme-choice.is-selected{
+  border-color:var(--settings-accent,#d58eae)!important;
+  background:var(--settings-accent-soft,rgba(213,142,174,.16))!important;
+  box-shadow:0 0 0 2px var(--settings-accent-soft,rgba(213,142,174,.16)),0 5px 14px rgba(110,70,100,.08)!important;
+  color:var(--settings-heading,#76566f)!important;
+}
+#profileGate .theme-choice .theme-swatch{
+  width:32px!important;height:32px!important;flex:0 0 32px!important;margin:0!important;
+  display:grid!important;place-items:center!important;border-radius:11px!important;
+  font-size:1.15rem!important;
+}
+#profileGate #profileSave{
+  display:block!important;
+  width:100%!important;
+  min-height:48px!important;
+  margin:18px 0 0!important;
+  border-radius:15px!important;
+}
+#profileGate #signOut{
+  display:block!important;
+  width:max-content!important;
+  min-height:40px!important;
+  margin:7px auto 0!important;
+  padding:8px 18px!important;
+  color:var(--settings-label,#80677e)!important;
+  font-size:.78rem!important;
+  font-weight:850!important;
+}
+#profileGate #signOut:hover{color:var(--settings-heading,#76566f)!important}
+body[data-theme="rose"]{--settings-panel-bg:linear-gradient(145deg,#fffdfb,#fff0f5 60%,#f8e6ee);--settings-panel-border:#efd6e1;--settings-heading:#87516d;--settings-label:#85677a;--settings-input-border:#ead3df;--settings-accent:#d58eae;--settings-accent-soft:rgba(213,142,174,.18)}
+body[data-theme="lavender"]{--settings-panel-bg:linear-gradient(145deg,#fffdfd,#f2ecfc 60%,#e9e0f7);--settings-panel-border:#ded1ed;--settings-heading:#6d5887;--settings-label:#786b8a;--settings-input-border:#dcd0eb;--settings-accent:#a88bc9;--settings-accent-soft:rgba(168,139,201,.18)}
+body[data-theme="mint"]{--settings-panel-bg:linear-gradient(145deg,#fcfffc,#eaf5ec 60%,#dceee1);--settings-panel-border:#cfe3d3;--settings-heading:#52745b;--settings-label:#66816c;--settings-input-border:#cfe1d2;--settings-accent:#83b492;--settings-accent-soft:rgba(131,180,146,.2)}
+body[data-theme="sky"]{--settings-panel-bg:linear-gradient(145deg,#fcfeff,#eaf5fa 60%,#dcecf5);--settings-panel-border:#ccdfeb;--settings-heading:#52758b;--settings-label:#688596;--settings-input-border:#cbdfea;--settings-accent:#80b2cb;--settings-accent-soft:rgba(128,178,203,.2)}
+body[data-theme="peach"]{--settings-panel-bg:linear-gradient(145deg,#fffdfa,#fff1e6 60%,#f9e3d5);--settings-panel-border:#f0d7c7;--settings-heading:#95664e;--settings-label:#967763;--settings-input-border:#efd9ca;--settings-accent:#d99b78;--settings-accent-soft:rgba(217,155,120,.2)}
+body[data-theme="berry"]{--settings-panel-bg:linear-gradient(145deg,#fffdfd,#fbeaf2 60%,#f2dce9);--settings-panel-border:#eccddd;--settings-heading:#8a4e72;--settings-label:#916d83;--settings-input-border:#e9ccdc;--settings-accent:#c77fa6;--settings-accent-soft:rgba(199,127,166,.2)}
+body[data-theme="midnight"]{--settings-panel-bg:linear-gradient(145deg,#fbfaff,#eee8f8 60%,#e1d9f0);--settings-panel-border:#d7cbe8;--settings-heading:#625176;--settings-label:#796d8d;--settings-input-border:#d8cde8;--settings-accent:#9a85ba;--settings-accent-soft:rgba(154,133,186,.2)}
+body[data-theme="sage"]{--settings-panel-bg:linear-gradient(145deg,#fcfef9,#eef3e8 60%,#e0ead7);--settings-panel-border:#d5e0c9;--settings-heading:#61744e;--settings-label:#778568;--settings-input-border:#d6e0cb;--settings-accent:#94aa79;--settings-accent-soft:rgba(148,170,121,.2)}
+body[data-theme="buttercup"]{--settings-panel-bg:linear-gradient(145deg,#fffef8,#fbf5df 60%,#f3e9c4);--settings-panel-border:#eadfb8;--settings-heading:#88703c;--settings-label:#8d7b55;--settings-input-border:#e9dfc0;--settings-accent:#c9aa5c;--settings-accent-soft:rgba(201,170,92,.2)}
+body[data-mode="dark"] #profileGate .auth-card.profile-card{
+  --settings-panel-bg:linear-gradient(145deg,#352c3e,#302838 60%,#3b3045);
+  --settings-panel-border:#5b4963;
+  --settings-heading:#f1ddeb;
+  --settings-label:#d8c3d6;
+  --settings-input-border:#5b4963;
+  --settings-accent-soft:rgba(213,142,174,.2);
+  background:var(--settings-panel-bg)!important;
+  color:#f4eaf2!important;
+}
+body[data-mode="dark"] #profileGate .profile-card label input,
+body[data-mode="dark"] #profileGate .classic-gender-choices button,
+body[data-mode="dark"] #profileGate .theme-choice{
+  background:rgba(39,32,47,.82)!important;
+  color:#f2e7f0!important;
+  border-color:var(--settings-input-border)!important;
+}
+@media(max-width:430px){
+  #profileGate{padding:8px!important}
+  #profileGate .auth-card.profile-card{max-height:calc(100dvh - 16px)!important;padding:22px 14px 18px!important;border-radius:23px!important}
+  #profileGate .settings-page-title{font-size:1.4rem!important;margin-bottom:15px!important}
+  #profileGate .profile-name-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  #profileGate .profile-name-row>label{font-size:.7rem!important}
+  #profileGate .profile-name-row input{padding:9px 8px!important;font-size:.78rem!important}
+  #profileGate .theme-choice-grid{gap:6px!important}
+  #profileGate .theme-choice{min-height:67px!important;padding:7px 3px!important;font-size:.61rem!important}
+  #profileGate .theme-choice .theme-swatch{width:28px!important;height:28px!important;flex-basis:28px!important}
+}
+@media(max-width:340px){
+  #profileGate .profile-name-row{gap:5px!important}
+  #profileGate .profile-name-row>label{font-size:.65rem!important}
+  #profileGate .profile-name-row input{font-size:.72rem!important}
+  #profileGate .theme-choice{font-size:.56rem!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #profileGate .theme-choice,#profileGate .profile-card label input{transition:none!important}
+}

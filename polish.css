@@ -3042,3 +3042,26 @@ html body #app > header > #profileOpen.brand:active {
   #friendProfileGate .friend-profile-collection-art svg{width:54px!important;height:54px!important}
 }
 @media(prefers-reduced-motion:reduce){#friendProfileGate .friend-profile-collection-art .sg-art-glint{animation:none}}
+
+/* Final override: remove the individual tile around each Little Collection treasure. */
+#friendProfileGate #friendProfileCollectionItems .friend-profile-collection-item,
+#friendProfileGate #friendProfileCollectionItems .friend-profile-collection-item.is-equipped{
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;
+  justify-self:center!important;align-self:start!important;flex:0 0 auto!important;
+  width:max-content!important;min-width:0!important;max-width:100%!important;min-height:0!important;height:auto!important;
+  margin:0!important;padding:0!important;gap:6px!important;
+  border:0!important;border-radius:0!important;outline:0!important;
+  background:transparent!important;box-shadow:none!important;
+  overflow:visible!important;
+}
+#friendProfileGate #friendProfileCollectionItems .friend-profile-collection-item::before,
+#friendProfileGate #friendProfileCollectionItems .friend-profile-collection-item::after{content:none!important;display:none!important}
+#friendProfileGate #friendProfileCollectionItems .friend-profile-collection-name{
+  display:block!important;width:auto!important;max-width:84px!important;margin:0!important;padding:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  overflow:visible!important;text-overflow:clip!important;white-space:normal!important;text-align:center!important;
+}
+@media(max-width:430px){
+  #friendProfileGate #friendProfileCollectionItems .friend-profile-collection-items{justify-items:center!important;align-items:start!important}
+  #friendProfileGate #friendProfileCollectionItems .friend-profile-collection-item{min-height:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+}

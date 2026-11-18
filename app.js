@@ -2787,7 +2787,7 @@ function showFriendProfile(user) {
     const songs = isOwnProfile ? ownFeed.filter(item => item.kind === 'song').length : Number(user.song_count ?? user.songs_count ?? 0);
     if (isOwnProfile) {
       const collection = normalizeGardenCollection(readGardenCollection());
-      renderFriendGardenCollection(collection, user.id);
+      renderFriendGardenCollection(collection, user.id, true);
       syncGardenCollectionToCloud(collection);
     } else {
       const collectionSection = $('#friendProfileCollection');

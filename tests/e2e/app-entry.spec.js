@@ -128,3 +128,68 @@ test('navigation buttons retain their raised 3D styling on desktop and mobile', 
     expect(style.transitionProperty).toContain('transform');
   }
 });
+
+async function mountSettingsHarness(page) {
+  await page.evaluate(() => {
+    document.querySelector('#profileSettingsMount')?.remove();
+    const mount = document.createElement('div');
+    mount.id = 'profileSettingsMount';
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.id = 'profileSettingsTrigger';
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.textContent = 'Settings';
+    mount.append(trigger);
+    document.body.append(mount);
+  });
+}
+
+test('settings panel opens and closes without leaving its trigger expanded', async ({ page }) => {
+  await mountSettingsHarness(page);
+  const trigger = page.locator('#profileSettingsTrigger');
+
+  await trigger.click();
+  const panel = page.locator('#profileSettingsPanel');
+  await expect(panel).toBeVisible();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await expect(panel.locator('[data-settings-tab]')).toHaveCount(4);
+  await expect(panel.locator('[data-settings-section="account"]')).toBeVisible();
+
+  await page.locator('#profileSettingsClose').click();
+  await expect(panel).toBeHidden();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('settings tabs switch sections and clicking outside dismisses the panel', async ({ page }) => {
+  await mountSettingsHarness(page);
+  const trigger = page.locator('#profileSettingsTrigger');
+  await trigger.click();
+
+  const appearanceTab = page.locator('[data-settings-tab="appearance"]');
+  await appearanceTab.click();
+  await expect(appearanceTab).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('[data-settings-section="appearance"]')).toBeVisible();
+  await expect(page.locator('[data-settings-section="account"]')).toBeHidden();
+
+  await page.evaluate(() => document.body.dispatchEvent(new MouseEvent('click', { bubbles: true })));
+  await expect(page.locator('#profileSettingsPanel')).toBeHidden();
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('appearance choices update the selected theme and buddy without saving', async ({ page }) => {
+  await mountSettingsHarness(page);
+  await page.locator('#profileSettingsTrigger').click();
+  await page.locator('[data-settings-tab="appearance"]').click();
+
+  const sage = page.locator('[data-settings-theme-choice="sage"]');
+  await sage.click();
+  await expect(page.locator('#settingsThemeValue')).toHaveValue('sage');
+  await expect(sage).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('body')).toHaveAttribute('data-theme', 'sage');
+
+  const kitty = page.locator('[data-settings-buddy-choice="🐱"]');
+  await kitty.click();
+  await expect(page.locator('#settingsBuddyValue')).toHaveValue('🐱');
+  await expect(kitty).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('#profileSettingsSave')).toBeEnabled();
+});

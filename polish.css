@@ -3674,3 +3674,61 @@ body[data-mode="dark"] #profileGate .profile-card { border-color: var(--cb-borde
   #profileGate .theme-choice { min-height: 58px; }
   #profileGate .theme-swatch { width: 26px; height: 26px; }
 }
+
+
+/* Four-column Settings workspace on desktop, with deliberate tablet/mobile fallbacks. */
+@media (min-width: 1000px) {
+  #profileGate .profile-card {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    column-gap: clamp(14px, 2vw, 24px) !important;
+    row-gap: 13px !important;
+    width: min(1320px, calc(100vw - 48px)) !important;
+    padding: clamp(24px, 2.8vw, 38px) clamp(24px, 3vw, 44px) 26px !important;
+  }
+  #profileGate .settings-page-title,
+  #profileGate #profileThemeChoices,
+  #profileGate #profileBuddyChoices,
+  #profileGate #profileSave,
+  #profileGate #signOut {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+  #profileGate .profile-card > label:not(.theme-picker-label) {
+    grid-column: span 2 !important;
+  }
+  #profileGate .classic-profile-gender {
+    grid-column: span 2 !important;
+    width: 100% !important;
+  }
+  #profileGate .profile-card > .theme-picker-label:nth-of-type(2),
+  #profileGate .profile-card > .theme-picker-label:nth-of-type(3) {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+  #profileGate .theme-choice-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  #profileGate .theme-choice {
+    min-height: 78px !important;
+  }
+}
+@media (min-width: 701px) and (max-width: 999px) {
+  #profileGate .profile-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  #profileGate .settings-page-title,
+  #profileGate #profileThemeChoices,
+  #profileGate #profileBuddyChoices,
+  #profileGate #profileSave,
+  #profileGate #signOut,
+  #profileGate .profile-card > label:not(.theme-picker-label),
+  #profileGate .classic-profile-gender,
+  #profileGate .profile-card > .theme-picker-label:nth-of-type(2),
+  #profileGate .profile-card > .theme-picker-label:nth-of-type(3) {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+  #profileGate .theme-choice-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}

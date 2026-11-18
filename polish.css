@@ -2778,12 +2778,11 @@ html body #app > header > #profileOpen.brand:active {
 .friend-profile-collection-item>small{max-width:100%;color:#8d7185;font-size:.61rem;font-weight:800;line-height:1.2;overflow-wrap:anywhere}
 .friend-profile-collection-item.is-equipped{border-color:#dfa5bd;background:linear-gradient(155deg,#fff4f8,#f9eaf2);box-shadow:0 0 0 2px rgba(239,204,220,.55)}
 .friend-profile-equipped-mark{position:absolute;top:4px;right:6px;color:#bd83a1;font-size:11px;font-style:normal}
-.friend-profile-milestone-icons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-.friend-profile-milestone-badge{display:grid;justify-items:center;align-content:start;gap:4px;min-width:0;min-height:76px;padding:7px 3px 6px;border:1px solid #f0e0e8;border-radius:14px;background:linear-gradient(155deg,#fffdfd,#fff5f8);text-align:center}
-.friend-profile-milestone-svg,.friend-profile-milestone-emoji{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;background:radial-gradient(circle at 35% 25%,#fff 0 18%,#fbedf3 75%);color:#bd83a1}
+.friend-profile-milestone-icons{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.friend-profile-milestone-badge{display:inline-flex;align-items:center;justify-content:center;min-width:0;min-height:0;padding:0;border:0;background:transparent;text-align:center}
+.friend-profile-milestone-svg,.friend-profile-milestone-emoji{display:grid;place-items:center;width:38px;height:38px;border-radius:0;background:transparent;color:#bd83a1}
 .friend-profile-milestone-svg svg{display:block;width:36px;height:36px}
 .friend-profile-milestone-emoji{font-size:22px}
 
-.friend-profile-milestone-badge>i{color:#b18ca2;font-size:.55rem;font-style:normal;font-weight:800}
-@media(max-width:390px){.friend-profile-collection-items{gap:6px}.friend-profile-collection-item{padding:7px 3px}.friend-profile-collection-art{width:40px;height:40px}.friend-profile-collection-art svg{width:35px;height:35px}.friend-profile-milestone-icons{gap:6px}.friend-profile-milestone-badge{min-height:72px;padding:6px 2px}.friend-profile-milestone-svg,.friend-profile-milestone-emoji{width:34px;height:34px}.friend-profile-milestone-svg svg{width:32px;height:32px}}
+@media(max-width:390px){.friend-profile-collection-items{gap:6px}.friend-profile-collection-item{padding:7px 3px}.friend-profile-collection-art{width:40px;height:40px}.friend-profile-collection-art svg{width:35px;height:35px}.friend-profile-milestone-icons{gap:8px}.friend-profile-milestone-svg,.friend-profile-milestone-emoji{width:34px;height:34px}.friend-profile-milestone-svg svg{width:32px;height:32px}}
 @media(prefers-reduced-motion:no-preference){.friend-profile-collection-item:hover{transform:translateY(-2px)}}

@@ -595,44 +595,52 @@ function setUser(u) {
 }
 
 async function refresh() {
-  const results = await Promise.all([
-    api('/me'),
-    api('/feed'),
-    api('/following'),
-    api('/feed?kind=photo&limit=8').catch(error => { console.warn('Photo warm cache skipped:', error?.message || error); return null; }),
-    api('/feed?kind=song&limit=8').catch(error => { console.warn('Music warm cache skipped:', error?.message || error); return null; }),
-    api('/notes/my-read-cursors').catch(error => { console.warn('Note read cursors could not be loaded:', error?.message || error); return [] })
-  ]);
-  me = results[0];
-  // The database profile is the source of truth for the colour palette.
-  // Re-apply it on every refresh, not only during the initial session restore.
-  setTheme(me?.theme);
-  const feedById = new Map();
-  [...results[1], ...(results[3] || []), ...(results[4] || [])].forEach(item => feedById.set(String(item.id), item));
-  feed = [...feedById.values()].sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
-  feedPageOffsets.all = results[1].length;
-  feedPageHasMore.all = results[1].length === FEED_PAGE_SIZE;
-  feedHasMore = feedPageHasMore.all;
-  feedPageOffsets.photo = (results[3] || []).length;
-  feedPageOffsets.song = (results[4] || []).length;
-  mediaInitialLoaded.photo = Array.isArray(results[3]);
-  mediaInitialLoaded.song = Array.isArray(results[4]);
-  mediaVisibleCount.photo = mediaVisibleCount.song = 8;
-  feedPageHasMore.photo = (results[3] || []).length === 8;
-  feedPageHasMore.song = (results[4] || []).length === 8;
-  friends = results[2];
-  noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));
-  render();
-  // Warm the first gallery photos in the background while the user is on Home.
-  // This means opening Photo Garden usually displays cached image bytes immediately.
-  void prewarmPhotoSources(feed.filter(item => item.kind === 'photo').slice(0, 16));
-  if (page === 'gallery' && !mediaInitialLoaded.photo) void loadLatestMedia('photo');
-  else if (page === 'music' && !mediaInitialLoaded.song) void loadLatestMedia('song');
-  syncStreakWidget();
-  syncPresenceUI();
-  if (!$('#friendProfileGate').classList.contains('hidden')) {
-    const profile = $('#friendProfileGate').dataset.ownProfile === 'true' ? me : [...friends, ...friendResults].find(user => user.username === $('#friendProfileGate').dataset.username);
-    if (profile) showFriendProfile(profile);
+  const appRoot = $('#app');
+  appRoot?.classList.add('app-refreshing');
+  appRoot?.setAttribute('aria-busy', 'true');
+  try {
+    const results = await Promise.all([
+      api('/me'),
+      api('/feed'),
+      api('/following'),
+      api('/feed?kind=photo&limit=8').catch(error => { console.warn('Photo warm cache skipped:', error?.message || error); return null; }),
+      api('/feed?kind=song&limit=8').catch(error => { console.warn('Music warm cache skipped:', error?.message || error); return null; }),
+      api('/notes/my-read-cursors').catch(error => { console.warn('Note read cursors could not be loaded:', error?.message || error); return [] })
+    ]);
+    me = results[0];
+    // The database profile is the source of truth for the colour palette.
+    // Re-apply it on every refresh, not only during the initial session restore.
+    setTheme(me?.theme);
+    const feedById = new Map();
+    [...results[1], ...(results[3] || []), ...(results[4] || [])].forEach(item => feedById.set(String(item.id), item));
+    feed = [...feedById.values()].sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
+    feedPageOffsets.all = results[1].length;
+    feedPageHasMore.all = results[1].length === FEED_PAGE_SIZE;
+    feedHasMore = feedPageHasMore.all;
+    feedPageOffsets.photo = (results[3] || []).length;
+    feedPageOffsets.song = (results[4] || []).length;
+    mediaInitialLoaded.photo = Array.isArray(results[3]);
+    mediaInitialLoaded.song = Array.isArray(results[4]);
+    mediaVisibleCount.photo = mediaVisibleCount.song = 8;
+    feedPageHasMore.photo = (results[3] || []).length === 8;
+    feedPageHasMore.song = (results[4] || []).length === 8;
+    friends = results[2];
+    noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));
+    render();
+    // Warm the first gallery photos in the background while the user is on Home.
+    // This means opening Photo Garden usually displays cached image bytes immediately.
+    void prewarmPhotoSources(feed.filter(item => item.kind === 'photo').slice(0, 16));
+    if (page === 'gallery' && !mediaInitialLoaded.photo) void loadLatestMedia('photo');
+    else if (page === 'music' && !mediaInitialLoaded.song) void loadLatestMedia('song');
+    syncStreakWidget();
+    syncPresenceUI();
+    if (!$('#friendProfileGate').classList.contains('hidden')) {
+      const profile = $('#friendProfileGate').dataset.ownProfile === 'true' ? me : [...friends, ...friendResults].find(user => user.username === $('#friendProfileGate').dataset.username);
+      if (profile) showFriendProfile(profile);
+    }
+  } finally {
+    appRoot?.classList.remove('app-refreshing');
+    appRoot?.removeAttribute('aria-busy');
   }
 }
 

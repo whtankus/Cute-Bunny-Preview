@@ -139,8 +139,7 @@ async function mountSettingsHarness(page) {
     trigger.id = 'profileSettingsTrigger';
     trigger.setAttribute('aria-expanded', 'false');
     trigger.textContent = 'Settings';
-    mount.append(trigger);
-    document.body.append(mount);
+    document.body.append(trigger, mount);
   });
 }
 

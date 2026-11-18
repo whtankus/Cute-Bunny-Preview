@@ -270,6 +270,26 @@ test('signed-in user can open Notes and use the empty conversation composer', as
   await expect(page.locator('#chatInput')).toBeVisible();
   await expect(page.locator('#chatInput')).toHaveAttribute('maxlength', '1000');
   await expect(page.locator('#chatSend')).toBeHidden();
+
+  await page.locator('#chatInput').fill('Hello from the QA bunny');
+  await expect(page.locator('#chatSend')).toBeVisible();
+  await expect(page.locator('#chatInput')).toHaveValue('Hello from the QA bunny');
+});
+
+test('photo upload rejects unsupported file types before starting an upload', async ({ page }) => {
+  await mountSignedInApp(page);
+  await page.locator('#nav button[data-page="gallery"]').click();
+
+  const input = page.locator('[data-upload="photo"]');
+  await input.setInputFiles({
+    name: 'not-a-photo.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from('This is not an image.')
+  });
+
+  await expect(page.locator('#toast')).toContainText('Choose a JPG, PNG, WebP, or GIF image');
+  await expect(input).toHaveValue('');
+  await expect(page.locator('.photo-garden-grid .empty')).toBeVisible();
 });
 
 test('signed-in app sections do not create horizontal overflow on mobile', async ({ page }) => {

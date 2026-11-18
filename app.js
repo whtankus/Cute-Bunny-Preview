@@ -2516,7 +2516,7 @@ function memoryCard(m, options = {}) {
 
   let body = '';
   if (m.kind === 'photo') {
-    body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}"` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div></div>`;
+    body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo is-loading" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}"` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div></div>`;
   } else if (m.kind === 'song') {
     const songAction = m.isPending ? '' : mine
       ? `<button class="song-download card-song-save card-song-delete" type="button" data-memory-delete="${esc(m.id)}" aria-label="Delete song">Delete</button>`
@@ -3302,6 +3302,9 @@ async function playSong(id) {
   playlist = songs;
   playlistIndex = index;
   const track = songs[index];
+  const playButton = [...document.querySelectorAll("[data-play-song]")].find(button => String(button.dataset.playSong) === String(id));
+  playButton?.classList.add("is-loading");
+  playButton?.classList.remove("is-buffering");
   // Keep the current player and audio element alive while the next signed URL
   // is resolved; the previous song continues instead of flashing to empty.
   syncPlayer();
@@ -3310,13 +3313,17 @@ async function playSong(id) {
     if (requestId !== songLoadSequence) return;
     audio.src = url;
     audio.preload = 'auto';
+    playButton?.classList.remove("is-loading");
+    playButton?.classList.add("is-buffering");
     const playback = audio.play();
     syncPlayer();
     await playback;
     if (requestId !== songLoadSequence) return;
     syncPlayer();
+    playButton?.classList.remove("is-loading", "is-buffering");
   } catch (error) {
     if (requestId !== songLoadSequence) return;
+    playButton?.classList.remove("is-loading", "is-buffering");
     syncPlayer();
     toast(error?.message || 'Could not play this song right now ♡');
   }
@@ -6146,3 +6153,37 @@ async function restoreSession() {
 
 restoreSession();
 render();
+
+
+// Photo and song media loading feedback. These listeners are delegated so
+// cards rendered later receive the same polished loading and error states.
+document.addEventListener('load', event => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement) || !image.classList.contains('feed-photo')) return;
+  image.classList.remove('is-loading', 'has-load-error');
+  image.classList.add('is-loaded');
+}, true);
+document.addEventListener('error', event => {
+  const image = event.target;
+  if (!(image instanceof HTMLImageElement) || !image.classList.contains('feed-photo')) return;
+  image.classList.remove('is-loading', 'is-loaded');
+  image.classList.add('has-load-error');
+}, true);
+
+const sharedAudioElement = document.querySelector('#globalAudio');
+sharedAudioElement?.addEventListener('playing', () => {
+  document.querySelectorAll('[data-play-song].is-buffering').forEach(button => button.classList.remove('is-buffering', 'is-loading'));
+});
+sharedAudioElement?.addEventListener('canplay', () => {
+  document.querySelectorAll('[data-play-song].is-buffering').forEach(button => button.classList.remove('is-buffering'));
+});
+sharedAudioElement?.addEventListener('waiting', () => {
+  const activeId = playlist[playlistIndex]?.id;
+  const button = [...document.querySelectorAll('[data-play-song]')].find(item => String(item.dataset.playSong) === String(activeId));
+  button?.classList.add('is-buffering');
+});
+sharedAudioElement?.addEventListener('playing', () => {
+  const activeId = playlist[playlistIndex]?.id;
+  const button = [...document.querySelectorAll('[data-play-song]')].find(item => String(item.dataset.playSong) === String(activeId));
+  button?.classList.remove('is-buffering', 'is-loading');
+});

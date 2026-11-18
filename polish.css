@@ -3479,3 +3479,10 @@ body[data-mode="dark"] #profileGate .theme-choice{
 @media(prefers-reduced-motion:reduce){
   #profileGate .theme-choice,#profileGate .profile-card label input{transition:none!important}
 }
+
+
+/* Center the Settings heading at the top of the panel. */
+#profileGate .settings-page-title{
+  width:100%!important;
+  text-align:center!important;
+}

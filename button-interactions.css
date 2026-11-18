@@ -111,3 +111,30 @@
     transition: none !important;
   }
 }
+
+/* Hard reset for Little Collection item wrappers: no vertical tile behind art or caption. */
+#friendProfileGate #friendProfileCollectionItems > .friend-profile-collection-item,
+#friendProfileGate #friendProfileCollectionItems > span.friend-profile-collection-item,
+#friendProfileGate #friendProfileCollectionItems > .friend-profile-collection-item.is-equipped{
+  appearance:none!important;-webkit-appearance:none!important;
+  display:inline-flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;
+  flex:0 0 auto!important;width:max-content!important;min-width:0!important;max-width:100%!important;
+  height:auto!important;min-height:0!important;max-height:none!important;
+  margin:0!important;padding:0!important;gap:6px!important;
+  border:0!important;border-width:0!important;border-style:none!important;border-radius:0!important;outline:0!important;
+  background:transparent!important;background-color:transparent!important;background-image:none!important;
+  box-shadow:none!important;filter:none!important;-webkit-filter:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  overflow:visible!important;
+}
+#friendProfileGate #friendProfileCollectionItems > .friend-profile-collection-item::before,
+#friendProfileGate #friendProfileCollectionItems > .friend-profile-collection-item::after{
+  content:none!important;display:none!important;opacity:0!important;background:transparent!important;box-shadow:none!important;
+}
+#friendProfileGate #friendProfileCollectionItems > .friend-profile-collection-item > .friend-profile-collection-name,
+#friendProfileGate #friendProfileCollectionItems > .friend-profile-collection-item > small{
+  display:block!important;width:auto!important;min-width:0!important;max-width:84px!important;
+  margin:0!important;padding:0!important;border:0!important;border-radius:0!important;outline:0!important;
+  background:transparent!important;background-image:none!important;box-shadow:none!important;
+  filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}

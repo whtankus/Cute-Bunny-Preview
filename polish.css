@@ -2818,3 +2818,88 @@ html body #app > header > #profileOpen.brand:active {
 .friend-profile-collection-item.garden-rarity-legendary{--rarity-glow:rgba(237,187,91,.66)}
 .friend-profile-collection-art svg{width:43px;height:43px;filter:drop-shadow(0 0 4px var(--rarity-glow,rgba(232,192,211,.3)))}
 .friend-profile-collection-item.is-equipped .friend-profile-collection-art{box-shadow:0 0 0 1px rgba(220,159,189,.6),0 0 18px var(--rarity-glow,rgba(232,192,211,.4))}
+
+
+/* Profile collection: one integrated four-column keepsake grid, including on phones. */
+#friendProfileGate .friend-profile-collection-items{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  justify-items:stretch!important;
+  gap:10px!important;
+  width:100%!important;
+}
+#friendProfileGate .friend-profile-collection-item{
+  position:relative!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  flex:initial!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:98px!important;
+  max-width:none!important;
+  padding:9px 4px 8px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(255,255,255,.62)!important;
+  border-radius:17px!important;
+  background:rgba(255,255,255,.20)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 3px 10px rgba(111,79,103,.045)!important;
+}
+#friendProfileGate .friend-profile-collection-art{
+  position:relative!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:none!important;
+  width:64px!important;
+  height:64px!important;
+  border-radius:20px!important;
+  background:radial-gradient(circle at 50% 40%,rgba(255,255,255,.96),var(--rarity-glow,rgba(232,192,211,.42)) 78%)!important;
+  box-shadow:0 0 17px var(--rarity-glow,rgba(232,192,211,.28)),inset 0 0 12px rgba(255,255,255,.7)!important;
+}
+#friendProfileGate .friend-profile-collection-art svg{
+  display:block!important;
+  width:58px!important;
+  height:58px!important;
+  filter:drop-shadow(0 0 5px var(--rarity-glow,rgba(232,192,211,.34)))!important;
+}
+#friendProfileGate .friend-profile-collection-name{
+  display:block!important;
+  width:100%!important;
+  overflow:hidden!important;
+  color:#856b80!important;
+  font-size:.62rem!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  text-align:center!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+#friendProfileGate .friend-profile-collection-item.garden-rarity-rare{--rarity-glow:rgba(111,197,207,.5)}
+#friendProfileGate .friend-profile-collection-item.garden-rarity-epic{--rarity-glow:rgba(177,142,225,.58)}
+#friendProfileGate .friend-profile-collection-item.garden-rarity-legendary{--rarity-glow:rgba(237,187,91,.66)}
+#friendProfileGate .friend-profile-equipped-mark{
+  top:5px!important;
+  right:7px!important;
+  color:#b77c9c!important;
+  font-size:13px!important;
+  text-shadow:0 0 7px #fff,0 0 9px currentColor!important;
+}
+#friendProfileGate .friend-profile-collection-item.is-equipped{
+  border-color:rgba(225,164,193,.8)!important;
+  box-shadow:inset 0 0 0 1px rgba(225,164,193,.28),0 0 16px var(--rarity-glow,rgba(232,192,211,.25))!important;
+}
+@media(max-width:430px){
+  #friendProfileGate .friend-profile-collection-items{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+  #friendProfileGate .friend-profile-collection-item{min-height:92px!important;padding:7px 2px!important;border-radius:15px!important}
+  #friendProfileGate .friend-profile-collection-art{width:58px!important;height:58px!important;border-radius:18px!important}
+  #friendProfileGate .friend-profile-collection-art svg{width:53px!important;height:53px!important}
+  #friendProfileGate .friend-profile-collection-name{font-size:.57rem!important}
+}
+@media(max-width:350px){
+  #friendProfileGate .friend-profile-collection-items{gap:5px!important}
+  #friendProfileGate .friend-profile-collection-art{width:52px!important;height:52px!important}
+  #friendProfileGate .friend-profile-collection-art svg{width:48px!important;height:48px!important}
+}

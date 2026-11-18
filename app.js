@@ -1014,7 +1014,7 @@ function getDailyQuestRotation(dateKey) {
     ],
     [
       ['A photo with a story','Share a photo that has a small story behind it.','photo','photo'],
-      ['A note of encouragement','Write a Notes message to encourage someone.','note','note','you'],
+      ['A note of encouragement','Write a Notes message to encourage someone.','note','note','encourage'],
       ['A kiss for the day','Send a sweet kiss in Notes.','kiss-note','kissNote']
     ],
     [
@@ -1024,7 +1024,7 @@ function getDailyQuestRotation(dateKey) {
     ],
     [
       ['A quiet corner','Share a photo of a peaceful corner or cosy spot.','photo','photo'],
-      ['A thought worth sharing','Write a Notes message about an idea on your mind.','note','note','think'],
+      ['A thought worth sharing','Write a Notes message about an idea on your mind.','note','note','idea'],
       ['Back to the garden','Check in and give your streak a little care.','login','login']
     ],
     [

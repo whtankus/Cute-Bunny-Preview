@@ -2988,6 +2988,14 @@ function showFriendProfile(user) {
 }
 
 
+// Keep the Settings panel and its flower trigger in sync when dismissed.
+function restoreProfileSettingsToMain() {
+  const panel = $('#profileSettingsPanel');
+  if (panel) panel.classList.add('hidden');
+  const trigger = $('#profileSettingsTrigger');
+  if (trigger) trigger.setAttribute('aria-expanded', 'false');
+}
+
 function profileSettingsMarkup() {
   const themeOptions = [
     ['rose','🌷','Rose garden'],['lavender','☁️','Lavender skies'],['mint','🍃','Mint meadow'],

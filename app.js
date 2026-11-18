@@ -1037,7 +1037,10 @@ function renderFriendGardenCollection(collection, userId, isOwnProfile = false) 
   const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
   const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
   const count = $('#friendProfileCollectionCount');
-  if (count) count.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
+  if (count) {
+    count.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
+    count.hidden = false;
+  }
   const list = $('#friendProfileCollectionItems');
   if (!list) return;
   if (!ownedItems.length) {
@@ -2791,7 +2794,11 @@ function showFriendProfile(user) {
       syncGardenCollectionToCloud(collection);
     } else {
       const collectionSection = $('#friendProfileCollection');
-      if (collectionSection) collectionSection.hidden = true;
+      const collectionItems = $('#friendProfileCollectionItems');
+      const collectionCount = $('#friendProfileCollectionCount');
+      if (collectionSection) collectionSection.hidden = false;
+      if (collectionItems) collectionItems.innerHTML = '';
+      if (collectionCount) collectionCount.hidden = true;
       loadFriendGardenCollection(user, false);
     }
     const streak = Math.max(0, Number(user.login_streak) || 0);

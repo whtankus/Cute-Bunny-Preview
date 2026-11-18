@@ -2718,6 +2718,8 @@ function closeClassicProfileEditor() {
 function showFriendProfile(user) {
   if (!user) return;
   const gate = $('#friendProfileGate');
+  gate.dataset.collectionUserId = String(user.id || '');
+  friendGardenRequestSequence += 1;
   const isOwnProfile = !!(me?.id && user?.id && String(user.id) === String(me.id)) || (!!me?.username && String(user?.username || '').toLowerCase() === String(me.username).toLowerCase());
   gate.dataset.username = user.username;
   gate.dataset.following = String(!!user.isFollowing);

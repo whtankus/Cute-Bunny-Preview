@@ -2823,11 +2823,6 @@ function openClassicProfileEditor() {
   if (!me) return;
   const gate = $('#profileGate');
   if (!gate) return;
-  $('#profileName').textContent = me.displayName || me.display_name || me.username || 'Your profile';
-  $('#profileHandle').textContent = '@' + (me.username || '');
-  $('#profileCreated').textContent = formatProfileDate(me.created_at || me.createdAt);
-  $('#profileDisplay').value = me.displayName || me.display_name || '';
-  $('#profileUsername').value = me.username || '';
   $('#profileBio').value = me.bio || '';
   $('#profileTheme').value = me.theme || 'rose';
   $('#profileMascot').value = me.mascot || '🐰';
@@ -3001,14 +2996,7 @@ function profileSettingsMarkup() {
       <button type="button" class="profile-settings-tab" data-settings-tab="notifications" role="tab" aria-selected="false" aria-controls="profileSettingsNotifications">Alerts</button>
     </div>
     <div class="profile-settings-section profile-editor-settings" id="profileSettingsAccount" data-settings-section="account" role="tabpanel">
-      <div class="settings-section-intro"><span class="settings-section-icon">♡</span><div><b>Account details</b><small>Your unique identity in Cute Bunny.</small></div></div>
-      <label class="profile-settings-field">Username
-        <span class="profile-username-input"><span aria-hidden="true">@</span><input id="profileEditUsername" maxlength="24" autocomplete="username" spellcheck="false" placeholder="your_username"></span>
-      </label>
-      <p class="profile-settings-hint">Use 3–24 letters, numbers or underscores.</p>
-      <label class="profile-settings-field">Display name
-        <input id="profileEditDisplayName" maxlength="40" autocomplete="name" placeholder="Your display name">
-      </label>
+      <div class="settings-section-intro"><span class="settings-section-icon">♡</span><div><b>About you</b><small>Write a little introduction.</small></div></div>
       <label class="profile-settings-field">A little about you
         <textarea id="profileEditBio" maxlength="180" rows="3" placeholder="Write a little introduction..."></textarea>
         <small class="profile-bio-count" id="profileBioCount">0 / 180</small>
@@ -3032,11 +3020,6 @@ function profileSettingsMarkup() {
         ${themeOptions.map(([value,emoji,label]) => `<button type="button" class="settings-theme-choice theme-${value}" data-settings-theme-choice="${value}" role="radio" aria-checked="false"><span class="theme-illustration" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M20 5c3 0 4 5 4 8 3-3 7-5 9-3s0 7-3 9c4 0 8 2 8 5s-5 4-8 4c3 3 4 7 2 9s-7 0-9-3c0 4-2 7-5 7s-4-5-4-8c-3 3-7 4-9 2s0-7 3-9c-4 0-7-2-7-5s5-4 8-4c-3-3-4-7-2-9s7 0 9 3c0-4 2-6 4-6Z" fill="currentColor" opacity=".78"/><circle cx="20" cy="22" r="5" fill="#fff6e9" stroke="currentColor" stroke-width="1.5"/></svg></span><small>${label}</small></button>`).join('')}
       </div>
       <input id="settingsBuddyValue" type="hidden" value="🐰">
-      <div class="profile-live-preview" id="profileLivePreview" aria-live="polite">
-        <span class="profile-live-avatar" id="profileLiveAvatar">🐰</span>
-        <span><b id="profileLiveName">Your name</b><small id="profileLiveHandle">@your_username</small></span>
-        <em>Live preview</em>
-      </div>
       <div class="settings-choice-heading">Little buddy</div>
       <div class="settings-buddy-row" role="radiogroup" aria-label="Choose your little buddy">
         ${buddyOptions.map(([value,label]) => `<button type="button" class="settings-buddy-choice" data-settings-buddy-choice="${value}" role="radio" aria-checked="false"><span class="buddy-choice-art">${buddyIllustration(value)}</span><small>${label}</small></button>`).join('')}
@@ -3061,21 +3044,10 @@ function buddyIllustration(value) {
 }
 
 function updateProfileLivePreview() {
-  const username = String($('#profileEditUsername')?.value || me?.username || 'your_username').trim();
-  const displayName = String($('#profileEditDisplayName')?.value || me?.displayName || me?.display_name || username).trim();
-  const mascot = $('#settingsBuddyValue')?.value || me?.mascot || '🐰';
-  const name = $('#profileLiveName'), handle = $('#profileLiveHandle'), avatar = $('#profileLiveAvatar');
-  if (name) name.textContent = displayName || 'Your name';
-  if (handle) handle.textContent = '@' + (username || 'your_username');
-  if (avatar) avatar.innerHTML = buddyIllustration(mascot);
   const count = $('#profileBioCount'), bio = $('#profileEditBio');
   if (count) count.textContent = (bio?.value || '').length + ' / 180';
 }
 function renderProfileSettings() {
-  const usernameField = $('#profileEditUsername');
-  if (usernameField) usernameField.value = me?.username || '';
-  const displayNameField = $('#profileEditDisplayName');
-  if (displayNameField) displayNameField.value = me?.displayName || me?.display_name || '';
   const bioField = $('#profileEditBio');
   if (bioField) bioField.value = me?.bio || '';
   updateProfileLivePreview();
@@ -3105,18 +3077,13 @@ async function saveProfileSettings() {
   if (!me?.id) return;
   const save = $('#profileSettingsSave'), feedback = $('#profileSettingsFeedback');
   const gender = document.querySelector('[data-profile-gender].is-selected')?.dataset.profileGender || null;
-  const username = String($('#profileEditUsername')?.value || '').trim().toLowerCase();
-  if (!/^[a-z0-9_]{3,24}$/.test(username)) {
-    if (feedback) feedback.textContent = 'Username must be 3–24 letters, numbers, or underscores.';
-    toast('Check your username ♡');
-    return;
-  }
+  const username = me.username || '';
   if (save) save.disabled = true;
   if (feedback) feedback.textContent = 'Saving your changes…';
   try {
     const theme = $('#settingsThemeValue')?.value || me.theme || 'rose';
     const mascot = $('#settingsBuddyValue')?.value || me.mascot || '🐰';
-    const displayName = String($('#profileEditDisplayName')?.value || '').trim().slice(0,40);
+    const displayName = me.displayName || me.display_name || '';
     const bio = String($('#profileEditBio')?.value || '').trim().slice(0,180);
     const saved = await api('/me', { method: 'PUT', body: JSON.stringify({ username, gender, theme, mascot, displayName, bio }) });
     me = { ...me, ...saved, username: saved.username || username, gender, theme, mascot, displayName: saved.displayName ?? displayName, display_name: saved.display_name ?? displayName, bio };
@@ -5520,13 +5487,12 @@ document.addEventListener('click', async e => {
   // Profile save & sign out
   if (e.target.closest('#profileSave')) {
     try {
-      const username = $('#profileUsername').value.trim().toLowerCase();
-      if (!/^[a-z0-9_]{3,24}$/.test(username)) return toast('Use 3–24 letters, numbers, or underscores ♡');
+      const username = me?.username || '';
       const updated = await api('/me', {
         method: 'PUT',
         body: JSON.stringify({
           username,
-          displayName: $('#profileDisplay').value.trim(),
+          displayName: me?.displayName || me?.display_name || '',
           bio: $('#profileBio').value.trim(),
           theme: $('#profileTheme').value,
           mascot: $('#profileMascot').value,
@@ -5534,8 +5500,6 @@ document.addEventListener('click', async e => {
         })
       });
       me = { ...me, ...updated };
-      $('#profileName').textContent = me.displayName || username;
-      $('#profileHandle').textContent = '@' + username;
       $('#topMascot').textContent = me.mascot || '🐰';
       $('#profileGate').classList.add('hidden');
       document.body.classList.remove('classic-profile-open');

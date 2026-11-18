@@ -1852,14 +1852,11 @@ function renderStreakPage() {
       const action = item.kind === 'photo' ? 'gallery' : item.kind === 'song' ? 'music' :
         (item.kind === 'note' || item.kind === 'kiss-note') ? 'notes' :
         item.kind === 'heart' ? 'gallery' : 'streak';
-      const actionLabel = item.done ? 'Completed' : action === 'gallery' ? (item.kind === 'heart' ? 'Find memories' : 'Open Photos') :
-        action === 'music' ? 'Open Music' : action === 'notes' ? 'Write in Notes' : 'Visit Garden';
-      return '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
+      return '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '" data-daily-quest-action="' + action + '" role="button" tabindex="0" aria-label="' + esc(item.title + '. ' + item.description + (item.done ? ' Completed.' : ' Open quest activity.')) + '">' +
         '<span class="sg-daily-quest-icon">' + gardenIllustration(item.art || item.kind || item.id) + '</span>' +
         '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
         '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
-        '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div>' +
-        '<button type="button" class="sg-daily-quest-action" data-daily-quest-action="' + action + '"' + (item.done ? ' disabled aria-disabled="true"' : '') + '>' + actionLabel + '</button></div></article>';
+        '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>';
     }).join('') +
     '</div><div class="sg-daily-quest-footer"><span>' + completedQuests + ' / 3 quests complete</span>' +
     (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete today’s 3 quests to earn your Daily Bloom</small>') + '</div>';
@@ -5219,6 +5216,14 @@ document.addEventListener('submit', e => {
   e.preventDefault();
   void searchFriends();
 });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const questCard = e.target.closest?.('.sg-daily-quest-card[data-daily-quest-action]');
+  if (!questCard) return;
+  e.preventDefault();
+  questCard.click();
+});
+
 document.addEventListener('click', async e => {
   // Kindness card
   if (e.target.closest('#dailyCard')) {

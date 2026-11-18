@@ -47,3 +47,44 @@ test('welcome screen fits the viewport without horizontal page overflow', async 
   expect(dimensions.page).toBeLessThanOrEqual(dimensions.viewport + 1);
   await expect(page.getByRole('button', { name: /Let's begin/ })).toBeInViewport();
 });
+
+
+test('registration rejects an invalid username before contacting Supabase', async ({ page }) => {
+  await page.getByRole('button', { name: /Let's begin/ }).click();
+  await page.locator('#authEmail').fill('bunny-test@example.invalid');
+  await page.locator('#authDisplay').fill('Bunny Tester');
+  await page.locator('#authUser').fill('ab');
+  await page.locator('#authPass').fill('test-password-123');
+
+  await page.locator('#authSubmit').click();
+
+  await expect(page.locator('#authError')).toContainText(
+    'Choose a username with 3–24 letters, numbers, or underscores.'
+  );
+  await expect(page.locator('#authGate')).toBeVisible();
+});
+
+test('sign-in displays Supabase invalid-credentials errors without entering the app', async ({ page }) => {
+  await page.getByRole('button', { name: /Let's begin/ }).click();
+  await page.locator('#authSwitch').click();
+
+  await page.route('**/auth/v1/token?grant_type=password', async route => {
+    await route.fulfill({
+      status: 400,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        code: 'invalid_credentials',
+        message: 'Invalid login credentials'
+      })
+    });
+  });
+
+  await page.locator('#authEmail').fill('bunny-test@example.invalid');
+  await page.locator('#authPass').fill('incorrect-test-password');
+  await page.locator('#authSubmit').click();
+
+  await expect(page.locator('#authError')).toContainText('Invalid login credentials');
+  await expect(page.locator('#authGate')).toBeVisible();
+  await expect(page.locator('#app')).toBeHidden();
+  await expect(page.locator('#authSubmit')).toBeEnabled();
+});

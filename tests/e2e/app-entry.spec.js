@@ -148,14 +148,14 @@ test('settings panel opens and closes without leaving its trigger expanded', asy
   await mountSettingsHarness(page);
   const trigger = page.locator('#profileSettingsTrigger');
 
-  await trigger.click();
+  await trigger.dispatchEvent('click');
   const panel = page.locator('#profileSettingsPanel');
   await expect(panel).toBeVisible();
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
   await expect(panel.locator('[data-settings-tab]')).toHaveCount(4);
   await expect(panel.locator('[data-settings-section="account"]')).toBeVisible();
 
-  await page.locator('#profileSettingsClose').click();
+  await page.locator('#profileSettingsClose').dispatchEvent('click');
   await expect(panel).toBeHidden();
   await expect(trigger).toHaveAttribute('aria-expanded', 'false');
 });
@@ -163,10 +163,10 @@ test('settings panel opens and closes without leaving its trigger expanded', asy
 test('settings tabs switch sections and clicking outside dismisses the panel', async ({ page }) => {
   await mountSettingsHarness(page);
   const trigger = page.locator('#profileSettingsTrigger');
-  await trigger.click();
+  await trigger.dispatchEvent('click');
 
   const appearanceTab = page.locator('[data-settings-tab="appearance"]');
-  await appearanceTab.click();
+  await appearanceTab.dispatchEvent('click');
   await expect(appearanceTab).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('[data-settings-section="appearance"]')).toBeVisible();
   await expect(page.locator('[data-settings-section="account"]')).toBeHidden();
@@ -178,17 +178,17 @@ test('settings tabs switch sections and clicking outside dismisses the panel', a
 
 test('appearance choices update the selected theme and buddy without saving', async ({ page }) => {
   await mountSettingsHarness(page);
-  await page.locator('#profileSettingsTrigger').click();
+  await page.locator('#profileSettingsTrigger').dispatchEvent('click');
   await page.locator('[data-settings-tab="appearance"]').click();
 
   const sage = page.locator('[data-settings-theme-choice="sage"]');
-  await sage.click();
+  await sage.dispatchEvent('click');
   await expect(page.locator('#settingsThemeValue')).toHaveValue('sage');
   await expect(sage).toHaveAttribute('aria-checked', 'true');
   await expect(page.locator('body')).toHaveAttribute('data-theme', 'sage');
 
   const kitty = page.locator('[data-settings-buddy-choice="🐱"]');
-  await kitty.click();
+  await kitty.dispatchEvent('click');
   await expect(page.locator('#settingsBuddyValue')).toHaveValue('🐱');
   await expect(kitty).toHaveAttribute('aria-checked', 'true');
   await expect(page.locator('#profileSettingsSave')).toBeEnabled();

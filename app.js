@@ -1056,7 +1056,7 @@ function renderFriendGardenCollection(collection, userId, isOwnProfile = false) 
   if (section) section.hidden = false;
   list.innerHTML = ownedItems.slice(0, 12).map(item => {
     const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
-    return '<span class="friend-profile-collection-item garden-rarity-' + esc(item.rarity || 'common') + (equipped ? ' is-equipped' : '') + '" title="' + esc(item.name) + '" aria-label="' + esc(item.name + (equipped ? ', equipped' : '')) + '"><span class="friend-profile-collection-art">' + item.art + ' + '<i class="sg-art-glint" aria-hidden="true">✧</i></span>'<small class="friend-profile-collection-name">' + esc(item.name) + '</small>' + (equipped ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>';
+    return '<span class="friend-profile-collection-item garden-rarity-' + esc(item.rarity || 'common') + (equipped ? ' is-equipped' : '') + '" title="' + esc(item.name) + '" aria-label="' + esc(item.name + (equipped ? ', equipped' : '')) + '"><span class="friend-profile-collection-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><small class="friend-profile-collection-name">' + esc(item.name) + '</small>' + (equipped ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>';
   }).join('');
 }
 async function loadFriendGardenCollection(user, isOwnProfile) {

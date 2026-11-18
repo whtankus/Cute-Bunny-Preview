@@ -250,12 +250,14 @@ test('signed-in user can open Photos and Music empty states', async ({ page }) =
 
   await page.locator('#nav button[data-page="gallery"]').click();
   await expect(page.getByRole('heading', { name: /Photo garden/ })).toBeVisible();
-  await expect(page.locator('[data-upload="photo"]')).toBeVisible();
+  await expect(page.locator('.upload-label')).toBeVisible();
+  await expect(page.locator('[data-upload="photo"]')).toBeAttached();
   await expect(page.locator('.photo-garden-grid .empty')).toContainText('waiting for its first photo');
 
   await page.locator('#nav button[data-page="music"]').click();
   await expect(page.getByRole('heading', { name: /Cozy music/ })).toBeVisible();
-  await expect(page.locator('[data-upload="song"]')).toBeVisible();
+  await expect(page.locator('.upload-label')).toBeVisible();
+  await expect(page.locator('[data-upload="song"]')).toBeAttached();
   await expect(page.locator('.music-grid .empty')).toContainText('Add a song file');
 });
 

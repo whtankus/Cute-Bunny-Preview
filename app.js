@@ -1848,11 +1848,19 @@ function renderStreakPage() {
       return '<article class="sg-weekly-tier' + (unlocked ? ' is-unlocked' : '') + '"><span class="sg-weekly-art">' + tier.art + '</span><div><b>' + tier.title + '</b><small>' + tier.days + ' completed days · +' + tier.points + ' petals</small></div><button type="button" data-claim-weekly="' + tier.days + '"' + (!unlocked || claimed ? ' disabled' : '') + '>' + (claimed ? 'Claimed ✓' : unlocked ? 'Collect' : 'Locked') + '</button></article>';
     }).join('') + '</div></section>';
   const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
-    dailyQuestItems.map(item => '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
-      '<span class="sg-daily-quest-icon">' + gardenIllustration(item.art || item.kind || item.id) + '</span>' +
-      '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
-      '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
-      '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>').join('') +
+    dailyQuestItems.map(item => {
+      const action = item.kind === 'photo' ? 'gallery' : item.kind === 'song' ? 'music' :
+        (item.kind === 'note' || item.kind === 'kiss-note') ? 'notes' :
+        item.kind === 'heart' ? 'gallery' : 'streak';
+      const actionLabel = item.done ? 'Completed' : action === 'gallery' ? (item.kind === 'heart' ? 'Find memories' : 'Open Photos') :
+        action === 'music' ? 'Open Music' : action === 'notes' ? 'Write in Notes' : 'Visit Garden';
+      return '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
+        '<span class="sg-daily-quest-icon">' + gardenIllustration(item.art || item.kind || item.id) + '</span>' +
+        '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
+        '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
+        '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div>' +
+        '<button type="button" class="sg-daily-quest-action" data-daily-quest-action="' + action + '"' + (item.done ? ' disabled aria-disabled="true"' : '') + '>' + actionLabel + '</button></div></article>';
+    }).join('') +
     '</div><div class="sg-daily-quest-footer"><span>' + completedQuests + ' / 3 quests complete</span>' +
     (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete today’s 3 quests to earn your Daily Bloom</small>') + '</div>';
 
@@ -5356,6 +5364,24 @@ document.addEventListener('click', async e => {
       void gardenArt.offsetWidth;
       gardenArt.classList.add('sg-water-pop');
       window.setTimeout(() => gardenArt.classList.remove('sg-water-pop'), 620);
+    }
+    return;
+  }
+
+  const dailyQuestAction = e.target.closest('[data-daily-quest-action]');
+  if (dailyQuestAction) {
+    const destination = dailyQuestAction.dataset.dailyQuestAction;
+    if (destination === 'gallery' || destination === 'music' || destination === 'notes') {
+      go(destination);
+      if (destination === 'notes') {
+        requestAnimationFrame(() => {
+          const composer = $('#chatInput');
+          composer?.focus();
+          if (composer) composer.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        });
+      }
+    } else if (destination === 'streak') {
+      openStreakGarden();
     }
     return;
   }

@@ -2984,7 +2984,7 @@ function profileSettingsMarkup() {
     ['midnight','🌙','Midnight lilac'],['sage','🌿','Sage garden'],['buttercup','🌼','Buttercup']
   ];
   const buddyOptions = [['🐰','Bunny'],['🐱','Kitty'],['🐻','Bear'],['🐸','Frog']];
-  return `<section class="profile-settings-panel hidden" id="profileSettingsPanel" aria-label="Profile settings" aria-modal="false">
+  return `<section class="profile-settings-panel hidden" id="profileSettingsPanel" aria-label="Settings" aria-modal="false">
     <div class="profile-settings-heading">
       <div><small>YOUR LITTLE CORNER</small><h3>Settings</h3><p>Make this space feel like yours.</p></div>
       <button type="button" class="profile-settings-close" id="profileSettingsClose" aria-label="Close profile settings">×</button>
@@ -3093,8 +3093,8 @@ async function saveProfileSettings() {
     const gate = $('#friendProfileGate');
     if (gate && !gate.classList.contains('hidden') && gate.dataset.ownProfile === 'true') showFriendProfile(me);
     renderProfileSettings();
-    if (feedback) feedback.textContent = 'Your profile is updated ♡';
-    toast('Profile updated ♡');
+    if (feedback) feedback.textContent = 'Settings saved ♡';
+    toast('Settings saved ♡');
     restoreProfileSettingsToMain();
     render();
   } catch (error) {

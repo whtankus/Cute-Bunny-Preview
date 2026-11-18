@@ -2823,14 +2823,12 @@ function openClassicProfileEditor() {
   if (!me) return;
   const gate = $('#profileGate');
   if (!gate) return;
-  $('#profileName').textContent = me.displayName || me.display_name || me.username || 'Your profile';
-  $('#profileHandle').textContent = '@' + (me.username || '');
-  $('#profileCreated').textContent = formatProfileDate(me.created_at || me.createdAt);
   $('#profileDisplay').value = me.displayName || me.display_name || '';
   $('#profileUsername').value = me.username || '';
   $('#profileBio').value = me.bio || '';
   $('#profileTheme').value = me.theme || 'rose';
   $('#profileMascot').value = me.mascot || '🐰';
+  setTheme(me.theme || 'rose');
   updateThemePreview(me.theme || 'rose');
   updateBuddyChoices(me.mascot || '🐰');
   document.querySelectorAll('[data-classic-gender]').forEach(button => {
@@ -3175,6 +3173,8 @@ function updateBuddyChoices(value = $('#profileMascot')?.value || '🐰') {
 }
 
 function updateThemePreview(theme = $('#profileTheme')?.value || 'rose') {
+  // Apply the selected palette to the entire app immediately while Settings is open.
+  setTheme(theme);
   const preview = $('#profileThemePreview');
   if (preview) preview.dataset.themePreview = theme;
   document.querySelectorAll('[data-theme-choice]').forEach(button => {
@@ -5506,8 +5506,6 @@ document.addEventListener('click', async e => {
         })
       });
       me = { ...me, ...updated };
-      $('#profileName').textContent = me.displayName || username;
-      $('#profileHandle').textContent = '@' + username;
       $('#topMascot').textContent = me.mascot || '🐰';
       $('#profileGate').classList.add('hidden');
       document.body.classList.remove('classic-profile-open');

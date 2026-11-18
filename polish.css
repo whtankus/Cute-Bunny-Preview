@@ -2921,3 +2921,40 @@ html body #app > header > #profileOpen.brand:active {
   font-size:clamp(10px,3.1vw,13px)!important;
   line-height:1.35!important;
 }
+
+
+/* Give quest and weekly reward artwork clear breathing room beside text. */
+.streak-garden-page .sg-daily-quest-card{
+  grid-template-columns:32px minmax(0,1fr)!important;
+  gap:10px!important;
+}
+.streak-garden-page .sg-daily-quest-icon{
+  width:30px!important;height:30px!important;
+  border-radius:10px!important;
+}
+.streak-garden-page .sg-daily-quest-icon svg{
+  width:25px!important;height:25px!important;
+}
+.streak-garden-page .sg-weekly-tier{
+  grid-template-columns:34px minmax(0,1fr) minmax(72px,auto)!important;
+  gap:9px!important;
+}
+.streak-garden-page .sg-weekly-art{
+  width:34px!important;height:34px!important;
+  border-radius:11px!important;
+}
+.streak-garden-page .sg-weekly-art svg{
+  width:30px!important;height:30px!important;
+}
+@media(max-width:380px){
+  .streak-garden-page .sg-weekly-tier{
+    grid-template-columns:30px minmax(0,1fr) 68px!important;
+    gap:7px!important;
+  }
+  .streak-garden-page .sg-weekly-art{
+    width:30px!important;height:30px!important;
+  }
+  .streak-garden-page .sg-weekly-art svg{
+    width:26px!important;height:26px!important;
+  }
+}

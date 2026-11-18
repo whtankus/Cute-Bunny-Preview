@@ -2958,3 +2958,55 @@ html body #app > header > #profileOpen.brand:active {
     width:26px!important;height:26px!important;
   }
 }
+
+
+/* Little Collection: remove the mini-card framing and mirror the Garden Shop artwork. */
+#friendProfileGate .friend-profile-collection-item{
+  min-height:0!important;
+  padding:2px 0 4px!important;
+  gap:5px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+#friendProfileGate .friend-profile-collection-item.is-equipped{
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#friendProfileGate .friend-profile-collection-art{
+  width:48px!important;
+  height:48px!important;
+  border-radius:16px!important;
+  background:linear-gradient(145deg,#fff8f1,#f8e7ef)!important;
+  box-shadow:inset 0 1px 0 #fff,0 5px 14px rgba(151,103,126,.08)!important;
+}
+#friendProfileGate .friend-profile-collection-art svg{
+  width:44px!important;
+  height:44px!important;
+  filter:drop-shadow(0 3px 2px rgba(110,78,92,.10))!important;
+}
+#friendProfileGate .friend-profile-collection-name{
+  color:#856b80!important;
+  font-size:.62rem!important;
+  font-weight:800!important;
+  line-height:1.25!important;
+  text-align:center!important;
+}
+#friendProfileGate .friend-profile-equipped-mark{
+  top:-2px!important;
+  right:calc(50% - 28px)!important;
+}
+@media(max-width:430px){
+  #friendProfileGate .friend-profile-collection-items{gap:9px 7px!important}
+  #friendProfileGate .friend-profile-collection-item{min-height:0!important;padding:2px 0 4px!important}
+  #friendProfileGate .friend-profile-collection-art{width:46px!important;height:46px!important;border-radius:15px!important}
+  #friendProfileGate .friend-profile-collection-art svg{width:42px!important;height:42px!important}
+  #friendProfileGate .friend-profile-collection-name{font-size:.57rem!important}
+}
+@media(max-width:350px){
+  #friendProfileGate .friend-profile-collection-art{width:42px!important;height:42px!important;border-radius:14px!important}
+  #friendProfileGate .friend-profile-collection-art svg{width:38px!important;height:38px!important}
+}

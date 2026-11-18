@@ -983,6 +983,90 @@ function saveGardenCollection(value) {
   try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(value)); return true; } catch { return false; }
 }
 
+let friendGardenRequestSequence = 0;
+function normalizeGardenCollection(value = {}) {
+  const validIds = new Set(GARDEN_COLLECTIBLES.map(item => item.id));
+  const owned = Array.isArray(value.owned) ? [...new Set(value.owned.filter(id => validIds.has(id)))] : [];
+  return {
+    owned,
+    equipped: owned.includes(value.equipped) && GARDEN_COLLECTIBLES.find(item => item.id === value.equipped)?.type === 'garden' ? value.equipped : 'none',
+    bunny: owned.includes(value.bunny) && GARDEN_COLLECTIBLES.find(item => item.id === value.bunny)?.type === 'bunny' ? value.bunny : 'none'
+  };
+}
+async function syncGardenCollectionToCloud(value = readGardenCollection()) {
+  if (!sb || !me?.id) return false;
+  const normalized = normalizeGardenCollection(value);
+  const { error } = await sb.from('profile_garden_collections').upsert({
+    user_id: me.id,
+    owned: normalized.owned,
+    equipped: normalized.equipped,
+    bunny: normalized.bunny,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+  if (error) {
+    console.warn('Garden collection sync failed:', error.message || error);
+    return false;
+  }
+  try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized)); } catch {}
+  return true;
+}
+async function hydrateGardenCollectionFromCloud() {
+  if (!sb || !me?.id) return readGardenCollection();
+  const { data, error } = await sb.from('profile_garden_collections')
+    .select('owned,equipped,bunny')
+    .eq('user_id', me.id)
+    .maybeSingle();
+  if (error) {
+    console.warn('Garden collection could not be loaded:', error.message || error);
+    return readGardenCollection();
+  }
+  if (data) {
+    const normalized = normalizeGardenCollection(data);
+    try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized)); } catch {}
+    return normalized;
+  }
+  const legacy = normalizeGardenCollection(readGardenCollection());
+  await syncGardenCollectionToCloud(legacy);
+  return legacy;
+}
+function renderFriendGardenCollection(collection, userId) {
+  const gate = $('#friendProfileGate');
+  if (!gate || gate.dataset.collectionUserId !== String(userId)) return;
+  const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
+  const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
+  const count = $('#friendProfileCollectionCount');
+  if (count) count.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
+  const list = $('#friendProfileCollectionItems');
+  if (!list) return;
+  list.innerHTML = ownedItems.length ? ownedItems.slice(0, 12).map(item => {
+    const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
+    return '<span class="friend-profile-collection-item garden-rarity-' + esc(item.rarity || 'common') + (equipped ? ' is-equipped' : '') + '" title="' + esc(item.name) + '" aria-label="' + esc(item.name + (equipped ? ', equipped' : '')) + '"><span class="friend-profile-collection-art">' + item.art + '</span>' + (equipped ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>';
+  }).join('') : '<p class="friend-profile-empty">No little treasures collected yet ♡</p>';
+}
+async function loadFriendGardenCollection(user, isOwnProfile) {
+  const sequence = ++friendGardenRequestSequence;
+  const gate = $('#friendProfileGate');
+  if (!gate || !user?.id) return;
+  gate.dataset.collectionUserId = String(user.id);
+  let collection;
+  if (isOwnProfile) {
+    collection = await hydrateGardenCollectionFromCloud();
+  } else {
+    if (!sb) return;
+    const { data, error } = await sb.from('profile_garden_collections')
+      .select('owned,equipped,bunny')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (error) {
+      console.warn('Friend garden collection could not be loaded:', error.message || error);
+      return;
+    }
+    collection = normalizeGardenCollection(data || {});
+  }
+  if (sequence !== friendGardenRequestSequence || gate.dataset.collectionUserId !== String(user.id)) return;
+  renderFriendGardenCollection(collection, user.id);
+}
+
 function gardenIllustration(kind) {
   const art = {
     'pink-tulips':'<path d="M32 53V34m0 12c-12-13-20-5-15 2 5 5 11 3 15-2Zm0-8c12-13 20-5 15 2-5 5-11 3-15-2Z" fill="#91ad83" stroke="#718f70" stroke-width="2"/><path d="M32 34c-13-3-13-18-3-20 0-9 13-9 14 0 10 3 8 18-5 20Z" fill="#e9a1b8" stroke="#bd7895" stroke-width="2"/><path d="M32 34c-7-8-5-16 1-20 7 5 7 13-1 20Z" fill="#f7c7d5"/>',
@@ -1000,19 +1084,27 @@ function gardenIllustration(kind) {
     'login':'<path d="M32 50V27m0 14c-17-19-25-7-16 1 5 4 11 2 16-1Zm0-11c14-16 23-5 15 2-5 4-10 2-15-2Z" fill="#a8c49a" stroke="#789477" stroke-width="2"/><path d="M32 27c-13-3-13-17-3-19 0-8 13-8 14 0 10 3 8 16-5 19Z" fill="#e9a1b8" stroke="#bd7895" stroke-width="2"/>',
     'bloom-3':'<path d="M32 51V35m0 9c-12-12-18-4-13 2 4 4 9 2 13-2Z" stroke="#789477" stroke-width="2.5" fill="#b6cba9"/><g fill="#e9a1b8"><ellipse cx="32" cy="22" rx="6" ry="11"/><ellipse cx="32" cy="22" rx="6" ry="11" transform="rotate(72 32 22)"/><ellipse cx="32" cy="22" rx="6" ry="11" transform="rotate(144 32 22)"/></g><circle cx="32" cy="22" r="5" fill="#f4d17d"/>',
     'bloom-5':'<path d="M32 54V32m0 13c-14-13-22-5-15 3 5 4 11 2 15-3Z" stroke="#789477" stroke-width="2.5" fill="#b6cba9"/><g fill="#e9a1b8"><ellipse cx="32" cy="20" rx="6" ry="12"/><ellipse cx="32" cy="20" rx="6" ry="12" transform="rotate(60 32 20)"/><ellipse cx="32" cy="20" rx="6" ry="12" transform="rotate(120 32 20)"/></g><circle cx="32" cy="20" r="5" fill="#f4d17d"/><path d="M14 14 17 9m30 5-3-5" stroke="#d5b16b" stroke-width="2"/>',
-    'bloom-7':'<path d="M32 55V32m0 15c-14-14-22-5-15 3 5 4 11 2 15-3Z" stroke="#789477" stroke-width="2.5" fill="#b6cba9"/><g fill="#e99bb7" stroke="#c47e9c" stroke-width="1"><ellipse cx="32" cy="19" rx="6" ry="13"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(45 32 19)"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(90 32 19)"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(135 32 19)"/></g><circle cx="32" cy="19" r="6" fill="#f4d17d"/><path d="m13 17 3-5m35 5-3-5" stroke="#d5b16b" stroke-width="2"/>'
+    'bloom-7':'<path d="M32 55V32m0 15c-14-14-22-5-15 3 5 4 11 2 15-3Z" stroke="#789477" stroke-width="2.5" fill="#b6cba9"/><g fill="#e99bb7" stroke="#c47e9c" stroke-width="1"><ellipse cx="32" cy="19" rx="6" ry="13"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(45 32 19)"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(90 32 19)"/><ellipse cx="32" cy="19" rx="6" ry="13" transform="rotate(135 32 19)"/></g><circle cx="32" cy="19" r="6" fill="#f4d17d"/><path d="m13 17 3-5m35 5-3-5" stroke="#d5b16b" stroke-width="2"/>',
+    'crystal-dew':'<path d="M32 8 49 28 32 56 15 28Z" fill="#c9e9f4" stroke="#78b6c9" stroke-width="2.5"/><path d="m32 8 1 48M15 28h34M32 8 23 28l9 28 9-28Z" fill="#f6ffff" fill-opacity=".48" stroke="#fff" stroke-width="1.4"/><path d="m12 13 3-6 3 6 6 3-6 3-3 6-3-6-6-3Zm39 31 2-4 2 4 4 2-4 2-2 4-2-4-4-2Z" fill="#fff0b8"/>',
+    'aurora-fountain':'<path d="M13 43h38l-5 12H18Z" fill="#b9a5dc" stroke="#8874b5" stroke-width="2.5"/><path d="M19 42c-7-11 1-19 7-10 2-16 13-17 14-1 8-7 13 3 5 11" fill="none" stroke="#8ed8d0" stroke-width="4" stroke-linecap="round"/><path d="M26 40c-4-10 2-17 7-10 2-11 9-10 10 0" fill="none" stroke="#d4b7f4" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="18" r="4" fill="#fff0b8"/><path d="m12 18 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm38 4 2-4 2 4 4 2-4 2-2 4-2-4-4-2Z" fill="#fff"/>',
+    'moon-bunny-hood':'<path d="M20 43 15 13c-1-8 8-10 12-2l5 12 5-12c4-8 13-6 12 2l-5 30Z" fill="#b9a9e5" stroke="#8977b5" stroke-width="2.5"/><path d="M22 39c4-10 16-14 25-3l-4 12H24Z" fill="#f7eafa" stroke="#b49bcf" stroke-width="2"/><path d="M28 39q4-4 8 0m-8 5h8" fill="none" stroke="#a47eaa" stroke-width="2" stroke-linecap="round"/><path d="m35 12 2 4 4 1-4 2-2 4-2-4-4-2 4-1Z" fill="#fff0b8"/>',
+    'celestial-rose':'<path d="M32 54V32m0 15c-13-12-20-4-14 3 5 4 10 2 14-3Z" fill="#8eae88" stroke="#688d72" stroke-width="2"/><g fill="#e9a8ce" stroke="#b77fa8" stroke-width="1.8"><ellipse cx="32" cy="20" rx="7" ry="15"/><ellipse cx="32" cy="20" rx="7" ry="15" transform="rotate(60 32 20)"/><ellipse cx="32" cy="20" rx="7" ry="15" transform="rotate(120 32 20)"/></g><circle cx="32" cy="20" r="7" fill="#ffe6a6" stroke="#c9a45e" stroke-width="1.5"/><path d="m10 19 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm42 13 2-4 2 4 4 2-4 2-2 4-2-4-4-2Z" fill="#fff"/>
   };
   return '<svg viewBox="0 0 64 64" role="img" focusable="false" aria-hidden="true">' + (art[kind] || art['pink-tulips']) + '</svg>';
 }
 
 const GARDEN_COLLECTIBLES = [
-  {id:'pink-tulips',name:'Pink Tulip Patch',art:gardenIllustration('pink-tulips'),cost:30,type:'garden'},
-  {id:'moon-lantern',name:'Moon Lantern',art:gardenIllustration('moon-lantern'),cost:45,type:'garden'},
-  {id:'tiny-mushroom',name:'Tiny Mushroom',art:gardenIllustration('tiny-mushroom'),cost:60,type:'garden'},
-  {id:'golden-bell',name:'Golden Garden Bell',art:gardenIllustration('golden-bell'),cost:80,type:'garden'},
-  {id:'bunny-bow',name:'Blush Bunny Bow',art:gardenIllustration('bunny-bow'),cost:35,type:'bunny'},
-  {id:'flower-crown',name:'Flower Crown',art:gardenIllustration('flower-crown'),cost:65,type:'bunny'},
-  {id:'starry-hat',name:'Starry Night Hat',art:gardenIllustration('starry-hat'),cost:90,type:'bunny'}
+  {id:'pink-tulips',name:'Pink Tulip Patch',art:gardenIllustration('pink-tulips'),cost:30,type:'garden',rarity:'common'},
+  {id:'moon-lantern',name:'Moon Lantern',art:gardenIllustration('moon-lantern'),cost:45,type:'garden',rarity:'common'},
+  {id:'tiny-mushroom',name:'Tiny Mushroom',art:gardenIllustration('tiny-mushroom'),cost:60,type:'garden',rarity:'common'},
+  {id:'golden-bell',name:'Golden Garden Bell',art:gardenIllustration('golden-bell'),cost:80,type:'garden',rarity:'rare'},
+  {id:'bunny-bow',name:'Blush Bunny Bow',art:gardenIllustration('bunny-bow'),cost:35,type:'bunny',rarity:'common'},
+  {id:'flower-crown',name:'Flower Crown',art:gardenIllustration('flower-crown'),cost:65,type:'bunny',rarity:'rare'},
+  {id:'starry-hat',name:'Starry Night Hat',art:gardenIllustration('starry-hat'),cost:90,type:'bunny',rarity:'rare'},
+  {id:'crystal-dew',name:'Crystal Dew',art:gardenIllustration('crystal-dew'),cost:120,type:'garden',rarity:'rare'},
+  {id:'aurora-fountain',name:'Aurora Fountain',art:gardenIllustration('aurora-fountain'),cost:180,type:'garden',rarity:'epic'},
+  {id:'moon-bunny-hood',name:'Moon Bunny Hood',art:gardenIllustration('moon-bunny-hood'),cost:220,type:'bunny',rarity:'epic'},
+  {id:'celestial-rose',name:'Celestial Rose',art:gardenIllustration('celestial-rose'),cost:300,type:'garden',rarity:'legendary'}
 ];
 function buyGardenCollectible(id) {
   const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
@@ -1022,6 +1114,7 @@ function buyGardenCollectible(id) {
     if (item.type === 'garden') collection.equipped = collection.equipped === id ? 'none' : id;
     else collection.bunny = collection.bunny === id ? 'none' : id;
     saveGardenCollection(collection);
+    await syncGardenCollectionToCloud(collection);
     renderStreakPage();
     return;
   }
@@ -1034,6 +1127,7 @@ function buyGardenCollectible(id) {
   if (item.type === 'garden') collection.equipped = id;
   else collection.bunny = id;
   saveGardenCollection(collection);
+  await syncGardenCollectionToCloud(collection);
   toast(item.name + ' added to your collection!');
   renderStreakPage();
 }
@@ -1594,14 +1688,14 @@ function renderStreakPage() {
     '<div class="sg-petal-balance"><span class="sg-petal-balance-art">' + gardenIllustration('bloom-5') + '</span><div><b>' + petalRewardBalance(petalRewards) + ' Petal Points</b><small>Earn 10 per daily quest · 25 from the daily chest</small></div></div>' +
     '<button type="button" class="sg-petal-chest" data-claim-petal-chest' + (completedQuests !== 3 || chestClaimed ? ' disabled' : '') + '>' +
     '<span class="sg-chest-art">' + gardenIllustration('golden-bell') + '</span> ' + (chestClaimed ? 'Chest collected today' : completedQuests === 3 ? 'Open daily chest · +25' : 'Complete 3 quests to unlock chest') + '</button>' +
-    '<small class="sg-petal-note">Rewards are saved in this browser for your account; they do not sync between devices.</small></div>';
+    '<small class="sg-petal-note">Your Petal Points stay on this device; your collected treasures sync to your profile for friends to see.</small></div>';
   const collection = readGardenCollection();
-  const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Spend your Petal Points on tiny treasures</p></div></div><div class="sg-collectible-grid">' +
+  const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Find a tiny treasure, from everyday blooms to magical keepsakes</p></div><span class="sg-shop-sparkle" aria-hidden="true">✧</span></div><div class="sg-collectible-grid">' +
     GARDEN_COLLECTIBLES.map(item => {
       const owned = collection.owned.includes(item.id);
       const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
       const affordable = petalRewardBalance(petalRewards) >= item.cost;
-      return '<article class="sg-collectible-card' + (equipped ? ' is-equipped' : '') + '"><span class="sg-collectible-art">' + item.art + '</span><b>' + item.name + '</b><small>' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
+      return '<article class="sg-collectible-card rarity-' + item.rarity + (equipped ? ' is-equipped' : '') + '" data-rarity="' + item.rarity + '"><span class="sg-collectible-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><b>' + item.name + '</b><small>' + (item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)) + ' · ' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
     }).join('') + '</div><div class="sg-equipped-summary">Garden: ' + (GARDEN_COLLECTIBLES.find(item => item.id === collection.equipped)?.name || 'Original look') + ' · Bunny: ' + (GARDEN_COLLECTIBLES.find(item => item.id === collection.bunny)?.name || 'Original look') + '</div></section>';
   const weeklyProgress = getWeeklyBloomProgress(todayKey);
   const weeklyTiers = [{days:3,points:30,title:'Little Bloom',art:gardenIllustration('bloom-3')},{days:5,points:50,title:'Garden Glow',art:gardenIllustration('bloom-5')},{days:7,points:100,title:'Full Bloom',art:gardenIllustration('bloom-7')}];
@@ -2661,7 +2755,7 @@ function showFriendProfile(user) {
   const collectionPanel = $('#friendProfileCollection');
   const badgesPanel = $('#friendProfileBadges');
   if (highlights) highlights.hidden = false;
-  if (collectionPanel) collectionPanel.hidden = !isOwnProfile;
+  if (collectionPanel) collectionPanel.hidden = false;
   if (badgesPanel) badgesPanel.hidden = false;
   {
     const profileFeed = isOwnProfile ? (Array.isArray(feed) ? feed : []) : [];
@@ -2677,13 +2771,15 @@ function showFriendProfile(user) {
     const notes = isOwnProfile ? ownFeed.filter(item => item.kind === 'note').length : Number(user.note_count ?? user.notes_count ?? 0);
     const songs = isOwnProfile ? ownFeed.filter(item => item.kind === 'song').length : Number(user.song_count ?? user.songs_count ?? 0);
     if (isOwnProfile) {
-      const collection = typeof readGardenCollection === 'function' ? readGardenCollection() : {owned:[],equipped:'none',bunny:'none'};
-      const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
-      const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
+      const collection = normalizeGardenCollection(readGardenCollection());
+      renderFriendGardenCollection(collection, user.id);
+      syncGardenCollectionToCloud(collection);
+    } else {
       const collectionCount = $('#friendProfileCollectionCount');
-      if (collectionCount) collectionCount.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
+      if (collectionCount) collectionCount.textContent = 'Loading treasures…';
       const collectionItems = $('#friendProfileCollectionItems');
-      if (collectionItems) collectionItems.innerHTML = ownedItems.length ? ownedItems.slice(0,6).map(item => '<span class="friend-profile-collection-item' + ((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id ? ' is-equipped' : '') + '" title="' + esc(item.name) + '"><span class="friend-profile-collection-art">' + (item.art || '<span aria-hidden="true">✿</span>') + '</span>' + (((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id) ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>').join('') : '<p class="friend-profile-empty">Your first little treasure is waiting in the Garden Shop ♡</p>';
+      if (collectionItems) collectionItems.innerHTML = '<p class="friend-profile-empty">Gathering little treasures…</p>';
+      loadFriendGardenCollection(user, false);
     }
     const streak = Math.max(0, Number(user.login_streak) || 0);
     const heartTotal = Math.max(0, Number(user.heartCount) || 0);

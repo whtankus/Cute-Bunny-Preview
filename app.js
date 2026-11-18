@@ -2823,6 +2823,11 @@ function openClassicProfileEditor() {
   if (!me) return;
   const gate = $('#profileGate');
   if (!gate) return;
+  $('#profileName').textContent = me.displayName || me.display_name || me.username || 'Your profile';
+  $('#profileHandle').textContent = '@' + (me.username || '');
+  $('#profileCreated').textContent = formatProfileDate(me.created_at || me.createdAt);
+  $('#profileDisplay').value = me.displayName || me.display_name || '';
+  $('#profileUsername').value = me.username || '';
   $('#profileBio').value = me.bio || '';
   $('#profileTheme').value = me.theme || 'rose';
   $('#profileMascot').value = me.mascot || '🐰';
@@ -5487,12 +5492,13 @@ document.addEventListener('click', async e => {
   // Profile save & sign out
   if (e.target.closest('#profileSave')) {
     try {
-      const username = me?.username || '';
+      const username = $('#profileUsername').value.trim().toLowerCase();
+      if (!/^[a-z0-9_]{3,24}$/.test(username)) return toast('Use 3–24 letters, numbers, or underscores ♡');
       const updated = await api('/me', {
         method: 'PUT',
         body: JSON.stringify({
           username,
-          displayName: me?.displayName || me?.display_name || '',
+          displayName: $('#profileDisplay').value.trim(),
           bio: $('#profileBio').value.trim(),
           theme: $('#profileTheme').value,
           mascot: $('#profileMascot').value,
@@ -5500,6 +5506,8 @@ document.addEventListener('click', async e => {
         })
       });
       me = { ...me, ...updated };
+      $('#profileName').textContent = me.displayName || username;
+      $('#profileHandle').textContent = '@' + username;
       $('#topMascot').textContent = me.mascot || '🐰';
       $('#profileGate').classList.add('hidden');
       document.body.classList.remove('classic-profile-open');

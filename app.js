@@ -984,6 +984,7 @@ function saveGardenCollection(value) {
 }
 
 let friendGardenRequestSequence = 0;
+let gardenCollectionHydratedUserId = '';
 function normalizeGardenCollection(value = {}) {
   const validIds = new Set(GARDEN_COLLECTIBLES.map(item => item.id));
   const owned = Array.isArray(value.owned) ? [...new Set(value.owned.filter(id => validIds.has(id)))] : [];
@@ -1613,6 +1614,10 @@ const STREAK_MILESTONE_ILLUSTRATIONS = [
 function renderStreakPage() {
   const content = $('#content');
   if (!content || !me) return;
+  if (gardenCollectionHydratedUserId !== String(me.id)) {
+    gardenCollectionHydratedUserId = String(me.id);
+    hydrateGardenCollectionFromCloud().then(() => { if (page === 'streak') renderStreakPage(); });
+  }
   const timezone = normalizeStreakTimeZone(me.streak_timezone || getBrowserStreakTimeZone());
   const todayKey = streakDateInTimeZone(timezone);
   const lastDate = String(me.last_login_date || '').slice(0, 10);
@@ -1692,7 +1697,7 @@ function renderStreakPage() {
     '<small class="sg-petal-note">Your Petal Points stay on this device; your collected treasures sync to your profile for friends to see.</small></div>';
   const collection = readGardenCollection();
   const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Find a tiny treasure, from everyday blooms to magical keepsakes</p></div><span class="sg-shop-sparkle" aria-hidden="true">✧</span></div><div class="sg-collectible-grid">' +
-    GARDEN_COLLECTIBLES.map(item => {
+    [...GARDEN_COLLECTIBLES].sort((a, b) => a.cost - b.cost).map(item => {
       const owned = collection.owned.includes(item.id);
       const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
       const affordable = petalRewardBalance(petalRewards) >= item.cost;

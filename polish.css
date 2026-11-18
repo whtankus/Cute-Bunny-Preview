@@ -3098,3 +3098,20 @@ html body #app > header > #profileOpen.brand:active {
   background:rgba(255,255,255,.16)!important;
   border:1px solid rgba(255,255,255,.3)!important;
 }
+
+
+/* Daily Quest cards: clear, touch-friendly shortcuts into the matching activity. */
+.sg-daily-quest-card .sg-daily-quest-copy{min-width:0}
+.sg-daily-quest-action{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:32px;margin-top:10px;padding:6px 13px;border:1px solid rgba(191,133,157,.28);
+  border-radius:999px;background:linear-gradient(135deg,#fff5f7,#f5edf8);
+  color:#87566f;font:600 12px/1.2 inherit;letter-spacing:.01em;
+  box-shadow:0 2px 8px rgba(151,105,129,.08);cursor:pointer;
+  transition:transform .18s ease,background .18s ease,box-shadow .18s ease;
+}
+.sg-daily-quest-action:active{transform:scale(.97)}
+.sg-daily-quest-action:focus-visible{outline:2px solid #bd86a3;outline-offset:3px}
+.sg-daily-quest-action:disabled{opacity:.58;cursor:default;box-shadow:none}
+.sg-daily-quest-card.is-done .sg-daily-quest-action{background:#f3f0eb;border-color:#e8e1d9;color:#8d8a83}
+@media(hover:hover){.sg-daily-quest-action:not(:disabled):hover{background:linear-gradient(135deg,#ffeaf1,#eee5f6);box-shadow:0 4px 12px rgba(151,105,129,.14)}}

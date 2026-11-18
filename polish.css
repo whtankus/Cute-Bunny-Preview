@@ -3065,3 +3065,36 @@ html body #app > header > #profileOpen.brand:active {
   #friendProfileGate #friendProfileCollectionItems .friend-profile-collection-items{justify-items:center!important;align-items:start!important}
   #friendProfileGate #friendProfileCollectionItems .friend-profile-collection-item{min-height:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
 }
+
+/* Starlight profile: keep Little Collection items completely unboxed and readable. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileCollectionItems .friend-profile-collection-item,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileCollectionItems .friend-profile-collection-item.is-equipped{
+  border:0!important;outline:0!important;border-radius:0!important;
+  background:transparent!important;background-image:none!important;
+  box-shadow:none!important;filter:none!important;
+  padding:0!important;margin:0!important;min-height:0!important;height:auto!important;
+  overflow:visible!important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileCollectionItems .friend-profile-collection-item::before,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileCollectionItems .friend-profile-collection-item::after{
+  content:none!important;display:none!important;background:none!important;box-shadow:none!important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] #friendProfileCollectionItems .friend-profile-collection-name{
+  color:#fff!important;background:transparent!important;border:0!important;box-shadow:none!important;
+  text-shadow:0 1px 4px rgba(22,17,58,.72)!important;
+}
+/* The two achievement/collection headings and their count chips need contrast on dark wallpapers. */
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-section-heading,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-section-heading>b,
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-section-heading>small{
+  color:#fff!important;text-shadow:0 1px 4px rgba(22,17,58,.72)!important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-section-heading>small{
+  background:rgba(35,31,73,.52)!important;
+  border-color:rgba(255,255,255,.38)!important;
+}
+.auth-card.friend-profile-card[data-wallpaper="starlight"] .friend-profile-section-heading>span{
+  color:#fff!important;
+  background:rgba(255,255,255,.16)!important;
+  border:1px solid rgba(255,255,255,.3)!important;
+}

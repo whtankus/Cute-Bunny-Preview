@@ -3115,3 +3115,49 @@ html body #app > header > #profileOpen.brand:active {
 .sg-daily-quest-action:disabled{opacity:.58;cursor:default;box-shadow:none}
 .sg-daily-quest-card.is-done .sg-daily-quest-action{background:#f3f0eb;border-color:#e8e1d9;color:#8d8a83}
 @media(hover:hover){.sg-daily-quest-action:not(:disabled):hover{background:linear-gradient(135deg,#ffeaf1,#eee5f6);box-shadow:0 4px 12px rgba(151,105,129,.14)}}
+
+/* Little Collection: keep Garden Shop rarity colors fixed across profile wallpapers,
+   with a slow, visible glow extending beyond each collectible. */
+#friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-item{
+  --rarity-glow:rgba(226,178,197,.58)!important;
+}
+#friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-item.garden-rarity-common{
+  --rarity-glow:rgba(226,178,197,.58)!important;
+}
+#friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-item.garden-rarity-rare{
+  --rarity-glow:rgba(129,205,207,.66)!important;
+}
+#friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-item.garden-rarity-epic{
+  --rarity-glow:rgba(183,151,229,.68)!important;
+}
+#friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-item.garden-rarity-legendary{
+  --rarity-glow:rgba(244,197,112,.76)!important;
+}
+#friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-art{
+  position:relative!important;
+  border:1px solid rgba(255,255,255,.9)!important;
+  background:radial-gradient(circle at 50% 42%,#fff 0 8%,var(--rarity-glow) 58%,rgba(255,249,252,.88) 78%)!important;
+  box-shadow:0 0 0 1px rgba(255,255,255,.76),0 0 18px var(--rarity-glow),0 0 30px color-mix(in srgb,var(--rarity-glow) 68%,transparent),inset 0 0 17px rgba(255,255,255,.9)!important;
+  animation:friend-collection-aura 4.8s ease-in-out infinite!important;
+  will-change:box-shadow;
+}
+#friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-art svg{
+  filter:drop-shadow(0 3px 3px rgba(89,66,98,.18)) drop-shadow(0 0 5px var(--rarity-glow))!important;
+}
+#friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-art .sg-art-glint{
+  animation:sg-art-twinkle 4.2s ease-in-out infinite!important;
+}
+@keyframes friend-collection-aura{
+  0%,100%{
+    box-shadow:0 0 0 1px rgba(255,255,255,.76),0 0 14px var(--rarity-glow),0 0 24px color-mix(in srgb,var(--rarity-glow) 58%,transparent),inset 0 0 17px rgba(255,255,255,.9);
+  }
+  50%{
+    box-shadow:0 0 0 1px rgba(255,255,255,.88),0 0 23px var(--rarity-glow),0 0 40px color-mix(in srgb,var(--rarity-glow) 78%,transparent),inset 0 0 20px rgba(255,255,255,.96);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-art,
+  #friendProfileGate .friend-profile-card #friendProfileCollectionItems .friend-profile-collection-art .sg-art-glint{
+    animation:none!important;
+  }
+}

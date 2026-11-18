@@ -143,6 +143,145 @@ async function mountSettingsHarness(page) {
   });
 }
 
+async function mountSignedInApp(page) {
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', route => route.abort());
+  await page.addInitScript(() => {
+    const profile = {
+      id: 'e2e-user',
+      username: 'bunny_tester',
+      display_name: 'Bunny Tester',
+      displayName: 'Bunny Tester',
+      bio: '',
+      theme: 'rose',
+      mascot: '🐰',
+      gender: null,
+      created_at: '2026-01-01T00:00:00.000Z',
+      login_streak: 1,
+      last_login_date: new Date().toISOString().slice(0, 10),
+      streak_timezone: 'UTC'
+    };
+    const session = {
+      access_token: 'e2e-session-token',
+      refresh_token: 'e2e-refresh-token',
+      user: { id: profile.id, email: 'bunny@example.invalid' }
+    };
+    const rowsFor = table => {
+      if (table === 'profiles') return profile;
+      if (table === 'profile_private_settings') return { notification_preferences: { memories: true, buddy: true } };
+      return [];
+    };
+    const makeQuery = table => {
+      const state = { action: 'select' };
+      let query;
+      query = new Proxy({}, {
+        get(_target, property) {
+          if (property === 'then') {
+            return (resolve, reject) => Promise.resolve({ data: rowsFor(table), error: null }).then(resolve, reject);
+          }
+          if (property === 'single') {
+            return async () => ({ data: rowsFor(table), error: null });
+          }
+          if (property === 'maybeSingle') {
+            return async () => ({
+              data: table === 'profile_private_settings' ? rowsFor(table) : null,
+              error: null
+            });
+          }
+          if (['insert', 'update', 'upsert', 'delete'].includes(property)) {
+            return (..._args) => { state.action = property; return query; };
+          }
+          if (['select', 'eq', 'neq', 'in', 'is', 'order', 'limit', 'range', 'ilike', 'gte', 'lte', 'match'].includes(property)) {
+            return (..._args) => query;
+          }
+          return undefined;
+        }
+      });
+      return query;
+    };
+    const makeChannel = () => {
+      const channel = {
+        on() { return channel; },
+        subscribe() { return channel; },
+        presenceState() { return {}; },
+        async track() { return 'ok'; },
+        async send() { return 'ok'; },
+        async unsubscribe() { return 'ok'; }
+      };
+      return channel;
+    };
+    window.supabase = {
+      createClient() {
+        return {
+          auth: {
+            async getSession() { return { data: { session }, error: null }; },
+            async getUser() { return { data: { user: session.user }, error: null }; },
+            async signOut() { return { error: null }; }
+          },
+          from: makeQuery,
+          async rpc(name) {
+            if (name === 'record_login_streak_for_timezone') {
+              return { data: { login_streak: 1, last_login_date: new Date().toISOString().slice(0, 10), streak_timezone: 'UTC' }, error: null };
+            }
+            return { data: [], error: null };
+          },
+          channel: makeChannel,
+          async removeChannel() { return 'ok'; },
+          storage: {
+            from() {
+              return {
+                async createSignedUrl() { return { data: { signedUrl: 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221%22 height=%221%22/%3E' }, error: null }; },
+                async upload() { return { data: {}, error: null }; },
+                async remove() { return { data: [], error: null }; }
+              };
+            }
+          },
+          functions: { async invoke() { return { data: {}, error: null }; } }
+        };
+      }
+    };
+  });
+  await page.reload();
+  await expect(page.locator('#app')).toBeVisible();
+  await expect(page.locator('#nav')).toBeVisible();
+}
+
+test('signed-in user can open Photos and Music empty states', async ({ page }) => {
+  await mountSignedInApp(page);
+
+  await page.locator('#nav button[data-page="gallery"]').click();
+  await expect(page.getByRole('heading', { name: /Photo garden/ })).toBeVisible();
+  await expect(page.locator('[data-upload="photo"]')).toBeVisible();
+  await expect(page.locator('.photo-garden-grid .empty')).toContainText('waiting for its first photo');
+
+  await page.locator('#nav button[data-page="music"]').click();
+  await expect(page.getByRole('heading', { name: /Cozy music/ })).toBeVisible();
+  await expect(page.locator('[data-upload="song"]')).toBeVisible();
+  await expect(page.locator('.music-grid .empty')).toContainText('Add a song file');
+});
+
+test('signed-in user can open Notes and use the empty conversation composer', async ({ page }) => {
+  await mountSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+
+  await expect(page.locator('#chatThread')).toBeVisible();
+  await expect(page.locator('.chat-empty')).toContainText('Your conversation starts here');
+  await expect(page.locator('#chatInput')).toBeVisible();
+  await expect(page.locator('#chatInput')).toHaveAttribute('maxlength', '1000');
+  await expect(page.locator('#chatSend')).toBeHidden();
+});
+
+test('signed-in app sections do not create horizontal overflow on mobile', async ({ page }) => {
+  await mountSignedInApp(page);
+  for (const section of ['gallery', 'music', 'notes', 'friends']) {
+    await page.locator('#nav button[data-page="' + section + '"]').click();
+    const dimensions = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      page: document.documentElement.scrollWidth
+    }));
+    expect(dimensions.page, section + ' section overflowed horizontally').toBeLessThanOrEqual(dimensions.viewport + 1);
+  }
+});
+
 test('settings panel opens and closes without leaving its trigger expanded', async ({ page }) => {
   await mountSettingsHarness(page);
   const trigger = page.locator('#profileSettingsTrigger');

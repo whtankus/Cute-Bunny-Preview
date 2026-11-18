@@ -88,3 +88,43 @@ test('sign-in displays Supabase invalid-credentials errors without entering the 
   await expect(page.locator('#app')).toBeHidden();
   await expect(page.locator('#authSubmit')).toBeEnabled();
 });
+
+test('main navigation keeps all five sections and accessible labels', async ({ page }) => {
+  const nav = page.locator('#nav');
+  const buttons = nav.locator('button[data-page]');
+
+  await expect(nav).toHaveAttribute('aria-label', 'Main navigation');
+  await expect(buttons).toHaveCount(5);
+  await expect(buttons.nth(0)).toHaveAttribute('data-page', 'home');
+  await expect(buttons.nth(0)).toContainText('Home');
+  await expect(buttons.nth(1)).toHaveAttribute('data-page', 'gallery');
+  await expect(buttons.nth(1)).toContainText('Photos');
+  await expect(buttons.nth(2)).toHaveAttribute('data-page', 'music');
+  await expect(buttons.nth(2)).toContainText('Music');
+  await expect(buttons.nth(3)).toHaveAttribute('data-page', 'notes');
+  await expect(buttons.nth(3)).toContainText('Notes');
+  await expect(buttons.nth(4)).toHaveAttribute('data-page', 'friends');
+  await expect(buttons.nth(4)).toContainText('Friends');
+});
+
+test('navigation buttons retain their raised 3D styling on desktop and mobile', async ({ page }) => {
+  const styles = await page.locator('#nav button[data-page]').evaluateAll(buttons =>
+    buttons.map(button => {
+      const style = getComputedStyle(button);
+      return {
+        borderRadius: style.borderRadius,
+        boxShadow: style.boxShadow,
+        backgroundImage: style.backgroundImage,
+        transitionProperty: style.transitionProperty
+      };
+    })
+  );
+
+  expect(styles).toHaveLength(5);
+  for (const style of styles) {
+    expect(style.borderRadius).toBe('15px');
+    expect(style.boxShadow).not.toBe('none');
+    expect(style.backgroundImage).toContain('linear-gradient');
+    expect(style.transitionProperty).toContain('transform');
+  }
+});

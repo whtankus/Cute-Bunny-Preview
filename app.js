@@ -571,6 +571,8 @@ function setUser(u) {
     notificationLoading = false;
   }
   me = u;
+  // Publish any existing local collection so friends can see it on their profiles.
+  void syncGardenCollectionToCloud(readGardenCollection());
   try {
     const savedHiddenNotes = JSON.parse(localStorage.getItem('cuteBunnyHiddenNotes:' + u.id) || '[]');
     hiddenNoteIds = new Set(Array.isArray(savedHiddenNotes) ? savedHiddenNotes.map(String) : []);
@@ -1030,6 +1032,9 @@ async function hydrateGardenCollectionFromCloud() {
   await syncGardenCollectionToCloud(legacy);
   return legacy;
 }
+function friendGardenCollectionCacheKey(userId) {
+  return 'cuteBunnyFriendGarden:' + String(userId);
+}
 function renderFriendGardenCollection(collection, userId, isOwnProfile = false) {
   const gate = $('#friendProfileGate');
   if (!gate || gate.dataset.collectionUserId !== String(userId)) return;
@@ -1064,15 +1069,18 @@ async function loadFriendGardenCollection(user, isOwnProfile) {
     collection = await hydrateGardenCollectionFromCloud();
   } else {
     if (!sb) return;
-    const { data, error } = await sb.from('profile_garden_collections')
-      .select('owned,equipped,bunny')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    if (error) {
-      console.warn('Friend garden collection could not be loaded:', error.message || error);
+    try {
+      const { data, error } = await sb.from('profile_garden_collections')
+        .select('owned,equipped,bunny')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+      collection = normalizeGardenCollection(data || {});
+      try { localStorage.setItem(friendGardenCollectionCacheKey(user.id), JSON.stringify(collection)); } catch {}
+    } catch (error) {
+      console.warn('Friend garden collection could not be loaded:', error?.message || error);
       return;
     }
-    collection = normalizeGardenCollection(data || {});
   }
   if (sequence !== friendGardenRequestSequence || gate.dataset.collectionUserId !== String(user.id)) return;
   renderFriendGardenCollection(collection, user.id, isOwnProfile);
@@ -2796,9 +2804,18 @@ function showFriendProfile(user) {
       const collectionSection = $('#friendProfileCollection');
       const collectionItems = $('#friendProfileCollectionItems');
       const collectionCount = $('#friendProfileCollectionCount');
-      if (collectionSection) collectionSection.hidden = false;
-      if (collectionItems) collectionItems.innerHTML = '';
-      if (collectionCount) collectionCount.hidden = true;
+      let cachedCollection = null;
+      try {
+        const cached = localStorage.getItem(friendGardenCollectionCacheKey(user.id));
+        if (cached) cachedCollection = normalizeGardenCollection(JSON.parse(cached));
+      } catch {}
+      if (cachedCollection) {
+        renderFriendGardenCollection(cachedCollection, user.id, false);
+      } else {
+        if (collectionSection) collectionSection.hidden = false;
+        if (collectionItems) collectionItems.innerHTML = '';
+        if (collectionCount) collectionCount.hidden = true;
+      }
       loadFriendGardenCollection(user, false);
     }
     const streak = Math.max(0, Number(user.login_streak) || 0);

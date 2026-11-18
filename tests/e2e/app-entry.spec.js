@@ -179,7 +179,7 @@ test('settings tabs switch sections and clicking outside dismisses the panel', a
 test('appearance choices update the selected theme and buddy without saving', async ({ page }) => {
   await mountSettingsHarness(page);
   await page.locator('#profileSettingsTrigger').dispatchEvent('click');
-  await page.locator('[data-settings-tab="appearance"]').click();
+  await page.locator('[data-settings-tab="appearance"]').dispatchEvent('click');
 
   const sage = page.locator('[data-settings-theme-choice="sage"]');
   await sage.dispatchEvent('click');

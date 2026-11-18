@@ -3836,7 +3836,7 @@ body[data-mode="dark"] #profileGate .profile-card { border-color: var(--cb-borde
   font:800 clamp(1.2rem,2.5vw,1.7rem)/1.2 Quicksand,Nunito,sans-serif!important;
   text-align:left!important;
 }
-#profileGate #profileSettingsMount{display:none!important}
+#profileGate #profileSettingsMount{display:block!important;grid-column:1/-1!important;min-width:0!important}
 #profileGate .profile-card>label:not(.theme-picker-label){
   grid-column:span 2!important;
   min-width:0!important;

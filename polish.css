@@ -3166,27 +3166,7 @@ body{color:var(--cb-ink);background:var(--cb-cream)}
 #content :is(h2,h3,h4){overflow-wrap:anywhere}
 #content :is(.tile,.panel,.section-card,.settings-card){border-radius:22px}
 
-/* Friend profile: one vertical reading flow, no cramped side-by-side overflow. */
-#friendProfileGate{align-items:flex-start!important;padding:clamp(12px,3vw,28px)!important}
-#friendProfileGate .auth-card.friend-profile-card{
-  width:min(100%,620px)!important;max-width:620px!important;margin:8px auto!important;
-  padding:clamp(18px,3.5vw,30px)!important;border-radius:28px!important;
-  box-shadow:0 18px 48px rgba(91,65,87,.14)!important;
-}
-#friendProfileGate .friend-profile-main-row{
-  grid-template-columns:64px minmax(0,1fr) auto!important;gap:13px!important;
-  align-items:center!important;padding:8px 0 14px!important;
-}
-#friendProfileGate .friend-profile-avatar-wrap,
-#friendProfileGate .friend-profile-avatar{width:64px!important;height:64px!important}
-#friendProfileGate .friend-profile-identity{min-width:0!important}
-#friendProfileGate .friend-profile-identity h2{font-size:clamp(1.1rem,3vw,1.45rem)!important;overflow-wrap:anywhere}
-#friendProfileGate .friend-profile-bio-row{display:flex!important;gap:12px!important;margin:10px 0!important}
-#friendProfileGate .friend-profile-bio{min-width:0!important;flex:1!important;line-height:1.55!important}
-#friendProfileGate .friend-profile-activity-line{display:flex!important;flex-wrap:wrap!important;gap:10px!important;justify-content:space-between!important}
-#friendProfileGate .friend-profile-collection,#friendProfileGate .friend-profile-badges{margin-top:20px!important;padding-top:16px!important;border-top:1px solid rgba(177,142,164,.18)!important}
-#friendProfileGate .friend-profile-section-heading{display:flex!important;align-items:center!important;gap:8px!important;margin-bottom:12px!important}
-#friendProfileGate .friend-profile-collection-items{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+/* Own profile positioning restored to the original centered auth-gate layout. */
 
 /* Streak Garden: align every section to one grid and reduce the oversized hero. */
 .streak-garden-page{gap:20px!important;padding-bottom:24px!important}
@@ -3249,13 +3229,6 @@ body[data-mode="dark"] #friendProfileGate .auth-card.friend-profile-card{border-
 /* Narrow screens: prevent clipped labels, squeezed controls and accidental horizontal scroll. */
 @media(max-width:600px){
   #content{padding-inline:13px!important}
-  #friendProfileGate{padding:8px!important}
-  #friendProfileGate .auth-card.friend-profile-card{width:100%!important;padding:18px 14px!important;border-radius:22px!important}
-  #friendProfileGate .friend-profile-main-row{grid-template-columns:52px minmax(0,1fr)!important;gap:10px!important}
-  #friendProfileGate .friend-profile-main-row .friend-profile-avatar-wrap,
-  #friendProfileGate .friend-profile-main-row .friend-profile-avatar{width:52px!important;height:52px!important}
-  #friendProfileGate .friend-profile-joined{grid-column:2;justify-self:start!important;text-align:left!important;margin-top:-5px}
-  #friendProfileGate .friend-profile-collection-items{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:9px!important}
   .streak-garden-page .sg-hero-paper{grid-template-columns:minmax(0,1fr)!important;min-height:0!important}
   .streak-garden-page .sg-hero-copy{padding:20px 20px 8px!important}
   .streak-garden-page .sg-hero-scene{min-height:190px!important;padding:0 10px 12px!important}

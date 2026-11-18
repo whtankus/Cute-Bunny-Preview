@@ -3575,3 +3575,102 @@ body[data-mode="dark"] #profileGate .profile-card { border-color: var(--cb-borde
 @media (prefers-reduced-motion: reduce) {
   #profileGate .theme-choice { transition: none; }
 }
+
+
+/* Full-viewport Settings: balanced two-column workspace on wide screens,
+   edge-to-edge usable sheet on phones, with scrolling only inside the sheet. */
+#profileGate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  padding: 16px;
+  overflow: hidden;
+}
+#profileGate .profile-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto auto auto;
+  align-content: start;
+  align-items: start;
+  column-gap: clamp(16px, 3vw, 34px);
+  row-gap: 12px;
+  width: min(1040px, 100%);
+  height: min(820px, calc(100dvh - 32px));
+  max-height: calc(100dvh - 32px);
+  min-height: 0;
+  padding: clamp(22px, 3vw, 34px) clamp(22px, 4vw, 48px) 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+#profileGate .settings-page-title { grid-column: 1 / -1; margin-bottom: 5px; }
+#profileGate #profileSettingsMount { display: none; }
+#profileGate .profile-card > label:not(.theme-picker-label) {
+  grid-column: 1;
+  align-self: stretch;
+}
+#profileGate .classic-profile-gender { grid-column: 1; align-self: start; }
+#profileGate .profile-card > .theme-picker-label:nth-of-type(2) { grid-column: 2; }
+#profileGate #profileThemeChoices { grid-column: 2; grid-row: 3 / span 2; align-self: start; }
+#profileGate .profile-card > .theme-picker-label:nth-of-type(3) { grid-column: 2; }
+#profileGate #profileBuddyChoices { grid-column: 2; align-self: start; }
+#profileGate #profileSave,
+#profileGate #signOut { grid-column: 1 / -1; }
+#profileGate #profileSave { position: static; margin-top: 8px; }
+#profileGate .theme-choice-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#profileGate .buddy-choice-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (min-width: 1100px) {
+  #profileGate .profile-card { width: min(1120px, calc(100vw - 64px)); }
+  #profileGate .theme-choice { min-height: 82px; }
+}
+@media (max-width: 700px) {
+  #profileGate {
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0;
+  }
+  #profileGate .profile-card {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    align-content: start;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    min-height: 100%;
+    border-radius: 0;
+    border: 0;
+    padding: max(22px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+    padding-top: max(22px, env(safe-area-inset-top));
+  }
+  #profileGate .settings-page-title,
+  #profileGate .profile-card > label:not(.theme-picker-label),
+  #profileGate .classic-profile-gender,
+  #profileGate .profile-card > .theme-picker-label:nth-of-type(2),
+  #profileGate #profileThemeChoices,
+  #profileGate .profile-card > .theme-picker-label:nth-of-type(3),
+  #profileGate #profileBuddyChoices,
+  #profileGate #profileSave,
+  #profileGate #signOut {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  #profileGate .settings-page-title { margin-bottom: 2px; }
+  #profileGate #profileThemeChoices { grid-row: auto; }
+  #profileGate .theme-choice { min-height: 70px; }
+  #profileGate #profileSave { position: sticky; bottom: 0; margin-top: 5px; }
+}
+@media (max-width: 380px) {
+  #profileGate .profile-card { padding-left: 13px; padding-right: 13px; }
+  #profileGate .theme-choice { min-height: 64px; padding: 7px 3px; font-size: .59rem; }
+}
+@media (max-height: 620px) and (min-width: 701px) {
+  #profileGate .profile-card { gap: 7px; padding-top: 14px; padding-bottom: 14px; }
+  #profileGate .theme-choice { min-height: 58px; }
+  #profileGate .theme-swatch { width: 26px; height: 26px; }
+}

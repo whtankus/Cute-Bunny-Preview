@@ -924,37 +924,153 @@ function readStreakDailyQuests(dateKey) {
     return {
       hearts: Array.isArray(saved.hearts) ? [...new Set(saved.hearts.map(String))] : [],
       photo: saved.photo === true,
+      photoCount: Math.max(saved.photo === true ? 1 : 0, Number(saved.photoCount) || 0),
       kissNote: saved.kissNote === true,
+      kissNotes: Math.max(saved.kissNote === true ? 1 : 0, Number(saved.kissNotes) || 0),
       note: Math.max(0, Number(saved.note) || 0),
+      noteTexts: Array.isArray(saved.noteTexts) ? saved.noteTexts.slice(-80).map(String) : [],
       song: saved.song === true,
+      songCount: Math.max(saved.song === true ? 1 : 0, Number(saved.songCount) || 0),
       login: saved.login === true,
       badge: saved.badge === true
     };
-  } catch { return {hearts:[], photo:false, kissNote:false, note:0, song:false, login:false, badge:false}; }
+  } catch { return {hearts:[], photo:false, photoCount:0, kissNote:false, kissNotes:0, note:0, noteTexts:[], song:false, songCount:0, login:false, badge:false}; }
 }
 function writeStreakDailyQuests(dateKey, state) {
   try { localStorage.setItem(streakStorageKey('daily-quests:' + dateKey), JSON.stringify(state)); } catch {}
 }
 function getDailyQuestRotation(dateKey) {
-  const pool = [
-    {id:'hearts', title:'Spread 3 hearts', description:'Like three different memories.', target:3, icon:'💗', progress:state => Math.min(3,state.hearts.length), done:state => state.hearts.length >= 3},
-    {id:'photo', title:'Share a photo', description:'Add one photo to your garden.', target:1, icon:'🌷', progress:state => state.photo ? 1 : 0, done:state => state.photo},
-    {id:'kissNote', title:'Send a kiss', description:'Send a Notes message with a kiss emoji.', target:1, icon:'💋', progress:state => state.kissNote ? 1 : 0, done:state => state.kissNote},
-    {id:'note', title:'Write a little note', description:'Send one message in Notes.', target:1, icon:'💌', progress:state => Math.min(1,state.note), done:state => state.note >= 1},
-    {id:'song', title:'Add to the soundtrack', description:'Share one song in your cozy playlist.', target:1, icon:'🎵', progress:state => state.song ? 1 : 0, done:state => state.song},
-    {id:'login', title:'Visit your garden', description:'Check in to Cute Bunny today.', target:1, icon:'🐰', progress:state => state.login ? 1 : 0, done:state => state.login}
+  // 20-day guided journey: three hand-picked quests per day, in a fixed order.
+  const journey = [
+    [
+      ['Cloud watcher','Share a photo of the clouds drifting above you.','photo','photo'],
+      ['A note to the sky','Write a little Notes message about the clouds you saw.','note','note','cloud'],
+      ['Leave three hearts','Send love to three different memories.','heart','hearts',null,3]
+    ],
+    [
+      ['Pocket-sized soundtrack','Share a song that feels like a peaceful morning.','song','song'],
+      ['Blue above','Share a photo of something blue in the sky or around you.','photo','photo'],
+      ['A color you love','Write a Notes message about your favourite color.','note','note','color']
+    ],
+    [
+      ['A tiny kindness','Leave hearts on three memories that make you smile.','heart','hearts',null,3],
+      ['Send a little kiss','Send a Notes message with a kiss or heart-kiss emoji.','kiss-note','kissNote'],
+      ['One good thing','Write one small thing that made today better.','note','note','today']
+    ],
+    [
+      ['Nature postcard','Share a photo of a tree, leaf, flower, or garden.','photo','photo'],
+      ['Your current soundtrack','Share a song you would play on a slow evening.','song','song'],
+      ['A warm hello','Like three memories shared by someone else.','heart','hearts',null,3]
+    ],
+    [
+      ['A memory in a frame','Share a photo of a place you want to remember.','photo','photo'],
+      ['A note of gratitude','Write a Notes message thanking someone or something.','note','note','thank'],
+      ['Visit your little garden','Check in today and let your streak flower.','login','login']
+    ],
+    [
+      ['Soundtrack for the stars','Share a song that belongs under a night sky.','song','song'],
+      ['A little daydream','Write a Notes message about somewhere you wish to visit.','note','note','wish'],
+      ['Spread the softest love','Send hearts to three different memories.','heart','hearts',null,3]
+    ],
+    [
+      ['Golden-hour moment','Share a photo with a warm, sunny, or golden feeling.','photo','photo'],
+      ['A sweet surprise','Send a Notes message with a kiss emoji.','kiss-note','kissNote'],
+      ['A tiny poem','Write two short lines in Notes about something beautiful.','note','note','beautiful']
+    ],
+    [
+      ['Find a little wonder','Share a photo of something small and lovely.','photo','photo'],
+      ['Music that feels like home','Share a song that makes you feel at home.','song','song'],
+      ['Three smiles sent','Like three memories that brighten your day.','heart','hearts',null,3]
+    ],
+    [
+      ['A note to future you','Write a Notes message to your future self.','note','note','future'],
+      ['Kindness in the garden','Send three hearts to memories from other people.','heart','hearts',null,3],
+      ['A kiss in the margins','Send a little kiss through Notes.','kiss-note','kissNote']
+    ],
+    [
+      ['The view outside','Share a photo of the view from where you are.','photo','photo'],
+      ['A song for the journey','Share a song you would take on a long trip.','song','song'],
+      ['Today in three words','Write a Notes message describing today in three words.','note','note','today']
+    ],
+    [
+      ['Cloud shapes','Share a photo of clouds that look like something.','photo','photo'],
+      ['Three little appreciations','Leave hearts on three memories you appreciate.','heart','hearts',null,3],
+      ['A moment worth keeping','Write a Notes message about a moment you want to remember.','note','note','remember']
+    ],
+    [
+      ['A melody to share','Share a song that matches your mood right now.','song','song'],
+      ['A little love note','Send a Notes message with a kiss or affectionate emoji.','kiss-note','kissNote'],
+      ['A new perspective','Write one thing you noticed today that you usually overlook.','note','note','noticed']
+    ],
+    [
+      ['Nature, up close','Share a photo of a leaf, petal, raindrop, or tiny detail.','photo','photo'],
+      ['Three bright spots','Like three memories that deserve a little love.','heart','hearts',null,3],
+      ['A hopeful thought','Write a Notes message about something you are looking forward to.','note','note','forward']
+    ],
+    [
+      ['A song for the moon','Share a calm song for a quiet night.','song','song'],
+      ['A little piece of color','Share a photo with your favourite color in it.','photo','photo'],
+      ['Send kindness around','Leave hearts on three different memories.','heart','hearts',null,3]
+    ],
+    [
+      ['A photo with a story','Share a photo that has a small story behind it.','photo','photo'],
+      ['A note of encouragement','Write a Notes message to encourage someone.','note','note','you'],
+      ['A kiss for the day','Send a sweet kiss in Notes.','kiss-note','kissNote']
+    ],
+    [
+      ['A sound you love','Share a song whose sound you never get tired of.','song','song'],
+      ['A small victory','Write a Notes message about one thing you did well.','note','note','did'],
+      ['Three hearts of joy','Like three memories that make you happy.','heart','hearts',null,3]
+    ],
+    [
+      ['A quiet corner','Share a photo of a peaceful corner or cosy spot.','photo','photo'],
+      ['A thought worth sharing','Write a Notes message about an idea on your mind.','note','note','think'],
+      ['Back to the garden','Check in and give your streak a little care.','login','login']
+    ],
+    [
+      ['A song to remember','Share a song connected to a special memory.','song','song'],
+      ['A little affection','Send a kiss or heart-kiss through Notes.','kiss-note','kissNote'],
+      ['Three thoughtful hearts','Leave hearts on three memories from others.','heart','hearts',null,3]
+    ],
+    [
+      ['A sky worth saving','Share a photo of the sky at any time of day.','photo','photo'],
+      ['A note about wonder','Write a Notes message about something that still amazes you.','note','note','wonder'],
+      ['Share the love','Like three different memories in the garden.','heart','hearts',null,3]
+    ],
+    [
+      ['The final soundtrack','Share one song that sums up these 20 days.','song','song'],
+      ['A postcard to yourself','Share a photo of something you want to carry into tomorrow.','photo','photo'],
+      ['Your 20-day reflection','Write a Notes message about your favourite moment from this journey.','note','note','favourite']
+    ]
   ];
-  // Stable per account and local calendar day: the same three quests remain all day.
-  const seedText = String(me?.id || me?.username || 'guest') + ':' + dateKey;
-  let seed = 2166136261;
-  for (let i=0;i<seedText.length;i++) seed = Math.imul(seed ^ seedText.charCodeAt(i),16777619);
-  const shuffled = pool.slice();
-  for (let i=shuffled.length-1;i>0;i--) {
-    seed = (Math.imul(seed,1664525)+1013904223) >>> 0;
-    const j = seed % (i+1);
-    [shuffled[i],shuffled[j]] = [shuffled[j],shuffled[i]];
-  }
-  return shuffled.slice(0,3);
+  const campaignKey = streakStorageKey('daily-quest-campaign-start');
+  let campaignStart = '';
+  try {
+    campaignStart = localStorage.getItem(campaignKey) || '';
+    if (!campaignStart) {
+      campaignStart = dateKey;
+      localStorage.setItem(campaignKey, campaignStart);
+    }
+  } catch { campaignStart = dateKey; }
+  const startDate = new Date(campaignStart + 'T00:00:00Z');
+  const currentDate = new Date(dateKey + 'T00:00:00Z');
+  const elapsedDays = Number.isFinite(startDate.getTime()) && Number.isFinite(currentDate.getTime())
+    ? Math.max(0, Math.floor((currentDate - startDate) / 86400000)) : 0;
+  const dayIndex = elapsedDays % journey.length;
+  return journey[dayIndex].map((entry, slot) => {
+    const [title, description, kind, art, match, target = 1] = entry;
+    const id = 'day-' + (dayIndex + 1) + '-quest-' + (slot + 1);
+    const progress = state => {
+      if (kind === 'heart') return Math.min(target, state.hearts.length);
+      if (kind === 'photo') return Math.min(target, state.photoCount);
+      if (kind === 'song') return Math.min(target, state.songCount);
+      if (kind === 'kiss-note') return Math.min(target, state.kissNotes);
+      if (kind === 'login') return state.login ? 1 : 0;
+      if (kind === 'note' && match) return Math.min(target, state.noteTexts.filter(text => text.toLowerCase().includes(match)).length);
+      return Math.min(target, state.note);
+    };
+    return {id,title,description,target,art,kind,match,progress,done:state => progress(state) >= target};
+  });
 }
 /* Preview-only Petal Points: local, per-account reward ledger. */
 function readPetalRewards() {
@@ -1189,11 +1305,12 @@ function recordStreakDailyQuest(kind, value = '') {
   const dateKey = streakDateInTimeZone(timezone);
   const state = readStreakDailyQuests(dateKey);
   if (kind === 'heart' && value && !state.hearts.includes(String(value))) state.hearts.push(String(value));
-  if (kind === 'photo') state.photo = true;
-  if (kind === 'kiss-note') state.kissNote = true;
-  if (kind === 'note') state.note = Math.min(99,state.note + 1);
-  if (kind === 'song') state.song = true;
+  if (kind === 'photo') { state.photo = true; state.photoCount = Math.min(99,state.photoCount + 1); }
+  if (kind === 'kiss-note') { state.kissNote = true; state.kissNotes = Math.min(99,state.kissNotes + 1); if (value) state.noteTexts.push(String(value)); }
+  if (kind === 'note') { state.note = Math.min(99,state.note + 1); if (value) state.noteTexts.push(String(value)); }
+  if (kind === 'song') { state.song = true; state.songCount = Math.min(99,state.songCount + 1); }
   if (kind === 'login') state.login = true;
+  state.noteTexts = state.noteTexts.slice(-80);
   const quests = getDailyQuestRotation(dateKey);
   const newlyCompleted = !state.badge && quests.every(quest => quest.done(state));
   if (newlyCompleted) state.badge = true;
@@ -1732,7 +1849,7 @@ function renderStreakPage() {
     }).join('') + '</div></section>';
   const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
     dailyQuestItems.map(item => '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '">' +
-      '<span class="sg-daily-quest-icon">' + gardenIllustration(item.id === 'hearts' ? 'hearts' : item.id) + '</span>' +
+      '<span class="sg-daily-quest-icon">' + gardenIllustration(item.art || item.kind || item.id) + '</span>' +
       '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
       '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
       '<p>' + item.description + '</p><div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>').join('') +
@@ -2015,7 +2132,7 @@ function renderStreakPage() {
       '<section class="sg-milestones-section sg-hearts-section"><div class="sg-section-heading"><div><h3>Your Hearts</h3><p>' + heartCount + ' hearts received · ' + heartMilestones.filter(item => heartCount >= item.hearts).length + ' of ' + heartMilestones.length + ' milestones unlocked</p></div></div>' +
       '<div class="sg-milestone-route">' + heartBadges + '</div></section></section>',
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" id="sgDailyPanel" role="tabpanel"' + (streakGardenActiveTab === 'daily' ? '' : ' hidden') + '>' +
-      '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>A little kindness makes the garden bloom</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
+      '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>20-day garden adventure · Day ' + (Math.floor(Math.max(0,(new Date(todayKey + 'T00:00:00Z') - new Date((localStorage.getItem(streakStorageKey('daily-quest-campaign-start')) || todayKey) + 'T00:00:00Z')) / 86400000) % 20) + 1) + ' of 20 · 60 little challenges</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
       dailyQuestMarkup + petalRewardsMarkup + weeklyMarkup + collectibleMarkup + '</section></section>',
     '</div>',
     '</div>',
@@ -3590,8 +3707,8 @@ async function sendChatMessage() {
       .select('id,owner_id,kind,text,created_at')
       .single();
     if (sendError) throw sendError;
-    recordStreakDailyQuest('note');
-    if (/💋|😘|😗|😙|😚|😽/u.test(text)) recordStreakDailyQuest('kiss-note');
+    recordStreakDailyQuest('note', text);
+    if (/💋|😘|😗|😙|😚|😽/u.test(text)) recordStreakDailyQuest('kiss-note', text);
     const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
     feed = feed.map(m => String(m.id) === tempId ? record : m);
     renderNotesPage({ followLatest: true });
@@ -5971,8 +6088,8 @@ document.addEventListener('change', async e => {
       previewUrl
     };
     feed = feed.map(m => String(m.id) === tempId ? item : m);
-    if (kind === 'photo') recordStreakDailyQuest('photo');
-    if (kind === 'song') recordStreakDailyQuest('song');
+    if (kind === 'photo') recordStreakDailyQuest('photo', file.name);
+    if (kind === 'song') recordStreakDailyQuest('song', file.name);
     render();
     toast('Added to your shared scrapbook ♡');
   } catch (err) {

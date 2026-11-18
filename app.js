@@ -2683,7 +2683,7 @@ function showFriendProfile(user) {
       const collectionCount = $('#friendProfileCollectionCount');
       if (collectionCount) collectionCount.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
       const collectionItems = $('#friendProfileCollectionItems');
-      if (collectionItems) collectionItems.innerHTML = ownedItems.length ? ownedItems.slice(0,6).map(item => '<span class="friend-profile-collection-item' + ((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id ? ' is-equipped' : '') + '" title="' + esc(item.name) + '"><span>' + item.icon + '</span><small>' + esc(item.name) + '</small></span>').join('') : '<p class="friend-profile-empty">Your first little treasure is waiting in the Garden Shop ♡</p>';
+      if (collectionItems) collectionItems.innerHTML = ownedItems.length ? ownedItems.slice(0,6).map(item => '<span class="friend-profile-collection-item' + ((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id ? ' is-equipped' : '') + '" title="' + esc(item.name) + '"><span class="friend-profile-collection-art">' + (item.art || '<span aria-hidden="true">✿</span>') + '</span><small>' + esc(item.name) + '</small>' + (((item.type === 'garden' ? collection.equipped : collection.bunny) === item.id) ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>').join('') : '<p class="friend-profile-empty">Your first little treasure is waiting in the Garden Shop ♡</p>';
     }
     const streak = Math.max(0, Number(user.login_streak) || 0);
     const heartTotal = Math.max(0, Number(user.heartCount) || 0);
@@ -2707,7 +2707,7 @@ function showFriendProfile(user) {
   ];
     const milestoneBadges = (items,total,unit) => items.filter(item => total >= item.goal).map(item => {
       const art = unit === 'days' ? STREAK_MILESTONE_ILLUSTRATIONS[items.indexOf(item)] : item.icon;
-      return '<span class="friend-profile-milestone-badge is-unlocked" title="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit)+'" aria-label="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit+' · Unlocked')+'">'+(typeof art === 'string' && art.trim().startsWith('<svg') ? '<span class="friend-profile-milestone-svg">'+art+'</span>' : art)+'</span>';
+      return '<span class="friend-profile-milestone-badge is-unlocked" title="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit)+'" aria-label="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit+' · Unlocked')+'">'+(typeof art === 'string' && art.trim().startsWith('<svg') ? '<span class="friend-profile-milestone-svg">'+art+'</span>' : '<span class="friend-profile-milestone-emoji">'+art+'</span>')+'<small>'+esc(item.title)+'</small><i>'+item.goal.toLocaleString()+'</i></span>';
     }).join('');
     const badgeList = $('#friendProfileBadgeList');
     if (badgeList) badgeList.innerHTML =
@@ -4603,7 +4603,7 @@ document.addEventListener('pointerdown', e => {
     photoPressState.suppressTimer = setTimeout(() => {
       photoPressState.suppressClick = false;
     }, 900);
-  }, 420);
+  }, 550);
 });
 
 function cancelPhotoPress(e) {
@@ -4761,7 +4761,7 @@ document.addEventListener('pointerdown', e => {
   const id = String(item?.dataset.memory || '');
   if (!id) return;
   // Cancel the pending single-photo open as soon as the second tap begins.
-  if (lastTouchMemoryTap.id === id && performance.now() - lastTouchMemoryTap.time <= 100) {
+  if (lastTouchMemoryTap.id === id && performance.now() - lastTouchMemoryTap.time <= 320) {
     clearTimeout(photoPressState.clickTimer);
     photoPressState.clickTimer = null;
     photoPressState.pendingPhotoId = null;
@@ -4779,7 +4779,7 @@ document.addEventListener('pointerup', e => {
   if (!isPhotoOrMusic) return;
   const id = String(item?.dataset.memory || '');
   const now = performance.now();
-  if (id && lastTouchMemoryTap.id === id && now - lastTouchMemoryTap.time <= 100) {
+  if (id && lastTouchMemoryTap.id === id && now - lastTouchMemoryTap.time <= 320) {
     lastTouchMemoryTap = { id: '', time: 0, tile: null };
     suppressNativeMemoryDblclickUntil = now + 500;
     if (e.target.closest('.feed-photo')) {
@@ -5421,7 +5421,7 @@ document.addEventListener('click', async e => {
       photoPressState.clickTimer = null;
       photoPressState.pendingPhotoId = null;
       if (pendingId) void openPhotoLightbox(pendingId);
-    }, 100);
+    }, 320);
     return;
   }
   if (e.target.closest('#photoLightboxSave')) {

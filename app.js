@@ -1106,9 +1106,10 @@ const GARDEN_COLLECTIBLES = [
   {id:'moon-bunny-hood',name:'Moon Bunny Hood',art:gardenIllustration('moon-bunny-hood'),cost:220,type:'bunny',rarity:'epic'},
   {id:'celestial-rose',name:'Celestial Rose',art:gardenIllustration('celestial-rose'),cost:300,type:'garden',rarity:'legendary'}
 ];
-function buyGardenCollectible(id) {
+async function buyGardenCollectible(id) {
   const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
   if (!item || !me) return;
+  await hydrateGardenCollectionFromCloud();
   const collection = readGardenCollection();
   if (collection.owned.includes(id)) {
     if (item.type === 'garden') collection.equipped = collection.equipped === id ? 'none' : id;

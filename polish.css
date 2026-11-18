@@ -3325,3 +3325,38 @@ body[data-mode="dark"] #friendProfileGate .auth-card.friend-profile-card{border-
 @media(prefers-reduced-motion:reduce){
   #content *,#profileGate *,#friendProfileGate *{scroll-behavior:auto!important;transition-duration:.01ms!important}
 }
+
+
+/* Restore the original full-screen profile editor positioning. */
+#profileGate{
+  display:grid!important;place-items:stretch!important;
+  padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))!important;
+  overflow-y:auto!important;
+  background:linear-gradient(145deg,rgba(248,225,237,.96),rgba(235,226,247,.96) 52%,rgba(224,241,231,.96))!important;
+  backdrop-filter:blur(18px)!important;
+}
+#profileGate:not(.hidden){display:grid!important}
+#profileGate.hidden{display:none!important}
+#profileGate .auth-card.profile-card{
+  width:100%!important;max-width:none!important;min-height:100%!important;max-height:none!important;height:auto!important;
+  margin:0!important;padding:clamp(24px,5vw,48px) clamp(18px,5vw,64px) 34px!important;
+  overflow:visible!important;border:1px solid rgba(255,255,255,.76)!important;border-radius:30px!important;
+  background:rgba(255,251,249,.82)!important;
+  box-shadow:0 18px 60px rgba(117,82,112,.12),inset 0 1px 0 rgba(255,255,255,.8)!important;text-align:left!important;
+}
+#profileGate .profile-card .auth-bunny,
+#profileGate .profile-title-row,
+#profileGate .profile-date,
+#profileGate .theme-picker-label{text-align:center!important}
+#profileGate .profile-title-row{justify-content:center!important}
+#profileGate .profile-date{top:auto!important;left:auto!important}
+@media(max-width:560px){
+  #profileGate{padding:0!important}
+  #profileGate .auth-card.profile-card{min-height:100dvh!important;border-radius:0!important;padding:calc(env(safe-area-inset-top) + 58px) 17px calc(env(safe-area-inset-bottom) + 24px)!important}
+  #profileGate .profile-name-row{grid-template-columns:1fr!important}
+  #profileGate .classic-gender-choices{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #profileGate .theme-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(min-width:900px){
+  #profileGate .auth-card.profile-card{max-width:900px!important;margin:auto!important;min-height:calc(100dvh - 28px)!important}
+}

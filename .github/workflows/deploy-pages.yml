@@ -30,8 +30,14 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install project dependencies
+        run: npm install
+
       - name: Run app shell regression tests
         run: npm test
+
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -43,6 +49,9 @@ jobs:
         run: |
           npm run check
           npm run build
+
+      - name: Run desktop and mobile browser tests
+        run: npm run test:e2e
 
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3

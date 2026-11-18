@@ -3710,3 +3710,82 @@ body[data-mode="dark"] #profileGate .theme-choice{
     animation:none!important;
   }
 }
+
+
+/* 2026-11-18 — richer light palettes and expressive theme selection states. */
+body[data-mode="light"][data-theme="rose"]{--cb-bg:#fcf3f6;--cb-surface:#fffafd;--cb-surface-raised:#fff4f8;--cb-surface-soft:#f8e3eb;--cb-text:#533b49;--cb-text-soft:#76566a;--cb-text-muted:#927487;--cb-border:#ebcfdb;--cb-accent:#c96f96;--cb-accent-strong:#a94f79;--cb-accent-soft:#f5dce7;--cb-control:#fffdfd;--cb-shadow-color:137,76,105}
+body[data-mode="light"][data-theme="lavender"]{--cb-bg:#f6f2fc;--cb-surface:#fefbff;--cb-surface-raised:#f8f3ff;--cb-surface-soft:#eae0f7;--cb-text:#4d405d;--cb-text-soft:#6e5b82;--cb-text-muted:#88789a;--cb-border:#dcd0ed;--cb-accent:#9c7bc5;--cb-accent-strong:#7556a2;--cb-accent-soft:#e6daf5;--cb-control:#fff;--cb-shadow-color:91,70,128}
+body[data-mode="light"][data-theme="mint"]{--cb-bg:#f0f8f2;--cb-surface:#fbfffc;--cb-surface-raised:#f2faf4;--cb-surface-soft:#deefe3;--cb-text:#395343;--cb-text-soft:#55735f;--cb-text-muted:#789080;--cb-border:#cbe1d1;--cb-accent:#70a982;--cb-accent-strong:#477f5a;--cb-accent-soft:#d8ecde;--cb-control:#fcfffd;--cb-shadow-color:66,111,79}
+body[data-mode="light"][data-theme="sky"]{--cb-bg:#eff7fb;--cb-surface:#fbfeff;--cb-surface-raised:#f1f9fd;--cb-surface-soft:#dcecf5;--cb-text:#385265;--cb-text-soft:#557185;--cb-text-muted:#7890a0;--cb-border:#cbdfea;--cb-accent:#6ca7c5;--cb-accent-strong:#477f9d;--cb-accent-soft:#d7eaf4;--cb-control:#fcfeff;--cb-shadow-color:62,102,128}
+body[data-mode="light"][data-theme="peach"]{--cb-bg:#fff5ed;--cb-surface:#fffdfa;--cb-surface-raised:#fff7ef;--cb-surface-soft:#f8e5d6;--cb-text:#60463b;--cb-text-soft:#7d5c4e;--cb-text-muted:#98796b;--cb-border:#ecd5c3;--cb-accent:#d18a66;--cb-accent-strong:#a96647;--cb-accent-soft:#f6e0d1;--cb-control:#fffefd;--cb-shadow-color:128,83,61}
+body[data-mode="light"][data-theme="berry"]{--cb-bg:#fff1f6;--cb-surface:#fffafd;--cb-surface-raised:#fff3f8;--cb-surface-soft:#f5dce9;--cb-text:#5b3850;--cb-text-soft:#7c506a;--cb-text-muted:#966e85;--cb-border:#e9c9da;--cb-accent:#c45f91;--cb-accent-strong:#9e3e70;--cb-accent-soft:#f2d6e5;--cb-control:#fffdfd;--cb-shadow-color:125,57,92}
+body[data-mode="light"][data-theme="midnight"]{--cb-bg:#f4eef9;--cb-surface:#fdfaff;--cb-surface-raised:#f7f1fc;--cb-surface-soft:#e8dcf2;--cb-text:#4d405b;--cb-text-soft:#6c587d;--cb-text-muted:#877594;--cb-border:#dbcee8;--cb-accent:#9270aa;--cb-accent-strong:#6c4f85;--cb-accent-soft:#e5d8ef;--cb-control:#fff;--cb-shadow-color:91,69,111}
+body[data-mode="light"][data-theme="sage"]{--cb-bg:#f2f6ed;--cb-surface:#fcfff9;--cb-surface-raised:#f5f9ef;--cb-surface-soft:#e3ecd9;--cb-text:#45563d;--cb-text-soft:#60734f;--cb-text-muted:#809071;--cb-border:#d1dec4;--cb-accent:#829e6d;--cb-accent-strong:#597544;--cb-accent-soft:#dfead4;--cb-control:#fcfff9;--cb-shadow-color:76,98,68}
+body[data-mode="light"][data-theme="buttercup"]{--cb-bg:#faf7e8;--cb-surface:#fffef8;--cb-surface-raised:#fffbed;--cb-surface-soft:#f3edcc;--cb-text:#5a5035;--cb-text-soft:#756644;--cb-text-muted:#90815d;--cb-border:#e5d9ae;--cb-accent:#bd9b3e;--cb-accent-strong:#896b25;--cb-accent-soft:#f1e8c1;--cb-control:#fffef9;--cb-shadow-color:113,93,45}
+
+/* Theme changes now ease across the app instead of snapping between palettes. */
+body[data-theme],body[data-theme] .app,body[data-theme] .app>header,body[data-theme] .app>#nav,
+body[data-theme] #content .tile,body[data-theme] #content .daily,body[data-theme] #content .friend-row,
+body[data-theme] #content .home-feature-card,body[data-theme] #content .chat-page,
+body[data-theme] #content .chat-bubble,body[data-theme] .profile-settings-panel,
+body[data-theme] .notification-card,body[data-theme] .auth-card,body[data-theme] .music-player-card,
+body[data-theme] .photo-lightbox-card{
+  transition:background-color .38s cubic-bezier(.2,.75,.25,1),background .38s cubic-bezier(.2,.75,.25,1),
+  color .28s ease,border-color .32s ease,box-shadow .34s ease!important;
+}
+
+/* Theme tiles have a clear selected ring, a small check and a lively illustration response. */
+.profile-settings-panel .settings-theme-choice,
+#profileGate .theme-choice{
+  position:relative!important;
+  overflow:visible!important;
+  isolation:isolate;
+  transition:transform .24s cubic-bezier(.2,.85,.25,1.18),background .28s ease,border-color .28s ease,
+  box-shadow .28s ease,color .2s ease!important;
+}
+.profile-settings-panel .settings-theme-choice.is-selected,
+#profileGate .theme-choice.is-selected{
+  border-color:var(--cb-accent,#c87598)!important;
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--cb-accent,#c87598) 22%,transparent),
+  0 7px 17px color-mix(in srgb,var(--cb-accent,#c87598) 17%,transparent),
+  inset 0 1px 0 rgba(255,255,255,.72)!important;
+  transform:translateY(-2px);
+}
+.profile-settings-panel .settings-theme-choice.is-selected::after,
+#profileGate .theme-choice.is-selected::after{
+  content:"✓";position:absolute;top:5px;right:6px;width:17px;height:17px;display:grid;place-items:center;
+  border-radius:50%;background:var(--cb-accent,#c87598);color:#fff;font:900 10px/1 Nunito,sans-serif;
+  box-shadow:0 2px 5px rgba(50,30,50,.16);animation:cb-theme-check-in .24s cubic-bezier(.2,.85,.25,1.25) both;
+}
+.profile-settings-panel .settings-theme-choice .theme-illustration,
+#profileGate .theme-choice .theme-swatch{transition:transform .3s cubic-bezier(.2,.85,.25,1.25),filter .28s ease}
+.profile-settings-panel .settings-theme-choice.is-selected .theme-illustration,
+#profileGate .theme-choice.is-selected .theme-swatch{transform:scale(1.1) rotate(-5deg);filter:drop-shadow(0 3px 5px color-mix(in srgb,var(--cb-accent,#c87598) 28%,transparent))}
+.profile-settings-panel .settings-theme-choice:active,
+.profile-settings-panel .settings-buddy-choice:active,
+#profileGate .theme-choice:active{transform:translateY(1px) scale(.97)!important}
+@keyframes cb-theme-check-in{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
+
+/* Buddy illustrations respond to selection with a gentle pop, not a jump. */
+.profile-settings-panel .settings-buddy-choice{transition:transform .24s cubic-bezier(.2,.85,.25,1.25),background .24s ease,border-color .24s ease,box-shadow .24s ease!important}
+.profile-settings-panel .settings-buddy-choice.is-selected{border-color:var(--cb-accent)!important;background:var(--cb-accent-soft)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--cb-accent) 17%,transparent),0 5px 13px rgba(var(--cb-shadow-color),.08)!important}
+.profile-settings-panel .settings-buddy-choice.is-selected .buddy-choice-art{animation:cb-buddy-pop .36s cubic-bezier(.2,.85,.25,1.25) both}
+@keyframes cb-buddy-pop{0%{transform:scale(.86)}65%{transform:scale(1.12) rotate(-4deg)}100%{transform:scale(1)}}
+
+/* Secondary controls and icon buttons receive the same palette-aware hover and focus language. */
+body[data-theme] .app button:not(.primary):not(#nav button):not(.settings-theme-choice):not(.settings-buddy-choice):not(.brand),
+body[data-theme] .auth-gate button:not(.primary):not(.settings-theme-choice){
+  transition:background-color .22s ease,border-color .22s ease,color .2s ease,box-shadow .22s ease,transform .2s cubic-bezier(.2,.75,.25,1)!important;
+}
+body[data-theme] .app button:not(.primary):not(#nav button):not(.settings-theme-choice):not(.settings-buddy-choice):hover,
+body[data-theme] .auth-gate button:not(.primary):not(.settings-theme-choice):hover{
+  border-color:color-mix(in srgb,var(--cb-accent) 38%,var(--cb-border));
+}
+body[data-theme] .app button:focus-visible,body[data-theme] .auth-gate button:focus-visible{
+  outline:2px solid color-mix(in srgb,var(--cb-accent) 62%,white)!important;outline-offset:3px;
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-theme],body[data-theme] *,body[data-theme] *::before,body[data-theme] *::after{
+    scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;
+  }
+}

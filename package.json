@@ -8,7 +8,8 @@
     "check:config": "node scripts/check-config.js",
     "dev": "python3 -m http.server 4173",
     "android:sync": "npm run build && cap sync android",
-    "android:open": "cap open android"
+    "android:open": "cap open android",
+    "test": "node --test"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",

@@ -1041,7 +1041,7 @@ function renderFriendGardenCollection(collection, userId) {
   if (!list) return;
   list.innerHTML = ownedItems.length ? ownedItems.slice(0, 12).map(item => {
     const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
-    return '<span class="friend-profile-collection-item garden-rarity-' + esc(item.rarity || 'common') + (equipped ? ' is-equipped' : '') + '" title="' + esc(item.name) + '" aria-label="' + esc(item.name + (equipped ? ', equipped' : '')) + '"><span class="friend-profile-collection-art">' + item.art + '</span>' + (equipped ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>';
+    return '<span class="friend-profile-collection-item garden-rarity-' + esc(item.rarity || 'common') + (equipped ? ' is-equipped' : '') + '" title="' + esc(item.name) + '" aria-label="' + esc(item.name + (equipped ? ', equipped' : '')) + '"><span class="friend-profile-collection-art">' + item.art + '</span><small class="friend-profile-collection-name">' + esc(item.name) + '</small>' + (equipped ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>';
   }).join('') : '<p class="friend-profile-empty">No little treasures collected yet ♡</p>';
 }
 async function loadFriendGardenCollection(user, isOwnProfile) {

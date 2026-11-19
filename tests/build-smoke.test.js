@@ -27,6 +27,7 @@ test('production build emits a complete app bundle with generated public config'
     for (const asset of [
       'index.html',
       'app.js',
+      'virtual-buddy-3d.js',
       'style.css',
       'polish.css',
       'sw.js',

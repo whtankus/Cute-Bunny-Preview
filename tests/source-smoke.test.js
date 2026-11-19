@@ -65,3 +65,11 @@ test('Notes typing broadcasts use private per-sender topics scoped to followed f
   assert.match(migration, /for insert\s+to authenticated/i);
   assert.match(migration, /auth\.uid\(\)/);
 });
+
+test('Notes typing channel owners can subscribe to their own private topic', () => {
+  const migration = read('supabase/migrations/20261119103527_allow_notes_typing_owner_channel_access.sql');
+  assert.match(migration, /split_part\(topic, ':', 2\) = \(select auth\.uid\(\)\)::text/);
+  assert.match(migration, /or exists\s*\(/i);
+  assert.match(migration, /f\.follower_id = \(select auth\.uid\(\)\)/);
+  assert.match(migration, /owners and followers can receive notes typing broadcasts/);
+});

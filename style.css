@@ -14665,3 +14665,136 @@ body[data-mode="dark"] .sg-pet-playground {
 .sg-pet-bunny-art[data-mood="loved"] .bunny-eyes-closed { display:none; }
 .sg-pet-bunny-art[data-mood="calm"] .bunny-eyes-open,
 .sg-pet-bunny-art[data-mood="loved"] .bunny-eyes-open { display:block; }
+
+
+/* Reference-matched Virtual Buddy scene: a larger, plush reclining bunny on a pastel float. */
+.sg-pet-playground {
+  min-height: 420px;
+  margin: 19px 0 17px;
+  padding: 2px 8px 22px;
+  border: 1px solid rgba(191, 171, 224, .24);
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse at 50% 82%, rgba(207, 223, 255, .38), transparent 56%),
+    linear-gradient(180deg, #fffaff 0%, #fbf8ff 48%, #f2f8ff 100%);
+}
+.sg-pet-character-illustrated {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 550px);
+  max-width: 550px;
+  height: auto;
+  line-height: 0;
+  transform-origin: 50% 82%;
+  filter: drop-shadow(0 8px 9px rgba(119, 92, 151, .075));
+}
+.sg-pet-character-illustrated .sg-pet-bunny-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 414px;
+  overflow: visible;
+}
+.sg-pet-playground .sg-pet-mood {
+  right: 13px;
+  bottom: 10px;
+  left: auto;
+  z-index: 4;
+  padding: 5px 11px;
+  border: 1px solid rgba(193, 169, 220, .12);
+  color: #876b98;
+  background: rgba(255, 255, 255, .78);
+  box-shadow: 0 2px 8px rgba(143, 117, 175, .06);
+  font-size: .7rem;
+}
+.sg-pet-character-illustrated .bunny-ear {
+  transform-box: fill-box;
+  transform-origin: 50% 96%;
+}
+.sg-pet-character-illustrated .bunny-head {
+  transform-box: fill-box;
+  transform-origin: 52% 88%;
+}
+.sg-pet-character-illustrated .bunny-body {
+  transform-box: fill-box;
+  transform-origin: 48% 70%;
+}
+.sg-pet-character-illustrated .bunny-tail {
+  transform-box: fill-box;
+  transform-origin: 48% 78%;
+  animation: bunny-tail-bob 3.3s ease-in-out infinite;
+}
+.sg-pet-character-illustrated .bunny-ring {
+  transform-box: fill-box;
+  transform-origin: 50% 54%;
+}
+.sg-pet-character-illustrated .bunny-paw-far {
+  transform-box: fill-box;
+  transform-origin: 25% 35%;
+}
+.sg-pet-character-illustrated .bunny-paw-front {
+  transform-box: fill-box;
+  transform-origin: 18% 26%;
+}
+.sg-pet-character-illustrated .bunny-outline-star {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bunny-outline-star-glow 3s ease-in-out infinite;
+}
+.sg-pet-character-illustrated .bunny-outline-star-two { animation-delay: -1.2s; }
+.sg-pet-character-illustrated .bunny-outline-star-three { animation-delay: -.6s; }
+.sg-pet-character-illustrated .bunny-cheek-hatch {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bunny-blush 3s ease-in-out infinite;
+}
+.sg-pet-character-illustrated .bunny-floating-stars {
+  pointer-events: none;
+}
+.sg-pet-action-play .sg-pet-character-illustrated .bunny-paw-front {
+  animation: bunny-play-paw .85s ease-in-out 2;
+}
+.sg-pet-action-feed .sg-pet-character-illustrated .bunny-head {
+  animation: bunny-feed-bob .32s ease-in-out 4;
+}
+.sg-pet-action-feed .sg-pet-character-illustrated .bunny-mouth {
+  animation: bunny-nibble .22s ease-in-out 6;
+}
+.sg-pet-action-cuddle .sg-pet-character-illustrated .bunny-head {
+  animation: bunny-cuddle-lean .95s ease-in-out 2;
+}
+.sg-pet-action-cuddle .sg-pet-character-illustrated .bunny-paw-front {
+  animation: bunny-paw-cuddle .8s ease-in-out 2;
+}
+body[data-mode="dark"] .sg-pet-playground {
+  background:
+    radial-gradient(ellipse at 50% 82%, rgba(191, 190, 250, .26), transparent 56%),
+    linear-gradient(180deg, #f9f5ff 0%, #f2efff 48%, #ebf4ff 100%);
+}
+@media (max-width:560px) {
+  .sg-pet-playground {
+    min-height: 340px;
+    padding: 0 2px 24px;
+  }
+  .sg-pet-character-illustrated {
+    width: min(100%, 450px);
+  }
+  .sg-pet-character-illustrated .sg-pet-bunny-art {
+    max-height: 322px;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .sg-pet-character-illustrated .bunny-tail,
+  .sg-pet-character-illustrated .bunny-outline-star {
+    animation: none !important;
+  }
+}
+@keyframes bunny-tail-bob {
+  0%,100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-3px) rotate(3deg); }
+}
+@keyframes bunny-outline-star-glow {
+  0%,100% { opacity: .78; transform: scale(.96) rotate(-2deg); }
+  50% { opacity: 1; transform: scale(1.045) rotate(2deg); }
+}

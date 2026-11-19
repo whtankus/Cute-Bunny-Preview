@@ -64,28 +64,18 @@ test('Notes typing uses the same shared Broadcast channel as the working Cute Bu
   assert.doesNotMatch(app, /notesTypingFriendChannels/);
 });
 
-test('Virtual Buddy keeps its existing care controls while adding moods and compact reactions', () => {
+test('Virtual Buddy feature and its 3D module are fully removed', () => {
   const app = read('app.js');
+  const html = read('index.html');
   const css = read('style.css');
-  assert.match(app, /function getVirtualPetMood\(pet\)/);
-  for (const mood of ['hungry', 'sleepy', 'delighted', 'loved', 'calm']) {
-    assert.ok(app.includes("key: '" + mood + "'"), 'missing buddy mood: ' + mood);
-  }
-  const three = read('virtual-buddy-3d.js');
-  assert.match(app, /id="virtualBuddy3D"/);
-  assert.match(app, /data-action="/);
-  assert.match(three, /three\.module\.js/);
-  assert.match(three, /WebGLRenderer/);
-  assert.match(three, /function buildBunny/);
-  assert.match(three, /requestAnimationFrame/);
-  assert.match(css, /\.sg-bunny-three-host/);
-  assert.match(css, /\.sg-bunny-three-canvas/);
-
-  assert.match(app, /lastActionType/);
-  for (const action of ['feed', 'play', 'cuddle']) {
-    assert.ok(app.includes('data-care-pet="' + action + '"'), 'missing existing care action: ' + action);
-    assert.ok(css.includes('.sg-pet-action-' + action), 'missing care reaction: ' + action);
-  }
-  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
-  assert.match(app, /class="sg-pet-playground sg-pet-mood-/);
+  const sw = read('sw.js');
+  const build = read('scripts/build-preview.js');
+  const workflow = read('.github/workflows/deploy-pages.yml');
+  assert.doesNotMatch(app, /renderVirtualPet|careForVirtualPet|readVirtualPet|data-care-pet|virtualBuddy3D/);
+  assert.doesNotMatch(html, /virtual-buddy-3d/);
+  assert.doesNotMatch(css, /sg-bunny-three|sg-virtual-pet|sg-pet-playground|Virtual Buddy/);
+  assert.doesNotMatch(sw, /virtual-buddy-3d/);
+  assert.doesNotMatch(build, /virtual-buddy-3d/);
+  assert.doesNotMatch(workflow, /virtual-buddy-3d/);
+  assert.ok(!fs.existsSync(path.join(root, 'virtual-buddy-3d.js')));
 });

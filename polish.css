@@ -3953,3 +3953,90 @@ body.notes-page-active #app > header {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+
+
+/* 2026-11-19 — cleaner startup and a softer, animated sign-in surface. */
+#authGate .auth-card{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow-x:hidden!important;
+  border:1px solid rgba(226,190,208,.9)!important;
+  border-radius:34px!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(245,211,227,.55),transparent 34%),
+    radial-gradient(circle at 0% 100%,rgba(231,222,248,.45),transparent 38%),
+    linear-gradient(150deg,#fffdfc 0%,#fff7f7 55%,#f8f4ff 100%)!important;
+  box-shadow:0 24px 70px rgba(99,65,91,.2),inset 0 1px 0 rgba(255,255,255,.95)!important;
+  animation:cb-login-arrive .48s cubic-bezier(.2,.75,.25,1) both!important;
+}
+#authGate .auth-card::before,
+#authGate .auth-card::after{
+  content:"";position:absolute;z-index:-1;pointer-events:none;border-radius:50%;
+  filter:blur(1px);opacity:.58;
+}
+#authGate .auth-card::before{
+  width:138px;height:138px;right:-72px;top:-76px;
+  background:radial-gradient(circle,rgba(238,190,214,.5),rgba(238,190,214,0) 72%);
+}
+#authGate .auth-card::after{
+  width:116px;height:116px;left:-70px;bottom:-68px;
+  background:radial-gradient(circle,rgba(205,191,235,.4),rgba(205,191,235,0) 72%);
+}
+#authGate .auth-bunny{
+  display:inline-grid;place-items:center;min-width:64px;min-height:64px;
+  margin:0 auto 5px;padding:8px;border-radius:23px;
+  background:linear-gradient(145deg,#fff0f5,#f1ecff);
+  box-shadow:0 7px 18px rgba(184,126,157,.14),inset 0 1px 0 #fff;
+  transform-origin:50% 80%;
+  animation:cb-login-bunny 3.2s ease-in-out infinite;
+}
+#authGate .auth-card h2{letter-spacing:-.035em}
+#authGate .auth-card .auth-hint{max-width:310px;margin:0 auto 19px;line-height:1.55}
+#authGate .auth-card label{position:relative;z-index:1;margin:13px 0;color:#806b7c}
+#authGate .auth-card input:not([type="checkbox"]):not([type="radio"]){
+  min-height:49px;padding:12px 15px!important;border:1px solid #ead9e4!important;
+  border-radius:17px!important;background:rgba(255,255,255,.88)!important;
+  box-shadow:inset 0 1px 2px rgba(91,62,88,.035)!important;
+}
+#authGate .auth-card input:focus{
+  border-color:#d99ab7!important;
+  box-shadow:0 0 0 4px rgba(217,154,183,.16)!important;
+}
+#authGate .auth-submit{
+  min-height:50px;border-radius:18px!important;
+  box-shadow:0 5px 0 #ae6888,0 12px 22px rgba(162,97,125,.17)!important;
+  transition:transform .22s ease,filter .22s ease,box-shadow .22s ease!important;
+}
+#authGate .auth-submit:hover{filter:brightness(1.035);transform:translateY(-2px)}
+#authGate .auth-switch{position:relative;z-index:1;border-radius:999px;padding:11px 15px}
+#authGate .auth-error{position:relative;z-index:1}
+@keyframes cb-login-arrive{
+  from{opacity:0;transform:translateY(16px) scale(.975);filter:blur(3px)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+@keyframes cb-login-bunny{
+  0%,100%{transform:translateY(0) rotate(0)}
+  45%{transform:translateY(-4px) rotate(-3deg)}
+  60%{transform:translateY(-3px) rotate(3deg)}
+}
+body[data-mode="dark"] #authGate .auth-card{
+  border-color:rgba(111,83,119,.9)!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(121,87,126,.26),transparent 36%),
+    radial-gradient(circle at 0% 100%,rgba(91,82,139,.2),transparent 38%),
+    linear-gradient(150deg,#342b3d 0%,#302738 58%,#352d43 100%)!important;
+  box-shadow:0 24px 70px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.045)!important;
+}
+body[data-mode="dark"] #authGate .auth-card label{color:#e4d3e1!important}
+body[data-mode="dark"] #authGate .auth-card input:not([type="checkbox"]):not([type="radio"]){
+  background:rgba(42,34,50,.92)!important;border-color:#5b4a63!important;color:#f5eaf2!important;
+}
+body[data-mode="dark"] #authGate .auth-bunny{background:linear-gradient(145deg,#493747,#40364f)!important}
+@media(max-width:520px){
+  #authGate{padding: max(12px,env(safe-area-inset-top)) 14px max(12px,env(safe-area-inset-bottom))!important}
+  #authGate .auth-card{width:min(420px,100%)!important;padding:25px 21px!important;border-radius:29px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #authGate .auth-card,#authGate .auth-bunny{animation:none!important}
+  #authGate .auth-submit{transition:none!important}
+}

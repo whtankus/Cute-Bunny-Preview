@@ -31,6 +31,7 @@ jobs:
         run: |
           node --check app.js
           node --check sw.js
+          node --input-type=module --check < virtual-buddy-3d.js
           node --check scripts/build-preview.js
       - name: Configure Pages
         uses: actions/configure-pages@v5

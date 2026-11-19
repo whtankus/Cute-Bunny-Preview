@@ -3936,3 +3936,43 @@ body[data-theme] .app button:focus-visible,body[data-theme] .auth-gate button:fo
 #content .chat-page .chat-thread.is-refreshing .chat-message,
 #content .chat-page .chat-thread.is-refreshing .chat-day-divider,
 #content .chat-page .chat-thread.is-refreshing .chat-typing-indicator { animation:none!important; transition:none!important; }
+
+/* 2026-11-19 — remove the unwanted top/status-area shade.
+   A later Notes glass-header rule was reintroducing a blurred translucent layer
+   after the earlier header cleanup. Keep the header and safe-area visually flat. */
+html body #app,
+html body #app > header,
+html body.notes-page-active #app,
+html body.notes-page-active #app > header,
+html body.notes-page-active.notes-header-hidden #app > header {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+html body #app > header,
+html body.notes-page-active #app > header,
+html body.notes-page-active.notes-header-hidden #app > header {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  outline: 0 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  isolation: auto !important;
+}
+html body #app::before,
+html body #app::after,
+html body #app > header::before,
+html body #app > header::after,
+html body.notes-page-active #app::before,
+html body.notes-page-active #app::after,
+html body.notes-page-active #app > header::before,
+html body.notes-page-active #app > header::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}

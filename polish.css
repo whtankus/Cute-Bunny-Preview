@@ -3936,3 +3936,20 @@ body[data-theme] .app button:focus-visible,body[data-theme] .auth-gate button:fo
 #content .chat-page .chat-thread.is-refreshing .chat-message,
 #content .chat-page .chat-thread.is-refreshing .chat-day-divider,
 #content .chat-page .chat-thread.is-refreshing .chat-typing-indicator { animation:none!important; transition:none!important; }
+
+/* Keep the Android status-bar safe area and header on one clean surface.
+   Remove the small upward header offset that exposed a shaded strip above it. */
+#app > header,
+body.notes-page-active #app > header {
+  transform: none !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  background: #fcf7f2 !important;
+  background-color: #fcf7f2 !important;
+  background-image: none !important;
+  border-top: 0 !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}

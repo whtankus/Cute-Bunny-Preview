@@ -1308,6 +1308,13 @@ function claimDailyPetalChest() {
   else toast('Today’s reward chest has already been claimed.');
   if (page === 'streak') renderStreakPage();
 }
+function recordStreakNoteQuest(text) {
+  const content = String(text || '');
+  if (!content.trim()) return;
+  recordStreakDailyQuest('note', content);
+  if (/💋|😘|😗|😙|😚|😽/u.test(content)) recordStreakDailyQuest('kiss-note', content);
+}
+
 function recordStreakDailyQuest(kind, value = '') {
   if (!me) return;
   const timezone = normalizeStreakTimeZone(me.streak_timezone || getBrowserStreakTimeZone());
@@ -3718,8 +3725,7 @@ async function sendChatMessage() {
       .select('id,owner_id,kind,text,created_at')
       .single();
     if (sendError) throw sendError;
-    recordStreakDailyQuest('note', text);
-    if (/💋|😘|😗|😙|😚|😽/u.test(text)) recordStreakDailyQuest('kiss-note', text);
+    recordStreakNoteQuest(text);
     const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
     feed = feed.map(m => String(m.id) === tempId ? record : m);
     renderNotesPage({ followLatest: true });
@@ -3748,6 +3754,7 @@ async function saveIgNote() {
   $('#noteComposerGate').classList.add('hidden');
   try {
     const saved = await api('/memories', { method: 'POST', body: JSON.stringify({ kind: 'note', text }) });
+    recordStreakNoteQuest(text);
     const record = { ...saved, createdAt: saved.created_at, author: { ...me, displayName: me?.displayName || me?.username, mascot: me?.mascot || '🐰' } };
     feed = [record, ...feed];
     renderNotesPage({ followLatest: true });

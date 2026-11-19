@@ -3086,12 +3086,6 @@ function profileSettingsMarkup() {
         <textarea id="profileEditBio" maxlength="180" rows="3" placeholder="Write a little introduction..."></textarea>
         <small class="profile-bio-count" id="profileBioCount">0 / 180</small>
       </label>
-      <div class="profile-expression-prompts" aria-label="Bio writing prompts">
-        <span class="profile-expression-hint">Need an idea?</span>
-        <button type="button" data-bio-prompt="A little thing that makes me happy is ">Little joys</button>
-        <button type="button" data-bio-prompt="You’ll usually find me ">You’ll find me</button>
-        <button type="button" data-bio-prompt="Lately, I’m into ">Lately I love</button>
-      </div>
     </div>
     <div class="profile-settings-section profile-editor-settings hidden" id="profileSettingsPersonal" data-settings-section="personal" role="tabpanel">
       <div class="settings-section-intro"><span class="settings-section-icon">✿</span><div><b>About you</b><small>Personalize how your profile is represented.</small></div></div>
@@ -5179,20 +5173,6 @@ document.addEventListener('dblclick', e => {
 document.addEventListener('click', event => {
   let target = event.target;
   if (target && target.nodeType !== 1) target = target.parentElement;
-  const bioPrompt = target?.closest?.('[data-bio-prompt]');
-  if (bioPrompt) {
-    const field = document.querySelector('#profileEditBio');
-    if (field) {
-      const prefix = bioPrompt.dataset.bioPrompt || '';
-      const current = field.value.trim();
-      const next = current ? current + (/[.!?]$/.test(current) ? ' ' : '. ') + prefix : prefix;
-      field.value = next.slice(0, 180);
-      field.focus();
-      field.setSelectionRange(field.value.length, field.value.length);
-      updateProfileLivePreview();
-    }
-    return;
-  }
   const theme = target?.closest?.('[data-settings-theme-choice]');
   const buddy = target?.closest?.('[data-settings-buddy-choice]');
   if (theme) {

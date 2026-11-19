@@ -4020,3 +4020,37 @@ html body[data-mode="dark"] #app > header .brand > b:hover {
   filter: none !important;
   -webkit-filter: none !important;
 }
+
+
+/* Profile expression prompts: compact helpers that fit inside the existing
+   About You panel without changing its width, tabs, or surrounding layout. */
+.profile-expression-prompts {
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px;
+  margin:7px 0 0;
+}
+.profile-expression-hint {
+  color:var(--cb-muted);
+  font-size:.72rem;
+  font-weight:700;
+  margin-right:2px;
+}
+.profile-expression-prompts button {
+  min-height:28px;
+  padding:4px 9px;
+  border:1px solid var(--cb-border, var(--cb-line));
+  border-radius:999px;
+  background:var(--cb-surface-soft, #fff7fa);
+  color:var(--cb-muted-strong, #756176);
+  font:700 .70rem/1.2 Nunito,sans-serif;
+  cursor:pointer;
+  transition:background-color .16s ease,border-color .16s ease,transform .16s ease;
+}
+.profile-expression-prompts button:hover,
+.profile-expression-prompts button:focus-visible {
+  background:var(--cb-accent-soft, #f8e5ec);
+  border-color:var(--cb-accent, #bd6f91);
+}
+.profile-expression-prompts button:active { transform:scale(.97); }

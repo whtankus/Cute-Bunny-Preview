@@ -4054,19 +4054,3 @@ html body[data-mode="dark"] #app > header .brand > b:hover {
   border-color:var(--cb-accent, #bd6f91);
 }
 .profile-expression-prompts button:active { transform:scale(.97); }
-
-
-/* Daily mood expression: compact, theme-aware choices inside Personal settings. */
-.profile-mood-editor{display:grid;gap:9px;margin-top:15px;padding-top:13px;border-top:1px solid var(--cb-border)}
-.profile-mood-heading{display:grid;gap:3px}
-.profile-mood-heading b{color:var(--cb-text);font-size:.86rem}
-.profile-mood-heading small,.profile-mood-note{color:var(--cb-text-muted);font-size:.7rem}
-.profile-mood-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-.profile-mood-options button{display:flex;align-items:center;justify-content:center;gap:5px;min-height:36px;padding:6px 7px;border:1px solid var(--cb-border);border-radius:12px;background:var(--cb-surface-raised);color:var(--cb-text-soft);font:800 .72rem/1.2 Nunito,sans-serif;transition:background .18s ease,border-color .18s ease,transform .18s ease}
-.profile-mood-options button span{font-size:.95rem}
-.profile-mood-options button.is-selected{border-color:var(--cb-accent);background:var(--cb-accent-soft);color:var(--cb-accent-strong);box-shadow:0 0 0 2px color-mix(in srgb,var(--cb-accent) 15%,transparent)}
-.profile-mood-options button:active{transform:translateY(1px)}
-.profile-mood-note{line-height:1.4}
-.friend-profile-mood{width:max-content;max-width:100%;margin:7px 0 0 2px;padding:5px 10px;border:1px solid var(--cb-border);border-radius:999px;background:var(--cb-accent-soft);color:var(--cb-accent-strong);font:800 .72rem/1.3 Nunito,sans-serif}
-.friend-profile-mood[hidden]{display:none}
-@media(max-width:380px){.profile-mood-options{gap:5px}.profile-mood-options button{font-size:.66rem;padding-inline:4px}}

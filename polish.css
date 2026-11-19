@@ -3936,22 +3936,3 @@ body[data-theme] .app button:focus-visible,body[data-theme] .auth-gate button:fo
 #content .chat-page .chat-thread.is-refreshing .chat-message,
 #content .chat-page .chat-thread.is-refreshing .chat-day-divider,
 #content .chat-page .chat-thread.is-refreshing .chat-typing-indicator { animation:none!important; transition:none!important; }
-
-/* Keep the global top bar exclusive to Notes. The Notes header and mobile
-   browser status-bar area share the active theme surface colour. */
-body:not(.notes-page-active) #app > header {
-  display: none !important;
-}
-body.notes-page-active #app > header {
-  display: flex !important;
-  width: 100% !important;
-  max-width: none !important;
-  background: var(--cb-bg) !important;
-  background-color: var(--cb-bg) !important;
-  border-bottom: 1px solid var(--cb-border) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-body.notes-page-active {
-  background-color: var(--cb-bg) !important;
-}

@@ -14669,7 +14669,7 @@ body[data-mode="dark"] .sg-pet-playground {
 
 /* Reference-matched Virtual Buddy scene: a larger, plush reclining bunny on a pastel float. */
 .sg-pet-playground {
-  min-height: 420px;
+  min-height: 500px;
   margin: 19px 0 17px;
   padding: 2px 8px 22px;
   border: 1px solid rgba(191, 171, 224, .24);
@@ -14682,8 +14682,8 @@ body[data-mode="dark"] .sg-pet-playground {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: min(100%, 550px);
-  max-width: 550px;
+  width: min(100%, 570px);
+  max-width: 570px;
   height: auto;
   line-height: 0;
   transform-origin: 50% 82%;
@@ -14693,7 +14693,7 @@ body[data-mode="dark"] .sg-pet-playground {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 414px;
+  max-height: 490px;
   overflow: visible;
 }
 .sg-pet-playground .sg-pet-mood {
@@ -14774,14 +14774,14 @@ body[data-mode="dark"] .sg-pet-playground {
 }
 @media (max-width:560px) {
   .sg-pet-playground {
-    min-height: 340px;
+    min-height: 355px;
     padding: 0 2px 24px;
   }
   .sg-pet-character-illustrated {
     width: min(100%, 450px);
   }
   .sg-pet-character-illustrated .sg-pet-bunny-art {
-    max-height: 322px;
+    max-height: 355px;
   }
 }
 @media (prefers-reduced-motion:reduce) {

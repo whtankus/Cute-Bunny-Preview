@@ -7,9 +7,15 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#fdf8f1",
-  "theme_color": "#fdf1ea",
+  "background_color": "#f8eaf0",
+  "theme_color": "#f8eaf0",
   "icons": [
+    {
+      "src": "bunny-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "bunny-app-icon-192.png",
       "sizes": "192x192",
@@ -23,10 +29,13 @@
       "purpose": "any"
     },
     {
-      "src": "bunny-app-icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "bunny-icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "maskable"
     }
+  ],
+  "display_override": [
+    "standalone"
   ]
 }

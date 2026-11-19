@@ -2,7 +2,7 @@ const CACHE_NAME = "cute-bunny-shell-v298";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=virtual-buddy-reference-art-20261119",
+  "./style.css?v=virtual-buddy-three-20261119",
   "./polish.css?v=chat-stability-badges-20261118",
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./app.js?v=virtual-buddy-three-20261119",\n  "./virtual-buddy-3d.js?v=three-bunny-20261119",

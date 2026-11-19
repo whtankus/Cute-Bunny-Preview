@@ -3929,3 +3929,10 @@ body[data-theme] .app button:focus-visible,body[data-theme] .auth-gate button:fo
  #content .music-grid .album-art.is-loading .song-glyph,#content .music-grid .album-art.is-buffering .song-glyph{animation:none!important}
  #content .feed-photo,#content .music-grid .album-art{transition:none!important}
 }
+
+
+/* Notes refreshes retain scroll anchoring and never replay message entrance effects. */
+#content .chat-page .chat-thread { overflow-anchor:none; scroll-behavior:auto!important; }
+#content .chat-page .chat-thread.is-refreshing .chat-message,
+#content .chat-page .chat-thread.is-refreshing .chat-day-divider,
+#content .chat-page .chat-thread.is-refreshing .chat-typing-indicator { animation:none!important; transition:none!important; }

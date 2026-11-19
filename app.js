@@ -820,7 +820,7 @@ function friendRow(user, isOwnProfile = false) {
     : '💖 ' + Number(user.heartCount).toLocaleString() + ' heart';
   let liveState = {};
   try { liveState = presenceChannel?.presenceState?.() || {}; } catch {}
-  const online = isPresenceUserOnline(user.id, liveState);
+  const online = isPresenceUserOnline(user, liveState);
   const presenceLabel = '';
   const wallpaper = ['normal', 'blossom', 'clouds', 'starlight', 'hearts'].includes(user.profile_wallpaper) ? user.profile_wallpaper : 'normal';
   const action = isOwnProfile
@@ -2593,39 +2593,101 @@ function renderNotesPage(options = {}) {
   };
   updateSeenStatus();
 
-  // Update the existing scrollport in place so realtime refreshes never rebuild
-  // the page or reset the reader's position in a long conversation.
+  // Do not rebuild an unchanged conversation on every realtime/status tick.
+  // Keeping its message nodes mounted prevents scroll, focus and CSS animation jumps.
+  const desiredThreadMarkup = olderControl + (messagesHtml || emptyMarkup);
+  if (existingThread && existingThread.__cbNotesMarkup === desiredThreadMarkup) {
+    syncNotesTypingIndicator();
+    return;
+  }
+
+  // Reconcile message nodes by ID instead of replacing the whole thread.
+  // Existing bubbles keep their DOM identity, so incoming messages and receipts
+  // cannot restart entrance effects or make the conversation blink.
   if (existingThread) {
-    const threadRect = existingThread.getBoundingClientRect();
-    const visibleTop = threadRect.top + existingThread.clientTop;
     const wasNearBottom =
       existingThread.scrollHeight - existingThread.scrollTop - existingThread.clientHeight < 72;
-    const anchor = [...existingThread.querySelectorAll('.chat-message[data-memory]')]
-      .find(message => message.getBoundingClientRect().bottom > visibleTop);
-    const anchorId = anchor?.dataset.memory || '';
-    const anchorOffset = anchor
-      ? anchor.getBoundingClientRect().top - visibleTop
-      : 0;
     const previousScrollTop = existingThread.scrollTop;
+    const desiredRoot = document.createElement('div');
+    desiredRoot.innerHTML = desiredThreadMarkup;
+    const currentById = new Map(
+      [...existingThread.querySelectorAll(':scope > .chat-message[data-memory]')]
+        .map(node => [String(node.dataset.memory), node])
+    );
+    const currentDividers = [...existingThread.querySelectorAll(':scope > .chat-day-divider')];
+    const usedDividers = new Set();
+    const nextNodes = [];
 
-    existingThread.innerHTML = olderControl + (messagesHtml || emptyMarkup);
+    [...desiredRoot.children].forEach(desiredNode => {
+      if (desiredNode.matches('.chat-message[data-memory]')) {
+        const id = String(desiredNode.dataset.memory);
+        const current = currentById.get(id);
+        if (current) {
+          // Message rows are immutable after delivery; live Seen/pending metadata
+          // must not replace the bubble node or replay its entrance animation.
+          const desiredReceipt = desiredNode.querySelector('.chat-seen-receipt');
+          const currentReceipt = current.querySelector('.chat-seen-receipt');
+          if (desiredReceipt && currentReceipt) {
+            currentReceipt.textContent = desiredReceipt.textContent;
+            currentReceipt.setAttribute('aria-label', desiredReceipt.getAttribute('aria-label') || 'Seen');
+            if (desiredReceipt.dataset.seenAt) currentReceipt.dataset.seenAt = desiredReceipt.dataset.seenAt;
+            else delete currentReceipt.dataset.seenAt;
+          } else if (desiredReceipt && !currentReceipt) {
+            current.append(desiredReceipt);
+          } else if (!desiredReceipt && currentReceipt) {
+            currentReceipt.remove();
+          }
+          const desiredText = desiredNode.querySelector('.chat-message-text')?.textContent;
+          const currentText = current.querySelector('.chat-message-text');
+          if (currentText && desiredText != null && currentText.textContent !== desiredText) currentText.textContent = desiredText;
+          const desiredTime = desiredNode.querySelector('.chat-message-time');
+          const currentTime = current.querySelector('.chat-message-time');
+          if (desiredTime && currentTime && currentTime.dateTime !== desiredTime.dateTime) {
+            currentTime.dateTime = desiredTime.dateTime;
+            currentTime.textContent = desiredTime.textContent;
+          }
+          current.classList.toggle('is-uploading', desiredNode.classList.contains('is-uploading'));
+          current.classList.toggle('is-loved', desiredNode.classList.contains('is-loved'));
+          nextNodes.push(current);
+        } else {
+          nextNodes.push(desiredNode);
+        }
+      } else if (desiredNode.matches('.chat-day-divider')) {
+        const match = currentDividers.find(node =>
+          !usedDividers.has(node) && node.textContent === desiredNode.textContent
+        );
+        if (match) {
+          usedDividers.add(match);
+          nextNodes.push(match);
+        } else {
+          nextNodes.push(desiredNode);
+        }
+      } else {
+        const match = [...existingThread.children].find(node =>
+          !nextNodes.includes(node) &&
+          node.className === desiredNode.className &&
+          node.outerHTML === desiredNode.outerHTML
+        );
+        nextNodes.push(match || desiredNode);
+      }
+    });
+
+    // Keep nodes already in the correct position completely untouched.
+    // Move only nodes whose order actually changed, then remove stale children.
+    nextNodes.forEach((node, index) => {
+      const atPosition = existingThread.children[index];
+      if (atPosition !== node) existingThread.insertBefore(node, atPosition || null);
+    });
+    [...existingThread.children].forEach(node => {
+      if (!nextNodes.includes(node) && node.id !== 'chatTypingIndicator') node.remove();
+    });
+    existingThread.__cbNotesMarkup = desiredThreadMarkup;
+    syncNotesTypingIndicator();
 
     requestAnimationFrame(() => {
       if (!existingThread.isConnected) return;
       if (options.followLatest || wasNearBottom) {
         existingThread.scrollTop = existingThread.scrollHeight;
-      } else if (anchorId) {
-        const nextAnchor = existingThread.querySelector(`[data-memory="${CSS.escape(anchorId)}"]`);
-        if (nextAnchor) {
-          const nextVisibleTop = existingThread.getBoundingClientRect().top + existingThread.clientTop;
-          const nextOffset = nextAnchor.getBoundingClientRect().top - nextVisibleTop;
-          existingThread.scrollTop += nextOffset - anchorOffset;
-        } else {
-          existingThread.scrollTop = Math.min(
-            previousScrollTop,
-            Math.max(0, existingThread.scrollHeight - existingThread.clientHeight)
-          );
-        }
       } else {
         existingThread.scrollTop = Math.min(
           previousScrollTop,
@@ -2656,7 +2718,11 @@ function renderNotesPage(options = {}) {
   requestAnimationFrame(() => {
     syncNotesKeyboardLayout();
     const thread = $('#chatThread');
-    if (thread) thread.scrollTop = thread.scrollHeight;
+    if (thread) {
+      thread.__cbNotesMarkup = olderControl + (messagesHtml || emptyMarkup);
+      thread.scrollTop = thread.scrollHeight;
+      syncNotesTypingIndicator();
+    }
     syncNotesSeenReceiptVisibility(thread);
     observeNoteSeenMessages();
   });
@@ -3764,9 +3830,9 @@ async function clearIgNote() {
    The typing hint is attached to the conversation thread, never the composer,
    and heartbeat/expiry timings are short enough to feel live without flicker. */
 let notesTypingChannel = null;
-const NOTES_TYPING_HEARTBEAT_MS = 450;
-const NOTES_TYPING_EXPIRY_MS = 1600;
-const NOTES_TYPING_IDLE_MS = 700;
+const NOTES_TYPING_HEARTBEAT_MS = 500;
+const NOTES_TYPING_EXPIRY_MS = 2500;
+const NOTES_TYPING_IDLE_MS = 1000;
 
 async function sendNotesTyping(isTyping) {
   const nextState = !!isTyping && page === 'notes' && !document.hidden;
@@ -3798,22 +3864,26 @@ async function sendNotesTyping(isTyping) {
 }
 
 function receiveNotesTyping(payload) {
-  const userId = String(payload?.user_id || '');
+  const userId = String(payload?.user_id || payload?.userId || payload?.profile_id || payload?.id || '');
   if (!userId || userId === String(me?.id || '')) return;
 
-  // A conversation participant can be present in the followed-friends list or
-  // already represented by a message in this Notes thread. The latter keeps
-  // typing visible when the follow list has not refreshed yet.
+  // Broadcast membership is the source of truth here. A friend may not yet
+  // exist in the local follow/feed cache, so filtering against those stale
+  // lists can silently discard a valid typing event.
   const friend = friends.find(item => String(item.id || item.user_id || '') === userId);
   const knownAuthor = feed.find(item =>
     item.kind === 'note' &&
     String(item.author?.id || item.owner_id || '') === userId
   )?.author;
-  if (!friend && !knownAuthor) return;
 
+  // Do not compare a sender's wall clock with this device's clock.
+  // Clock drift can make a valid friend's typing event look expired only to
+  // one recipient. Expiry is handled locally from the moment the event arrives.
   const sentAt = Number(payload?.sent_at || 0);
-  if (sentAt && Date.now() - sentAt > NOTES_TYPING_EXPIRY_MS + 1000) return;
   const existing = remoteTypingUsers.get(userId);
+  // Ignore delayed packets so an older "stopped typing" event cannot erase
+  // a newer active state after network jitter.
+  if (existing?.lastSentAt && sentAt && sentAt < existing.lastSentAt) return;
   if (existing?.timer) clearTimeout(existing.timer);
 
   if (!payload.is_typing || page !== 'notes' || document.hidden) {
@@ -3828,6 +3898,8 @@ function receiveNotesTyping(payload) {
     displayName: friend?.displayName || friend?.display_name ||
       knownAuthor?.displayName || knownAuthor?.display_name ||
       payload.display_name || username,
+    presenceOnly: false,
+    lastSentAt: sentAt || Date.now(),
     timer: setTimeout(() => {
       remoteTypingUsers.delete(userId);
       syncNotesTypingIndicator();
@@ -3837,6 +3909,11 @@ function receiveNotesTyping(payload) {
   syncNotesTypingIndicator();
 }
 
+function updateNotesTypingPresence() {
+  // Typing is Broadcast-only. Never call Presence.track() from typing handlers:
+  // Supabase rate-limits Presence updates and closes the shared online channel.
+}
+
 function startNotesTyping() {
   if (!me || page !== 'notes' || document.hidden) return;
   const now = Date.now();
@@ -3844,10 +3921,12 @@ function startNotesTyping() {
     typingActive = true;
     typingLastSentAt = now;
     void sendNotesTyping(true);
+    void updateNotesTypingPresence();
     typingHeartbeatTimer = setInterval(() => {
       if (!typingActive || page !== 'notes' || document.hidden) return;
       typingLastSentAt = Date.now();
       void sendNotesTyping(true);
+      void updateNotesTypingPresence();
     }, NOTES_TYPING_HEARTBEAT_MS);
   }
   clearTimeout(typingStopTimer);
@@ -3862,10 +3941,12 @@ function stopNotesTyping() {
   if (!typingActive) return;
   typingActive = false;
   void sendNotesTyping(false);
+  void updateNotesTypingPresence();
 }
 
 function syncNotesTypingFromPresence() {
-  // Typing is handled by the dedicated Broadcast channel, not Presence.
+  // Presence is reserved for online status. Typing is received only through
+  // the dedicated Broadcast channel so Presence syncs cannot overwrite it.
 }
 
 function syncNotesTypingIndicator() {
@@ -4033,9 +4114,9 @@ async function checkForIncomingFriendNote() {
       hideSeenReceiptImmediately();
       // Fetch the conversation in the background; the old Seen is already gone.
       const freshFeed = await api('/feed');
-      const pending = feed.filter(item => item.isPending);
-      const pendingIds = new Set(pending.map(item => String(item.id)));
-      feed = [...freshFeed.filter(item => !pendingIds.has(String(item.id))), ...pending];
+      // Merge the latest server rows into the in-memory feed. Replacing the
+      // array here discards already-loaded photo/song pages and older history.
+      mergeFeedRows(freshFeed);
       if (page === 'notes') renderNotesPage();
     }
   } catch (error) {
@@ -4050,7 +4131,7 @@ function startNotesIncomingPoll() {
   void checkForIncomingFriendNote();
   notesIncomingPollTimer = setInterval(() => {
     if (page === 'notes' && !document.hidden) void checkForIncomingFriendNote();
-  }, 500);
+  }, 5000);
 }
 
 async function refreshOwnNoteSeenStatus() {
@@ -4178,6 +4259,7 @@ function startRealtime() {
           try {
             await presence.track({
               user_id: me.id,
+              userId: me.id,
               username: me.username,
               display_name: me.displayName || me.display_name || me.username,
               online_at: new Date().toISOString(),
@@ -4284,9 +4366,9 @@ function startRealtime() {
         window.cuteMemoryRefresh = setTimeout(async () => {
           try {
             const freshFeed = await api('/feed');
-            const pending = feed.filter(item => item.isPending);
-            const pendingIds = new Set(pending.map(item => String(item.id)));
-            feed = [...freshFeed.filter(item => !pendingIds.has(String(item.id))), ...pending];
+            // Keep previously loaded photos, songs and older pages while
+            // refreshing the newest records after a Realtime insert.
+            mergeFeedRows(freshFeed);
             if (page === 'notes') {
               renderNotesPage();
               void refreshOwnNoteSeenStatus();
@@ -4362,10 +4444,21 @@ function closeRealtime() {
   }
 }
 
-function isPresenceUserOnline(userId, state) {
-  if (!userId || !state || typeof state !== 'object') return false;
+function isPresenceUserOnline(userOrId, state) {
+  if (!userOrId || !state || typeof state !== 'object') return false;
+  const targetId = typeof userOrId === 'object'
+    ? String(userOrId.id || userOrId.user_id || '')
+    : String(userOrId);
+  const targetUsername = typeof userOrId === 'object'
+    ? String(userOrId.username || '').trim().toLowerCase()
+    : '';
   return Object.values(state).some(sessions =>
-    Array.isArray(sessions) && sessions.some(session => String(session?.user_id || '') === String(userId))
+    Array.isArray(sessions) && sessions.some(session => {
+      const sessionId = String(session?.user_id || session?.userId || session?.profile_id || session?.id || '');
+      const sessionUsername = String(session?.username || '').trim().toLowerCase();
+      return (!!targetId && sessionId === targetId) ||
+        (!!targetUsername && sessionUsername === targetUsername);
+    })
   );
 }
 
@@ -4377,7 +4470,7 @@ function syncPresenceUI() {
   if (profileGate && !profileGate.classList.contains('hidden') && profileGate.dataset.username) {
     const profileUser = profileGate.dataset.ownProfile === 'true' ? me : [...friends, ...friendResults].find(user => user.username === profileGate.dataset.username);
     if (profileUser) {
-      const online = isPresenceUserOnline(profileUser.id, state);
+      const online = isPresenceUserOnline(profileUser, state);
       const status = $('#friendProfilePresence');
       const dot = $('#friendProfilePresenceDot');
       if (status) status.textContent = online ? 'Active now' : formatFriendProfileActivity(profileUser.last_active_at);
@@ -4387,7 +4480,11 @@ function syncPresenceUI() {
     }
   }
   document.querySelectorAll('.sg-friend-card[data-friend-id], .friend-row[data-friend-id]').forEach(node => {
-    const online = isPresenceUserOnline(node.dataset.friendId, state);
+    const nodeUser = [...friends, ...friendResults, ...(me ? [me] : [])].find(user =>
+      String(user.id) === String(node.dataset.friendId) ||
+      (node.dataset.profile && String(user.username || '').toLowerCase() === String(node.dataset.profile).toLowerCase())
+    );
+    const online = isPresenceUserOnline(nodeUser || node.dataset.friendId, state);
     node.classList.toggle('is-online', online);
     node.classList.toggle('is-offline', !online);
     const presenceLabel = node.querySelector('.sg-friend-presence');

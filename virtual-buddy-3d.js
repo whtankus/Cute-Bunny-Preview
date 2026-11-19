@@ -3,9 +3,11 @@ try {
   THREE = await import("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js");
 } catch (error) {
   console.warn("Cute Bunny 3D character could not load; using the lightweight fallback.", error);
-  document.querySelectorAll("#virtualBuddy3D").forEach(host => {
+  const paintFallback = () => document.querySelectorAll("#virtualBuddy3D").forEach(host => {
     host.innerHTML = '<div class="sg-bunny-fallback" role="img" aria-label="Little bunny">🐰</div>';
   });
+  paintFallback();
+  new MutationObserver(paintFallback).observe(document.body, { childList: true, subtree: true });
 }
 if (THREE) {
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -102,9 +104,9 @@ function mount(host) {
   const tick=()=>{
     if(!host.isConnected){sizeObserver.disconnect();renderer.dispose();return;}
     requestAnimationFrame(tick);
-    const t=clock.getElapsedTime(), elapsed=(performance.now()-actionAt)/1000, next=host.dataset.action||"";
+    const t=reducedMotion?0:clock.getElapsedTime(), elapsed=(performance.now()-actionAt)/1000, next=host.dataset.action||"";
     if(next!==action){action=next;actionAt=performance.now();}
-    const playful=action==="play"&&elapsed<2.2, cuddly=action==="cuddle"&&elapsed<1.8, feeding=action==="feed"&&elapsed<2.1;
+    const playful=!reducedMotion&&action==="play"&&elapsed<2.2, cuddly=!reducedMotion&&action==="cuddle"&&elapsed<1.8, feeding=action==="feed"&&elapsed<2.1;
     bunny.body.position.y=(reducedMotion?0:Math.sin(t*1.8)*.045)+(playful?Math.abs(Math.sin(elapsed*7))*.28:0);
     bunny.body.rotation.z=playful?Math.sin(elapsed*8)*.12:Math.sin(t*.8)*.018;
     bunny.head.rotation.y=THREE.MathUtils.lerp(bunny.head.rotation.y,pointer.x*.18,.055);

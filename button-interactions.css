@@ -280,3 +280,68 @@ body[data-mode="dark"] .app #nav button[data-page].active{
     transition:none!important;
   }
 }
+
+
+/* 2026-11-19 — unified click feedback for interactive surfaces throughout the app.
+   Keeps element dimensions stable and respects reduced-motion preferences. */
+:where(.app, .welcome, .auth-gate, #notificationGate) button,
+:where(.app, .welcome, .auth-gate, #notificationGate) [role="button"],
+:where(.app, .welcome, .auth-gate, #notificationGate) a,
+:where(.app, .welcome, .auth-gate, #notificationGate) summary,
+:where(.app, .welcome, .auth-gate, #notificationGate) .song-pick,
+:where(.app, .welcome, .auth-gate, #notificationGate) .feed-item .tile,
+:where(.app, .welcome, .auth-gate, #notificationGate) .memory-card,
+:where(.app, .welcome, .auth-gate, #notificationGate) .friend-card,
+:where(.app, .welcome, .auth-gate, #notificationGate) .theme-choice,
+:where(.app, .welcome, .auth-gate, #notificationGate) .starter-chips button {
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: center;
+  transition:
+    transform 180ms cubic-bezier(.2,.75,.25,1),
+    filter 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(.app, .welcome, .auth-gate, #notificationGate) button:hover:not(:disabled),
+  :where(.app, .welcome, .auth-gate, #notificationGate) [role="button"]:hover,
+  :where(.app, .welcome, .auth-gate, #notificationGate) a:hover,
+  :where(.app, .welcome, .auth-gate, #notificationGate) summary:hover,
+  :where(.app, .welcome, .auth-gate, #notificationGate) .song-pick:hover,
+  :where(.app, .welcome, .auth-gate, #notificationGate) .feed-item .tile:hover {
+    filter: brightness(1.025) saturate(1.035);
+  }
+}
+
+:where(.app, .welcome, .auth-gate, #notificationGate) button:active:not(:disabled),
+:where(.app, .welcome, .auth-gate, #notificationGate) [role="button"]:active,
+:where(.app, .welcome, .auth-gate, #notificationGate) a:active,
+:where(.app, .welcome, .auth-gate, #notificationGate) summary:active,
+:where(.app, .welcome, .auth-gate, #notificationGate) .song-pick:active,
+:where(.app, .welcome, .auth-gate, #notificationGate) .feed-item .tile:active,
+:where(.app, .welcome, .auth-gate, #notificationGate) .memory-card:active,
+:where(.app, .welcome, .auth-gate, #notificationGate) .friend-card:active,
+:where(.app, .welcome, .auth-gate, #notificationGate) .theme-choice:active {
+  filter: brightness(.985) saturate(.98);
+}
+
+:where(.app, .welcome, .auth-gate, #notificationGate) button:disabled {
+  cursor: not-allowed;
+  filter: saturate(.72);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.app, .welcome, .auth-gate, #notificationGate) button,
+  :where(.app, .welcome, .auth-gate, #notificationGate) [role="button"],
+  :where(.app, .welcome, .auth-gate, #notificationGate) a,
+  :where(.app, .welcome, .auth-gate, #notificationGate) summary,
+  :where(.app, .welcome, .auth-gate, #notificationGate) .song-pick,
+  :where(.app, .welcome, .auth-gate, #notificationGate) .feed-item .tile,
+  :where(.app, .welcome, .auth-gate, #notificationGate) .memory-card,
+  :where(.app, .welcome, .auth-gate, #notificationGate) .friend-card,
+  :where(.app, .welcome, .auth-gate, #notificationGate) .theme-choice {
+    transition: none !important;
+  }
+}

@@ -63,3 +63,20 @@ test('Notes typing uses the same shared Broadcast channel as the working Cute Bu
   assert.doesNotMatch(app, /syncNotesTypingFriendChannels/);
   assert.doesNotMatch(app, /notesTypingFriendChannels/);
 });
+
+test('Virtual Buddy keeps its existing care controls while adding moods and compact reactions', () => {
+  const app = read('app.js');
+  const css = read('style.css');
+  assert.match(app, /function getVirtualPetMood\(pet\)/);
+  for (const mood of ['hungry', 'sleepy', 'delighted', 'loved', 'calm']) {
+    assert.ok(app.includes("key: '" + mood + "'"), 'missing buddy mood: ' + mood);
+  }
+  assert.match(app, /buddyIllustration\(buddy\)/);
+  assert.match(app, /lastActionType/);
+  for (const action of ['feed', 'play', 'cuddle']) {
+    assert.ok(app.includes('data-care-pet="' + action + '"'), 'missing existing care action: ' + action);
+    assert.ok(css.includes('.sg-pet-action-' + action), 'missing care reaction: ' + action);
+  }
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(app, /class="sg-pet-playground sg-pet-mood-/);
+});

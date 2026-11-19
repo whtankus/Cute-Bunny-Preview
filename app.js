@@ -1740,16 +1740,17 @@ function renderVirtualPet() {
   const pet = readVirtualPet();
   const mood = getVirtualPetMood(pet);
   const recentAction = Date.now() - pet.lastActionAt < 1900 ? pet.lastActionType : '';
-  const buddy = me?.mascot || '🐰';
-  const buddyName = ({ '🐰': 'Bunny', '🐱': 'Kitty', '🐻': 'Bear', '🐸': 'Frog' })[buddy] || 'Buddy';
+  // Virtual Buddy is always the animated bunny; profile mascot selection stays separate.
+  const buddy = '🐰';
+  const buddyName = 'Bunny';
   const meter = (label, icon, value, tone) =>
     '<div class="sg-pet-meter"><div><span>' + icon + ' ' + label + '</span><b>' + Math.round(value) + '%</b></div>' +
     '<span class="sg-pet-meter-track"><i class="sg-pet-meter-' + tone + '" style="width:' + value + '%"></i></span></div>';
   return '<section class="sg-virtual-pet" aria-label="Care for your virtual buddy">' +
     '<div class="sg-pet-heading"><div><span class="sg-pet-kicker">A LITTLE COMPANION</span><h3>Your virtual buddy</h3><p>Small moments of care make a happy little friend.</p></div><span class="sg-pet-sparkle" aria-hidden="true">✧</span></div>' +
     '<div class="sg-pet-playground sg-pet-mood-' + mood.key + (recentAction ? ' sg-pet-action-' + recentAction : '') + '">' +
-    '<div class="sg-pet-character ' + (buddy === '🐰' ? 'sg-pet-character-illustrated' : 'sg-pet-character-icon') + '" role="img" aria-label="' + buddyName + ', ' + mood.label.toLowerCase() + '">' +
-    virtualBuddyIllustration(buddy, mood, recentAction) + '</div>' +
+    '<div class="sg-pet-character sg-pet-character-illustrated" role="img" aria-label="' + buddyName + ', ' + mood.label.toLowerCase() + '">' +
+    virtualBuddyIllustration('🐰', mood, recentAction) + '</div>' +
     '<span class="sg-pet-mood" aria-live="polite">' + mood.label + '</span></div>' +
     '<div class="sg-pet-meters">' + meter('Fullness', '🥕', pet.hunger, 'hunger') + meter('Happiness', '♡', pet.joy, 'joy') + meter('Energy', '☀', pet.energy, 'energy') + '</div>' +
     '<div class="sg-pet-actions"><button type="button" data-care-pet="feed"><span>🥕</span><b>Feed</b><small>Give a carrot</small></button>' +

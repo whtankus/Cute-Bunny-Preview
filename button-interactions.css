@@ -345,18 +345,3 @@ body[data-mode="dark"] .app #nav button[data-page].active{
     transition: none !important;
   }
 }
-
-/* Touch devices can keep :hover latched after a tap.
-   Keep the pressed animation momentary; restore the resting appearance on release. */
-@media (hover: none), (pointer: coarse) {
-  .app button:hover:not(:active),
-  .welcome button:hover:not(:active),
-  .auth-gate button:hover:not(:active),
-  #notificationGate button:hover:not(:active),
-  .app [role="button"]:hover:not(:active),
-  .app .song-pick:hover:not(:active),
-  .app .starter-chips button:hover:not(:active) {
-    transform: none !important;
-    filter: none !important;
-  }
-}

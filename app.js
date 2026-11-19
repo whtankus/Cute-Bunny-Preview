@@ -1763,7 +1763,7 @@ function renderVirtualPet() {
 function virtualBuddyIllustration(buddy, mood, recentAction) {
   if (buddy !== '🐰') return buddyIllustration(buddy);
   const action = recentAction || '';
-  return `<svg class="sg-pet-bunny-art" data-mood="${mood.key}" data-action="${action}" viewBox="0 0 720 540" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation">
+  return `<svg class="sg-pet-bunny-art" data-mood="${mood.key}" data-action="${action}" viewBox="0 0 720 620" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation">
     <defs>
       <linearGradient id="sgBunnyFloat" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="#d8f0ff"/>
@@ -1823,6 +1823,7 @@ function virtualBuddyIllustration(buddy, mood, recentAction) {
       </filter>
     </defs>
 
+    <g class="bunny-scene" transform="translate(0 -30) scale(1 1.2)">
     <!-- A soft pink shadow grounds the floating ring. -->
     <ellipse cx="360" cy="510" rx="286" ry="20" fill="#efb9df" opacity=".58" filter="url(#sgBunnySoftShadow)"/>
     <ellipse cx="360" cy="496" rx="273" ry="14" fill="#f3c5e5" opacity=".34"/>
@@ -1978,6 +1979,7 @@ function virtualBuddyIllustration(buddy, mood, recentAction) {
     <g class="bunny-sleep-mark" fill="#bd9bdf" font-family="Nunito, sans-serif" font-weight="800">
       <text x="397" y="224" font-size="17">z</text>
       <text x="412" y="209" font-size="12">z</text>
+    </g>
     </g>
   </svg>`;
 }

@@ -14330,3 +14330,87 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
   background: rgba(37, 29, 44, .68) !important;
   border-bottom-color: rgba(255, 255, 255, .10) !important;
 }
+
+
+/* Virtual Buddy polish: expression and reaction layers stay inside the existing layout. */
+.sg-pet-character {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:1.45em;
+  height:1.45em;
+  line-height:1;
+  transform-origin:50% 82%;
+}
+.sg-pet-character .cb-buddy-illustration {
+  display:block;
+  width:1.22em;
+  height:1.22em;
+  overflow:visible;
+}
+.sg-pet-expression {
+  position:absolute;
+  z-index:2;
+  left:50%;
+  top:59%;
+  color:#76566b;
+  font:900 .25em/1 Quicksand,sans-serif;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  text-shadow:0 1px 1px #fff9;
+}
+.sg-pet-mood-hungry .sg-pet-expression {color:#a87855}
+.sg-pet-mood-sleepy .sg-pet-expression {color:#85769c}
+.sg-pet-mood-delighted .sg-pet-expression,
+.sg-pet-mood-loved .sg-pet-expression {color:#bd6e91}
+.sg-pet-mood-delighted .sg-pet-mood {background:#f9e4ed;color:#a65f83}
+.sg-pet-mood-sleepy .sg-pet-mood {background:#eee8f8;color:#77638f}
+.sg-pet-mood-hungry .sg-pet-mood {background:#f8eadc;color:#946b4d}
+.sg-pet-action-feed .sg-pet-character {animation:sg-pet-feed-pop .72s cubic-bezier(.2,.8,.25,1.2) both}
+.sg-pet-action-play .sg-pet-character {animation:sg-pet-play-hop .88s cubic-bezier(.2,.8,.25,1.2) both}
+.sg-pet-action-cuddle .sg-pet-character {animation:sg-pet-cuddle-sway .9s ease-in-out both}
+.sg-pet-action-feed .sg-pet-character:after,
+.sg-pet-action-cuddle .sg-pet-character:after {
+  content:"♡";
+  position:absolute;
+  top:4%;
+  right:-12%;
+  color:#d98cac;
+  font:700 .38em/1 Caveat,cursive;
+  pointer-events:none;
+  animation:sg-pet-heart-float .9s ease-out both;
+}
+.sg-pet-action-play .sg-pet-character:after {
+  content:"✦";
+  position:absolute;
+  top:0;
+  right:-12%;
+  color:#d9b36f;
+  font-size:.34em;
+  pointer-events:none;
+  animation:sg-pet-heart-float .9s ease-out both;
+}
+@keyframes sg-pet-feed-pop {
+  0%,100%{transform:translateY(0) scale(1)}
+  35%{transform:translateY(-8px) scale(1.07)}
+  68%{transform:translateY(1px) scale(.98)}
+}
+@keyframes sg-pet-play-hop {
+  0%,100%{transform:translateY(0) rotate(0)}
+  24%{transform:translateY(-13px) rotate(-8deg) scale(1.06)}
+  52%{transform:translateY(0) rotate(7deg)}
+  76%{transform:translateY(-5px) rotate(-3deg)}
+}
+@keyframes sg-pet-cuddle-sway {
+  0%,100%{transform:rotate(0) scale(1)}
+  28%{transform:rotate(-7deg) scale(1.05)}
+  58%{transform:rotate(7deg) scale(1.05)}
+}
+@keyframes sg-pet-heart-float {
+  0%{opacity:0;transform:translateY(7px) scale(.5)}
+  35%{opacity:1}
+  100%{opacity:0;transform:translateY(-17px) scale(1.15)}
+}
+@media(prefers-reduced-motion:reduce) {
+  .sg-pet-character,.sg-pet-character:after {animation:none!important}
+}

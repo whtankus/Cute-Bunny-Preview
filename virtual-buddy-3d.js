@@ -1,4 +1,13 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+let THREE;
+try {
+  THREE = await import("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js");
+} catch (error) {
+  console.warn("Cute Bunny 3D character could not load; using the lightweight fallback.", error);
+  document.querySelectorAll("#virtualBuddy3D").forEach(host => {
+    host.innerHTML = '<div class="sg-bunny-fallback" role="img" aria-label="Little bunny">🐰</div>';
+  });
+}
+if (THREE) {
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const mounted = new WeakSet();
 const mat = (color, roughness=.8) => new THREE.MeshStandardMaterial({color,roughness});
@@ -6,12 +15,33 @@ function orb(parent, material, pos, scale) {
   const m=new THREE.Mesh(new THREE.SphereGeometry(1,32,24),material);
   m.position.set(...pos); m.scale.set(...scale); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
 }
+function addFuzz(parent, center, radii, count, material) {
+  const geometry = new THREE.SphereGeometry(.018, 6, 5);
+  const tufts = new THREE.InstancedMesh(geometry, material, count);
+  const dummy = new THREE.Object3D();
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i++) {
+    const y = 1 - 2 * (i + .5) / count;
+    const ring = Math.sqrt(1 - y * y);
+    const angle = golden * i;
+    const x = Math.cos(angle) * ring, z = Math.sin(angle) * ring;
+    dummy.position.set(center[0] + x * radii[0] * 1.004, center[1] + y * radii[1] * 1.004, center[2] + z * radii[2] * 1.004);
+    const normal = new THREE.Vector3(x / radii[0], y / radii[1], z / radii[2]).normalize();
+    dummy.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+    dummy.scale.set(.72, 1.05, .72);
+    dummy.updateMatrix();
+    tufts.setMatrixAt(i, dummy.matrix);
+  }
+  tufts.instanceMatrix.needsUpdate = true;
+  parent.add(tufts);
+}
 function buildBunny(scene) {
   const fur=mat("#fffafd"), shade=mat("#eee5f2"), pink=mat("#efb9d0"), nose=mat("#d98eae",.4);
   const eyeMat=new THREE.MeshPhysicalMaterial({color:"#292432",roughness:.12,clearcoat:1});
   const white=new THREE.MeshBasicMaterial({color:"#fff"});
   const body=new THREE.Group(); scene.add(body);
   orb(body,shade,[0,-.52,-.04],[.78,.79,.63]); orb(body,fur,[0,-.48,.02],[.76,.77,.64]);
+  addFuzz(body,[0,-.48,.02],[.76,.77,.64],260,fur);
   orb(body,fur,[0,-.55,.57],[.46,.5,.15]); orb(body,fur,[.72,-.42,-.04],[.23,.23,.23]);
   for(const s of [-1,1]) {
     const foot=orb(body,fur,[s*.43,-1.1,.34],[.37,.23,.47]); foot.rotation.x=-.12;
@@ -21,6 +51,7 @@ function buildBunny(scene) {
   }
   const head=new THREE.Group(); head.position.set(0,.47,.16); body.add(head);
   orb(head,shade,[0,0,-.035],[.82,.76,.69]); orb(head,fur,[0,.025,.015],[.81,.76,.7]);
+  addFuzz(head,[0,.025,.015],[.81,.76,.7],340,fur);
   const eyes=[];
   for(const s of [-1,1]) {
     orb(head,pink,[s*.48,-.2,.58],[.18,.11,.05]);
@@ -64,7 +95,7 @@ function mount(host) {
   ground.rotation.x=-Math.PI/2; ground.position.y=-1.34; scene.add(ground);
   const bunny=buildBunny(scene), clock=new THREE.Clock(), pointer=new THREE.Vector2();
   let action=host.dataset.action||"", actionAt=performance.now();
-  const resize=()=>{const r=host.getBoundingClientRect();if(!r.width||!r.height)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.position.z=r.width<420?6.8:6.2;camera.updateProjectionMatrix();};
+  const resize=()=>{const r=host.getBoundingClientRect();if(!r.width||!r.height)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.position.z=r.width<420?6.8:6.2;camera.lookAt(0,.18,0);camera.updateProjectionMatrix();};
   const sizeObserver=new ResizeObserver(resize); sizeObserver.observe(host); resize();
   canvas.addEventListener("pointermove",e=>{const r=canvas.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width-.5)*2;pointer.y=((e.clientY-r.top)/r.height-.5)*2;},{passive:true});
   canvas.addEventListener("pointerdown",()=>{host.dataset.action="cuddle";},{passive:true});
@@ -91,3 +122,5 @@ function mount(host) {
 }
 const scan=()=>document.querySelectorAll("#virtualBuddy3D").forEach(mount);
 new MutationObserver(scan).observe(document.body,{childList:true,subtree:true}); scan();
+
+}

@@ -2953,7 +2953,6 @@ function showFriendProfile(user) {
     joinedDate.dateTime = joinedAt || '';
   }
   $('#friendProfileBio').textContent = user.bio || 'A little mystery friend ♡';
-  renderProfileMood(user, isOwnProfile);
   const titleTag = $('#friendProfileTitleTag');
   if (titleTag) { const title = user.gender === 'male' ? 'King' : user.gender === 'female' ? 'Queen' : ''; titleTag.hidden = !title; titleTag.innerHTML = title ? '👑 <b>' + title + '</b>' : ''; }
   const settingsPanel = $('#profileSettingsPanel');
@@ -3103,18 +3102,6 @@ function profileSettingsMarkup() {
           <button type="button" data-profile-gender="female" aria-pressed="false">Female</button>
         </div>
       </div>
-      <div class="profile-mood-editor">
-        <div class="profile-mood-heading"><b>Mood today</b><small>Choose what feels like you right now.</small></div>
-        <div class="profile-mood-options" role="group" aria-label="Choose your mood">
-          <button type="button" data-profile-mood="happy" aria-pressed="false"><span>☀️</span> Happy</button>
-          <button type="button" data-profile-mood="calm" aria-pressed="false"><span>🌿</span> Calm</button>
-          <button type="button" data-profile-mood="loved" aria-pressed="false"><span>💗</span> Loved</button>
-          <button type="button" data-profile-mood="dreamy" aria-pressed="false"><span>☁️</span> Dreamy</button>
-          <button type="button" data-profile-mood="creative" aria-pressed="false"><span>🎨</span> Creative</button>
-          <button type="button" data-profile-mood="lowkey" aria-pressed="false"><span>🌙</span> Quiet</button>
-        </div>
-        <small class="profile-mood-note">Saved on this device and refreshed each day.</small>
-      </div>
     </div>
     <div class="profile-settings-section profile-editor-settings hidden" id="profileSettingsAppearance" data-settings-section="appearance" role="tabpanel">
       <div class="settings-section-intro"><span class="settings-section-icon">✧</span><div><b>Your appearance</b><small>Choose the colours and little buddy you love.</small></div></div>
@@ -3151,36 +3138,6 @@ function updateProfileLivePreview() {
   const count = $('#profileBioCount'), bio = $('#profileEditBio');
   if (count) count.textContent = (bio?.value || '').length + ' / 30';
 }
-const PROFILE_MOODS = {
-  happy: { label: 'Feeling sunny', icon: '☀️' },
-  calm: { label: 'Feeling calm', icon: '🌿' },
-  loved: { label: 'Feeling loved', icon: '💗' },
-  dreamy: { label: 'In a dreamy mood', icon: '☁️' },
-  creative: { label: 'Feeling creative', icon: '🎨' },
-  lowkey: { label: 'Taking it slow', icon: '🌙' }
-};
-function profileMoodStorageKey() { return 'cute-bunny-profile-mood:' + String(me?.id || 'guest'); }
-function readProfileMood() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(profileMoodStorageKey()) || 'null');
-    const today = new Date().toLocaleDateString('en-CA');
-    return saved?.date === today && PROFILE_MOODS[saved.mood] ? saved.mood : '';
-  } catch { return ''; }
-}
-function writeProfileMood(mood) {
-  try {
-    const today = new Date().toLocaleDateString('en-CA');
-    if (PROFILE_MOODS[mood]) localStorage.setItem(profileMoodStorageKey(), JSON.stringify({ mood, date: today }));
-    else localStorage.removeItem(profileMoodStorageKey());
-  } catch {}
-}
-function renderProfileMood(user, isOwnProfile) {
-  const node = $('#friendProfileMood');
-  if (!node) return;
-  const mood = isOwnProfile ? readProfileMood() : '';
-  node.hidden = !mood;
-  node.textContent = mood ? PROFILE_MOODS[mood].icon + ' ' + PROFILE_MOODS[mood].label : '';
-}
 function renderProfileSettings() {
   const bioField = $('#profileEditBio');
   if (bioField) bioField.value = me?.bio || '';
@@ -3206,12 +3163,6 @@ function renderProfileSettings() {
     button.classList.toggle('is-selected', selected);
     button.setAttribute('aria-pressed', String(selected));
   });
-  const mood = readProfileMood();
-  document.querySelectorAll('[data-profile-mood]').forEach(button => {
-    const selected = button.dataset.profileMood === mood;
-    button.classList.toggle('is-selected', selected);
-    button.setAttribute('aria-pressed', String(selected));
-  });
 }
 async function saveProfileSettings() {
   if (!me?.id) return;
@@ -3225,8 +3176,6 @@ async function saveProfileSettings() {
     const mascot = $('#settingsBuddyValue')?.value || me.mascot || '🐰';
     const displayName = me.displayName || me.display_name || '';
     const bio = String($('#profileEditBio')?.value || '').trim().slice(0,30);
-    const selectedMood = document.querySelector('[data-profile-mood].is-selected')?.dataset.profileMood || '';
-    writeProfileMood(selectedMood);
     const saved = await api('/me', { method: 'PUT', body: JSON.stringify({ username, gender, theme, mascot, displayName, bio }) });
     me = { ...me, ...saved, username: saved.username || username, gender, theme, mascot, displayName: saved.displayName ?? displayName, display_name: saved.display_name ?? displayName, bio };
     setTheme(theme);
@@ -5242,15 +5191,6 @@ document.addEventListener('click', event => {
       field.setSelectionRange(field.value.length, field.value.length);
       updateProfileLivePreview();
     }
-    return;
-  }
-  const moodChoice = target?.closest?.('[data-profile-mood]');
-  if (moodChoice) {
-    document.querySelectorAll('[data-profile-mood]').forEach(button => {
-      const selected = button === moodChoice;
-      button.classList.toggle('is-selected', selected);
-      button.setAttribute('aria-pressed', String(selected));
-    });
     return;
   }
   const theme = target?.closest?.('[data-settings-theme-choice]');

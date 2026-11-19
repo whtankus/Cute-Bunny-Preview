@@ -3083,14 +3083,14 @@ function profileSettingsMarkup() {
     <div class="profile-settings-section profile-editor-settings" id="profileSettingsAccount" data-settings-section="account" role="tabpanel">
       <div class="settings-section-intro"><span class="settings-section-icon">♡</span><div><b>About you</b><small>Write a little introduction.</small></div></div>
       <label class="profile-settings-field">A little about you
-        <textarea id="profileEditBio" maxlength="30" rows="2" placeholder="A few words about you..."></textarea>
+        <textarea id="profileEditBio" maxlength="180" rows="3" placeholder="Write a little introduction..."></textarea>
         <small class="profile-bio-count" id="profileBioCount">0 / 180</small>
       </label>
       <div class="profile-expression-prompts" aria-label="Bio writing prompts">
         <span class="profile-expression-hint">Need an idea?</span>
-        <button type="button" data-bio-prompt="I love ">Little joys</button>
-        <button type="button" data-bio-prompt="Usually found ">You’ll find me</button>
-        <button type="button" data-bio-prompt="Into ">Lately I love</button>
+        <button type="button" data-bio-prompt="A little thing that makes me happy is ">Little joys</button>
+        <button type="button" data-bio-prompt="You’ll usually find me ">You’ll find me</button>
+        <button type="button" data-bio-prompt="Lately, I’m into ">Lately I love</button>
       </div>
     </div>
     <div class="profile-settings-section profile-editor-settings hidden" id="profileSettingsPersonal" data-settings-section="personal" role="tabpanel">
@@ -3136,7 +3136,7 @@ function buddyIllustration(value) {
 
 function updateProfileLivePreview() {
   const count = $('#profileBioCount'), bio = $('#profileEditBio');
-  if (count) count.textContent = (bio?.value || '').length + ' / 30';
+  if (count) count.textContent = (bio?.value || '').length + ' / 180';
 }
 function renderProfileSettings() {
   const bioField = $('#profileEditBio');
@@ -3175,7 +3175,7 @@ async function saveProfileSettings() {
     const theme = $('#settingsThemeValue')?.value || me.theme || 'rose';
     const mascot = $('#settingsBuddyValue')?.value || me.mascot || '🐰';
     const displayName = me.displayName || me.display_name || '';
-    const bio = String($('#profileEditBio')?.value || '').trim().slice(0,30);
+    const bio = String($('#profileEditBio')?.value || '').trim().slice(0,180);
     const saved = await api('/me', { method: 'PUT', body: JSON.stringify({ username, gender, theme, mascot, displayName, bio }) });
     me = { ...me, ...saved, username: saved.username || username, gender, theme, mascot, displayName: saved.displayName ?? displayName, display_name: saved.display_name ?? displayName, bio };
     setTheme(theme);

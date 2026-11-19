@@ -4414,3 +4414,50 @@ body[data-mode="dark"] #app > header .header-actions .round { color:var(--cb-tex
 @media(prefers-reduced-motion:reduce) {
   #app > header .header-actions .round { transition:none!important; }
 }
+
+/* Header surfaces share the music-island glass finish; original sizing is preserved. */
+body[data-theme] #app > header .brand,
+body[data-theme] #app > header .header-actions {
+  border:1px solid var(--cb-border)!important;
+  border-radius:999px!important;
+  background:linear-gradient(145deg,var(--cb-surface-raised),var(--cb-accent-soft))!important;
+  box-shadow:0 4px 15px rgba(var(--cb-shadow-color),.16),
+    inset 0 1px 0 color-mix(in srgb,var(--cb-surface) 75%,transparent)!important;
+}
+body[data-theme] #app > header .brand {
+  color:var(--cb-text)!important;
+}
+body[data-theme] #app > header .brand > span {
+  border-color:color-mix(in srgb,var(--cb-accent) 22%,var(--cb-border))!important;
+  background:linear-gradient(145deg,var(--cb-surface),var(--cb-accent-soft))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7)!important;
+}
+body[data-theme] #app > header .header-actions .round,
+body[data-theme] #app > header .header-actions .round:hover,
+body[data-theme] #app > header .header-actions .round:focus-visible,
+body[data-theme] #app > header .header-actions .round:active {
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  color:var(--cb-text)!important;
+}
+body[data-theme] #app > header .header-actions .round:hover,
+body[data-theme] #app > header .header-actions .round:focus-visible {
+  background:color-mix(in srgb,var(--cb-accent-soft) 78%,transparent)!important;
+}
+body[data-theme] #app .now-playing-pill,
+body[data-theme] #app > header .brand,
+body[data-theme] #app .header-actions {
+  border-radius:999px!important;
+}
+body[data-theme] #app .now-playing-pill {
+  box-shadow:0 4px 15px rgba(var(--cb-shadow-color),.16),
+    inset 0 1px 0 color-mix(in srgb,var(--cb-surface) 75%,transparent)!important;
+}
+@media(prefers-reduced-motion:reduce) {
+  body[data-theme] #app > header .brand,
+  body[data-theme] #app > header .header-actions,
+  body[data-theme] #app > header .header-actions .round {
+    transition:none!important;
+  }
+}

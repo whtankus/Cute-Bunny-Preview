@@ -77,6 +77,12 @@ test('Virtual Buddy keeps its existing care controls while adding moods and comp
   assert.match(app, /const buddyName = 'Bunny'/);
   assert.match(app, /sg-pet-character sg-pet-character-illustrated/);
   assert.match(app, /sg-pet-bunny-art/);
+  assert.match(app, /viewBox="0 0 720 620"/);
+  for (const artDetail of ['bunny-ring', 'bunny-tail', 'bunny-paw-front', 'bunny-cheek-hatch', 'bunny-outline-star']) {
+    assert.ok(app.includes(artDetail), 'missing reference detail: ' + artDetail);
+  }
+  assert.match(css, /\.sg-pet-playground\s*\{[\s\S]*?min-height:\s*500px/);
+  assert.match(css, /bunny-tail-bob/);
   assert.doesNotMatch(app.slice(app.indexOf('function renderVirtualPet()'), app.indexOf('function virtualBuddyIllustration')), /me\?\.mascot/);
   for (const movingPart of ['bunny-ear-left', 'bunny-ear-right', 'bunny-body', 'bunny-head', 'bunny-paw', 'bunny-blink-eyes']) {
     assert.ok(app.includes(movingPart), 'missing animated bunny part: ' + movingPart);

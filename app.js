@@ -1763,126 +1763,226 @@ function renderVirtualPet() {
 function virtualBuddyIllustration(buddy, mood, recentAction) {
   if (buddy !== '🐰') return buddyIllustration(buddy);
   const action = recentAction || '';
-  return `<svg class="sg-pet-bunny-art" data-mood="${mood.key}" data-action="${action}" viewBox="0 0 440 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  return `<svg class="sg-pet-bunny-art" data-mood="${mood.key}" data-action="${action}" viewBox="0 0 720 620" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" role="presentation">
     <defs>
       <linearGradient id="sgBunnyFloat" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#d9f0ff"/>
-        <stop offset=".48" stop-color="#c9dcff"/>
-        <stop offset="1" stop-color="#c9b7f1"/>
+        <stop offset="0" stop-color="#d8f0ff"/>
+        <stop offset=".38" stop-color="#c9e5ff"/>
+        <stop offset=".72" stop-color="#c8d3fb"/>
+        <stop offset="1" stop-color="#c3afe9"/>
       </linearGradient>
-      <linearGradient id="sgBunnyEar" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#fffdfd"/>
-        <stop offset="1" stop-color="#f8eafa"/>
+      <linearGradient id="sgBunnyFloatFront" x1="0" y1="0" x2="0.95" y2=".55">
+        <stop offset="0" stop-color="#bde5fb"/>
+        <stop offset=".46" stop-color="#cbdcfb"/>
+        <stop offset="1" stop-color="#bca6e6"/>
+      </linearGradient>
+      <linearGradient id="sgBunnyFloatLeft" x1="0" y1="0" x2="1" y2=".7">
+        <stop offset="0" stop-color="#e2f5ff" stop-opacity=".94"/>
+        <stop offset="1" stop-color="#a9d9f7" stop-opacity=".2"/>
+      </linearGradient>
+      <linearGradient id="sgBunnyFloatRight" x1="0" y1="0" x2="1" y2=".7">
+        <stop offset="0" stop-color="#e2d9fa" stop-opacity=".12"/>
+        <stop offset="1" stop-color="#987ed7" stop-opacity=".62"/>
+      </linearGradient>
+      <linearGradient id="sgBunnyEar" x1="0" y1="0" x2=".25" y2="1">
+        <stop offset="0" stop-color="#fffefe"/>
+        <stop offset=".72" stop-color="#fffafd"/>
+        <stop offset="1" stop-color="#f8eaf7"/>
+      </linearGradient>
+      <linearGradient id="sgBunnyEarInner" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f7d9e9" stop-opacity=".12"/>
+        <stop offset="1" stop-color="#e9b9df" stop-opacity=".5"/>
       </linearGradient>
       <linearGradient id="sgBunnyBody" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="#fffefe"/>
-        <stop offset="1" stop-color="#f7efff"/>
+        <stop offset=".52" stop-color="#fffaff"/>
+        <stop offset="1" stop-color="#eee4fa"/>
+      </linearGradient>
+      <linearGradient id="sgBunnyBodyShade" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f2e9fc"/>
+        <stop offset=".55" stop-color="#e8daf8"/>
+        <stop offset="1" stop-color="#d5c2ef"/>
       </linearGradient>
       <radialGradient id="sgBunnyBlush">
-        <stop offset="0" stop-color="#f3b9c8" stop-opacity=".72"/>
-        <stop offset="1" stop-color="#f3b9c8" stop-opacity="0"/>
+        <stop offset="0" stop-color="#f1b6c4" stop-opacity=".76"/>
+        <stop offset=".62" stop-color="#f2c4cc" stop-opacity=".43"/>
+        <stop offset="1" stop-color="#f3c3d0" stop-opacity="0"/>
       </radialGradient>
-      <mask id="sgBunnyRingCutout" maskUnits="userSpaceOnUse">
-        <rect width="440" height="260" fill="#fff"/>
-        <ellipse cx="220" cy="195" rx="119" ry="25" fill="#000"/>
-      </mask>
-      <filter id="sgBunnySoftShadow" x="-30%" y="-30%" width="160%" height="180%">
-        <feGaussianBlur stdDeviation="4"/>
+      <radialGradient id="sgBunnyFloatHighlight">
+        <stop offset="0" stop-color="#fff" stop-opacity=".72"/>
+        <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="sgBunnyFloatClip">
+        <ellipse cx="360" cy="405" rx="299" ry="105"/>
+      </clipPath>
+      <filter id="sgBunnySoftShadow" x="-30%" y="-50%" width="160%" height="210%">
+        <feGaussianBlur stdDeviation="7"/>
+      </filter>
+      <filter id="sgBunnySoftEdge" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="1.4"/>
       </filter>
     </defs>
 
-    <ellipse cx="220" cy="235" rx="151" ry="12" fill="#efb9df" opacity=".55" filter="url(#sgBunnySoftShadow)"/>
-    <ellipse cx="220" cy="194" rx="174" ry="47" fill="url(#sgBunnyFloat)" mask="url(#sgBunnyRingCutout)"/>
-    <ellipse cx="220" cy="194" rx="174" ry="47" fill="none" stroke="#9b86d4" stroke-width="2.5" opacity=".88"/>
-    <path d="M55 186 C88 147 151 145 194 151" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".68"/>
-    <path d="M253 151 C315 141 367 164 384 192" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".5"/>
-    <path d="M58 202 C105 232 321 240 379 204" fill="none" stroke="#a78ddd" stroke-width="2" opacity=".55"/>
-    <path d="M84 203 C119 219 156 224 184 224" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".55"/>
-    <path d="M274 224 C315 220 348 211 367 200" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".45"/>
-    <path d="M105 190 l4 -8 4 8 8 4 -8 4 -4 8 -4 -8 -8 -4Z" fill="#fff" opacity=".95"/>
-    <path d="M311 205 l4 -8 4 8 8 4 -8 4 -4 8 -4 -8 -8 -4Z" fill="#fff" opacity=".92"/>
-    <path d="M356 177 l3 -6 3 6 6 3 -6 3 -3 6 -3 -6 -6 -3Z" fill="#fff" opacity=".9"/>
-    <circle cx="139" cy="208" r="2.2" fill="#fff" opacity=".8"/>
-    <circle cx="288" cy="219" r="2" fill="#fff" opacity=".8"/>
-    <circle cx="335" cy="190" r="1.8" fill="#fff" opacity=".72"/>
+    <g class="bunny-scene" transform="translate(0 -30) scale(1 1.2)">
+    <!-- A soft pink shadow grounds the floating ring. -->
+    <ellipse cx="360" cy="510" rx="286" ry="20" fill="#efb9df" opacity=".58" filter="url(#sgBunnySoftShadow)"/>
+    <ellipse cx="360" cy="496" rx="273" ry="14" fill="#f3c5e5" opacity=".34"/>
 
-    <path class="bunny-star bunny-star-one" d="M78 65 l5 -12 5 12 12 5 -12 5 -5 12 -5 -12 -12 -5Z" fill="#d4c2f5" stroke="#c5a9e6" stroke-width="1.2" opacity=".95"/>
-    <path class="bunny-star bunny-star-two" d="M350 53 l5 -12 5 12 12 5 -12 5 -5 12 -5 -12 -12 -5Z" fill="#f7c9dc" stroke="#edb0cf" stroke-width="1.2"/>
-    <path class="bunny-star bunny-star-three" d="M315 88 l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#eea9cf"/>
-    <path class="bunny-star bunny-star-four" d="M111 109 l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#f0b3d5"/>
-    <path class="bunny-star bunny-star-five" d="M390 119 l3 -8 3 8 8 3 -8 3 -3 8 -3 -8 -8 -3Z" fill="#d8c3f5"/>
-    <circle cx="93" cy="91" r="2.5" fill="#f3bfd8"/>
-    <circle cx="367" cy="91" r="2.2" fill="#f0c4d8"/>
+    <!-- Wide blue-lavender inflatable ring, with a rounded front lip. -->
+    <g class="bunny-ring">
+      <ellipse cx="360" cy="405" rx="299" ry="105" fill="url(#sgBunnyFloat)" stroke="#897ac5" stroke-width="3"/>
+      <g clip-path="url(#sgBunnyFloatClip)">
+        <path d="M55 397 C91 324 204 290 326 300 C268 336 246 384 265 432 C194 451 104 437 55 397Z" fill="url(#sgBunnyFloatLeft)"/>
+        <path d="M384 300 C516 287 622 326 666 391 C634 445 552 461 473 438 C499 388 462 333 384 300Z" fill="url(#sgBunnyFloatRight)"/>
+        <ellipse cx="270" cy="371" rx="154" ry="48" fill="url(#sgBunnyFloatHighlight)" opacity=".55"/>
+        <path d="M68 397 C106 445 218 468 354 468" fill="none" stroke="#fff" stroke-width="3" opacity=".3"/>
+        <path d="M384 464 C501 460 610 433 650 390" fill="none" stroke="#9c8bd2" stroke-width="2" opacity=".32"/>
+      </g>
+      <path d="M62 408 C75 474 207 513 360 513 C513 513 645 474 658 408 C647 479 514 527 360 527 C206 527 73 479 62 408Z"
+        fill="url(#sgBunnyFloatFront)" stroke="#8e7ac9" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M69 410 C91 474 217 504 360 504 C503 504 629 474 651 410"
+        fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" opacity=".48"/>
+      <path d="M76 438 C127 485 239 508 360 508 C481 508 593 485 644 438"
+        fill="none" stroke="#a18bd6" stroke-width="2" opacity=".25"/>
+      <path d="M82 397 C120 345 213 318 291 321" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".46"/>
+      <path d="M430 315 C527 306 613 342 642 384" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".45"/>
 
+      <!-- Little white stars printed on the float. -->
+      <path d="M145 399 l5 -11 5 11 11 5 -11 5 -5 11 -5 -11 -11 -5Z" fill="#fff" opacity=".98"/>
+      <path d="M309 451 l5 -11 5 11 11 5 -11 5 -5 11 -5 -11 -11 -5Z" fill="#fff" opacity=".98"/>
+      <path d="M500 444 l5 -11 5 11 11 5 -11 5 -5 11 -5 -11 -11 -5Z" fill="#fff" opacity=".98"/>
+      <path d="M606 382 l4 -9 4 9 9 4 -9 4 -4 9 -4 -9 -9 -4Z" fill="#fff" opacity=".96"/>
+      <circle cx="215" cy="431" r="2.4" fill="#fff" opacity=".72"/>
+      <circle cx="551" cy="421" r="2.2" fill="#fff" opacity=".72"/>
+      <circle cx="579" cy="407" r="1.7" fill="#fff" opacity=".65"/>
+      <circle cx="397" cy="475" r="1.7" fill="#fff" opacity=".8"/>
+    </g>
+
+    <!-- Floating stars and tiny sparkles around the companion. -->
+    <g class="bunny-floating-stars">
+      <path class="bunny-star bunny-star-one" d="M112 255 C102 251 94 246 83 243 C94 240 101 233 105 222 C110 234 116 240 129 244 C117 248 111 250 112 255Z"
+        fill="#cbb7f0" stroke="#b9a2e5" stroke-width="2.2" stroke-linejoin="round"/>
+      <path class="bunny-star bunny-star-two" d="M598 151 C588 143 581 132 579 117 C570 134 562 143 545 150 C563 156 571 164 579 183 C585 164 591 157 607 151Z"
+        fill="#f8d5e2" stroke="#efb9d2" stroke-width="2.3" stroke-linejoin="round"/>
+      <path class="bunny-star bunny-star-three" d="M642 275 l5 -13 5 13 13 5 -13 5 -5 13 -5 -13 -13 -5Z"
+        fill="#efadd0" opacity=".95"/>
+      <path class="bunny-star bunny-star-four" d="M111 342 l4 -10 4 10 10 4 -10 4 -4 10 -4 -10 -10 -4Z"
+        fill="#f5b9d8" opacity=".9"/>
+      <path class="bunny-star bunny-star-five" d="M75 171 l3 -8 3 8 8 3 -8 3 -3 8 -3 -8 -8 -3Z"
+        fill="#f2c0d9" opacity=".9"/>
+      <path class="bunny-outline-star bunny-outline-star-one" d="M222 137 l7 -16 7 16 16 7 -16 7 -7 16 -7 -16 -16 -7Z"
+        fill="#fff6dc" stroke="#edc7a2" stroke-width="3" stroke-linejoin="round"/>
+      <path class="bunny-outline-star bunny-outline-star-two" d="M608 78 l6 -14 6 14 14 6 -14 6 -6 14 -6 -14 -14 -6Z"
+        fill="#fff5dc" stroke="#edc1d7" stroke-width="3" stroke-linejoin="round"/>
+      <path class="bunny-outline-star bunny-outline-star-three" d="M585 268 l5 -12 5 12 12 5 -12 5 -5 12 -5 -12 -12 -5Z"
+        fill="#fff7df" stroke="#eec3d6" stroke-width="2.8" stroke-linejoin="round"/>
+      <path d="M92 300 l3 -8 3 8 8 3 -8 3 -3 8 -3 -8 -8 -3Z" fill="#efa9d2" opacity=".9"/>
+      <path d="M615 218 l3 -8 3 8 8 3 -8 3 -3 8 -3 -8 -8 -3Z" fill="#eda5cd" opacity=".88"/>
+      <circle cx="126" cy="290" r="2.2" fill="#edafd0"/>
+      <circle cx="631" cy="202" r="2.2" fill="#edafd0"/>
+      <circle cx="605" cy="238" r="2" fill="#f1bad9"/>
+    </g>
+
+    <!-- The rounded body rests behind the oversized head. -->
+    <g class="bunny-body">
+      <path d="M333 280 C365 239 432 220 498 242 C553 261 589 308 582 354 C576 396 542 426 494 416 C453 407 417 370 382 348 C347 328 324 306 333 280Z"
+        fill="url(#sgBunnyBody)" stroke="#ad88d1" stroke-width="3.4" stroke-linejoin="round"/>
+      <path d="M397 267 C438 241 493 254 532 285 C562 310 574 343 554 373 C538 396 505 395 477 374 C446 352 414 323 387 310 C378 294 382 278 397 267Z"
+        fill="url(#sgBunnyBodyShade)" opacity=".82"/>
+      <path d="M422 271 C460 260 500 273 525 302 C541 321 546 341 538 354 C520 335 499 325 478 321 C459 306 441 289 422 271Z"
+        fill="#fff" opacity=".55"/>
+      <path d="M372 335 C390 359 414 381 437 393" fill="none" stroke="#f4e8fb" stroke-width="4" stroke-linecap="round" opacity=".92"/>
+      <path d="M475 407 C512 421 550 401 565 372" fill="none" stroke="#a98bce" stroke-width="2" opacity=".4"/>
+    </g>
+
+    <!-- A soft round tail peeks out behind the back. -->
+    <g class="bunny-tail">
+      <path d="M550 288 C548 269 562 254 579 254 C591 254 600 263 604 276 C619 270 634 281 636 297 C638 314 624 329 607 329 C591 330 578 319 572 308 C559 309 550 301 550 288Z"
+        fill="#f7f1ff" stroke="#b18bd5" stroke-width="3.2" stroke-linejoin="round"/>
+      <path d="M570 273 C573 263 587 261 594 270 C599 276 598 285 593 290 C583 291 575 284 570 273Z"
+        fill="#dcd1f5" opacity=".95"/>
+      <circle cx="610" cy="289" r="7.5" fill="#fff" opacity=".92"/>
+      <circle cx="589" cy="264" r="5" fill="#fff" opacity=".8"/>
+    </g>
+
+    <!-- Two long, soft upright ears. -->
     <g class="bunny-ear bunny-ear-left">
-      <path d="M148 119 C133 89 128 31 145 18 C162 6 178 26 176 56 C174 83 165 105 159 123Z"
-        fill="url(#sgBunnyEar)" stroke="#b990d7" stroke-width="3" stroke-linejoin="round"/>
-      <path d="M148 99 C139 72 137 34 147 25 C158 17 167 35 165 59 C163 79 156 94 153 105Z"
-        fill="#f6d7e9" opacity=".88"/>
+      <path d="M219 260 C200 228 185 169 194 122 C201 84 224 69 246 94 C271 123 265 191 246 260Z"
+        fill="url(#sgBunnyEar)" stroke="#aa83d0" stroke-width="3.6" stroke-linejoin="round"/>
+      <path d="M215 224 C202 187 197 139 207 105 C215 82 230 83 239 103 C252 135 246 190 231 228Z"
+        fill="url(#sgBunnyEarInner)" opacity=".78"/>
+      <path d="M208 117 C208 100 218 88 230 91" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>
     </g>
     <g class="bunny-ear bunny-ear-right">
-      <path d="M181 117 C177 77 183 23 205 13 C227 4 244 23 238 53 C232 82 214 107 202 123Z"
-        fill="url(#sgBunnyEar)" stroke="#b990d7" stroke-width="3" stroke-linejoin="round"/>
-      <path d="M192 98 C188 70 191 35 206 22 C220 13 231 28 227 51 C222 73 210 91 201 105Z"
-        fill="#f5d4e8" opacity=".9"/>
+      <path d="M274 257 C270 197 288 113 323 80 C345 59 371 73 378 105 C388 148 354 220 316 267Z"
+        fill="url(#sgBunnyEar)" stroke="#aa83d0" stroke-width="3.6" stroke-linejoin="round"/>
+      <path d="M293 224 C291 171 304 112 328 88 C344 73 359 84 364 111 C369 150 341 204 313 233Z"
+        fill="url(#sgBunnyEarInner)" opacity=".72"/>
+      <path d="M319 99 C331 81 348 79 357 91" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity=".78"/>
     </g>
 
-    <g class="bunny-body">
-      <path d="M249 119 C276 99 316 101 342 122 C367 143 372 171 357 192 C343 211 316 215 292 199 C274 188 257 174 244 158 C237 143 239 129 249 119Z"
-        fill="url(#sgBunnyBody)" stroke="#bb96d8" stroke-width="3" stroke-linejoin="round"/>
-      <path d="M288 126 C314 112 341 127 350 151 C359 174 344 192 321 192 C301 191 287 178 277 164 C271 149 275 135 288 126Z"
-        fill="#eee2fb" opacity=".9"/>
-      <ellipse cx="355" cy="169" rx="15" ry="14" fill="#fffdfd" stroke="#bb96d8" stroke-width="2.7"/>
-      <path d="M328 196 C341 192 350 198 349 207 C348 216 333 220 320 214 C311 210 316 199 328 196Z"
-        fill="#fffdfd" stroke="#bb96d8" stroke-width="2.5"/>
-    </g>
-
+    <!-- Big round face with a small sleepy expression and peach blush. -->
     <g class="bunny-head">
-      <path d="M124 135 C126 103 153 83 188 84 C222 75 256 94 268 123 C281 154 258 183 227 190 C192 199 151 185 132 166 C122 156 119 145 124 135Z"
-        fill="#fffefd" stroke="#b98ed7" stroke-width="3.2" stroke-linejoin="round"/>
-      <ellipse class="bunny-cheek bunny-cheek-left" cx="151" cy="145" rx="16" ry="10" fill="url(#sgBunnyBlush)"/>
-      <ellipse class="bunny-cheek bunny-cheek-right" cx="238" cy="145" rx="16" ry="10" fill="url(#sgBunnyBlush)"/>
+      <path d="M158 326 C160 277 192 240 239 228 C289 214 345 235 374 274 C401 311 390 359 354 388 C315 420 244 406 197 380 C171 365 155 347 158 326Z"
+        fill="#fffefd" stroke="#aa83d0" stroke-width="3.7" stroke-linejoin="round"/>
+      <path d="M176 321 C178 286 203 258 237 247" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".82"/>
+      <ellipse class="bunny-cheek bunny-cheek-left" cx="209" cy="331" rx="26" ry="19" fill="url(#sgBunnyBlush)"/>
+      <ellipse class="bunny-cheek bunny-cheek-right" cx="337" cy="331" rx="26" ry="19" fill="url(#sgBunnyBlush)"/>
+      <g class="bunny-cheek-hatch" stroke="#efb5b8" stroke-width="2.2" stroke-linecap="round" opacity=".46">
+        <path d="M196 321 l-5 17 M204 316 l-5 21 M213 316 l-5 21 M222 320 l-4 16"/>
+        <path d="M324 320 l-4 16 M333 316 l-5 21 M342 316 l-5 21 M351 321 l-4 17"/>
+      </g>
 
-      <g class="bunny-eyes bunny-eyes-closed" fill="none" stroke="#8f6fc0" stroke-width="3.5" stroke-linecap="round">
-        <path d="M158 132 q7 -5 14 0"/>
-        <path d="M218 132 q7 -5 14 0"/>
+      <g class="bunny-eyes bunny-eyes-closed" fill="none" stroke="#8566b7" stroke-width="4.5" stroke-linecap="round">
+        <path d="M224 315 q10 -2 20 0"/>
+        <path d="M311 315 q10 -2 20 0"/>
       </g>
-      <g class="bunny-eyes bunny-eyes-open" fill="#8f6fc0">
-        <ellipse cx="165" cy="131" rx="2.8" ry="4.2"/>
-        <ellipse cx="225" cy="131" rx="2.8" ry="4.2"/>
-        <circle cx="166" cy="130" r="1" fill="#fff"/>
-        <circle cx="226" cy="130" r="1" fill="#fff"/>
+      <g class="bunny-eyes bunny-eyes-open" fill="#8566b7">
+        <ellipse cx="234" cy="315" rx="3.2" ry="5.2"/>
+        <ellipse cx="321" cy="315" rx="3.2" ry="5.2"/>
+        <circle cx="235" cy="313" r="1.2" fill="#fff"/>
+        <circle cx="322" cy="313" r="1.2" fill="#fff"/>
       </g>
-      <g class="bunny-eyes bunny-eyes-happy" fill="none" stroke="#8f6fc0" stroke-width="3.5" stroke-linecap="round">
-        <path d="M157 134 q8 -10 16 0"/>
-        <path d="M217 134 q8 -10 16 0"/>
+      <g class="bunny-eyes bunny-eyes-happy" fill="none" stroke="#8566b7" stroke-width="4" stroke-linecap="round">
+        <path d="M223 317 q11 -12 22 0"/>
+        <path d="M310 317 q11 -12 22 0"/>
       </g>
-      <g class="bunny-blink-eyes" fill="none" stroke="#8f6fc0" stroke-width="3.2" stroke-linecap="round">
-        <path d="M157 133 q8 -6 16 0"/>
-        <path d="M217 133 q8 -6 16 0"/>
+      <g class="bunny-blink-eyes" fill="none" stroke="#8566b7" stroke-width="4" stroke-linecap="round">
+        <path d="M223 316 q11 -3 22 0"/>
+        <path d="M310 316 q11 -3 22 0"/>
       </g>
-      <path d="M194 140 q4 -4 8 0 q-4 6 -8 0Z" fill="#e9a4bf"/>
-      <path class="bunny-mouth bunny-mouth-soft" d="M198 145 q-5 7 -11 2 M198 145 q5 7 11 2"
-        fill="none" stroke="#d88eae" stroke-width="2" stroke-linecap="round"/>
-      <path class="bunny-mouth bunny-mouth-hungry" d="M190 149 q8 -4 16 0"
-        fill="none" stroke="#d88eae" stroke-width="2.2" stroke-linecap="round"/>
-      <path class="bunny-mouth bunny-mouth-happy" d="M188 145 q10 14 20 0"
-        fill="none" stroke="#d88eae" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M274 327 q5 -5 10 0 q-5 7 -10 0Z" fill="#e9a4bf"/>
+      <path class="bunny-mouth bunny-mouth-soft" d="M279 334 q-7 7 -14 2 M279 334 q7 7 14 2"
+        fill="none" stroke="#d88eae" stroke-width="2.5" stroke-linecap="round"/>
+      <path class="bunny-mouth bunny-mouth-hungry" d="M269 340 q10 -6 20 0"
+        fill="none" stroke="#d88eae" stroke-width="2.6" stroke-linecap="round"/>
+      <path class="bunny-mouth bunny-mouth-happy" d="M268 333 q11 15 22 0"
+        fill="none" stroke="#d88eae" stroke-width="2.7" stroke-linecap="round"/>
     </g>
 
-    <g class="bunny-paw">
-      <path d="M199 165 C217 163 238 174 249 187 C259 199 250 211 235 214 C216 218 195 207 183 194 C175 185 183 169 199 165Z"
-        fill="#fffefd" stroke="#b98ed7" stroke-width="3" stroke-linejoin="round"/>
-      <path d="M202 176 q9 8 18 9" fill="none" stroke="#f0d9ed" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- A tiny far paw and the larger front paw resting over the ring. -->
+    <g class="bunny-paw bunny-paw-far">
+      <path d="M174 354 C156 352 143 365 149 379 C155 393 176 393 192 378 C198 369 190 357 174 354Z"
+        fill="#fffefd" stroke="#ad88d1" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M158 370 q8 4 14 1" fill="none" stroke="#f2d8ee" stroke-width="2.4" stroke-linecap="round"/>
+    </g>
+    <g class="bunny-paw bunny-paw-front">
+      <path d="M291 370 C318 361 352 377 372 400 C392 423 380 447 352 455 C323 463 286 446 268 423 C252 402 264 379 291 370Z"
+        fill="#fffefd" stroke="#ad88d1" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M291 384 C311 388 330 400 342 414" fill="none" stroke="#f3ddf0" stroke-width="3" stroke-linecap="round"/>
+      <path d="M275 435 C296 451 328 458 350 450" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".88"/>
     </g>
 
-    <g class="bunny-sleep-mark" fill="#c29bdd" font-family="Nunito, sans-serif" font-weight="800">
-      <text x="260" y="83" font-size="16">z</text>
-      <text x="273" y="69" font-size="11">z</text>
+    <!-- Little highlights keep the drawing soft rather than overly geometric. -->
+    <path d="M387 291 C402 279 419 275 436 280" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity=".75"/>
+    <path d="M460 392 C475 407 494 413 511 409" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".65"/>
+    <g class="bunny-sleep-mark" fill="#bd9bdf" font-family="Nunito, sans-serif" font-weight="800">
+      <text x="397" y="224" font-size="17">z</text>
+      <text x="412" y="209" font-size="12">z</text>
+    </g>
     </g>
   </svg>`;
 }
-
 const STREAK_MILESTONE_ILLUSTRATIONS = [
     '<svg viewBox="0 0 100 88" aria-hidden="true"><path d="M50 79V44" stroke="#789b76" stroke-width="4" stroke-linecap="round"/><path d="M50 61C29 39 18 51 25 62c8 10 18 5 25-1Z" fill="#a9c49d"/><path d="M50 53C69 31 82 42 75 54c-7 9-17 5-25-1Z" fill="#789e79"/><path d="M50 44C39 29 43 17 50 11c9 9 11 21 0 33Z" fill="#9db98d"/><path d="M50 79H26M50 79h25" stroke="#c49a76" stroke-width="3" stroke-linecap="round"/></svg>',
     '<svg viewBox="0 0 100 88" aria-hidden="true"><path d="M50 79V44" stroke="#789b76" stroke-width="4" stroke-linecap="round"/><path d="M49 64c-16-13-24-4-18 4 6 6 12 2 18-4Z" fill="#9db98d"/><g fill="#e8a2bc"><ellipse cx="50" cy="23" rx="8" ry="16"/><ellipse cx="50" cy="23" rx="8" ry="16" transform="rotate(60 50 23)"/><ellipse cx="50" cy="23" rx="8" ry="16" transform="rotate(120 50 23)"/></g><circle cx="50" cy="23" r="8" fill="#f4d17f"/><path d="M50 79H28h44" stroke="#c49a76" stroke-width="3" stroke-linecap="round"/></svg>',

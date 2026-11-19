@@ -1691,75 +1691,6 @@ function streakFriendsMarkup() {
 }
 
 
-/* Preview-only virtual buddy: a gentle, per-account care loop stored locally. */
-function readVirtualPet() {
-  const key = streakStorageKey('virtual-pet');
-  const now = Date.now();
-  let saved = {};
-  try { saved = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch {}
-  const elapsedHours = Math.max(0, Math.min(24 * 30, (now - (Number(saved.updatedAt) || now)) / 3600000));
-  const pet = {
-    hunger: Math.max(0, Math.min(100, (Number.isFinite(Number(saved.hunger)) && saved.hunger !== undefined ? Number(saved.hunger) : 82) - elapsedHours * 3)),
-    joy: Math.max(0, Math.min(100, (Number.isFinite(Number(saved.joy)) && saved.joy !== undefined ? Number(saved.joy) : 78) - elapsedHours * 2)),
-    energy: Math.max(0, Math.min(100, (Number.isFinite(Number(saved.energy)) && saved.energy !== undefined ? Number(saved.energy) : 88) - elapsedHours * 1.5)),
-    updatedAt: now,
-    lastAction: saved.lastAction || '',
-    lastActionType: ['feed', 'play', 'cuddle'].includes(saved.lastActionType) ? saved.lastActionType : '',
-    lastActionAt: Number(saved.lastActionAt) || 0
-  };
-  try { localStorage.setItem(key, JSON.stringify(pet)); } catch {}
-  return pet;
-}
-function careForVirtualPet(action) {
-  const pet = readVirtualPet();
-  const changes = {
-    feed: { hunger: 26, joy: 5, energy: 1, lastAction: 'A crunchy carrot made your buddy very happy.' },
-    play: { hunger: -6, joy: 24, energy: -14, lastAction: 'You had a lovely playtime together.' },
-    cuddle: { hunger: 0, joy: 14, energy: 7, lastAction: 'A warm cuddle made your buddy feel safe.' }
-  }[action];
-  if (!changes) return;
-  ['hunger', 'joy', 'energy'].forEach(stat => {
-    pet[stat] = Math.max(0, Math.min(100, pet[stat] + changes[stat]));
-  });
-  pet.lastAction = changes.lastAction;
-  pet.lastActionType = action;
-  pet.lastActionAt = Date.now();
-  pet.updatedAt = pet.lastActionAt;
-  try { localStorage.setItem(streakStorageKey('virtual-pet'), JSON.stringify(pet)); } catch {}
-  renderStreakPage();
-  toast(changes.lastAction + ' ♡');
-}
-function getVirtualPetMood(pet) {
-  if (pet.hunger < 25) return { key: 'hungry', label: 'A little hungry', face: '﹏' };
-  if (pet.energy < 25) return { key: 'sleepy', label: 'Ready for a nap', face: 'ᴗ' };
-  if (pet.joy >= 85) return { key: 'delighted', label: 'Over the moon', face: 'ᴗ' };
-  if (pet.joy >= 65) return { key: 'loved', label: 'Feeling loved', face: '⌣' };
-  return { key: 'calm', label: 'Happy to see you', face: 'ᴗ' };
-}
-function renderVirtualPet() {
-  const pet = readVirtualPet();
-  const mood = getVirtualPetMood(pet);
-  const recentAction = Date.now() - pet.lastActionAt < 1900 ? pet.lastActionType : '';
-  // Virtual Buddy is always the animated bunny; profile mascot selection stays separate.
-  const buddy = '🐰';
-  const buddyName = 'Bunny';
-  const meter = (label, icon, value, tone) =>
-    '<div class="sg-pet-meter"><div><span>' + icon + ' ' + label + '</span><b>' + Math.round(value) + '%</b></div>' +
-    '<span class="sg-pet-meter-track"><i class="sg-pet-meter-' + tone + '" style="width:' + value + '%"></i></span></div>';
-  return '<section class="sg-virtual-pet" aria-label="Care for your virtual buddy">' +
-    '<div class="sg-pet-heading"><div><span class="sg-pet-kicker">A LITTLE COMPANION</span><h3>Your virtual buddy</h3><p>Small moments of care make a happy little friend.</p></div><span class="sg-pet-sparkle" aria-hidden="true">✧</span></div>' +
-    '<div class="sg-pet-playground sg-pet-mood-' + mood.key + (recentAction ? ' sg-pet-action-' + recentAction : '') + '">' +
-    '<div id="virtualBuddy3D" class="sg-bunny-three-host" data-mood="' + mood.key + '" data-action="' + (recentAction || '') + '" aria-label="' + buddyName + ', ' + mood.label.toLowerCase() + '">' +
-    '<div class="sg-bunny-loading" aria-hidden="true"><span>🐰</span></div></div>' +
-    '<span class="sg-pet-mood" aria-live="polite">' + mood.label + '</span></div>' +
-    '<div class="sg-pet-meters">' + meter('Fullness', '🥕', pet.hunger, 'hunger') + meter('Happiness', '♡', pet.joy, 'joy') + meter('Energy', '☀', pet.energy, 'energy') + '</div>' +
-    '<div class="sg-pet-actions"><button type="button" data-care-pet="feed"><span>🥕</span><b>Feed</b><small>Give a carrot</small></button>' +
-    '<button type="button" data-care-pet="play"><span>🧶</span><b>Play</b><small>Have some fun</small></button>' +
-    '<button type="button" data-care-pet="cuddle"><span>♡</span><b>Cuddle</b><small>Share some love</small></button></div>' +
-    '<p class="sg-pet-footnote">' + esc(pet.lastAction || 'Your buddy is happy you are here.') + '</p></section>';
-}
-
-
 const STREAK_MILESTONE_ILLUSTRATIONS = [
     '<svg viewBox="0 0 100 88" aria-hidden="true"><path d="M50 79V44" stroke="#789b76" stroke-width="4" stroke-linecap="round"/><path d="M50 61C29 39 18 51 25 62c8 10 18 5 25-1Z" fill="#a9c49d"/><path d="M50 53C69 31 82 42 75 54c-7 9-17 5-25-1Z" fill="#789e79"/><path d="M50 44C39 29 43 17 50 11c9 9 11 21 0 33Z" fill="#9db98d"/><path d="M50 79H26M50 79h25" stroke="#c49a76" stroke-width="3" stroke-linecap="round"/></svg>',
     '<svg viewBox="0 0 100 88" aria-hidden="true"><path d="M50 79V44" stroke="#789b76" stroke-width="4" stroke-linecap="round"/><path d="M49 64c-16-13-24-4-18 4 6 6 12 2 18-4Z" fill="#9db98d"/><g fill="#e8a2bc"><ellipse cx="50" cy="23" rx="8" ry="16"/><ellipse cx="50" cy="23" rx="8" ry="16" transform="rotate(60 50 23)"/><ellipse cx="50" cy="23" rx="8" ry="16" transform="rotate(120 50 23)"/></g><circle cx="50" cy="23" r="8" fill="#f4d17f"/><path d="M50 79H28h44" stroke="#c49a76" stroke-width="3" stroke-linecap="round"/></svg>',
@@ -2149,8 +2080,6 @@ function renderStreakPage() {
     '<section class="sg-week-section"><div class="sg-section-heading"><div><h3>Weekly blooms</h3></div></div>' +
       '<div class="sg-week-row">' + week.join('') + '</div></section>',
     '</div>',
-    renderVirtualPet(),
-
     '<div class="sg-garden-switcher" role="tablist" aria-label="Your garden details">' +
       '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" data-streak-garden-tab="daily" role="tab" aria-selected="' + (streakGardenActiveTab === 'daily') + '"><span class="sg-switch-icon sg-switch-daily" aria-hidden="true"><svg viewBox="0 0 32 32"><rect x="8" y="6" width="16" height="21" rx="3" fill="#fffaf4" stroke="currentColor" stroke-width="1.8"/><path d="M12 5.5h8a2 2 0 0 1 2 2V9H10V7.5a2 2 0 0 1 2-2Z" fill="#f6e4c5" stroke="currentColor" stroke-width="1.5"/><path d="m12 14 1.8 1.8 3-3.2M12 21l1.8 1.8 3-3.2M19 14h2M19 21h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="sg-switch-label"><b>Daily Quest</b></span></button>' +
       '<button type="button" class="sg-garden-switch' + (streakGardenActiveTab === 'hearts' ? ' is-active' : '') + '" data-streak-garden-tab="hearts" role="tab" aria-selected="' + (streakGardenActiveTab === 'hearts') + '"><span class="sg-switch-icon sg-switch-hearts" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 27S4.5 19.5 4.5 11.5c0-6 7.5-8 11.5-.8 4-7.2 11.5-5.2 11.5.8C27.5 19.5 16 27 16 27Z" fill="currentColor"/><path d="m11 15 3.5 3.5 7-8" fill="none" stroke="#fffaf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="sg-switch-label"><b>Your Hearts</b></span></button>' +
@@ -5508,12 +5437,6 @@ document.addEventListener('click', async e => {
       streakSelectedDailyQuest = nextQuest;
       renderStreakPage();
     }
-    return;
-  }
-
-  const petCareButton = e.target.closest('[data-care-pet]');
-  if (petCareButton) {
-    careForVirtualPet(petCareButton.dataset.carePet);
     return;
   }
 

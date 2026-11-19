@@ -52,3 +52,16 @@ test('build script copies the app shell and emits generated configuration', () =
   assert.match(build, /SUPABASE_URL/);
   assert.match(build, /SUPABASE_PUBLISHABLE_KEY/);
 });
+
+test('Notes typing broadcasts use private per-sender topics scoped to followed friends', () => {
+  const app = read('app.js');
+  const migration = read('supabase/migrations/20261119130000_secure_notes_typing_broadcast.sql');
+  assert.match(app, /cute-bunny-notes-typing:' \+ String\(me\.id\)/);
+  assert.match(app, /config: \{ private: true \}/);
+  assert.match(app, /function syncNotesTypingFriendChannels\(\)/);
+  assert.match(app, /syncNotesTypingFriendChannels\(\);/);
+  assert.match(migration, /for select\s+to authenticated/i);
+  assert.match(migration, /f\.follower_id = \(select auth\.uid\(\)\)/);
+  assert.match(migration, /for insert\s+to authenticated/i);
+  assert.match(migration, /auth\.uid\(\)/);
+});

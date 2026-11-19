@@ -6,22 +6,19 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="bunny-icon.svg" type="image/svg+xml">
-  <link rel="shortcut icon" href="bunny-icon.svg" type="image/svg+xml">
-  <meta name="application-name" content="Cute Bunny">
-  <link rel="icon" href="bunny-app-icon-192.png" sizes="192x192" type="image/png">
+  <link rel="icon" href="bunny-app-icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <meta name="theme-color" content="#fcf7f2">
+  <meta name="theme-color" content="#fff1f5">
   <meta name="description" content="Cute Bunny — a tiny scrapbook of happy things.">
   <title>Cute Bunny ♡</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css?v=statusbar-match-20261117">
-  <link rel="stylesheet" href="polish.css?v=direct-launch-loader-20261119">
+  <link rel="stylesheet" href="polish.css?v=chat-stability-badges-20261118">
   <link rel="stylesheet" href="button-interactions.css?v=nav-3d-depth-20261118">
 </head>
-<body>
+<body class="is-restoring">
   <svg class="cb-icon-sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
     <symbol id="cb-icon-home" viewBox="0 0 48 48"><path d="M7 22.5 24 8l17 14.5v17H28V28h-8v11.5H7Z" fill="#f6d9e5" stroke="#b97998" stroke-width="2.3" stroke-linejoin="round"/><path d="m4 23 20-17 20 17" fill="none" stroke="#b97998" stroke-width="3.2" stroke-linecap="round"/></symbol>
     <symbol id="cb-icon-photo" viewBox="0 0 48 48"><rect x="6" y="9" width="36" height="30" rx="7" fill="#f8e4d5" stroke="#bd8b72" stroke-width="2.3"/><circle cx="17" cy="19" r="4" fill="#e8b86e"/><path d="m9 34 10-10 7 7 6-6 8 9" fill="#b7c99e" stroke="#789477" stroke-width="2.2"/></symbol>
@@ -36,15 +33,33 @@
 
   <a class="skip-link" href="#mainContent">Skip to main content</a>
 
-  <div id="appLoader" class="app-loader" role="status" aria-live="polite">
-    <div class="loader-orbit" aria-hidden="true">
-      <span class="loader-orbit-dot"></span>
-      <img class="loader-logo" src="bunny-icon.svg" alt="" width="72" height="72" fetchpriority="high">
-      <span class="loader-sparkle">✦</span>
+  <div id="sessionRestore" class="session-restore" role="status">
+    <span>🐰</span>
+    
+  </div>
+
+  <div id="welcome" class="welcome">
+    <div class="moon">☾</div>
+    <span class="float flower">✿</span>
+    <span class="float heart">♡</span>
+    <div class="welcome-card">
+      <div class="mascot">
+        <div class="ears"><i></i><i></i></div>
+        <div class="bunny-face">
+          <span class="eyes">•　•</span>
+          <span class="cheeks">●　●</span>
+          <span class="mouth">ᴗ</span>
+        </div>
+        <span class="mascot-flower">✿</span>
+      </div>
+      <p class="eyebrow">a little world made just for you</p>
+      <h1>Cute Bunny <span>♡</span></h1>
+      <p class="intro">A pocketful of photos, favorite songs, and tiny moments worth keeping.</p>
+      <button class="primary" id="enter">Let's begin ♡</button>
+      <button type="button" class="install-app-button hidden" id="installAppButton">Install Cute Bunny app ↓</button>
+      <small>take a breath · stay a little ☁</small>
     </div>
-    <p class="loader-brand">Cute Bunny <span>♡</span></p>
-    <p class="loader-caption">Waking up your little world…</p>
-    <div class="loader-track" aria-hidden="true"><i></i></div>
+    <div class="ground"></div>
   </div>
 
   <div id="app" class="app hidden">

@@ -4161,3 +4161,98 @@ body[data-theme] #app .header-actions .round:focus-visible {
   body[data-theme] #app > header .brand > span {width:34px!important;height:34px!important;flex-basis:34px!important}
   body[data-theme] #app .header-actions {gap:5px!important;padding:4px!important}
 }
+
+
+/* 2026-11-19 — refine header capsules: one quiet brand pill and one flat action pill. */
+body[data-theme] #app > header .brand,
+body[data-theme] #app > header .brand:hover,
+body[data-theme] #app > header .brand:focus-visible {
+  min-height:46px!important;
+  padding:4px 13px 4px 5px!important;
+  gap:9px!important;
+  border:1px solid var(--cb-border)!important;
+  border-radius:999px!important;
+  background:color-mix(in srgb,var(--cb-surface) 88%,var(--cb-accent-soft))!important;
+  box-shadow:0 2px 9px rgba(var(--cb-shadow-color),.055)!important;
+}
+body[data-theme] #app > header .brand > span {
+  flex:0 0 36px!important;
+  width:36px!important;
+  height:36px!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:var(--cb-accent-soft)!important;
+  box-shadow:none!important;
+}
+body[data-theme] #app > header .brand > b {
+  color:var(--cb-text)!important;
+  font-weight:850!important;
+  letter-spacing:-.02em!important;
+}
+body[data-theme] #app > header .brand small {
+  color:var(--cb-text-muted)!important;
+  font-weight:700!important;
+}
+body[data-theme] #app .header-actions {
+  display:flex!important;
+  align-items:center!important;
+  gap:2px!important;
+  padding:3px!important;
+  border:1px solid var(--cb-border)!important;
+  border-radius:999px!important;
+  background:color-mix(in srgb,var(--cb-surface) 88%,var(--cb-accent-soft))!important;
+  box-shadow:0 2px 9px rgba(var(--cb-shadow-color),.055)!important;
+}
+body[data-theme] #app .header-actions .round,
+body[data-theme] #app .header-actions .round:hover,
+body[data-theme] #app .header-actions .round:focus-visible,
+body[data-theme] #app .header-actions .round:active {
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:var(--cb-accent-strong)!important;
+  transform:none!important;
+  transition:background-color .2s ease,color .2s ease!important;
+}
+body[data-theme] #app .header-actions .round:hover,
+body[data-theme] #app .header-actions .round:focus-visible {
+  background:var(--cb-accent-soft)!important;
+}
+body[data-theme] #app .header-actions .round:active {
+  background:color-mix(in srgb,var(--cb-accent-soft) 72%,var(--cb-accent))!important;
+}
+body[data-theme] #app .notification-bell-icon {
+  display:block!important;
+  width:20px!important;
+  height:20px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+}
+body[data-theme] #app .mode-button {
+  display:grid!important;
+  place-items:center!important;
+  font-family:Arial,sans-serif!important;
+  font-size:25px!important;
+  font-weight:400!important;
+  line-height:1!important;
+}
+body[data-theme] #app .notification-badge {
+  border:2px solid var(--cb-surface)!important;
+  box-shadow:none!important;
+}
+@media(max-width:520px) {
+  body[data-theme] #app > header .brand {min-height:40px!important;padding:3px 10px 3px 4px!important;gap:7px!important}
+  body[data-theme] #app > header .brand > span {width:32px!important;height:32px!important;flex-basis:32px!important}
+  body[data-theme] #app .header-actions {gap:1px!important;padding:2px!important}
+  body[data-theme] #app .header-actions .round {width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important}
+}

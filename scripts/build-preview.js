@@ -10,6 +10,7 @@ fs.mkdirSync(output, { recursive: true });
 const assets = [
   'index.html',
   'app.js',
+  'virtual-buddy-3d.js',
   'style.css',
   'polish.css',
   'button-interactions.css',

@@ -1703,7 +1703,9 @@ function readVirtualPet() {
     joy: Math.max(0, Math.min(100, (Number.isFinite(Number(saved.joy)) && saved.joy !== undefined ? Number(saved.joy) : 78) - elapsedHours * 2)),
     energy: Math.max(0, Math.min(100, (Number.isFinite(Number(saved.energy)) && saved.energy !== undefined ? Number(saved.energy) : 88) - elapsedHours * 1.5)),
     updatedAt: now,
-    lastAction: saved.lastAction || ''
+    lastAction: saved.lastAction || '',
+    lastActionType: ['feed', 'play', 'cuddle'].includes(saved.lastActionType) ? saved.lastActionType : '',
+    lastActionAt: Number(saved.lastActionAt) || 0
   };
   try { localStorage.setItem(key, JSON.stringify(pet)); } catch {}
   return pet;
@@ -1720,23 +1722,37 @@ function careForVirtualPet(action) {
     pet[stat] = Math.max(0, Math.min(100, pet[stat] + changes[stat]));
   });
   pet.lastAction = changes.lastAction;
-  pet.updatedAt = Date.now();
+  pet.lastActionType = action;
+  pet.lastActionAt = Date.now();
+  pet.updatedAt = pet.lastActionAt;
   try { localStorage.setItem(streakStorageKey('virtual-pet'), JSON.stringify(pet)); } catch {}
   renderStreakPage();
   toast(changes.lastAction + ' ♡');
 }
+function getVirtualPetMood(pet) {
+  if (pet.hunger < 25) return { key: 'hungry', label: 'A little hungry', face: '﹏' };
+  if (pet.energy < 25) return { key: 'sleepy', label: 'Ready for a nap', face: 'ᴗ' };
+  if (pet.joy >= 85) return { key: 'delighted', label: 'Over the moon', face: 'ᴗ' };
+  if (pet.joy >= 65) return { key: 'loved', label: 'Feeling loved', face: '⌣' };
+  return { key: 'calm', label: 'Happy to see you', face: 'ᴗ' };
+}
 function renderVirtualPet() {
   const pet = readVirtualPet();
-  const mood = pet.joy >= 70 && pet.hunger >= 35 ? 'Feeling loved' : pet.hunger < 25 ? 'A little hungry' : pet.energy < 25 ? 'Ready for a nap' : 'Could use a little love';
+  const mood = getVirtualPetMood(pet);
+  const recentAction = Date.now() - pet.lastActionAt < 1900 ? pet.lastActionType : '';
+  const buddy = me?.mascot || '🐰';
+  const buddyName = ({ '🐰': 'Bunny', '🐱': 'Kitty', '🐻': 'Bear', '🐸': 'Frog' })[buddy] || 'Buddy';
   const meter = (label, icon, value, tone) =>
     '<div class="sg-pet-meter"><div><span>' + icon + ' ' + label + '</span><b>' + Math.round(value) + '%</b></div>' +
     '<span class="sg-pet-meter-track"><i class="sg-pet-meter-' + tone + '" style="width:' + value + '%"></i></span></div>';
   return '<section class="sg-virtual-pet" aria-label="Care for your virtual buddy">' +
     '<div class="sg-pet-heading"><div><span class="sg-pet-kicker">A LITTLE COMPANION</span><h3>Your virtual buddy</h3><p>Small moments of care make a happy little friend.</p></div><span class="sg-pet-sparkle" aria-hidden="true">✧</span></div>' +
-    '<div class="sg-pet-playground"><span class="sg-pet-cloud sg-pet-cloud-one">☁</span><span class="sg-pet-cloud sg-pet-cloud-two">☁</span>' +
-    '<span class="sg-pet-flower sg-pet-flower-one">✿</span><span class="sg-pet-flower sg-pet-flower-two">✿</span>' +
-    '<div class="sg-pet-character" aria-label="' + esc(me?.mascot || 'Bunny') + '">' + esc(me?.mascot || '🐰') + '</div>' +
-    '<span class="sg-pet-mood">' + mood + '</span></div>' +
+    '<div class="sg-pet-playground sg-pet-mood-' + mood.key + (recentAction ? ' sg-pet-action-' + recentAction : '') + '">' +
+    '<span class="sg-pet-cloud sg-pet-cloud-one" aria-hidden="true">☁</span><span class="sg-pet-cloud sg-pet-cloud-two" aria-hidden="true">☁</span>' +
+    '<span class="sg-pet-flower sg-pet-flower-one" aria-hidden="true">✿</span><span class="sg-pet-flower sg-pet-flower-two" aria-hidden="true">✿</span>' +
+    '<div class="sg-pet-character" role="img" aria-label="' + buddyName + ', ' + mood.label.toLowerCase() + '">' +
+    buddyIllustration(buddy) + '<span class="sg-pet-expression" aria-hidden="true">' + mood.face + '</span></div>' +
+    '<span class="sg-pet-mood" aria-live="polite">' + mood.label + '</span></div>' +
     '<div class="sg-pet-meters">' + meter('Fullness', '🥕', pet.hunger, 'hunger') + meter('Happiness', '♡', pet.joy, 'joy') + meter('Energy', '☀', pet.energy, 'energy') + '</div>' +
     '<div class="sg-pet-actions"><button type="button" data-care-pet="feed"><span>🥕</span><b>Feed</b><small>Give a carrot</small></button>' +
     '<button type="button" data-care-pet="play"><span>🧶</span><b>Play</b><small>Have some fun</small></button>' +

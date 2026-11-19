@@ -345,3 +345,128 @@ body[data-mode="dark"] .app #nav button[data-page].active{
     transition: none !important;
   }
 }
+
+
+/* 2026-11-19 — role-based button design system.
+   Each control keeps its own visual identity; only motion and focus behavior are shared. */
+
+/* Primary actions: warm, confident CTA with a soft raised edge. */
+:where(.app,.welcome,.auth-gate) button.primary,
+:where(.app,.welcome,.auth-gate) .primary:not(button) {
+  min-height:40px;
+  border:1px solid color-mix(in srgb,var(--cb-accent) 34%,white)!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--cb-accent) 78%,white),
+    var(--cb-accent))!important;
+  color:#fff!important;
+  box-shadow:0 3px 0 color-mix(in srgb,var(--cb-accent) 72%,#76566a),
+    0 6px 14px rgba(var(--cb-shadow-color,137,76,105),.14),
+    inset 0 1px 0 rgba(255,255,255,.36)!important;
+  font-weight:800;
+}
+:where(.app,.welcome,.auth-gate) button.primary:active:not(:disabled),
+:where(.app,.welcome,.auth-gate) .primary:active {
+  transform:translateY(2px)!important;
+  box-shadow:0 1px 0 color-mix(in srgb,var(--cb-accent) 72%,#76566a),
+    inset 0 2px 4px rgba(70,45,65,.14)!important;
+}
+
+/* Icon-only controls: circular, light, glassy — not miniature CTA pills. */
+.app button.round,
+.app .header-actions button,
+.app button.icon-button,
+.app button[aria-label]:not(.primary):not([data-page]) {
+  border-radius:50%;
+  box-shadow:0 2px 7px rgba(var(--cb-shadow-color,91,62,88),.09),
+    inset 0 1px 0 rgba(255,255,255,.65);
+}
+.app button.round:active,
+.app .header-actions button:active,
+.app button.icon-button:active,
+.app button[aria-label]:not(.primary):not([data-page]):active {
+  transform:translateY(2px)!important;
+  box-shadow:inset 0 2px 4px rgba(83,55,75,.14)!important;
+}
+
+/* Segmented tabs: flat until selected; avoid the raised 3D key treatment. */
+.app .profile-settings-tabs button,
+.app .profile-settings-tabs button[role="tab"],
+.app [role="tablist"] button,
+.app .tabs button {
+  border:1px solid transparent;
+  border-radius:11px;
+  background:transparent;
+  box-shadow:none;
+  transition:background-color .18s ease,color .18s ease,border-color .18s ease;
+}
+.app .profile-settings-tabs button.is-active,
+.app .profile-settings-tabs button[aria-selected="true"],
+.app [role="tablist"] button[aria-selected="true"],
+.app .tabs button.active {
+  border-color:color-mix(in srgb,var(--cb-accent) 18%,transparent);
+  background:color-mix(in srgb,var(--cb-accent-soft) 72%,white);
+  color:var(--cb-accent-strong);
+  box-shadow:inset 0 1px 2px rgba(100,70,90,.07);
+}
+.app .profile-settings-tabs button:active,
+.app .profile-settings-tabs button[role="tab"]:active,
+.app [role="tablist"] button:active,
+.app .tabs button:active {
+  transform:none!important;
+}
+
+/* Choice chips and filters: compact outlined pills with a clear selected state. */
+.app .starter-chips button,
+.app .profile-expression-prompts button,
+.app .filter-chip,
+.app .choice-chip {
+  border:1px solid var(--cb-border);
+  border-radius:999px;
+  background:var(--cb-surface-raised);
+  color:var(--cb-text);
+  box-shadow:0 1px 2px rgba(var(--cb-shadow-color,91,62,88),.05);
+}
+.app .starter-chips button:active,
+.app .profile-expression-prompts button:active,
+.app .filter-chip:active,
+.app .choice-chip:active {
+  transform:translateY(1px)!important;
+  box-shadow:inset 0 1px 3px rgba(83,55,75,.10)!important;
+}
+
+/* Small card actions stay visually subordinate to the card itself. */
+.app .tile button:not(.primary),
+.app .feed-item button:not(.primary),
+.app .memory-card button:not(.primary),
+.app .friend-card button:not(.primary) {
+  border-radius:12px;
+  box-shadow:0 2px 5px rgba(var(--cb-shadow-color,91,62,88),.07),
+    inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+/* Destructive actions are recognizable but restrained. */
+.app button.danger,
+.app button.delete,
+.app button[ data-action="delete" ] {
+  border:1px solid color-mix(in srgb,#c76f7e 30%,var(--cb-border));
+  border-radius:12px;
+  background:color-mix(in srgb,#c76f7e 9%,var(--cb-surface));
+  color:#a84e62;
+  box-shadow:0 2px 5px rgba(145,75,91,.07);
+}
+
+/* Selection controls get an unmistakable ring, not a generic shadow. */
+.app button.is-selected:not(.primary),
+.app button[aria-pressed="true"]:not(.primary),
+.app button[aria-selected="true"]:not(.primary) {
+  outline:1px solid color-mix(in srgb,var(--cb-accent) 46%,transparent);
+  outline-offset:1px;
+}
+
+/* Do not animate controls that users have asked the browser to keep still. */
+@media(prefers-reduced-motion:reduce) {
+  .app button,.welcome button,.auth-gate button {
+    transition:none!important;
+  }
+}

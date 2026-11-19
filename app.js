@@ -5651,11 +5651,15 @@ document.addEventListener('click', async e => {
     notificationRows = [];
     $('#profileGate').classList.add('hidden');
     $('#app').classList.add('hidden');
-    openAuth('login');
+    $('#welcome').classList.remove('hidden');
     return;
   }
 
-  // Authentication mode switch
+  // Welcome enter & auth switch
+  if (e.target.closest('#enter')) {
+    openAuth('register');
+    return;
+  }
   if (e.target.closest('#authSwitch')) {
     openAuth(authMode === 'login' ? 'register' : 'login');
     return;
@@ -6249,8 +6253,6 @@ async function restoreSession() {
   } finally {
     document.body.classList.remove('is-restoring');
     $('#sessionRestore')?.classList.add('hidden');
-    $('#appLoader')?.classList.add('hidden');
-    if (!me) openAuth('login');
   }
 }
 

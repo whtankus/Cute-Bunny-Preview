@@ -14658,3 +14658,10 @@ body[data-mode="dark"] .sg-pet-playground {
     animation: none !important;
   }
 }
+
+
+/* Open eyes between natural blinks for the calm and loved moods. */
+.sg-pet-bunny-art[data-mood="calm"] .bunny-eyes-closed,
+.sg-pet-bunny-art[data-mood="loved"] .bunny-eyes-closed { display:none; }
+.sg-pet-bunny-art[data-mood="calm"] .bunny-eyes-open,
+.sg-pet-bunny-art[data-mood="loved"] .bunny-eyes-open { display:block; }

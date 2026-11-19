@@ -42,6 +42,7 @@ let presenceChannel = null, notificationChannel = null, memoryChannel = null, pr
 let seenStatusRefreshTimer = null, seenStatusRefreshInFlight = false, seenStatusRefreshQueued = false;
 let typingHeartbeatTimer = null, typingStopTimer = null, typingActive = false, typingLastSentAt = 0;
 let notesTypingChannelReady = false, notesTypingQueuedState = null;
+let notesTypingFriendChannels = new Map();
 const remoteTypingUsers = new Map();
 let activeMessageActionsId = null;
 let hiddenNoteIds = new Set();
@@ -625,6 +626,7 @@ async function refresh() {
     feedPageHasMore.photo = (results[3] || []).length === 8;
     feedPageHasMore.song = (results[4] || []).length === 8;
     friends = results[2];
+    syncNotesTypingFriendChannels();
     noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));
     render();
     // Warm the first gallery photos in the background while the user is on Home.
@@ -3856,6 +3858,8 @@ async function sendNotesTyping(isTyping) {
     if (result !== 'ok') {
       notesTypingQueuedState = nextState;
       console.warn('Notes typing broadcast status:', result);
+    } else if (notesTypingQueuedState === nextState) {
+      notesTypingQueuedState = null;
     }
   } catch (error) {
     notesTypingQueuedState = nextState;
@@ -3907,6 +3911,40 @@ function receiveNotesTyping(payload) {
   };
   remoteTypingUsers.set(userId, entry);
   syncNotesTypingIndicator();
+}
+
+function syncNotesTypingFriendChannels() {
+  if (!sb || !me) return;
+  const wanted = new Set(
+    friends
+      .map(friend => String(friend.id || friend.user_id || ''))
+      .filter(id => id && id !== String(me.id))
+  );
+
+  for (const [friendId, channel] of notesTypingFriendChannels) {
+    if (wanted.has(friendId)) continue;
+    if (sb) void sb.removeChannel(channel);
+    notesTypingFriendChannels.delete(friendId);
+    const typing = remoteTypingUsers.get(friendId);
+    if (typing?.timer) clearTimeout(typing.timer);
+    remoteTypingUsers.delete(friendId);
+  }
+
+  for (const friendId of wanted) {
+    if (notesTypingFriendChannels.has(friendId)) continue;
+    const topic = 'cute-bunny-notes-typing:' + friendId;
+    const channel = sb.channel(topic, { config: { private: true } })
+      .on('broadcast', { event: 'typing' }, ({ payload }) => {
+        if (String(payload?.user_id || '') !== friendId) return;
+        receiveNotesTyping(payload);
+      })
+      .subscribe(status => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          console.warn('Friend typing channel status:', friendId, status);
+        }
+      });
+    notesTypingFriendChannels.set(friendId, channel);
+  }
 }
 
 function updateNotesTypingPresence() {
@@ -4235,19 +4273,20 @@ function startRealtime() {
       (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2));
     const presence = sb.channel('cute-bunny-presence', { config: { presence: { key: clientPresenceKey } } });
     presenceChannel = presence;
-    notesTypingChannel = sb.channel('cute-bunny-notes-typing')
-      .on('broadcast', { event: 'typing' }, ({ payload }) => receiveNotesTyping(payload))
-      .subscribe(status => {
-        if (status === 'SUBSCRIBED') {
-          notesTypingChannelReady = true;
-          const queuedState = notesTypingQueuedState;
-          notesTypingQueuedState = null;
-          void sendNotesTyping(queuedState == null ? typingActive : queuedState);
-        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          notesTypingChannelReady = false;
-          console.warn('Notes typing channel status:', status);
-        }
-      });
+    // Each user broadcasts only on their own private topic. Followers subscribe
+    // to the topic for each account they follow; Realtime RLS enforces that boundary.
+    notesTypingChannel = sb.channel('cute-bunny-notes-typing:' + String(me.id), {
+      config: { private: true }
+    }).subscribe(status => {
+      if (status === 'SUBSCRIBED') {
+        notesTypingChannelReady = true;
+        const queuedState = notesTypingQueuedState;
+        void sendNotesTyping(queuedState == null ? typingActive : queuedState);
+      } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        notesTypingChannelReady = false;
+        console.warn('Own Notes typing channel status:', status);
+      }
+    });
     presence
       .on('presence', { event: 'sync' }, syncPresenceUI)
       .on('presence', { event: 'join' }, syncPresenceUI)
@@ -4396,6 +4435,7 @@ function startRealtime() {
             }),
             api('/following').then(rows => {
               friends = rows;
+              syncNotesTypingFriendChannels();
               if (page === 'friends') render();
               const openProfile = $('#friendProfileGate');
               if (openProfile && !openProfile.classList.contains('hidden') && openProfile.dataset.ownProfile !== 'true') {
@@ -4429,9 +4469,10 @@ function closeRealtime() {
   remoteTypingUsers.forEach(entry => clearTimeout(entry.timer));
   remoteTypingUsers.clear();
   syncNotesTypingIndicator();
-  [presenceChannel, notesTypingChannel, notificationChannel, memoryChannel, profileChannel, noteReadCursorChannel].forEach(channel => {
+  [presenceChannel, notesTypingChannel, ...notesTypingFriendChannels.values(), notificationChannel, memoryChannel, profileChannel, noteReadCursorChannel].forEach(channel => {
     if (channel && sb) sb.removeChannel(channel);
   });
+  notesTypingFriendChannels.clear();
   presenceChannel = notesTypingChannel = notificationChannel = memoryChannel = profileChannel = noteReadCursorChannel = null;
   clearTimeout(seenStatusRefreshTimer);
   seenStatusRefreshTimer = null;

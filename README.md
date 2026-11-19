@@ -1,39 +1,244 @@
-# Cute Bunny Preview
+# Cute Bunny
 
-A cozy scrapbook-style web app for sharing a few small happy things with a friend.
+<p align="center">
+  <img src="bunny-app-icon-192.png" width="112" alt="Cute Bunny app icon">
+</p>
 
-## Local setup
+<p align="center">
+  <strong>A cozy shared scrapbook for photos, music, notes, and little everyday moments.</strong>
+</p>
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Add your Supabase values in `supabase-config.js` or export them before building:
-   ```bash
-   export SUPABASE_URL="https://your-project.supabase.co"
-   export SUPABASE_PUBLISHABLE_KEY="your-anon-or-publishable-key"
-   ```
-3. Start the app locally:
-   ```bash
-   npm run dev
-   ```
-4. Open `http://localhost:4173`
+Cute Bunny is a mobile-friendly social scrapbook designed around a small circle of friends. Create a personal profile, connect with friends, share memories, keep a streak, and revisit the moments that matter — all in a soft, playful interface that can also be installed on a phone like an app.
 
-## Useful scripts
+---
+
+## What you can do
+
+| Area | What it offers |
+| --- | --- |
+| **Home** | A shared memory feed for the latest photos, songs, and notes from you and the people you follow. |
+| **Photos** | A dedicated photo garden with natural image proportions, a full-screen preview, and photo saving for friends' posts. |
+| **Music** | Share audio, play songs from the music section, and use the persistent mini-player/music island while moving around the app. |
+| **Notes** | A private-feeling, chat-style space for short messages and shared thoughts. |
+| **Friends** | Discover profiles, search by username, follow or unfollow, and see friend activity. |
+| **Profiles** | Personalise your display name, username, bio, mascot, profile appearance, and themes. |
+| **Streak Garden** | Keep track of daily visits with timezone-aware streaks and a garden-inspired progress view. |
+| **Notifications** | View activity updates and manage supported notification preferences. |
+
+### Interaction and experience
+
+- Responsive layouts designed for phones and desktop screens.
+- Light and dark appearance modes.
+- Double-tap reactions on supported memory cards and long-press interaction menus.
+- Owner-only memory deletion, with an undo window for supported swipe-to-delete actions.
+- Friend-aware memory access and live presence while members are connected.
+- Photo source caching and preloading to make the photo garden feel faster on repeat visits.
+- Installable Progressive Web App (PWA) experience with app icons, a standalone display mode, and a service worker for the app shell.
+
+---
+
+## Android app
+
+Cute Bunny is also packaged as a native Android app using Capacitor.
+
+| Android detail | Value |
+| --- | --- |
+| App name | Cute Bunny |
+| Package name | `com.cutebunny.app` |
+| Application ID | `com.cutebunny.app` |
+| APK type | Debug APK (`app-debug.apk`) |
+| Build workflow | [Build Cute Bunny Android APK](.github/workflows/android-apk.yml) |
+
+### Install on Android
+
+1. Open the repository's [Actions page](https://github.com/whtankus/Cute-bunny/actions).
+2. Select the latest successful **Build Cute Bunny Android APK** workflow run.
+3. Under **Artifacts**, download `cute-bunny-android-apk`.
+4. Extract the ZIP file to get `app-debug.apk`.
+5. Transfer `app-debug.apk` to your Android phone and open it.
+6. If Android asks, allow installation from that source, then tap **Install**.
+
+The APK artifact is retained by GitHub Actions for 30 days. A new APK is generated when relevant app files are pushed to `main), or the workflow can be started manually from the Actions page.
+
+### Build the Android APK locally
+
+Requirements: Node.js 22, Java 21, and the Android SDK.
 
 ```bash
+npm install
 npm run build
-npm run check
-npm run check:config
+npx cap add android
+npx cap sync android
+cd android
+./gradlew assembleDebug
 ```
 
-## What this repo is for
+The generated debug APK is located at `android/app/build/outputs/apk/debug/app-debug.apk`.
 
-This repository is a preview/testing deployment for Cute Bunny. It is separate from the production repo and is intended for testing, preview builds, and local app validation.
+## Technology
 
-## Improvements included
+| Layer | Technology |
+| --- | --- |
+| Frontend | HTML, CSS, and vanilla JavaScript |
+| Authentication | Supabase Auth |
+| Database | Supabase PostgreSQL |
+| File storage | Private Supabase Storage bucket |
+| Live updates | Supabase Realtime |
+| Username sign-in helper | Supabase Edge Function |
+| Hosting and deployment | GitHub Pages with GitHub Actions |
+| Installable app support | Web App Manifest and Service Worker |
 
-- safer default Supabase config for graceful startup
-- startup config validation with friendly instructions
-- more reliable build behavior when env values are missing
-- clearer local setup guidance
+The GitHub Pages deployment is a static website. The browser connects to Supabase for authentication, database operations, file storage, and realtime features.
+
+---
+
+## Project structure
+
+```text
+.
+├── .github/
+│   └── workflows/
+│       └── deploy-pages.yml       # GitHub Pages deployment workflow
+├── app.js                         # Application logic and interactions
+├── index.html                     # App structure and entry point
+├── style.css                      # Responsive UI and themes
+├── manifest.webmanifest            # Installable PWA metadata\n├── capacitor.config.json          # Native Android app ID and configuration
+├── sw.js                           # App-shell caching and offline fallback
+├── bunny-app-icon-192.png          # PWA icon
+├── bunny-app-icon-512.png          # Large PWA icon
+├── apple-touch-icon.png            # iOS home-screen icon
+├── scripts/
+│   └── build-preview.js            # Local production-preview builder
+└── supabase/
+    ├── schema.sql                  # Initial database and storage setup
+    ├── feature-upgrades.sql        # Feature upgrade SQL
+    ├── migrations/                 # Ordered database migrations
+    └── functions/
+        └── username-login/         # Username-to-email login helper
+```
+
+---
+
+## Set up Supabase
+
+A Supabase project is required for sign-in, profiles, memories, friends, notifications, and media storage.
+
+1. Create a project in [Supabase](https://supabase.com/).
+2. Open **SQL Editor** and run `supabase/schema.sql`.
+3. Run `supabase/feature-upgrades.sql` once.
+4. Apply every SQL file in `supabase/migrations/` in filename order. The migration files are timestamped; keep that order when applying them to an existing project.
+5. Deploy the username login Edge Function with JWT verification disabled for the pre-session login exchange:
+
+   ```bash
+   supabase functions deploy username-login --no-verify-jwt
+   ```
+
+6. In **Authentication → URL Configuration**, configure your deployed GitHub Pages URL as the Site URL and add the URL (and any required auth callback paths) to the allowed redirect URLs.
+
+The older `supabase/login-streak.sql` file is retained for compatibility with earlier setups. Do not run it on top of the timestamped migrations unless you are deliberately following a legacy upgrade path.
+
+### Frontend Supabase configuration
+
+The app expects a `supabase-config.js` file at the project root. Create it locally with your Supabase project URL and publishable key (or legacy anon key):
+
+```js
+window.CUTE_BUNNY_CONFIG = {
+  supabaseUrl: "https://YOUR-PROJECT.supabase.co",
+  supabaseAnonKey: "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY"
+};
+```
+
+The publishable/anon key is intended to be used in browser applications. **Never put a Supabase `service_role` key or other privileged secret in frontend code.**
+
+Email registration uses Supabase Auth. Username-or-email sign-in is supported through the Edge Function. Supabase Auth still requires a real email address for account registration; email-free signup is not supported.
+
+---
+
+## Run locally
+
+You need Node.js and a browser with internet access.
+
+1. Complete the Supabase setup above and create `supabase-config.js`.
+2. Install no dependencies for the basic syntax check; the project uses browser-native JavaScript and loads Supabase JS v2 from jsDelivr.
+3. Run the project checks:
+
+   ```bash
+   npm run check
+   ```
+
+4. To create a local preview build:
+
+   ```bash
+   npm run build
+   ```
+
+   The build writes the static preview to `dist/` and reads the Supabase URL and publishable key from `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` environment variables.
+
+5. Serve the project over HTTP rather than relying on opening `index.html` directly. For example:
+
+   ```bash
+   python -m http.server 8000
+   ```
+
+   Then open `http://localhost:8000`.
+
+---
+
+## Deploy to GitHub Pages
+
+The repository includes an automated workflow at `.github/workflows/deploy-pages.yml`. It runs on pushes to `main` and can also be started manually from the Actions tab.
+
+1. Push the project to the repository's `main` branch.
+2. In **Settings → Secrets and variables → Actions**, add these repository secrets:
+   - `SUPABASE_URL` — your Supabase project URL.
+   - `SUPABASE_PUBLISHABLE_KEY` — your Supabase publishable key or legacy anon key.
+3. In **Settings → Pages**, set the publishing source to **GitHub Actions**.
+4. Confirm the Site URL and allowed redirect URLs in Supabase Authentication settings.
+5. Push a commit to `main`, or run **Actions → Deploy Cute Bunny to GitHub Pages → Run workflow**.
+6. When the workflow succeeds, open its deployment environment URL or visit **Settings → Pages** for the published address.
+
+The workflow creates `supabase-config.js` during deployment from the repository secrets. The generated configuration is included in the Pages artifact; the local configuration file does not need to be committed.
+
+---
+
+## Security and data access
+
+- Row Level Security (RLS) policies protect database records.
+- Members can create memories as themselves and delete only their own memories.
+- Memory visibility follows the app's friend/follow relationship rules.
+- Media is stored in a private Supabase Storage bucket and access is governed by storage policies.
+- Notification preferences are stored separately from public profile information.
+- Keep Supabase migrations and policies in sync with the deployed application.
+- Never commit passwords, service-role keys, private access tokens, or other privileged credentials.
+
+Supabase's free-plan quotas and inactivity policies can change. Check the current Supabase plan limits and keep independent backups of important data and media.
+
+---
+
+## Contributing
+
+Changes should preserve existing authentication, friend permissions, storage policies, and mobile interactions. Before opening a pull request or publishing a change:
+
+1. Run `npm run check`.
+2. Test the affected feature on both a narrow mobile viewport and a desktop viewport.
+3. Verify that signed-in users can access only the memories and actions permitted by the database policies.
+4. Test the relevant GitHub Actions workflow before considering a change deployed.
+
+---
+
+<p align="center">
+  Made for sharing the little things. ♡
+</p>
+
+## App screenshots
+
+The following screenshots show the main areas of Cute Bunny:
+
+### Home
+![Cute Bunny home dashboard](https://raw.githubusercontent.com/whtankus/Cute-bunny/main/screenshots/home-dashboard.jpg)
+
+### Streak Garden
+![Cute Bunny streak garden](https://raw.githubusercontent.com/whtankus/Cute-bunny/main/screenshots/streak-garden.jpg)
+
+### Friends and profile
+![Cute Bunny friends and profile](https://raw.githubusercontent.com/whtankus/Cute-bunny/main/screenshots/friends-profile.jpg)

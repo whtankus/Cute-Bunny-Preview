@@ -1749,8 +1749,8 @@ function renderVirtualPet() {
   return '<section class="sg-virtual-pet" aria-label="Care for your virtual buddy">' +
     '<div class="sg-pet-heading"><div><span class="sg-pet-kicker">A LITTLE COMPANION</span><h3>Your virtual buddy</h3><p>Small moments of care make a happy little friend.</p></div><span class="sg-pet-sparkle" aria-hidden="true">✧</span></div>' +
     '<div class="sg-pet-playground sg-pet-mood-' + mood.key + (recentAction ? ' sg-pet-action-' + recentAction : '') + '">' +
-    '<div class="sg-pet-character sg-pet-character-illustrated" role="img" aria-label="' + buddyName + ', ' + mood.label.toLowerCase() + '">' +
-    virtualBuddyIllustration('🐰', mood, recentAction) + '</div>' +
+    '<div id="virtualBuddy3D" class="sg-bunny-three-host" data-mood="' + mood.key + '" data-action="' + (recentAction || '') + '" aria-label="' + buddyName + ', ' + mood.label.toLowerCase() + '">' +
+    '<div class="sg-bunny-loading" aria-hidden="true"><span>🐰</span></div></div>' +
     '<span class="sg-pet-mood" aria-live="polite">' + mood.label + '</span></div>' +
     '<div class="sg-pet-meters">' + meter('Fullness', '🥕', pet.hunger, 'hunger') + meter('Happiness', '♡', pet.joy, 'joy') + meter('Energy', '☀', pet.energy, 'energy') + '</div>' +
     '<div class="sg-pet-actions"><button type="button" data-care-pet="feed"><span>🥕</span><b>Feed</b><small>Give a carrot</small></button>' +

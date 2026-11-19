@@ -53,23 +53,13 @@ test('build script copies the app shell and emits generated configuration', () =
   assert.match(build, /SUPABASE_PUBLISHABLE_KEY/);
 });
 
-test('Notes typing broadcasts use private per-sender topics scoped to followed friends', () => {
+test('Notes typing uses the same shared Broadcast channel as the working Cute Bunny app', () => {
   const app = read('app.js');
-  const migration = read('supabase/migrations/20261119130000_secure_notes_typing_broadcast.sql');
-  assert.match(app, /cute-bunny-notes-typing:' \+ String\(me\.id\)/);
-  assert.match(app, /config: \{ private: true \}/);
-  assert.match(app, /function syncNotesTypingFriendChannels\(\)/);
-  assert.match(app, /syncNotesTypingFriendChannels\(\);/);
-  assert.match(migration, /for select\s+to authenticated/i);
-  assert.match(migration, /f\.follower_id = \(select auth\.uid\(\)\)/);
-  assert.match(migration, /for insert\s+to authenticated/i);
-  assert.match(migration, /auth\.uid\(\)/);
-});
-
-test('Notes typing channel owners can subscribe to their own private topic', () => {
-  const migration = read('supabase/migrations/20261119103527_allow_notes_typing_owner_channel_access.sql');
-  assert.match(migration, /split_part\(topic, ':', 2\) = \(select auth\.uid\(\)\)::text/);
-  assert.match(migration, /or exists\s*\(/i);
-  assert.match(migration, /f\.follower_id = \(select auth\.uid\(\)\)/);
-  assert.match(migration, /owners and followers can receive notes typing broadcasts/);
+  assert.match(app, /sb\.channel\(['"]cute-bunny-notes-typing['"]\)/);
+  assert.match(app, /\.on\(['"]broadcast['"], \{ event: ['"]typing['"] \}/);
+  assert.match(app, /notesTypingChannelReady = true/);
+  assert.match(app, /notesTypingQueuedState = null/);
+  assert.doesNotMatch(app, /config: \{ private: true \}/);
+  assert.doesNotMatch(app, /syncNotesTypingFriendChannels/);
+  assert.doesNotMatch(app, /notesTypingFriendChannels/);
 });

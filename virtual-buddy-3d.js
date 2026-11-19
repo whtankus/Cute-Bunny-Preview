@@ -55,8 +55,8 @@ function mount(host) {
   catch(error){host.dataset.webgl="unavailable";host.innerHTML='<div class="sg-bunny-fallback" role="img" aria-label="Little bunny">🐰</div>';return;}
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7)); renderer.outputColorSpace=THREE.SRGBColorSpace;
   renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.15;
-  const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(34,1,.1,40);
-  camera.position.set(0,1.12,5.4); camera.lookAt(0,.08,0);
+  const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(42,1,.1,40);
+  camera.position.set(0,1.05,6.2); camera.lookAt(0,.18,0);
   scene.add(new THREE.HemisphereLight("#fff8ff","#d8c7e6",2.15));
   const key=new THREE.DirectionalLight("#fff4e9",3.2); key.position.set(-3,5,5); key.castShadow=true; scene.add(key);
   const rim=new THREE.DirectionalLight("#c7c5ff",1.5); rim.position.set(4,2,-3); scene.add(rim);
@@ -64,7 +64,7 @@ function mount(host) {
   ground.rotation.x=-Math.PI/2; ground.position.y=-1.34; scene.add(ground);
   const bunny=buildBunny(scene), clock=new THREE.Clock(), pointer=new THREE.Vector2();
   let action=host.dataset.action||"", actionAt=performance.now();
-  const resize=()=>{const r=host.getBoundingClientRect();if(!r.width||!r.height)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.position.z=r.width<420?6.1:5.4;camera.updateProjectionMatrix();};
+  const resize=()=>{const r=host.getBoundingClientRect();if(!r.width||!r.height)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.position.z=r.width<420?6.8:6.2;camera.updateProjectionMatrix();};
   const sizeObserver=new ResizeObserver(resize); sizeObserver.observe(host); resize();
   canvas.addEventListener("pointermove",e=>{const r=canvas.getBoundingClientRect();pointer.x=((e.clientX-r.left)/r.width-.5)*2;pointer.y=((e.clientY-r.top)/r.height-.5)*2;},{passive:true});
   canvas.addEventListener("pointerdown",()=>{host.dataset.action="cuddle";},{passive:true});

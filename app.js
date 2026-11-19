@@ -1748,16 +1748,124 @@ function renderVirtualPet() {
   return '<section class="sg-virtual-pet" aria-label="Care for your virtual buddy">' +
     '<div class="sg-pet-heading"><div><span class="sg-pet-kicker">A LITTLE COMPANION</span><h3>Your virtual buddy</h3><p>Small moments of care make a happy little friend.</p></div><span class="sg-pet-sparkle" aria-hidden="true">✧</span></div>' +
     '<div class="sg-pet-playground sg-pet-mood-' + mood.key + (recentAction ? ' sg-pet-action-' + recentAction : '') + '">' +
-    '<span class="sg-pet-cloud sg-pet-cloud-one" aria-hidden="true">☁</span><span class="sg-pet-cloud sg-pet-cloud-two" aria-hidden="true">☁</span>' +
-    '<span class="sg-pet-flower sg-pet-flower-one" aria-hidden="true">✿</span><span class="sg-pet-flower sg-pet-flower-two" aria-hidden="true">✿</span>' +
-    '<div class="sg-pet-character" role="img" aria-label="' + buddyName + ', ' + mood.label.toLowerCase() + '">' +
-    buddyIllustration(buddy) + '<span class="sg-pet-expression" aria-hidden="true">' + mood.face + '</span></div>' +
+    '<div class="sg-pet-character ' + (buddy === '🐰' ? 'sg-pet-character-illustrated' : 'sg-pet-character-icon') + '" role="img" aria-label="' + buddyName + ', ' + mood.label.toLowerCase() + '">' +
+    virtualBuddyIllustration(buddy, mood, recentAction) + '</div>' +
     '<span class="sg-pet-mood" aria-live="polite">' + mood.label + '</span></div>' +
     '<div class="sg-pet-meters">' + meter('Fullness', '🥕', pet.hunger, 'hunger') + meter('Happiness', '♡', pet.joy, 'joy') + meter('Energy', '☀', pet.energy, 'energy') + '</div>' +
     '<div class="sg-pet-actions"><button type="button" data-care-pet="feed"><span>🥕</span><b>Feed</b><small>Give a carrot</small></button>' +
     '<button type="button" data-care-pet="play"><span>🧶</span><b>Play</b><small>Have some fun</small></button>' +
     '<button type="button" data-care-pet="cuddle"><span>♡</span><b>Cuddle</b><small>Share some love</small></button></div>' +
     '<p class="sg-pet-footnote">' + esc(pet.lastAction || 'Your buddy is happy you are here.') + '</p></section>';
+}
+
+
+function virtualBuddyIllustration(buddy, mood, recentAction) {
+  if (buddy !== '🐰') return buddyIllustration(buddy);
+  const action = recentAction || '';
+  return `<svg class="sg-pet-bunny-art" data-mood="${mood.key}" data-action="${action}" viewBox="0 0 440 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="sgBunnyFloat" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#d9f0ff"/>
+        <stop offset=".48" stop-color="#c9dcff"/>
+        <stop offset="1" stop-color="#c9b7f1"/>
+      </linearGradient>
+      <linearGradient id="sgBunnyEar" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#fffdfd"/>
+        <stop offset="1" stop-color="#f8eafa"/>
+      </linearGradient>
+      <linearGradient id="sgBunnyBody" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fffefe"/>
+        <stop offset="1" stop-color="#f7efff"/>
+      </linearGradient>
+      <radialGradient id="sgBunnyBlush">
+        <stop offset="0" stop-color="#f3b9c8" stop-opacity=".72"/>
+        <stop offset="1" stop-color="#f3b9c8" stop-opacity="0"/>
+      </radialGradient>
+      <mask id="sgBunnyRingCutout" maskUnits="userSpaceOnUse">
+        <rect width="440" height="260" fill="#fff"/>
+        <ellipse cx="220" cy="195" rx="119" ry="25" fill="#000"/>
+      </mask>
+      <filter id="sgBunnySoftShadow" x="-30%" y="-30%" width="160%" height="180%">
+        <feGaussianBlur stdDeviation="4"/>
+      </filter>
+    </defs>
+
+    <ellipse cx="220" cy="235" rx="151" ry="12" fill="#efb9df" opacity=".55" filter="url(#sgBunnySoftShadow)"/>
+    <ellipse cx="220" cy="194" rx="174" ry="47" fill="url(#sgBunnyFloat)" mask="url(#sgBunnyRingCutout)"/>
+    <ellipse cx="220" cy="194" rx="174" ry="47" fill="none" stroke="#9b86d4" stroke-width="2.5" opacity=".88"/>
+    <path d="M55 186 C88 147 151 145 194 151" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".68"/>
+    <path d="M253 151 C315 141 367 164 384 192" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".5"/>
+    <path d="M58 202 C105 232 321 240 379 204" fill="none" stroke="#a78ddd" stroke-width="2" opacity=".55"/>
+    <path d="M84 203 C119 219 156 224 184 224" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".55"/>
+    <path d="M274 224 C315 220 348 211 367 200" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".45"/>
+    <path d="M105 190 l4 -8 4 8 8 4 -8 4 -4 8 -4 -8 -8 -4Z" fill="#fff" opacity=".95"/>
+    <path d="M311 205 l4 -8 4 8 8 4 -8 4 -4 8 -4 -8 -8 -4Z" fill="#fff" opacity=".92"/>
+    <path d="M356 177 l3 -6 3 6 6 3 -6 3 -3 6 -3 -6 -6 -3Z" fill="#fff" opacity=".9"/>
+    <circle cx="139" cy="208" r="2.2" fill="#fff" opacity=".8"/>
+    <circle cx="288" cy="219" r="2" fill="#fff" opacity=".8"/>
+    <circle cx="335" cy="190" r="1.8" fill="#fff" opacity=".72"/>
+
+    <path d="M78 65 l5 -12 5 12 12 5 -12 5 -5 12 -5 -12 -12 -5Z" fill="#d4c2f5" stroke="#c5a9e6" stroke-width="1.2" opacity=".95"/>
+    <path d="M350 53 l5 -12 5 12 12 5 -12 5 -5 12 -5 -12 -12 -5Z" fill="#f7c9dc" stroke="#edb0cf" stroke-width="1.2"/>
+    <path d="M315 88 l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#eea9cf"/>
+    <path d="M111 109 l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3Z" fill="#f0b3d5"/>
+    <path d="M390 119 l3 -8 3 8 8 3 -8 3 -3 8 -3 -8 -8 -3Z" fill="#d8c3f5"/>
+    <circle cx="93" cy="91" r="2.5" fill="#f3bfd8"/>
+    <circle cx="367" cy="91" r="2.2" fill="#f0c4d8"/>
+
+    <path d="M148 119 C133 89 128 31 145 18 C162 6 178 26 176 56 C174 83 165 105 159 123Z"
+      fill="url(#sgBunnyEar)" stroke="#b990d7" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M148 99 C139 72 137 34 147 25 C158 17 167 35 165 59 C163 79 156 94 153 105Z"
+      fill="#f6d7e9" opacity=".88"/>
+    <path d="M181 117 C177 77 183 23 205 13 C227 4 244 23 238 53 C232 82 214 107 202 123Z"
+      fill="url(#sgBunnyEar)" stroke="#b990d7" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M192 98 C188 70 191 35 206 22 C220 13 231 28 227 51 C222 73 210 91 201 105Z"
+      fill="#f5d4e8" opacity=".9"/>
+
+    <path d="M249 119 C276 99 316 101 342 122 C367 143 372 171 357 192 C343 211 316 215 292 199 C274 188 257 174 244 158 C237 143 239 129 249 119Z"
+      fill="url(#sgBunnyBody)" stroke="#bb96d8" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M288 126 C314 112 341 127 350 151 C359 174 344 192 321 192 C301 191 287 178 277 164 C271 149 275 135 288 126Z"
+      fill="#eee2fb" opacity=".9"/>
+    <ellipse cx="355" cy="169" rx="15" ry="14" fill="#fffdfd" stroke="#bb96d8" stroke-width="2.7"/>
+    <path d="M328 196 C341 192 350 198 349 207 C348 216 333 220 320 214 C311 210 316 199 328 196Z"
+      fill="#fffdfd" stroke="#bb96d8" stroke-width="2.5"/>
+
+    <path d="M124 135 C126 103 153 83 188 84 C222 75 256 94 268 123 C281 154 258 183 227 190 C192 199 151 185 132 166 C122 156 119 145 124 135Z"
+      fill="#fffefd" stroke="#b98ed7" stroke-width="3.2" stroke-linejoin="round"/>
+    <ellipse cx="151" cy="145" rx="16" ry="10" fill="url(#sgBunnyBlush)"/>
+    <ellipse cx="238" cy="145" rx="16" ry="10" fill="url(#sgBunnyBlush)"/>
+
+    <g class="bunny-eyes bunny-eyes-closed" fill="none" stroke="#8f6fc0" stroke-width="3.5" stroke-linecap="round">
+      <path d="M158 132 q7 -5 14 0"/>
+      <path d="M218 132 q7 -5 14 0"/>
+    </g>
+    <g class="bunny-eyes bunny-eyes-open" fill="#8f6fc0">
+      <ellipse cx="165" cy="131" rx="2.8" ry="4.2"/>
+      <ellipse cx="225" cy="131" rx="2.8" ry="4.2"/>
+      <circle cx="166" cy="130" r="1" fill="#fff"/>
+      <circle cx="226" cy="130" r="1" fill="#fff"/>
+    </g>
+    <g class="bunny-eyes bunny-eyes-happy" fill="none" stroke="#8f6fc0" stroke-width="3.5" stroke-linecap="round">
+      <path d="M157 134 q8 -10 16 0"/>
+      <path d="M217 134 q8 -10 16 0"/>
+    </g>
+    <path d="M194 140 q4 -4 8 0 q-4 6 -8 0Z" fill="#e9a4bf"/>
+    <path class="bunny-mouth bunny-mouth-soft" d="M198 145 q-5 7 -11 2 M198 145 q5 7 11 2"
+      fill="none" stroke="#d88eae" stroke-width="2" stroke-linecap="round"/>
+    <path class="bunny-mouth bunny-mouth-hungry" d="M190 149 q8 -4 16 0"
+      fill="none" stroke="#d88eae" stroke-width="2.2" stroke-linecap="round"/>
+    <path class="bunny-mouth bunny-mouth-happy" d="M188 145 q10 14 20 0"
+      fill="none" stroke="#d88eae" stroke-width="2.4" stroke-linecap="round"/>
+
+    <path d="M199 165 C217 163 238 174 249 187 C259 199 250 211 235 214 C216 218 195 207 183 194 C175 185 183 169 199 165Z"
+      fill="#fffefd" stroke="#b98ed7" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M202 176 q9 8 18 9" fill="none" stroke="#f0d9ed" stroke-width="2.5" stroke-linecap="round"/>
+
+    <g class="bunny-sleep-mark" fill="#c29bdd" font-family="Nunito, sans-serif" font-weight="800">
+      <text x="260" y="83" font-size="16">z</text>
+      <text x="273" y="69" font-size="11">z</text>
+    </g>
+  </svg>`;
 }
 
 const STREAK_MILESTONE_ILLUSTRATIONS = [

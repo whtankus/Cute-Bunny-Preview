@@ -71,6 +71,9 @@ test('Virtual Buddy keeps its existing care controls while adding moods and comp
   for (const mood of ['hungry', 'sleepy', 'delighted', 'loved', 'calm']) {
     assert.ok(app.includes("key: '" + mood + "'"), 'missing buddy mood: ' + mood);
   }
+  assert.match(app, /function virtualBuddyIllustration\(buddy, mood, recentAction\)/);
+  assert.match(app, /virtualBuddyIllustration\(buddy, mood, recentAction\)/);
+  assert.match(app, /sg-pet-bunny-art/);
   assert.match(app, /buddyIllustration\(buddy\)/);
   assert.match(app, /lastActionType/);
   for (const action of ['feed', 'play', 'cuddle']) {

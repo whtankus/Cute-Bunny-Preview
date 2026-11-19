@@ -14414,3 +14414,84 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 @media(prefers-reduced-motion:reduce) {
   .sg-pet-character,.sg-pet-character:after {animation:none!important}
 }
+
+
+/* Virtual Buddy: a fuller pastel illustration inspired by the soft storybook reference. */
+.sg-pet-playground {
+  min-height: 246px;
+  border: 1px solid rgba(188, 162, 220, .18);
+  background:
+    radial-gradient(ellipse at 50% 84%, rgba(220, 224, 255, .62), transparent 48%),
+    linear-gradient(180deg, #fffaff 0%, #f8f5ff 48%, #edf6ff 100%);
+}
+.sg-pet-character-illustrated {
+  display: block;
+  width: min(100%, 430px);
+  height: auto;
+  line-height: 0;
+  transform-origin: 50% 82%;
+  filter: drop-shadow(0 7px 7px rgba(119, 92, 151, .09));
+}
+.sg-pet-character-illustrated .sg-pet-bunny-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 244px;
+  overflow: visible;
+}
+.sg-pet-character-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45em;
+  height: 1.45em;
+  line-height: 1.2;
+}
+.sg-pet-character-icon .cb-buddy-illustration {
+  display: block;
+  width: 1.22em;
+  height: 1.22em;
+  overflow: visible;
+}
+.sg-pet-bunny-art .bunny-eyes-open,
+.sg-pet-bunny-art .bunny-eyes-happy,
+.sg-pet-bunny-art .bunny-mouth-hungry,
+.sg-pet-bunny-art .bunny-mouth-happy,
+.sg-pet-bunny-art .bunny-sleep-mark {
+  display: none;
+}
+.sg-pet-bunny-art[data-mood="hungry"] .bunny-eyes-closed,
+.sg-pet-bunny-art[data-mood="delighted"] .bunny-eyes-closed,
+.sg-pet-bunny-art[data-mood="hungry"] .bunny-mouth-soft,
+.sg-pet-bunny-art[data-mood="delighted"] .bunny-mouth-soft {
+  display: none;
+}
+.sg-pet-bunny-art[data-mood="hungry"] .bunny-eyes-open,
+.sg-pet-bunny-art[data-mood="hungry"] .bunny-mouth-hungry,
+.sg-pet-bunny-art[data-mood="delighted"] .bunny-eyes-happy,
+.sg-pet-bunny-art[data-mood="delighted"] .bunny-mouth-happy,
+.sg-pet-bunny-art[data-mood="sleepy"] .bunny-sleep-mark {
+  display: block;
+}
+.sg-pet-mood { bottom: 9px; z-index: 3; }
+.sg-pet-action-feed .sg-pet-character-illustrated:after,
+.sg-pet-action-cuddle .sg-pet-character-illustrated:after {
+  top: 12%;
+  right: 13%;
+  font-size: 1.1rem;
+}
+.sg-pet-action-play .sg-pet-character-illustrated:after {
+  top: 10%;
+  right: 13%;
+  font-size: 1.1rem;
+}
+body[data-mode="dark"] .sg-pet-playground {
+  background:
+    radial-gradient(ellipse at 50% 84%, rgba(193, 187, 245, .34), transparent 48%),
+    linear-gradient(180deg, #f8f2ff 0%, #eeeaff 48%, #e4efff 100%);
+}
+@media (max-width:560px) {
+  .sg-pet-playground { min-height: 222px; }
+  .sg-pet-character-illustrated { width: 100%; }
+  .sg-pet-character-illustrated .sg-pet-bunny-art { max-height: 218px; }
+}

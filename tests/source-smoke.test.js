@@ -71,26 +71,16 @@ test('Virtual Buddy keeps its existing care controls while adding moods and comp
   for (const mood of ['hungry', 'sleepy', 'delighted', 'loved', 'calm']) {
     assert.ok(app.includes("key: '" + mood + "'"), 'missing buddy mood: ' + mood);
   }
-  assert.match(app, /function virtualBuddyIllustration\(buddy, mood, recentAction\)/);
-  assert.match(app, /virtualBuddyIllustration\('🐰', mood, recentAction\)/);
-  assert.match(app, /const buddy = '🐰'/);
-  assert.match(app, /const buddyName = 'Bunny'/);
-  assert.match(app, /sg-pet-character sg-pet-character-illustrated/);
-  assert.match(app, /sg-pet-bunny-art/);
-  assert.match(app, /viewBox="0 0 720 620"/);
-  for (const artDetail of ['bunny-ring', 'bunny-tail', 'bunny-paw-front', 'bunny-cheek-hatch', 'bunny-outline-star']) {
-    assert.ok(app.includes(artDetail), 'missing reference detail: ' + artDetail);
-  }
-  assert.match(css, /\.sg-pet-playground\s*\{[\s\S]*?min-height:\s*500px/);
-  assert.match(css, /bunny-tail-bob/);
-  assert.doesNotMatch(app.slice(app.indexOf('function renderVirtualPet()'), app.indexOf('function virtualBuddyIllustration')), /me\?\.mascot/);
-  for (const movingPart of ['bunny-ear-left', 'bunny-ear-right', 'bunny-body', 'bunny-head', 'bunny-paw', 'bunny-blink-eyes']) {
-    assert.ok(app.includes(movingPart), 'missing animated bunny part: ' + movingPart);
-  }
-  for (const motion of ['bunny-float', 'bunny-blink', 'bunny-play-ear-left', 'bunny-nibble', 'bunny-cuddle-lean']) {
-    assert.ok(css.includes('@keyframes ' + motion), 'missing bunny motion: ' + motion);
-  }
-  assert.match(app, /buddyIllustration\(buddy\)/);
+  const three = read('virtual-buddy-3d.js');
+  assert.match(app, /id="virtualBuddy3D"/);
+  assert.match(app, /data-action="/);
+  assert.match(three, /three\.module\.js/);
+  assert.match(three, /WebGLRenderer/);
+  assert.match(three, /function buildBunny/);
+  assert.match(three, /requestAnimationFrame/);
+  assert.match(css, /\.sg-bunny-three-host/);
+  assert.match(css, /\.sg-bunny-three-canvas/);
+
   assert.match(app, /lastActionType/);
   for (const action of ['feed', 'play', 'cuddle']) {
     assert.ok(app.includes('data-care-pet="' + action + '"'), 'missing existing care action: ' + action);

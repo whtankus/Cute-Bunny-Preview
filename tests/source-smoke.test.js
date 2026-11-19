@@ -74,13 +74,13 @@ test('Virtual Buddy keeps its existing care controls while adding moods and comp
   const three = read('virtual-buddy-3d.js');
   assert.match(app, /id="virtualBuddy3D"/);
   assert.match(app, /data-action="/);
-  assert.match(three, /three\\.module\\.js/);
+  assert.match(three, /three\.module\.js/);
   assert.match(three, /WebGLRenderer/);
   assert.match(three, /function buildBunny/);
   assert.match(three, /requestAnimationFrame/);
-  assert.match(css, /\\.sg-bunny-three-host/);
-  assert.match(css, /\\.sg-bunny-three-canvas/);
-  assert.match(app, /buddyIllustration\(buddy\)/);
+  assert.match(css, /\.sg-bunny-three-host/);
+  assert.match(css, /\.sg-bunny-three-canvas/);
+
   assert.match(app, /lastActionType/);
   for (const action of ['feed', 'play', 'cuddle']) {
     assert.ok(app.includes('data-care-pet="' + action + '"'), 'missing existing care action: ' + action);

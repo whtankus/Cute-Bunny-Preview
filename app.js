@@ -5058,6 +5058,40 @@ function formatProfileDate(value) {
 
 /* Event listeners */
 
+// Soft tactile button press + one gentle synthesized boing per activation.
+const buttonPressTimers = new WeakMap();
+function releaseCuteButton(button) {
+  if (!button) return;
+  button.classList.remove('cute-press');
+  const timer = buttonPressTimers.get(button);
+  if (timer) clearTimeout(timer);
+  buttonPressTimers.delete(button);
+}
+document.addEventListener('pointerdown', event => {
+  const button = event.target.closest('button:not(:disabled), [role="button"]:not([aria-disabled="true"])');
+  if (!button || event.button > 0 || event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+  button.classList.remove('cute-press');
+  void button.offsetWidth;
+  button.classList.add('cute-press');
+  playBoing();
+  const timer = setTimeout(() => releaseCuteButton(button), 190);
+  buttonPressTimers.set(button, timer);
+}, true);
+document.addEventListener('pointerup', event => {
+  const button = event.target.closest('button, [role="button"]');
+  if (button) setTimeout(() => releaseCuteButton(button), 95);
+}, true);
+document.addEventListener('pointercancel', event => {
+  const button = event.target.closest('button, [role="button"]');
+  if (button) releaseCuteButton(button);
+}, true);
+// Keyboard activation has no pointerdown, so give it the same sound.
+document.addEventListener('click', event => {
+  if (event.detail !== 0) return;
+  const button = event.target.closest('button:not(:disabled), [role="button"]:not([aria-disabled="true"])');
+  if (button) playBoing();
+}, true);
+
 // Tapping effect on pointerdown
 document.addEventListener('pointerup', e => {
   const interactive = e.target.closest('button, .primary, .round, .tile, .ig-note-item, .feed-photo, .bunny-button, .daily, [data-go], #nav button');

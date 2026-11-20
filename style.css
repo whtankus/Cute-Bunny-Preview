@@ -14535,3 +14535,53 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
     font-size:.68rem;
   }
 }
+
+
+/* Goddess Tiara — Dreamwing Halo-level glow, softness and living animation. */
+.mt-aura{
+  filter:blur(.2px) drop-shadow(0 0 7px #ff9bd7) drop-shadow(0 0 13px #c8a5ff);
+  animation:mt-aura-breathe 4.8s ease-in-out infinite;
+}
+.mt-orbit{transform-box:fill-box;transform-origin:center;animation:mt-orbit-turn 18s linear infinite}
+.mt-tiara{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:mt-tiara-float 3.8s ease-in-out infinite;
+  filter:drop-shadow(0 0 5px #ff8fc8) drop-shadow(0 0 10px #e7a8f5) drop-shadow(0 0 15px #c9a4ff)!important;
+}
+.mt-gems{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:mt-gem-glimmer 2.2s ease-in-out infinite;
+  filter:drop-shadow(0 0 4px #fff0fa) drop-shadow(0 0 8px #f2a4dc);
+}
+.mt-filigree{opacity:1;filter:drop-shadow(0 0 3px #ffe5f5)}
+.mt-celestial-dust,.mt-crown-rays{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:mt-tiara-stardust 3.1s ease-in-out infinite;
+}
+.mt-sparkles{
+  animation:dw-sparkle-drift 3.2s ease-in-out infinite;
+  filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 8px #f4a4df);
+}
+@keyframes mt-aura-breathe{
+  0%,100%{opacity:.68;transform:scale(.96);filter:drop-shadow(0 0 5px #ff9bd7) drop-shadow(0 0 10px #c8a5ff)}
+  50%{opacity:1;transform:scale(1.06);filter:drop-shadow(0 0 10px #ff8fce) drop-shadow(0 0 18px #c5a0ff)}
+}
+@keyframes mt-tiara-float{
+  0%,100%{transform:translateY(0) rotate(-1deg) scale(1);filter:drop-shadow(0 0 4px #ff9bd7) drop-shadow(0 0 9px #c9a4ff)}
+  50%{transform:translateY(-2px) rotate(1deg) scale(1.035);filter:drop-shadow(0 0 8px #ff8fce) drop-shadow(0 0 15px #c5a0ff)}
+}
+@keyframes mt-gem-glimmer{
+  0%,100%{opacity:.82;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 4px #e9a9df)}
+  50%{opacity:1;filter:drop-shadow(0 0 6px #fff) drop-shadow(0 0 11px #ff9bd7) drop-shadow(0 0 14px #c6a3ff)}
+}
+@keyframes mt-tiara-stardust{
+  0%,100%{opacity:.55;filter:drop-shadow(0 0 1px #fff)}
+  50%{opacity:1;filter:drop-shadow(0 0 5px #fff) drop-shadow(0 0 9px #f3a7dc)}
+}
+@keyframes mt-orbit-turn{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){
+  .mt-aura,.mt-orbit,.mt-tiara,.mt-gems,.mt-celestial-dust,.mt-crown-rays,.mt-sparkles{animation:none!important}
+}

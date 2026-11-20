@@ -647,6 +647,7 @@ async function refresh() {
 
     noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));
     render();
+    void refreshOwnNoteSeenStatus();
     void refreshMemoryReactions().catch(error => console.warn('Note reactions could not be loaded:', error?.message || error));
     // Warm the first gallery photos in the background while the user is on Home.
     // This means opening Photo Garden usually displays cached image bytes immediately.

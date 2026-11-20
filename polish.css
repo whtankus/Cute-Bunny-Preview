@@ -4650,3 +4650,6 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
 .chat-delivery-status.delivered{color:#8a9b88}
 .chat-delivery-status.seen{color:#b8799b}
 .chat-delivery-status.sent{color:#aa98a8}
+
+#content .chat-page .chat-composer{flex-wrap:wrap}
+#content .chat-page .chat-composer>.chat-replying-to{flex:0 0 100%;order:-1}

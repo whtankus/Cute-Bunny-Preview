@@ -5594,6 +5594,7 @@ document.addEventListener('click', async e => {
   const bubble = e.target.closest('.chat-page .chat-bubble, .home-note-memory .chat-bubble');
   const selectedText = window.getSelection?.()?.toString().trim();
   if (bubble && !e.target.closest('button')) {
+    if (bubble.classList.contains('is-editing')) return;
     if (messagePressState.suppressClick) {
       messagePressState.suppressClick = false;
       clearTimeout(messagePressState.suppressTimer);

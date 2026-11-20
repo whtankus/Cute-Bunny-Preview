@@ -1201,7 +1201,7 @@ async function loadFriendGardenCollection(user, isOwnProfile) {
     if (!sb) return;
     try {
       const { data, error } = await sb.from('profile_garden_collections')
-        .select('owned,equipped,bunny')
+        .select('owned,equipped,bunny,equipped_items')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;

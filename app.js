@@ -572,13 +572,11 @@ function setUser(u) {
     notificationLoading = false;
   }
   me = u;
-  // Load the server-authoritative Petal Points balance before the garden is used.
-  void hydrateGardenCollectionFromCloud().then(() => {
+  // Hydrate the cloud collection before any shop action can read or write it.
+  gardenCollectionHydration = hydrateGardenCollectionFromCloud().then(() => {
     const ownPetals = $('#friendProfilePetals');
     if (ownPetals && $('#friendProfileGate')?.dataset.ownProfile === 'true') ownPetals.textContent = petalRewardBalance().toLocaleString();
   });
-  // Publish any existing local collection so friends can see it on their profiles.
-  void syncGardenCollectionToCloud(readGardenCollection());
   try {
     const savedHiddenNotes = JSON.parse(localStorage.getItem('cuteBunnyHiddenNotes:' + u.id) || '[]');
     hiddenNoteIds = new Set(Array.isArray(savedHiddenNotes) ? savedHiddenNotes.map(String) : []);
@@ -1134,6 +1132,7 @@ function saveGardenCollection(value) {
 
 let friendGardenRequestSequence = 0;
 let gardenCollectionHydratedUserId = '';
+let gardenCollectionHydration = Promise.resolve();
 function normalizeGardenCollection(value = {}) {
   const validIds = new Set(GARDEN_COLLECTIBLES.map(item => item.id));
   const owned = Array.isArray(value.owned) ? [...new Set(value.owned.filter(id => validIds.has(id)))] : [];
@@ -1384,6 +1383,8 @@ const GARDEN_COLLECTIBLES = [
 async function buyGardenCollectible(id) {
   const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
   if (!item || !me) return;
+  // Wait for the login-time cloud read; otherwise stale local data can overwrite ownership.
+  await gardenCollectionHydration;
   await hydrateGardenCollectionFromCloud();
   const collection = readGardenCollection();
   if (collection.owned.includes(id)) {

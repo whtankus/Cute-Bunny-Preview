@@ -1114,14 +1114,14 @@ async function syncPetalPointsToCloud() {
   })();
   try { return await petalPointsSyncInFlight; } finally { petalPointsSyncInFlight = null; }
 }
-function awardPetalReward(key, amount) {
+function awardPetalReward(key, amount, sync = true) {
   if (!me || !key) return false;
   const rewards = readPetalRewards();
   if (Object.prototype.hasOwnProperty.call(rewards, key)) return false;
   rewards[key] = amount;
   try { localStorage.setItem(streakStorageKey('petal-rewards'), JSON.stringify(rewards)); }
   catch { return false; }
-  void syncPetalPointsToCloud();
+  if (sync) void syncPetalPointsToCloud();
   return true;
 }
 function readGardenCollection() {
@@ -1138,6 +1138,7 @@ let friendGardenRequestSequence = 0;
 let gardenCollectionHydratedUserId = '';
 let gardenCollectionReadyUserId = '';
 let gardenCollectionHydration = Promise.resolve();
+let gardenPurchaseInFlight = false;
 function normalizeGardenCollection(value = {}) {
   const validIds = new Set(GARDEN_COLLECTIBLES.map(item => item.id));
   const owned = Array.isArray(value.owned) ? [...new Set(value.owned.filter(id => validIds.has(id)))] : [];
@@ -1393,40 +1394,89 @@ const GARDEN_COLLECTIBLES = [
   {id:'dreamwing-halo',name:'Dreamwing Halo',art:gardenIllustration('dreamwing-halo'),cost:400,type:'bunny',rarity:'legendary'},
   {id:'moon-goddess-tiara',name:'Goddess Tiara',art:gardenIllustration('moon-goddess-tiara'),cost:400,type:'bunny',rarity:'legendary'}
 ];
+function updateGardenShopItem(id, collection) {
+  const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
+  const card = document.querySelector('.sg-collectible-card [data-buy-collectible="' + id + '"]')?.closest('.sg-collectible-card');
+  if (!item || !card) return;
+  const equipped = collection.equippedItems.includes(id);
+  card.classList.toggle('is-equipped', equipped);
+  const button = card.querySelector('[data-buy-collectible]');
+  if (button) {
+    button.textContent = equipped ? 'Equipped ✓' : 'Equip';
+    button.disabled = false;
+    button.setAttribute('aria-label', (equipped ? 'Unequip ' : 'Equip ') + item.name);
+  }
+}
+function updateGardenPetalBalance() {
+  const balance = document.querySelector('.sg-petal-balance b');
+  if (balance) balance.textContent = petalRewardBalance().toLocaleString() + ' Petal Points';
+  const profileBalance = $('#friendProfilePetals');
+  if (profileBalance && $('#friendProfileGate')?.dataset.ownProfile === 'true') profileBalance.textContent = petalRewardBalance().toLocaleString();
+}
 async function buyGardenCollectible(id) {
   const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
-  if (!item || !me) return;
-  // Wait for the login-time cloud read; otherwise stale local data can overwrite ownership.
-  await gardenCollectionHydration;
-  await hydrateGardenCollectionFromCloud();
-  const collection = readGardenCollection();
-  if (collection.owned.includes(id)) {
-    collection.equippedItems = Array.isArray(collection.equippedItems) ? collection.equippedItems : [collection.equipped, collection.bunny].filter(value => value && value !== 'none');
-    collection.equippedItems = collection.equippedItems.includes(id) ? collection.equippedItems.filter(value => value !== id) : [...collection.equippedItems, id];
+  if (!item || !me || gardenPurchaseInFlight) return;
+  gardenPurchaseInFlight = true;
+  const buttons = [...document.querySelectorAll('[data-buy-collectible]')];
+  buttons.forEach(button => { button.disabled = true; button.setAttribute('aria-busy', 'true'); });
+  try {
+    // Serialize all shop actions and use the latest server copy before deciding whether this is a purchase or equip.
+    await gardenCollectionHydration;
+    await hydrateGardenCollectionFromCloud();
+    const collection = readGardenCollection();
+    const alreadyOwned = collection.owned.includes(id);
+    if (alreadyOwned) {
+      const equipped = new Set(collection.equippedItems || []);
+      if (equipped.has(id)) equipped.delete(id); else equipped.add(id);
+      const normalized = normalizeGardenCollection({ ...collection, equippedItems: [...equipped] });
+      if (!saveGardenCollection(normalized)) throw new Error('Could not save your collection on this device.');
+      if (!await syncGardenCollectionToCloud(normalized)) throw new Error('Could not sync your collection. Please try again.');
+      updateGardenShopItem(id, normalized);
+      toast(equipped.has(id) ? item.name + ' equipped!' : item.name + ' unequipped.');
+      return;
+    }
+
+    const currentBalance = petalRewardBalance();
+    if (currentBalance < item.cost) {
+      toast('You need ' + (item.cost - currentBalance) + ' more Petal Points.');
+      return;
+    }
+    if (!awardPetalReward('purchase:' + id, -item.cost, false)) {
+      toast('This item purchase is already recorded.');
+      return;
+    }
+    collection.owned = [...new Set([...collection.owned, id])];
+    collection.equippedItems = [...new Set([...collection.equippedItems, id])];
     const normalized = normalizeGardenCollection(collection);
-    collection.equippedItems = normalized.equippedItems;
-    collection.equipped = normalized.equipped;
-    collection.bunny = normalized.bunny;
-    saveGardenCollection(collection);
-    await syncGardenCollectionToCloud(collection);
-    renderStreakPage();
-    return;
+    saveGardenCollection(normalized);
+    // Persist the balance and ownership sequentially; never race two upserts on the same row.
+    if (!await syncPetalPointsToCloud()) throw new Error('Petal Points could not be saved. Your purchase was not completed.');
+    if (!await syncGardenCollectionToCloud(normalized)) {
+      // Refund locally and in the cloud if ownership could not be committed.
+      const refunds = readPetalRewards();
+      refunds['purchase:' + id] = 0;
+      refunds['refund:' + id + ':' + Date.now()] = item.cost;
+      try { localStorage.setItem(streakStorageKey('petal-rewards'), JSON.stringify(refunds)); } catch {}
+      await syncPetalPointsToCloud();
+      throw new Error('Your balance was restored because the collection could not be saved.');
+    }
+    updateGardenShopItem(id, normalized);
+    updateGardenPetalBalance();
+    toast(item.name + ' purchased and equipped!');
+  } catch (error) {
+    console.error('Garden shop action failed:', error?.message || error);
+    toast(error?.message || 'The shop could not complete that action. Please try again.');
+  } finally {
+    gardenPurchaseInFlight = false;
+    document.querySelectorAll('[data-buy-collectible]').forEach(button => {
+      button.removeAttribute('aria-busy');
+      const id = button.dataset.buyCollectible;
+      const owned = readGardenCollection().owned.includes(id);
+      const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
+      if (item) button.disabled = !owned && petalRewardBalance() < item.cost;
+    });
+    updateGardenPetalBalance();
   }
-  const cost = item.cost;
-  const rewards = readPetalRewards();
-  if (petalRewardBalance(rewards) < cost) { toast('You need ' + (cost - petalRewardBalance(rewards)) + ' more Petal Points.'); return; }
-  const purchaseKey = 'purchase:' + id;
-  if (!awardPetalReward(purchaseKey, -cost)) return;
-  collection.owned.push(id);
-  collection.equippedItems = [...new Set([...(collection.equippedItems || []), id])];
-  const normalized = normalizeGardenCollection(collection);
-  collection.equippedItems = normalized.equippedItems;
-  collection.equipped = normalized.equipped;
-  collection.bunny = normalized.bunny;
-  saveGardenCollection(collection);
-  await syncGardenCollectionToCloud(collection);
-  toast(item.name + ' added to your collection!');
-  renderStreakPage();
 }
 function getWeeklyBloomProgress(todayKey) {
   const date = new Date(todayKey + 'T00:00:00.000Z');

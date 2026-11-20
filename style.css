@@ -14586,13 +14586,13 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
   .mt-aura,.mt-orbit,.mt-tiara,.mt-gems,.mt-celestial-dust,.mt-crown-rays,.mt-sparkles{animation:none!important}
 }
 
-/* Goddess Tiara: golden glow softened by 20%, retaining its warm metallic shine. */
+/* Goddess Tiara: golden glow reduced by another 20%, preserving its warm metallic finish. */
 .mt-tiara{
   filter:
-    drop-shadow(0 0 2.4px #fff4bd)
-    drop-shadow(0 0 5.6px #ffd45f)
-    drop-shadow(0 0 10.4px #f5b82e)
-    drop-shadow(0 0 15.2px rgba(255,190,55,.576))!important;
+    drop-shadow(0 0 1.9px #fff4bd)
+    drop-shadow(0 0 4.5px #ffd45f)
+    drop-shadow(0 0 8.3px #f5b82e)
+    drop-shadow(0 0 12.2px rgba(255,190,55,.461))!important;
   animation:mt-golden-tiara-glow 3.8s ease-in-out infinite!important;
 }
 .mt-filigree{
@@ -14609,10 +14609,10 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 }
 @keyframes mt-golden-tiara-glow{
   0%,100%{
-    filter:drop-shadow(0 0 2.4px #fff4bd) drop-shadow(0 0 5.6px #ffd45f) drop-shadow(0 0 10.4px #f5b82e) drop-shadow(0 0 15.2px rgba(255,190,55,.576));
+    filter:drop-shadow(0 0 1.9px #fff4bd) drop-shadow(0 0 4.5px #ffd45f) drop-shadow(0 0 8.3px #f5b82e) drop-shadow(0 0 12.2px rgba(255,190,55,.461));
   }
   50%{
-    filter:drop-shadow(0 0 4px #fffbe0) drop-shadow(0 0 8.8px #ffe27a) drop-shadow(0 0 15.2px #ffc43d) drop-shadow(0 0 21.6px rgba(255,174,35,.72));
+    filter:drop-shadow(0 0 3.2px #fffbe0) drop-shadow(0 0 7px #ffe27a) drop-shadow(0 0 12.2px #ffc43d) drop-shadow(0 0 17.3px rgba(255,174,35,.576));
   }
 }
 @media(prefers-reduced-motion:reduce){

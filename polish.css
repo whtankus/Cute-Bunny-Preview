@@ -2426,7 +2426,6 @@ body, .app, #content { -webkit-tap-highlight-color: transparent; }
 #content .sg-chest-art { display:inline-grid; width:26px; height:26px; vertical-align:middle; }
 #content .sg-chest-art svg { width:26px; height:26px; }
 #content .sg-collectible-card { overflow:hidden; }
-#content .sg-collectible-card.is-equipped .sg-collectible-art { background:linear-gradient(145deg,#f8f0d9,#f6e4eb); box-shadow:0 0 0 2px rgba(190,151,91,.28),inset 0 1px 0 #fff; }
 #content .sg-weekly-tier.is-unlocked .sg-weekly-art { background:linear-gradient(145deg,#f8f0d9,#f8e4ed); box-shadow:0 0 0 2px rgba(190,151,91,.24); }
 #content .sg-heart-milestone-art { display:grid; place-items:center; }
 #content .sg-heart-milestone-art svg { width:100%; height:100%; max-width:76px; filter:drop-shadow(0 3px 3px rgba(130,86,111,.10)); }
@@ -2800,7 +2799,7 @@ html body #app > header > #profileOpen.brand:active {
 #content .sg-collectible-card.rarity-rare .sg-collectible-art{box-shadow:0 0 0 1px rgba(255,255,255,.85),0 0 22px rgba(105,202,211,.3),inset 0 0 20px rgba(255,255,255,.92)}
 #content .sg-collectible-card.rarity-epic .sg-collectible-art{box-shadow:0 0 0 1px rgba(255,255,255,.85),0 0 25px rgba(172,135,226,.38),inset 0 0 22px rgba(255,255,255,.94)}
 #content .sg-collectible-card.rarity-legendary .sg-collectible-art{box-shadow:0 0 0 1px rgba(255,255,255,.9),0 0 30px rgba(239,190,91,.48),inset 0 0 25px rgba(255,255,255,.98)}
-#content .sg-collectible-card.is-equipped{border-color:#d7a1ba;background:linear-gradient(155deg,#fff5fa,#fff0f6);box-shadow:0 0 0 2px rgba(213,142,172,.17),0 9px 24px rgba(178,119,151,.12)}
+#content .sg-collectible-card.is-equipped{border-color:#d7a1ba;box-shadow:0 0 0 2px rgba(213,142,172,.17),0 9px 24px rgba(178,119,151,.12)}
 #content .sg-collectible-card>b{font-size:.9rem;line-height:1.25}
 #content .sg-collectible-card>small{font-size:.68rem;font-weight:800;letter-spacing:.045em;opacity:.72}
 #content .sg-collectible-card.rarity-rare>small{color:#448e98;opacity:1}

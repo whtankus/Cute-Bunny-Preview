@@ -5069,7 +5069,7 @@ function releaseCuteButton(button) {
 }
 document.addEventListener('pointerdown', event => {
   const button = event.target.closest('button:not(:disabled), [role="button"]:not([aria-disabled="true"])');
-  if (!button || event.button > 0 || event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+  if (!button || event.button > 0 || button.matches('#surprise, #bunnyBuddy, .sg-petal-card') || event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
   button.classList.remove('cute-press');
   void button.offsetWidth;
   button.classList.add('cute-press');
@@ -5089,7 +5089,7 @@ document.addEventListener('pointercancel', event => {
 document.addEventListener('click', event => {
   if (event.detail !== 0) return;
   const button = event.target.closest('button:not(:disabled), [role="button"]:not([aria-disabled="true"])');
-  if (button) playBoing();
+  if (button && !button.matches('#surprise, #bunnyBuddy, .sg-petal-card')) playBoing();
 }, true);
 
 // Tapping effect on pointerdown

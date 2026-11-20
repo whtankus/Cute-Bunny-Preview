@@ -576,9 +576,16 @@ function setUser(u) {
   gardenCollectionHydratedUserId = String(u.id);
   gardenCollectionReadyUserId = '';
   gardenCollectionHydration = hydrateGardenCollectionFromCloud().then(() => {
+    if (String(me?.id || '') !== String(u.id)) return;
     gardenCollectionReadyUserId = String(u.id);
     const ownPetals = $('#friendProfilePetals');
     if (ownPetals && $('#friendProfileGate')?.dataset.ownProfile === 'true') ownPetals.textContent = petalRewardBalance().toLocaleString();
+    if (page === 'streak') renderStreakPage();
+  }).catch(error => {
+    console.error('Garden collection hydration failed:', error?.message || error);
+    if (String(me?.id || '') !== String(u.id)) return;
+    gardenCollectionReadyUserId = String(u.id);
+    toast('Your garden could not sync. Check your connection and retry.');
     if (page === 'streak') renderStreakPage();
   });
   try {
@@ -1131,7 +1138,13 @@ function readGardenCollection() {
   } catch { return { owned: [], equippedItems: [], equipped: 'none', bunny: 'none' }; }
 }
 function saveGardenCollection(value) {
-  try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(value)); return true; } catch { return false; }
+  try {
+    localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(value));
+    // Keep the local change marked until the cloud confirms it. A later hydration
+    // can safely retry instead of silently discarding an offline equip action.
+    localStorage.setItem(streakStorageKey('garden-collection-pending-sync'), '1');
+    return true;
+  } catch { return false; }
 }
 
 let friendGardenRequestSequence = 0;
@@ -1153,9 +1166,10 @@ function normalizeGardenCollection(value = {}) {
 }
 async function syncGardenCollectionToCloud(value = readGardenCollection()) {
   if (!sb || !me?.id) return false;
+  const userId = String(me.id);
   const normalized = normalizeGardenCollection(value);
   const { error } = await sb.from('profile_garden_collections').upsert({
-    user_id: me.id,
+    user_id: userId,
     owned: normalized.owned,
     equipped: normalized.equipped,
     bunny: normalized.bunny,
@@ -1166,15 +1180,23 @@ async function syncGardenCollectionToCloud(value = readGardenCollection()) {
     console.warn('Garden collection sync failed:', error.message || error);
     return false;
   }
-  try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized)); } catch {}
+  // Never write one account's response into another account's local cache.
+  if (String(me?.id || '') !== userId) return false;
+  try {
+    localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized));
+    localStorage.setItem(streakStorageKey('garden-collection-reconciled'), '1');
+    localStorage.removeItem(streakStorageKey('garden-collection-pending-sync'));
+  } catch {}
   return true;
 }
 async function hydrateGardenCollectionFromCloud() {
   if (!sb || !me?.id) return readGardenCollection();
+  const userId = String(me.id);
   const { data, error } = await sb.from('profile_garden_collections')
     .select('owned,equipped,bunny,equipped_items,petal_points')
-    .eq('user_id', me.id)
+    .eq('user_id', userId)
     .maybeSingle();
+  if (String(me?.id || '') !== userId) return readGardenCollection();
   if (error) {
     console.warn('Garden collection could not be loaded:', error.message || error);
     return readGardenCollection();
@@ -1185,27 +1207,36 @@ async function hydrateGardenCollectionFromCloud() {
     // so a stale/empty copy cannot make a paid-for item appear purchasable again.
     const localCollection = normalizeGardenCollection(readGardenCollection());
     const cloudCollection = normalizeGardenCollection(data);
-    // A successful points write records purchase:<item-id> in the local reward
-    // ledger. If the following collection write was interrupted, recover ownership
-    // from that durable purchase marker instead of showing the item as purchasable.
     const purchaseLedger = readPetalRewards();
     const ledgerOwned = GARDEN_COLLECTIBLES
       .filter(item => Object.prototype.hasOwnProperty.call(purchaseLedger, 'purchase:' + item.id))
       .map(item => item.id);
-    // Keep every selected item from both copies. Older clients and stale cloud
-    // rows may still contain only the first equipped item (or an empty array),
-    // so treating the cloud array as the sole source silently drops selections.
+    // Import equipped selections from older local caches once, and whenever a
+    // local equip action is still pending. After successful reconciliation, the
+    // cloud becomes authoritative so an old device cannot undo a later unequip.
+    const needsLocalEquipmentRecovery =
+      localStorage.getItem(streakStorageKey('garden-collection-reconciled')) !== '1' ||
+      localStorage.getItem(streakStorageKey('garden-collection-pending-sync')) === '1';
     const normalized = normalizeGardenCollection({
       ...data,
       owned: [...new Set([...cloudCollection.owned, ...localCollection.owned, ...ledgerOwned])],
-      equippedItems: [...new Set([...cloudCollection.equippedItems, ...localCollection.equippedItems])]
+      equippedItems: needsLocalEquipmentRecovery
+        ? [...new Set([...cloudCollection.equippedItems, ...localCollection.equippedItems])]
+        : cloudCollection.equippedItems
     });
-    try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized)); } catch {}
     const cloudEquipmentsDiffer = normalized.equippedItems.length !== cloudCollection.equippedItems.length
       || normalized.equippedItems.some(id => !cloudCollection.equippedItems.includes(id));
     const cloudOwnershipDiffers = normalized.owned.length !== cloudCollection.owned.length
       || normalized.owned.some(id => !cloudCollection.owned.includes(id));
-    if (cloudOwnershipDiffers || cloudEquipmentsDiffer) await syncGardenCollectionToCloud(normalized);
+    if (cloudOwnershipDiffers || cloudEquipmentsDiffer) {
+      await syncGardenCollectionToCloud(normalized);
+    } else {
+      try {
+        localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized));
+        localStorage.setItem(streakStorageKey('garden-collection-reconciled'), '1');
+        localStorage.removeItem(streakStorageKey('garden-collection-pending-sync'));
+      } catch {}
+    }
     return normalized;
   }
   const legacy = normalizeGardenCollection(readGardenCollection());
@@ -1236,7 +1267,7 @@ function renderFriendGardenCollection(collection, userId, isOwnProfile = false) 
     return;
   }
   if (section) section.hidden = false;
-  list.innerHTML = ownedItems.slice(0, 12).map(item => {
+  list.innerHTML = ownedItems.map(item => {
     const equipped = (collection.equippedItems || [collection.equipped, collection.bunny]).includes(item.id);
     return '<span class="friend-profile-collection-item garden-rarity-' + esc(item.rarity || 'common') + (equipped ? ' is-equipped' : '') + '" title="' + esc(item.name) + '" aria-label="' + esc(item.name + (equipped ? ', equipped' : '')) + '"><span class="friend-profile-collection-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><small class="friend-profile-collection-name">' + esc(item.name) + '</small>' + (equipped ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>';
   }).join('');
@@ -4507,6 +4538,40 @@ function startRealtime() {
               void refresh().catch(error => console.warn('Friend streak refresh failed:', error?.message || error));
             }, 350);
           }
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profile_garden_collections' }, payload => {
+        const row = payload?.new || {};
+        const changedId = String(row.user_id || payload?.old?.user_id || '');
+        if (!changedId || payload?.eventType === 'DELETE') return;
+        const collection = normalizeGardenCollection(row);
+        const profileGate = $('#friendProfileGate');
+        if (changedId === String(me?.id)) {
+          cloudPetalPoints = Math.max(0, Number(row.petal_points) || 0);
+          // A committed realtime row confirms that the pending local change reached
+          // the database, so adopt the same snapshot on this device.
+          try {
+            localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(collection));
+            localStorage.setItem(streakStorageKey('garden-collection-reconciled'), '1');
+            localStorage.removeItem(streakStorageKey('garden-collection-pending-sync'));
+          } catch {}
+          if (page === 'streak') {
+            updateGardenShopItem('', collection);
+            updateGardenPetalBalance();
+          }
+          if (profileGate && !profileGate.classList.contains('hidden') &&
+              profileGate.dataset.collectionUserId === changedId) {
+            renderFriendGardenCollection(collection, changedId, true);
+            const petalsNode = $('#friendProfilePetals');
+            if (petalsNode) petalsNode.textContent = cloudPetalPoints.toLocaleString();
+          }
+          return;
+        }
+        if (profileGate && !profileGate.classList.contains('hidden') &&
+            profileGate.dataset.collectionUserId === changedId) {
+          renderFriendGardenCollection(collection, changedId, false);
+          const petalsNode = $('#friendProfilePetals');
+          if (petalsNode) petalsNode.textContent = Math.max(0, Number(row.petal_points) || 0).toLocaleString();
         }
       }).subscribe();
 

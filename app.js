@@ -1816,7 +1816,8 @@ function renderStreakPage() {
   const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Find a tiny treasure, from everyday blooms to magical keepsakes</p></div><span class="sg-shop-sparkle" aria-hidden="true">✧</span></div><div class="sg-collectible-grid">' +
     [...GARDEN_COLLECTIBLES].sort((a, b) => a.cost - b.cost).map(item => {
       const owned = collection.owned.includes(item.id);
-      const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
+      const equippedIds = new Set(Array.isArray(collection.equippedItems) ? collection.equippedItems : [collection.equipped, collection.bunny].filter(id => id && id !== 'none'));
+      const equipped = equippedIds.has(item.id);
       const affordable = petalRewardBalance(petalRewards) >= item.cost;
       return '<article class="sg-collectible-card item-' + item.id + ' rarity-' + item.rarity + (equipped ? ' is-equipped' : '') + '" data-rarity="' + item.rarity + '"><span class="sg-collectible-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><b>' + item.name + '</b><small>' + (item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)) + ' · ' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
     }).join('') + '</div></section>';

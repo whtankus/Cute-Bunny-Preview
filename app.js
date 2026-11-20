@@ -5828,7 +5828,7 @@ document.addEventListener('click', async e => {
     saveEditBtn.textContent = 'Saving…';
     try {
       const { data, error } = await sb.from('memories').update({ text: nextText })
-        .eq('id', id).eq('owner_id', me.id).eq('kind', 'note')
+        .eq('id', Number(id)).eq('owner_id', me.id).eq('kind', 'note')
         .select('id,text,edited_at').single();
       if (error) throw error;
       item.text = data.text;
@@ -5869,7 +5869,7 @@ document.addEventListener('click', async e => {
   const historyBtn = e.target.closest('[data-chat-history]');
   if (historyBtn) {
     const id = String(historyBtn.dataset.chatHistory);
-    const { data, error } = await sb.from('memory_edit_history').select('id,previous_text,edited_at').eq('memory_id', id).order('edited_at', { ascending: false }).limit(8);
+    const { data, error } = await sb.from('memory_edit_history').select('id,previous_text,edited_at').eq('memory_id', Number(id)).order('edited_at', { ascending: false }).limit(8);
     if (error) { toast(error.message || 'Edit history could not be loaded.'); return; }
     const popup = document.querySelector('.chat-actions-popup');
     if (popup) popup.innerHTML = `<b class="chat-history-title">Previous versions</b>${(data || []).map(entry => `<div class="chat-history-entry"><span>${esc(entry.previous_text)}</span><button type="button" data-chat-restore="${esc(entry.id)}" data-memory-id="${esc(id)}">Restore</button></div>`).join('') || '<small>No earlier edits yet.</small>'}<button type="button" class="chat-action-btn" data-chat-history-close>Close</button>`;

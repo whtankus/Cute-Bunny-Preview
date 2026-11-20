@@ -1291,6 +1291,8 @@ function gardenIllustration(kind) {
 <filter id="mtGemGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="blur"/><feFlood flood-color="#e1b2ff" flood-opacity="1" result="light"/><feComposite in="light" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
 <circle cx="32" cy="31" r="30" fill="url(#mtAura)" class="mt-aura"/>
+<circle cx="32" cy="31" r="26" fill="none" stroke="#fff5ff" stroke-width=".8" stroke-dasharray="1 3" opacity=".7" class="mt-orbit"/>
+<circle cx="32" cy="31" r="20" fill="none" stroke="#ffd9f2" stroke-width=".65" opacity=".5"/>
 <circle cx="32" cy="31" r="23" fill="none" stroke="#fff7dc" stroke-opacity=".3" stroke-width=".7" stroke-dasharray="1.5 3"/>
 <g class="mt-artwork"><g class="mt-tiara" filter="url(#mtGlow)">
 <path d="M7 42c5-12 13-17 25-17s20 5 25 17c-13 9-37 9-50 0Z" fill="url(#mtGold)" stroke="#98632f" stroke-width="1.7" stroke-linejoin="round"/>
@@ -1316,6 +1318,9 @@ function gardenIllustration(kind) {
 </g>
 <g class="mt-celestial-dust" fill="#fff8e5">
 <circle cx="21" cy="19" r="1.2"/><circle cx="43" cy="19" r="1.2"/><circle cx="13" cy="30" r=".9"/><circle cx="51" cy="30" r=".9"/>
+</g>
+<g class="mt-crown-rays" fill="none" stroke="#fff4ff" stroke-width=".8" stroke-linecap="round">
+<path d="M32 2v5M4 29l5 1M55 29l5-1M13 8l4 5M51 8l-4 5" opacity=".72"/>
 </g>
 <g class="mt-sparkles" fill="#fffdf0">
 <path d="m7 13 1.7-4 1.7 4 4 1.7-4 1.7-1.7 4-1.7-4-4-1.7Zm47 31 1.5-3.5L57 42l3.5 1.5L57 47l-1.5-3.5L52 42Z"/>
@@ -1346,7 +1351,7 @@ const GARDEN_COLLECTIBLES = [
   {id:'celestial-rose',name:'Celestial Rose',art:gardenIllustration('celestial-rose'),cost:350,type:'garden',rarity:'legendary'},
   {id:'divine-lotus',name:'Divine Lotus',art:gardenIllustration('divine-lotus'),cost:350,type:'garden',rarity:'legendary'},
   {id:'dreamwing-halo',name:'Dreamwing Halo',art:gardenIllustration('dreamwing-halo'),cost:400,type:'bunny',rarity:'legendary'},
-  {id:'moon-goddess-tiara',name:'Moon Goddess Tiara',art:gardenIllustration('moon-goddess-tiara'),cost:400,type:'bunny',rarity:'legendary'}
+  {id:'moon-goddess-tiara',name:'Goddess Tiara',art:gardenIllustration('moon-goddess-tiara'),cost:400,type:'bunny',rarity:'legendary'}
 ];
 async function buyGardenCollectible(id) {
   const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);

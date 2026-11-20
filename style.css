@@ -14585,3 +14585,44 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 @media(prefers-reduced-motion:reduce){
   .mt-aura,.mt-orbit,.mt-tiara,.mt-gems,.mt-celestial-dust,.mt-crown-rays,.mt-sparkles{animation:none!important}
 }
+
+/* Dreamwing Halo + Goddess Tiara: synchronized legendary glow rhythm. */
+.dw-aura,
+.mt-aura{
+  animation:keepsake-aura-pulse 3.8s ease-in-out infinite!important;
+  transform-box:fill-box;
+  transform-origin:center;
+}
+.dw-wings,
+.mt-artwork{
+  animation:keepsake-artwork-glow 3.8s ease-in-out infinite!important;
+}
+.dw-wing-left,
+.dw-wing-right,
+.dw-wing-left-lower,
+.dw-wing-right-lower,
+.dw-center,
+.dw-veins,
+.dw-sparkles,
+.mt-gems,
+.mt-celestial-dust,
+.mt-crown-rays,
+.mt-sparkles{
+  animation-duration:3.8s!important;
+}
+.mt-tiara{animation-duration:3.8s!important}
+.mt-orbit{animation-duration:18s!important}
+@keyframes keepsake-aura-pulse{
+  0%,100%{opacity:.68;transform:scale(.96);filter:drop-shadow(0 0 5px #ff9bd7) drop-shadow(0 0 10px #c8a5ff)}
+  50%{opacity:1;transform:scale(1.06);filter:drop-shadow(0 0 10px #ff8fce) drop-shadow(0 0 18px #c5a0ff)}
+}
+@keyframes keepsake-artwork-glow{
+  0%,100%{filter:drop-shadow(0 0 4px #ff9bd7) drop-shadow(0 0 9px #c9a4ff)}
+  50%{filter:drop-shadow(0 0 8px #ff8fce) drop-shadow(0 0 15px #c5a0ff)}
+}
+@media(prefers-reduced-motion:reduce){
+  .dw-aura,.mt-aura,.dw-wings,.mt-artwork,
+  .dw-wing-left,.dw-wing-right,.dw-wing-left-lower,.dw-wing-right-lower,
+  .dw-center,.dw-veins,.dw-sparkles,.mt-tiara,.mt-gems,
+  .mt-celestial-dust,.mt-crown-rays,.mt-sparkles,.mt-orbit{animation:none!important}
+}

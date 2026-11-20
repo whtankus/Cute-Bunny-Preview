@@ -14350,3 +14350,83 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 @keyframes mt-dust-twinkle{0%,100%{opacity:.55}50%{opacity:1;filter:drop-shadow(0 0 4px #ffe8a8)}}
 @media(max-width:380px){.sg-collectible-art:has(svg),.sg-collectible-art svg{width:60px;height:60px}.sg-collectible-art:has(svg){flex-basis:60px}}
 @media(prefers-reduced-motion:reduce){.dw-aura,.mt-aura,.dw-wing-jewels,.mt-celestial-dust{animation:none!important}}
+
+
+/* Shop card alignment pass — all four Legendary cards share one rhythm. */
+.sg-collectible-grid{
+  grid-auto-rows:1fr;
+  align-items:stretch;
+}
+.sg-collectible-card{
+  height:100%;
+  min-height:248px;
+  box-sizing:border-box;
+  display:grid;
+  grid-template-rows:64px minmax(2.5em,auto) minmax(2.5em,auto) 40px;
+  align-content:stretch;
+  justify-items:center;
+  gap:8px;
+}
+.sg-collectible-card>.sg-collectible-art{
+  align-self:center;
+  justify-self:center;
+}
+.sg-collectible-card>b,
+.sg-collectible-card>small{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  width:100%;
+  margin:0;
+}
+.sg-collectible-card>button{
+  align-self:end;
+  width:100%;
+  height:40px;
+  min-height:40px;
+  max-height:40px;
+  margin:0;
+  padding:0 8px;
+  border-radius:13px;
+  white-space:nowrap;
+  font-size:clamp(.68rem,.76rem, .76rem);
+  line-height:1;
+}
+.sg-collectible-card>button:disabled{
+  opacity:1;
+  color:#a77d98;
+  border-color:#e8c7d8;
+  background:linear-gradient(180deg,#fff2f8 0%,#f8e4ef 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 3px 0 rgba(213,170,194,.48);
+}
+.sg-collectible-card>button:not(:disabled){
+  color:#78445f;
+  border-color:#d79ab9;
+  background:linear-gradient(180deg,#fff0f7 0%,#f4cfe1 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 3px 0 rgba(197,137,169,.5),0 5px 12px rgba(165,104,139,.12);
+}
+.sg-collectible-art:has(svg){
+  width:64px;
+  height:64px;
+  flex-basis:64px;
+}
+.sg-collectible-art svg{
+  width:64px;
+  height:64px;
+}
+.mt-artwork{
+  transform-box:fill-box;
+  transform-origin:center;
+  transform:scale(1.14);
+}
+.mt-tiara{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:mt-tiara-float 4s ease-in-out infinite;
+}
+@media(max-width:380px){
+  .sg-collectible-card{min-height:232px;grid-template-rows:60px minmax(2.5em,auto) minmax(2.5em,auto) 38px}
+  .sg-collectible-card>button{height:38px;min-height:38px;max-height:38px;font-size:.67rem}
+  .sg-collectible-art:has(svg),.sg-collectible-art svg{width:60px;height:60px}
+}

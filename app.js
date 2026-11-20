@@ -2788,6 +2788,18 @@ function memoryCard(m, options = {}) {
   return `<article class="feed-item ${tone}${pending}${uploading}${m.kind === 'note' ? ' home-note-memory' : ''}${continuationClass}" data-kind="${esc(m.kind)}" data-memory="${esc(m.id)}" data-owner="${esc(owner.id || m.owner_id || '')}">${authorLine}${body}${ownerIndicator}</article>`;
 }
 
+function syncChatReplyPreview() {
+  const preview = $('#chatReplyingTo');
+  if (!preview) return;
+  const item = replyingToMessageId
+    ? feed.find(memory => String(memory.id) === String(replyingToMessageId))
+    : null;
+  preview.hidden = !item;
+  preview.innerHTML = item
+    ? `<span>Replying to <b>${esc(item.author?.displayName || item.author?.display_name || item.author?.username || 'message')}</b></span><small>${esc(item.text || '')}</small><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
+    : '';
+}
+
 /* Clean Notes conversation; message markup is shared with Home → Memory History. */
 function renderNotesPage(options = {}) {
   startNotesIncomingPoll();
@@ -2848,6 +2860,7 @@ function renderNotesPage(options = {}) {
     else delete status.dataset.seenAt;
   };
   updateSeenStatus();
+  syncChatReplyPreview();
 
   // Do not rebuild an unchanged conversation on every realtime/status tick.
   // Keeping its message nodes mounted prevents scroll, focus and CSS animation jumps.

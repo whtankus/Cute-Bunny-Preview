@@ -3720,6 +3720,7 @@ function showMessageActions(id, bubbleElement) {
   popup.setAttribute('role', 'toolbar');
   popup.setAttribute('aria-label', 'Message options');
   popup.innerHTML = `
+    ${ownsMessage ? `<button type="button" class="chat-action-btn edit-btn" data-chat-edit="${esc(id)}">Edit</button>` : ''}
     <button type="button" class="chat-action-btn" data-chat-copy="${esc(id)}">Copy</button>
     <button type="button" class="chat-action-btn delete-btn" ${ownsMessage ? 'data-chat-delete' : 'data-chat-hide'}="${esc(id)}">Delete</button>
   `;
@@ -5306,6 +5307,18 @@ function finishNotesMessagePress(e) {
 
 document.addEventListener('pointerup', finishNotesMessagePress);
 document.addEventListener('pointercancel', cancelNotesMessagePress);
+document.addEventListener('keydown', event => {
+  const editor = event.target.closest?.('.chat-bubble.is-editing .chat-message-text[contenteditable="true"]');
+  if (!editor) return;
+  const id = editor.closest('.chat-bubble')?.dataset.chatMessageId;
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    document.querySelector(`[data-chat-edit-cancel="${CSS.escape(String(id))}"]`)?.click();
+  } else if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    event.preventDefault();
+    document.querySelector(`[data-chat-edit-save="${CSS.escape(String(id))}"]`)?.click();
+  }
+});
 
 // Streak entry uses capture phase so card clicks cannot be swallowed by another page handler.
 document.addEventListener('click', event => {
@@ -5597,6 +5610,84 @@ document.addEventListener('click', async e => {
     bubbleTapState.bubble = null;
     if (!messagePressState.longPressed && !messagePressState.suppressClick) {
       void popLoveHeart(bubble, e);
+    }
+    return;
+  }
+
+  // Chat action: Edit — darken immediately, then edit the text in place.
+  const editBtn = e.target.closest('[data-chat-edit]');
+  if (editBtn) {
+    const id = String(editBtn.dataset.chatEdit);
+    const item = feed.find(m => String(m.id) === id);
+    const bubbleEl = document.querySelector(`.chat-bubble[data-chat-message-id="${CSS.escape(id)}"]`);
+    const textEl = bubbleEl?.querySelector('.chat-message-text');
+    if (!item || !bubbleEl || !textEl || String(item.author?.id || item.owner_id || '') !== String(me?.id || '')) {
+      hideMessageActions();
+      return;
+    }
+    bubbleEl.classList.add('is-editing');
+    bubbleEl.setAttribute('aria-label', 'Editing your message');
+    textEl.setAttribute('contenteditable', 'true');
+    textEl.setAttribute('role', 'textbox');
+    textEl.setAttribute('aria-label', 'Edit message');
+    textEl.focus();
+    const range = document.createRange();
+    range.selectNodeContents(textEl);
+    range.collapse(false);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    const popup = document.querySelector('.chat-actions-popup');
+    if (popup) {
+      popup.innerHTML = `
+        <button type="button" class="chat-action-btn edit-save-btn" data-chat-edit-save="${esc(id)}">Save</button>
+        <button type="button" class="chat-action-btn" data-chat-edit-cancel="${esc(id)}">Cancel</button>
+      `;
+      popup.setAttribute('aria-label', 'Save or cancel message edit');
+    }
+    return;
+  }
+
+  const cancelEditBtn = e.target.closest('[data-chat-edit-cancel]');
+  if (cancelEditBtn) {
+    const id = String(cancelEditBtn.dataset.chatEditCancel);
+    const bubbleEl = document.querySelector(`.chat-bubble[data-chat-message-id="${CSS.escape(id)}"]`);
+    const textEl = bubbleEl?.querySelector('.chat-message-text');
+    const item = feed.find(m => String(m.id) === id);
+    if (textEl && item) textEl.textContent = item.text || '';
+    textEl?.removeAttribute('contenteditable');
+    textEl?.removeAttribute('role');
+    textEl?.removeAttribute('aria-label');
+    bubbleEl?.classList.remove('is-editing');
+    bubbleEl?.setAttribute('aria-label', 'Message');
+    hideMessageActions();
+    return;
+  }
+
+  const saveEditBtn = e.target.closest('[data-chat-edit-save]');
+  if (saveEditBtn) {
+    const id = String(saveEditBtn.dataset.chatEditSave);
+    const item = feed.find(m => String(m.id) === id);
+    const bubbleEl = document.querySelector(`.chat-bubble[data-chat-message-id="${CSS.escape(id)}"]`);
+    const textEl = bubbleEl?.querySelector('.chat-message-text');
+    const nextText = String(textEl?.innerText || textEl?.textContent || '').trim();
+    if (!item || !nextText) { toast('A message cannot be empty ♡'); return; }
+    saveEditBtn.disabled = true;
+    saveEditBtn.textContent = 'Saving…';
+    try {
+      const { data, error } = await sb.from('memories').update({ text: nextText })
+        .eq('id', id).eq('owner_id', me.id).eq('kind', 'note')
+        .select('id,text').single();
+      if (error) throw error;
+      item.text = data.text;
+      hideMessageActions();
+      if (page === 'notes') renderNotesPage();
+      else render();
+      toast('Message updated ♡');
+    } catch (error) {
+      saveEditBtn.disabled = false;
+      saveEditBtn.textContent = 'Save';
+      toast(error.message || 'Could not update this message.');
     }
     return;
   }

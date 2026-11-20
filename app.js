@@ -1192,12 +1192,20 @@ async function hydrateGardenCollectionFromCloud() {
     const ledgerOwned = GARDEN_COLLECTIBLES
       .filter(item => Object.prototype.hasOwnProperty.call(purchaseLedger, 'purchase:' + item.id))
       .map(item => item.id);
+    // Keep every selected item from both copies. Older clients and stale cloud
+    // rows may still contain only the first equipped item (or an empty array),
+    // so treating the cloud array as the sole source silently drops selections.
     const normalized = normalizeGardenCollection({
       ...data,
-      owned: [...new Set([...cloudCollection.owned, ...localCollection.owned, ...ledgerOwned])]
+      owned: [...new Set([...cloudCollection.owned, ...localCollection.owned, ...ledgerOwned])],
+      equippedItems: [...new Set([...cloudCollection.equippedItems, ...localCollection.equippedItems])]
     });
     try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized)); } catch {}
-    if (normalized.owned.length !== cloudCollection.owned.length) await syncGardenCollectionToCloud(normalized);
+    const cloudEquipmentsDiffer = normalized.equippedItems.length !== cloudCollection.equippedItems.length
+      || normalized.equippedItems.some(id => !cloudCollection.equippedItems.includes(id));
+    const cloudOwnershipDiffers = normalized.owned.length !== cloudCollection.owned.length
+      || normalized.owned.some(id => !cloudCollection.owned.includes(id));
+    if (cloudOwnershipDiffers || cloudEquipmentsDiffer) await syncGardenCollectionToCloud(normalized);
     return normalized;
   }
   const legacy = normalizeGardenCollection(readGardenCollection());

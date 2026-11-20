@@ -14352,81 +14352,71 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 @media(prefers-reduced-motion:reduce){.dw-aura,.mt-aura,.dw-wing-jewels,.mt-celestial-dust{animation:none!important}}
 
 
-/* Shop card alignment pass — all four Legendary cards share one rhythm. */
-.sg-collectible-grid{
-  grid-auto-rows:1fr;
-  align-items:stretch;
-}
+
+/* Restore the original collectible-card layout; keep the badge frames uniform. */
+.sg-collectible-grid{grid-auto-rows:auto;align-items:initial}
 .sg-collectible-card{
-  height:100%;
-  min-height:248px;
-  box-sizing:border-box;
-  display:grid;
-  grid-template-rows:64px minmax(2.5em,auto) minmax(2.5em,auto) 40px;
-  align-content:stretch;
-  justify-items:center;
-  gap:8px;
-}
-.sg-collectible-card>.sg-collectible-art{
-  align-self:center;
-  justify-self:center;
+  display:flex;
+  height:auto;
+  min-height:0;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  gap:7px;
+  padding:13px 9px;
 }
 .sg-collectible-card>b,
 .sg-collectible-card>small{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-width:0;
-  width:100%;
+  display:block;
+  width:auto;
   margin:0;
 }
 .sg-collectible-card>button{
-  align-self:end;
+  align-self:stretch;
   width:100%;
-  height:40px;
-  min-height:40px;
-  max-height:40px;
-  margin:0;
-  padding:0 8px;
-  border-radius:13px;
+  height:38px;
+  min-height:38px;
+  max-height:none;
+  margin-top:auto;
+  padding:7px 8px;
   white-space:nowrap;
-  font-size:clamp(.68rem,.76rem, .76rem);
-  line-height:1;
+  border-radius:12px;
+  font-size:.76rem;
 }
 .sg-collectible-card>button:disabled{
-  opacity:1;
-  color:#a77d98;
-  border-color:#e8c7d8;
-  background:linear-gradient(180deg,#fff2f8 0%,#f8e4ef 100%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 3px 0 rgba(213,170,194,.48);
+  opacity:.55;
+  color:#754b62;
+  filter:saturate(.65);
+  cursor:not-allowed;
+  box-shadow:none;
 }
 .sg-collectible-card>button:not(:disabled){
+  opacity:1;
+  filter:none;
   color:#78445f;
-  border-color:#d79ab9;
   background:linear-gradient(180deg,#fff0f7 0%,#f4cfe1 100%);
+  border-color:#d79ab9;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 3px 0 rgba(197,137,169,.5),0 5px 12px rgba(165,104,139,.12);
 }
 .sg-collectible-art:has(svg){
   width:64px;
   height:64px;
-  flex-basis:64px;
+  flex:0 0 64px;
 }
-.sg-collectible-art svg{
-  width:64px;
-  height:64px;
+.sg-collectible-art svg{width:64px;height:64px}
+.item-celestial-rose .sg-collectible-art svg,
+.item-divine-lotus .sg-collectible-art svg{
+  width:70px;
+  height:70px;
 }
 .mt-artwork{
   transform-box:fill-box;
   transform-origin:center;
   transform:scale(1.14);
 }
-.mt-tiara{
-  transform-box:fill-box;
-  transform-origin:center;
-  animation:mt-tiara-float 4s ease-in-out infinite;
-}
 @media(max-width:380px){
-  .sg-collectible-card{min-height:232px;grid-template-rows:60px minmax(2.5em,auto) minmax(2.5em,auto) 38px}
-  .sg-collectible-card>button{height:38px;min-height:38px;max-height:38px;font-size:.67rem}
-  .sg-collectible-art:has(svg),.sg-collectible-art svg{width:60px;height:60px}
+  .sg-collectible-art:has(svg){width:60px;height:60px;flex-basis:60px}
+  .sg-collectible-art svg{width:60px;height:60px}
+  .item-celestial-rose .sg-collectible-art svg,
+  .item-divine-lotus .sg-collectible-art svg{width:66px;height:66px}
 }

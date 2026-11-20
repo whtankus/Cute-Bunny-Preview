@@ -14284,7 +14284,7 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 .dw-veins{animation:dw-vein-shimmer 3.8s ease-in-out infinite}
 .mt-tiara{transform-box:fill-box;transform-origin:center;animation:mt-tiara-float 4s ease-in-out infinite;filter:drop-shadow(0 0 4px #ff8fc8) drop-shadow(0 0 8px #e7a8f5)}
 .mt-gems{transform-box:fill-box;transform-origin:center;animation:mt-gem-glimmer 2.6s ease-in-out infinite}
-.mt-fil igree{opacity:.9}
+.mt-filigree{opacity:.9}
 .mt-sparkles{animation-delay:-1.4s}
 @keyframes dw-wing-breathe{0%,100%{filter:drop-shadow(0 0 3px #f7a4d8)}50%{filter:drop-shadow(0 0 8px #ff9bd4) drop-shadow(0 0 13px #c7a6f5)}}
 @keyframes dw-wing-left{0%,100%{transform:rotate(-1deg) scale(1)}50%{transform:rotate(-3deg) scale(1.025)}}

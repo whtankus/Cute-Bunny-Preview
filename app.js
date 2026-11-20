@@ -1185,9 +1185,16 @@ async function hydrateGardenCollectionFromCloud() {
     // so a stale/empty copy cannot make a paid-for item appear purchasable again.
     const localCollection = normalizeGardenCollection(readGardenCollection());
     const cloudCollection = normalizeGardenCollection(data);
+    // A successful points write records purchase:<item-id> in the local reward
+    // ledger. If the following collection write was interrupted, recover ownership
+    // from that durable purchase marker instead of showing the item as purchasable.
+    const purchaseLedger = readPetalRewards();
+    const ledgerOwned = GARDEN_COLLECTIBLES
+      .filter(item => Object.prototype.hasOwnProperty.call(purchaseLedger, 'purchase:' + item.id))
+      .map(item => item.id);
     const normalized = normalizeGardenCollection({
       ...data,
-      owned: [...new Set([...cloudCollection.owned, ...localCollection.owned])]
+      owned: [...new Set([...cloudCollection.owned, ...localCollection.owned, ...ledgerOwned])]
     });
     try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized)); } catch {}
     if (normalized.owned.length !== cloudCollection.owned.length) await syncGardenCollectionToCloud(normalized);
@@ -1462,7 +1469,7 @@ async function buyGardenCollectible(id) {
     equippedAfterPurchase.add(id);
     collection.equippedItems = [...equippedAfterPurchase];
     const normalized = normalizeGardenCollection(collection);
-    saveGardenCollection(normalized);
+    if (!saveGardenCollection(normalized)) throw new Error('Could not save your purchased item on this device.');
     // Persist the balance and ownership sequentially; never race two upserts on the same row.
     if (!await syncPetalPointsToCloud()) throw new Error('Petal Points could not be saved. Your purchase was not completed.');
     if (!await syncGardenCollectionToCloud(normalized)) {

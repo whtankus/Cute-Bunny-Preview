@@ -14489,8 +14489,10 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
   height:64px;
   max-width:64px;
   max-height:64px;
-  transform:none;
+  transform:scale(.84);
+  transform-origin:50% 50%;
 }
+.sg-collectible-card[data-rarity="legendary"] .mt-artwork{transform:scale(1)}
 .sg-collectible-card[data-rarity="legendary"]>button{
   box-sizing:border-box;
   display:flex;
@@ -14523,6 +14525,7 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
     height:60px;
     max-width:60px;
     max-height:60px;
+    transform:scale(.84);
   }
   .sg-collectible-card[data-rarity="legendary"]>button{
     height:38px;

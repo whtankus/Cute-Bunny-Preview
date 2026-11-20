@@ -645,6 +645,7 @@ async function refresh() {
 
     noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));
     render();
+    void refreshMemoryReactions().catch(error => console.warn('Note reactions could not be loaded:', error?.message || error));
     // Warm the first gallery photos in the background while the user is on Home.
     // This means opening Photo Garden usually displays cached image bytes immediately.
     void prewarmPhotoSources(feed.filter(item => item.kind === 'photo').slice(0, 16));
@@ -2433,6 +2434,72 @@ async function refreshMemoryLikeIndicators() {
     });
   }
 }
+async function refreshMemoryReactions() {
+  if (!sb || !me) return;
+  const ids = [...new Set(feed.filter(item => item.kind === 'note' && !item.isPending).map(item => Number(item.id)).filter(Number.isFinite))];
+  if (!ids.length) return;
+  const { data, error } = await sb.from('memory_reactions')
+    .select('memory_id,user_id,emoji').in('memory_id', ids);
+  if (error) throw error;
+  const grouped = new Map();
+  for (const row of data || []) {
+    const key = String(row.memory_id);
+    const bucket = grouped.get(key) || new Map();
+    const reaction = bucket.get(row.emoji) || { emoji: row.emoji, count: 0, mine: false };
+    reaction.count++;
+    if (String(row.user_id) === String(me.id)) reaction.mine = true;
+    bucket.set(row.emoji, reaction);
+    grouped.set(key, bucket);
+  }
+  for (const item of feed) {
+    if (item.kind !== 'note') continue;
+    item.reactions = [...(grouped.get(String(item.id))?.values() || [])]
+      .sort((a, b) => ['❤️','😂','🥰','😮','😢','👏'].indexOf(a.emoji) - ['❤️','😂','🥰','😮','😢','👏'].indexOf(b.emoji));
+  }
+  if (page === 'notes') renderNotesPage();
+  else if (page === 'home') render();
+}
+
+async function toggleNoteReaction(memoryId, emoji) {
+  const item = feed.find(memory => String(memory.id) === String(memoryId));
+  if (!item || item.kind !== 'note' || item.isPending || !me || !sb) return;
+  if (String(item.author?.id || item.owner_id || '') === String(me.id)) {
+    const mine = (item.reactions || []).some(reaction => reaction.emoji === emoji && reaction.mine);
+    if (!mine) return;
+  }
+  const allowed = ['❤️','😂','🥰','😮','😢','👏'];
+  if (!allowed.includes(emoji)) return;
+  const key = String(memoryId) + ':' + emoji;
+  if (noteReactionInFlight.has(key)) return;
+  noteReactionInFlight.add(key);
+  const previous = (item.reactions || []).map(reaction => ({ ...reaction }));
+  const current = item.reactions || [];
+  const existing = current.find(reaction => reaction.emoji === emoji);
+  if (existing?.mine) {
+    existing.count = Math.max(0, existing.count - 1);
+    existing.mine = false;
+    item.reactions = current.filter(reaction => reaction.count > 0);
+  } else {
+    const next = existing || { emoji, count: 0, mine: false };
+    next.count++;
+    next.mine = true;
+    item.reactions = [...current.filter(reaction => reaction.emoji !== emoji), next];
+  }
+  if (page === 'notes') renderNotesPage(); else if (page === 'home') render();
+  try {
+    const result = existing?.mine
+      ? await sb.from('memory_reactions').delete().eq('memory_id', Number(memoryId)).eq('user_id', me.id).eq('emoji', emoji)
+      : await sb.from('memory_reactions').insert({ memory_id: Number(memoryId), user_id: me.id, emoji });
+    if (result.error) throw result.error;
+  } catch (error) {
+    item.reactions = previous;
+    if (page === 'notes') renderNotesPage(); else if (page === 'home') render();
+    toast(error?.message || 'Your reaction could not be saved.');
+  } finally {
+    noteReactionInFlight.delete(key);
+  }
+}
+
 function go(p, options = {}) {
   const previousPage = page;
   const validPages = ['home', 'gallery', 'music', 'notes', 'friends', 'streak'];

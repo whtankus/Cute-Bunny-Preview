@@ -4544,3 +4544,9 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   #content .sg-collectible-card.item-celestial-rose .sg-collectible-art svg,
   #content .sg-collectible-card.item-divine-lotus .sg-collectible-art svg{animation:none}
 }
+
+/* Equipped collectibles keep their original artwork; the full shop badge gets a clear soft glow. */
+#content .sg-collectible-card.is-equipped{
+  border-color:rgba(218,112,160,.9);
+  box-shadow:0 0 0 2px rgba(220,123,165,.2),0 0 18px rgba(232,105,163,.32),0 10px 30px rgba(205,91,139,.2);
+}

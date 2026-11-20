@@ -1103,8 +1103,8 @@ function awardPetalReward(key, amount) {
 function readGardenCollection() {
   try {
     const value = JSON.parse(localStorage.getItem(streakStorageKey('garden-collection')) || '{}');
-    return { owned: Array.isArray(value.owned) ? value.owned : [], equipped: value.equipped || 'none', bunny: value.bunny || 'none' };
-  } catch { return { owned: [], equipped: 'none', bunny: 'none' }; }
+    return { owned: Array.isArray(value.owned) ? value.owned : [], equippedItems: Array.isArray(value.equippedItems) ? value.equippedItems : [value.equipped, value.bunny].filter(id => id && id !== 'none'), equipped: value.equipped || 'none', bunny: value.bunny || 'none' };
+  } catch { return { owned: [], equippedItems: [], equipped: 'none', bunny: 'none' }; }
 }
 function saveGardenCollection(value) {
   try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(value)); return true; } catch { return false; }
@@ -1115,10 +1115,13 @@ let gardenCollectionHydratedUserId = '';
 function normalizeGardenCollection(value = {}) {
   const validIds = new Set(GARDEN_COLLECTIBLES.map(item => item.id));
   const owned = Array.isArray(value.owned) ? [...new Set(value.owned.filter(id => validIds.has(id)))] : [];
+  const legacyEquipped = [value.equipped, value.bunny].filter(id => id && id !== 'none');
+  const equippedItems = [...new Set((Array.isArray(value.equipped_items) ? value.equipped_items : Array.isArray(value.equippedItems) ? value.equippedItems : legacyEquipped).filter(id => owned.includes(id)))];
   return {
     owned,
-    equipped: owned.includes(value.equipped) && GARDEN_COLLECTIBLES.find(item => item.id === value.equipped)?.type === 'garden' ? value.equipped : 'none',
-    bunny: owned.includes(value.bunny) && GARDEN_COLLECTIBLES.find(item => item.id === value.bunny)?.type === 'bunny' ? value.bunny : 'none'
+    equippedItems,
+    equipped: equippedItems.find(id => GARDEN_COLLECTIBLES.find(item => item.id === id)?.type === 'garden') || 'none',
+    bunny: equippedItems.find(id => GARDEN_COLLECTIBLES.find(item => item.id === id)?.type === 'bunny') || 'none'
   };
 }
 async function syncGardenCollectionToCloud(value = readGardenCollection()) {
@@ -1129,6 +1132,7 @@ async function syncGardenCollectionToCloud(value = readGardenCollection()) {
     owned: normalized.owned,
     equipped: normalized.equipped,
     bunny: normalized.bunny,
+    equipped_items: normalized.equippedItems,
     updated_at: new Date().toISOString()
   }, { onConflict: 'user_id' });
   if (error) {
@@ -1141,7 +1145,7 @@ async function syncGardenCollectionToCloud(value = readGardenCollection()) {
 async function hydrateGardenCollectionFromCloud() {
   if (!sb || !me?.id) return readGardenCollection();
   const { data, error } = await sb.from('profile_garden_collections')
-    .select('owned,equipped,bunny')
+    .select('owned,equipped,bunny,equipped_items')
     .eq('user_id', me.id)
     .maybeSingle();
   if (error) {
@@ -1165,7 +1169,8 @@ function renderFriendGardenCollection(collection, userId, isOwnProfile = false) 
   if (!gate || gate.dataset.collectionUserId !== String(userId)) return;
   const section = $('#friendProfileCollection');
   const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
-  const ownedItems = catalog.filter(item => collection.owned.includes(item.id) && (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id);
+  const equippedIds = new Set(collection.equippedItems || [collection.equipped, collection.bunny].filter(id => id && id !== 'none'));
+  const ownedItems = catalog.filter(item => collection.owned.includes(item.id) && equippedIds.has(item.id));
   const count = $('#friendProfileCollectionCount');
   if (count) {
     count.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');
@@ -1180,7 +1185,7 @@ function renderFriendGardenCollection(collection, userId, isOwnProfile = false) 
   }
   if (section) section.hidden = false;
   list.innerHTML = ownedItems.slice(0, 12).map(item => {
-    const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
+    const equipped = (collection.equippedItems || [collection.equipped, collection.bunny]).includes(item.id);
     return '<span class="friend-profile-collection-item garden-rarity-' + esc(item.rarity || 'common') + (equipped ? ' is-equipped' : '') + '" title="' + esc(item.name) + '" aria-label="' + esc(item.name + (equipped ? ', equipped' : '')) + '"><span class="friend-profile-collection-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><small class="friend-profile-collection-name">' + esc(item.name) + '</small>' + (equipped ? '<i class="friend-profile-equipped-mark" aria-label="Equipped">✦</i>' : '') + '</span>';
   }).join('');
 }
@@ -1196,7 +1201,7 @@ async function loadFriendGardenCollection(user, isOwnProfile) {
     if (!sb) return;
     try {
       const { data, error } = await sb.from('profile_garden_collections')
-        .select('owned,equipped,bunny')
+        .select('owned,equipped,bunny,equipped_items')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;
@@ -1263,8 +1268,12 @@ async function buyGardenCollectible(id) {
   await hydrateGardenCollectionFromCloud();
   const collection = readGardenCollection();
   if (collection.owned.includes(id)) {
-    if (item.type === 'garden') collection.equipped = collection.equipped === id ? 'none' : id;
-    else collection.bunny = collection.bunny === id ? 'none' : id;
+    collection.equippedItems = Array.isArray(collection.equippedItems) ? collection.equippedItems : [collection.equipped, collection.bunny].filter(value => value && value !== 'none');
+    collection.equippedItems = collection.equippedItems.includes(id) ? collection.equippedItems.filter(value => value !== id) : [...collection.equippedItems, id];
+    const normalized = normalizeGardenCollection(collection);
+    collection.equippedItems = normalized.equippedItems;
+    collection.equipped = normalized.equipped;
+    collection.bunny = normalized.bunny;
     saveGardenCollection(collection);
     await syncGardenCollectionToCloud(collection);
     renderStreakPage();
@@ -1276,8 +1285,11 @@ async function buyGardenCollectible(id) {
   const purchaseKey = 'purchase:' + id;
   if (!awardPetalReward(purchaseKey, -cost)) return;
   collection.owned.push(id);
-  if (item.type === 'garden') collection.equipped = id;
-  else collection.bunny = id;
+  collection.equippedItems = [...new Set([...(collection.equippedItems || []), id])];
+  const normalized = normalizeGardenCollection(collection);
+  collection.equippedItems = normalized.equippedItems;
+  collection.equipped = normalized.equipped;
+  collection.bunny = normalized.bunny;
   saveGardenCollection(collection);
   await syncGardenCollectionToCloud(collection);
   toast(item.name + ' added to your collection!');

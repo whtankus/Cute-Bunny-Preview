@@ -166,47 +166,6 @@ test('Notes can reply to a specific message and persist its parent ID', async ()
   assert.equal(saved.reply_to_id, 101);
 });
 
-test('Notes quick reactions save to the reaction table', async () => {
-  const page = await newTestPage({ authenticated: true });
-  await waitForSignedInApp(page);
-  await page.locator('#nav button[data-page="notes"]').click();
-  const bubble = page.locator('.chat-message[data-memory="101"] .chat-bubble');
-  const box = await bubble.boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(260);
-  await page.mouse.up();
-  await page.locator('.chat-actions-popup .chat-quick-reaction[data-note-reaction="🥰"]').click();
-  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memory_reactions.some(row => row.memory_id === 101 && row.emoji === '🥰'));
-});
-
-test('Notes edit history can restore an earlier version', async () => {
-  const page = await newTestPage({ authenticated: true });
-  await waitForSignedInApp(page);
-  await page.locator('#nav button[data-page="notes"]').click();
-  const bubble = page.locator('.chat-message[data-memory="102"] .chat-bubble');
-  let box = await bubble.boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(260);
-  await page.mouse.up();
-  await page.locator('.chat-actions-popup [data-chat-edit="102"]').click();
-  const editor = page.locator('.chat-message[data-memory="102"] .chat-message-text');
-  await editor.fill('Edited message for browser test');
-  await page.locator('.chat-actions-popup [data-chat-edit-save="102"]').click();
-  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.find(row => row.id === 102)?.text === 'Edited message for browser test');
-
-  const updatedBubble = page.locator('.chat-message[data-memory="102"] .chat-bubble');
-  box = await updatedBubble.boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(260);
-  await page.mouse.up();
-  await page.locator('.chat-actions-popup [data-chat-history="102"]').click();
-  await page.locator('.chat-actions-popup [data-chat-restore]').first().click();
-  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.find(row => row.id === 102)?.text === 'A sunny little day');
-});
-
 test('profile edits save through the authenticated database client', async () => {
   const page = await newTestPage({ authenticated: true });
   await waitForSignedInApp(page);

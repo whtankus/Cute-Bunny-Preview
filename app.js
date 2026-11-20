@@ -572,6 +572,11 @@ function setUser(u) {
     notificationLoading = false;
   }
   me = u;
+  // Load the server-authoritative Petal Points balance before the garden is used.
+  void hydrateGardenCollectionFromCloud().then(() => {
+    const ownPetals = $('#friendProfilePetals');
+    if (ownPetals && $('#friendProfileGate')?.dataset.ownProfile === 'true') ownPetals.textContent = petalRewardBalance().toLocaleString();
+  });
   // Publish any existing local collection so friends can see it on their profiles.
   void syncGardenCollectionToCloud(readGardenCollection());
   try {

@@ -14469,3 +14469,66 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
     transform:scale(.84);
   }
 }
+
+
+/* One consistent specification for every Legendary collectible card. */
+.sg-collectible-card[data-rarity="legendary"]{
+  box-sizing:border-box;
+}
+.sg-collectible-card[data-rarity="legendary"] .sg-collectible-art{
+  box-sizing:border-box;
+  width:64px;
+  height:64px;
+  min-width:64px;
+  min-height:64px;
+  flex:0 0 64px;
+}
+.sg-collectible-card[data-rarity="legendary"] .sg-collectible-art svg{
+  display:block;
+  width:64px;
+  height:64px;
+  max-width:64px;
+  max-height:64px;
+  transform:none;
+}
+.sg-collectible-card[data-rarity="legendary"]>button{
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  align-self:stretch;
+  width:100%;
+  min-width:0;
+  height:40px;
+  min-height:40px;
+  max-height:40px;
+  flex:0 0 40px;
+  margin-top:auto;
+  padding:0 8px;
+  border-radius:12px;
+  font-size:.74rem;
+  line-height:1;
+  white-space:nowrap;
+}
+@media(max-width:380px){
+  .sg-collectible-card[data-rarity="legendary"] .sg-collectible-art{
+    width:60px;
+    height:60px;
+    min-width:60px;
+    min-height:60px;
+    flex-basis:60px;
+  }
+  .sg-collectible-card[data-rarity="legendary"] .sg-collectible-art svg{
+    width:60px;
+    height:60px;
+    max-width:60px;
+    max-height:60px;
+  }
+  .sg-collectible-card[data-rarity="legendary"]>button{
+    height:38px;
+    min-height:38px;
+    max-height:38px;
+    flex-basis:38px;
+    font-size:.68rem;
+  }
+}

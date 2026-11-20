@@ -647,6 +647,7 @@ async function refresh() {
 
     noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));
     render();
+    void markNotesDelivered(feed.filter(item => item.kind === 'note'));
     void refreshOwnNoteSeenStatus();
     void refreshMemoryReactions().catch(error => console.warn('Note reactions could not be loaded:', error?.message || error));
     // Warm the first gallery photos in the background while the user is on Home.
@@ -4731,6 +4732,7 @@ function startRealtime() {
             // Keep previously loaded photos, songs and older pages while
             // refreshing the newest records after a Realtime insert.
             mergeFeedRows(freshFeed);
+            void markNotesDelivered(feed.filter(item => item.kind === 'note'));
             if (page === 'notes') {
               renderNotesPage();
               void refreshOwnNoteSeenStatus();
@@ -4794,6 +4796,15 @@ function startRealtime() {
     syncPresenceUI();
   }
 }
+
+window.addEventListener('online', () => {
+  if (!sb || !me) return;
+  // Rejoin Supabase Realtime after the browser regains connectivity, then
+  // reconcile missed messages, reactions and receipts from the database.
+  startRealtime();
+  void refresh().then(() => refreshOwnNoteSeenStatus())
+    .catch(error => console.warn('Notes reconnect refresh failed:', error?.message || error));
+});
 
 function closeRealtime() {
   stopNotesTyping();

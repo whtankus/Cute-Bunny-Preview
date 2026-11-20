@@ -141,6 +141,70 @@ test('opening Notes records a seen receipt for a visible friend message', async 
   assert.ok(cursor, 'a read cursor should be created for the friend');
   assert.equal(cursor.reader_id, 'user-ankush-test');
   assert.equal(cursor.last_read_message_id, 101);
+  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.note_delivery_receipts.some(row => row.message_id === 101));
+  const delivery = await page.evaluate(() => window.__cuteBunnyTestState.tables.note_delivery_receipts.find(row => row.message_id === 101));
+  assert.equal(delivery.reader_id, 'user-ankush-test');
+});
+
+test('Notes can reply to a specific message and persist its parent ID', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  const bubble = page.locator('.chat-message[data-memory="101"] .chat-bubble');
+  await bubble.waitFor({ state: 'visible' });
+  const box = await bubble.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  await page.locator('.chat-actions-popup [data-chat-reply="101"]').click();
+  await page.locator('#chatReplyingTo').waitFor({ state: 'visible' });
+  await page.locator('#chatInput').fill('Replying to your hello ♡');
+  await page.locator('#chatSend').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.some(row => row.text === 'Replying to your hello ♡'));
+  const saved = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.text === 'Replying to your hello ♡'));
+  assert.equal(saved.reply_to_id, 101);
+});
+
+test('Notes quick reactions save to the reaction table', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  const bubble = page.locator('.chat-message[data-memory="101"] .chat-bubble');
+  const box = await bubble.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  await page.locator('.chat-actions-popup .chat-quick-reaction[data-note-reaction="🥰"]').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memory_reactions.some(row => row.memory_id === 101 && row.emoji === '🥰'));
+});
+
+test('Notes edit history can restore an earlier version', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  const bubble = page.locator('.chat-message[data-memory="102"] .chat-bubble');
+  let box = await bubble.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  await page.locator('.chat-actions-popup [data-chat-edit="102"]').click();
+  const editor = page.locator('.chat-message[data-memory="102"] .chat-message-text');
+  await editor.fill('Edited message for browser test');
+  await page.locator('.chat-actions-popup [data-chat-edit-save="102"]').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.find(row => row.id === 102)?.text === 'Edited message for browser test');
+
+  const updatedBubble = page.locator('.chat-message[data-memory="102"] .chat-bubble');
+  box = await updatedBubble.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  await page.locator('.chat-actions-popup [data-chat-history="102"]').click();
+  await page.locator('.chat-actions-popup [data-chat-restore]').first().click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.find(row => row.id === 102)?.text === 'A sunny little day');
 });
 
 test('profile edits save through the authenticated database client', async () => {

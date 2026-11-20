@@ -45,7 +45,6 @@ let notesTypingChannelReady = false, notesTypingQueuedState = null;
 const remoteTypingUsers = new Map();
 let activeMessageActionsId = null;
 let replyingToMessageId = null;
-const noteReactionInFlight = new Set();
 const noteDeliveryInFlight = new Set();
 const noteDeliveredLocally = new Set();
 let hiddenNoteIds = new Set();
@@ -649,7 +648,6 @@ async function refresh() {
     render();
     void markNotesDelivered(feed.filter(item => item.kind === 'note'));
     void refreshOwnNoteSeenStatus();
-    void refreshMemoryReactions().catch(error => console.warn('Note reactions could not be loaded:', error?.message || error));
     // Warm the first gallery photos in the background while the user is on Home.
     // This means opening Photo Garden usually displays cached image bytes immediately.
     void prewarmPhotoSources(feed.filter(item => item.kind === 'photo').slice(0, 16));
@@ -2438,73 +2436,6 @@ async function refreshMemoryLikeIndicators() {
     });
   }
 }
-async function refreshMemoryReactions() {
-  if (!sb || !me) return;
-  const ids = [...new Set(feed.filter(item => item.kind === 'note' && !item.isPending).map(item => Number(item.id)).filter(Number.isFinite))];
-  if (!ids.length) return;
-  const { data, error } = await sb.from('memory_reactions')
-    .select('memory_id,user_id,emoji').in('memory_id', ids);
-  if (error) throw error;
-  const grouped = new Map();
-  for (const row of data || []) {
-    const key = String(row.memory_id);
-    const bucket = grouped.get(key) || new Map();
-    const reaction = bucket.get(row.emoji) || { emoji: row.emoji, count: 0, mine: false };
-    reaction.count++;
-    if (String(row.user_id) === String(me.id)) reaction.mine = true;
-    bucket.set(row.emoji, reaction);
-    grouped.set(key, bucket);
-  }
-  for (const item of feed) {
-    if (item.kind !== 'note') continue;
-    item.reactions = [...(grouped.get(String(item.id))?.values() || [])]
-      .sort((a, b) => ['❤️','😂','🥰','😮','😢','👏'].indexOf(a.emoji) - ['❤️','😂','🥰','😮','😢','👏'].indexOf(b.emoji));
-  }
-  if (page === 'notes') renderNotesPage();
-  else if (page === 'home') render();
-}
-
-async function toggleNoteReaction(memoryId, emoji) {
-  const item = feed.find(memory => String(memory.id) === String(memoryId));
-  if (!item || item.kind !== 'note' || item.isPending || !me || !sb) return;
-  if (String(item.author?.id || item.owner_id || '') === String(me.id)) {
-    const mine = (item.reactions || []).some(reaction => reaction.emoji === emoji && reaction.mine);
-    if (!mine) return;
-  }
-  const allowed = ['❤️','😂','🥰','😮','😢','👏'];
-  if (!allowed.includes(emoji)) return;
-  const key = String(memoryId) + ':' + emoji;
-  if (noteReactionInFlight.has(key)) return;
-  noteReactionInFlight.add(key);
-  const previous = (item.reactions || []).map(reaction => ({ ...reaction }));
-  const current = item.reactions || [];
-  const existing = current.find(reaction => reaction.emoji === emoji);
-  const wasMine = !!existing?.mine;
-  if (wasMine) {
-    existing.count = Math.max(0, existing.count - 1);
-    existing.mine = false;
-    item.reactions = current.filter(reaction => reaction.count > 0);
-  } else {
-    const next = existing || { emoji, count: 0, mine: false };
-    next.count++;
-    next.mine = true;
-    item.reactions = [...current.filter(reaction => reaction.emoji !== emoji), next];
-  }
-  if (page === 'notes') renderNotesPage(); else if (page === 'home') render();
-  try {
-    const result = wasMine
-      ? await sb.from('memory_reactions').delete().eq('memory_id', Number(memoryId)).eq('user_id', me.id).eq('emoji', emoji)
-      : await sb.from('memory_reactions').insert({ memory_id: Number(memoryId), user_id: me.id, emoji });
-    if (result.error) throw result.error;
-  } catch (error) {
-    item.reactions = previous;
-    if (page === 'notes') renderNotesPage(); else if (page === 'home') render();
-    toast(error?.message || 'Your reaction could not be saved.');
-  } finally {
-    noteReactionInFlight.delete(key);
-  }
-}
-
 function go(p, options = {}) {
   const previousPage = page;
   const validPages = ['home', 'gallery', 'music', 'notes', 'friends', 'streak'];
@@ -2732,8 +2663,9 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
     ? '<small class="chat-seen-receipt" data-seen-at="' + esc(m.last_seen_at || '') + '" aria-label="' + esc(seenLabel) + '">' + esc(seenLabel) + '</small>'
     : '';
   const replyTarget = m.reply_to_id ? feed.find(item => String(item.id) === String(m.reply_to_id)) : null;
-  const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to replied message"><b>${esc(replyTarget?.author?.displayName || replyTarget?.author?.display_name || replyTarget?.author?.username || 'Original message')}</b><span>${esc(replyTarget?.text || 'Original message unavailable')}</span></button>` : '';
-  const reactionMarkup = (m.reactions || []).length ? `<div class="chat-message-reactions" aria-label="Message reactions">${m.reactions.map(reaction => `<button type="button" class="chat-reaction-chip${reaction.mine ? ' is-mine' : ''}" data-note-reaction="${esc(reaction.emoji)}" data-memory-id="${esc(id)}" ${!mine || reaction.mine ? '' : 'disabled'} aria-label="${esc(reaction.emoji)} ${Number(reaction.count) || 0} reactions">${esc(reaction.emoji)} <small>${Number(reaction.count) || 0}</small></button>`).join('')}</div>` : '';
+  const replyAuthor = replyTarget?.author?.displayName || replyTarget?.author?.display_name || replyTarget?.author?.username || 'Original message';
+  const replyText = replyTarget?.text || 'This message is no longer available';
+  const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to replied message"><small>↪ Replying to</small><b>${esc(replyAuthor)}</b><span>${esc(replyText)}</span></button>` : '';
 
   return `
     <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}">
@@ -2747,7 +2679,6 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
               ${replyMarkup}
               <span class="chat-message-text" dir="auto">${messageText}</span>
             </div>
-            ${reactionMarkup}
           </div>
         </div>
       </div>
@@ -2798,7 +2729,7 @@ function syncChatReplyPreview() {
     : null;
   preview.hidden = !item;
   preview.innerHTML = item
-    ? `<span>Replying to <b>${esc(item.author?.displayName || item.author?.display_name || item.author?.username || 'message')}</b></span><small>${esc(item.text || '')}</small><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
+    ? `<span class="chat-replying-label">Replying to <b>${esc(item.author?.displayName || item.author?.display_name || item.author?.username || 'message')}</b></span><small>${esc(item.text || 'Message unavailable')}</small><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
     : '';
 }
 
@@ -3817,10 +3748,8 @@ function showMessageActions(id, bubbleElement) {
   popup.className = 'chat-actions-popup';
   popup.setAttribute('role', 'toolbar');
   popup.setAttribute('aria-label', 'Message options');
-  popup.innerHTML = `
-    ${!ownsMessage ? `<div class="chat-quick-reactions" aria-label="Quick reactions">${['❤️','😂','🥰','😮','😢','👏'].map(emoji => `<button type="button" class="chat-quick-reaction" data-note-reaction="${emoji}" data-memory-id="${esc(id)}" aria-label="React ${emoji}">${emoji}</button>`).join('')}</div>` : ''}
-    <button type="button" class="chat-action-btn reply-btn" data-chat-reply="${esc(id)}">Reply</button>
-    ${ownsMessage ? `<button type="button" class="chat-action-btn edit-btn" data-chat-edit="${esc(id)}">Edit</button><button type="button" class="chat-action-btn" data-chat-history="${esc(id)}">History</button>` : ''}
+  popup.innerHTML = `    <button type="button" class="chat-action-btn reply-btn" data-chat-reply="${esc(id)}">Reply</button>
+    ${ownsMessage ? `<button type="button" class="chat-action-btn edit-btn" data-chat-edit="${esc(id)}">Edit</button>` : ''}
     <button type="button" class="chat-action-btn" data-chat-copy="${esc(id)}">Copy</button>
     <button type="button" class="chat-action-btn delete-btn" ${ownsMessage ? 'data-chat-delete' : 'data-chat-hide'}="${esc(id)}">Delete</button>
   `;
@@ -4745,12 +4674,7 @@ function startRealtime() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'note_delivery_receipts', filter: 'owner_id=eq.' + me.id }, () => {
         clearTimeout(window.cuteNoteDeliveryRefresh);
         window.cuteNoteDeliveryRefresh = setTimeout(() => { void refreshOwnNoteSeenStatus(); }, 45);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'memory_reactions' }, () => {
-        clearTimeout(window.cuteMemoryReactionsRefresh);
-        window.cuteMemoryReactionsRefresh = setTimeout(() => { void refreshMemoryReactions(); }, 45);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'memory_likes' }, () => {
+      })      .on('postgres_changes', { event: '*', schema: 'public', table: 'memory_likes' }, () => {
         clearTimeout(window.cuteMemoryLikesRefresh);
         window.cuteMemoryLikesRefresh = setTimeout(() => {
           refreshMemoryLikeIndicators().catch(error => console.warn('Live like refresh failed:', error?.message || error));
@@ -5875,28 +5799,6 @@ document.addEventListener('click', async e => {
     setTimeout(() => target?.classList.remove('chat-message-highlight'), 1000);
     return;
   }
-  const reactionButton = e.target.closest('[data-note-reaction][data-memory-id]');
-  if (reactionButton) { void toggleNoteReaction(reactionButton.dataset.memoryId, reactionButton.dataset.noteReaction); return; }
-  const historyBtn = e.target.closest('[data-chat-history]');
-  if (historyBtn) {
-    const id = String(historyBtn.dataset.chatHistory);
-    const { data, error } = await sb.from('memory_edit_history').select('id,previous_text,edited_at').eq('memory_id', Number(id)).order('edited_at', { ascending: false }).limit(8);
-    if (error) { toast(error.message || 'Edit history could not be loaded.'); return; }
-    const popup = document.querySelector('.chat-actions-popup');
-    if (popup) popup.innerHTML = `<b class="chat-history-title">Previous versions</b>${(data || []).map(entry => `<div class="chat-history-entry"><span>${esc(entry.previous_text)}</span><button type="button" data-chat-restore="${esc(entry.id)}" data-memory-id="${esc(id)}">Restore</button></div>`).join('') || '<small>No earlier edits yet.</small>'}<button type="button" class="chat-action-btn" data-chat-history-close>Close</button>`;
-    return;
-  }
-  if (e.target.closest('[data-chat-history-close]')) { hideMessageActions(); return; }
-  const restoreEdit = e.target.closest('[data-chat-restore]');
-  if (restoreEdit) {
-    restoreEdit.disabled = true;
-    const { data, error } = await sb.rpc('restore_note_edit', { p_history_id: Number(restoreEdit.dataset.chatRestore) });
-    if (error) { restoreEdit.disabled = false; toast(error.message || 'This version could not be restored.'); return; }
-    const item = feed.find(memory => String(memory.id) === String(restoreEdit.dataset.memoryId));
-    if (item && data?.ok) { item.text = data.text; item.edited_at = data.edited_at; }
-    hideMessageActions(); renderNotesPage(); toast('Previous version restored ♡'); return;
-  }
-
   // Chat action: Copy
   const copyBtn = e.target.closest('[data-chat-copy]');
   if (copyBtn) {

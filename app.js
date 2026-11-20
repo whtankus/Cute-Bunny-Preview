@@ -1243,66 +1243,81 @@ function gardenIllustration(kind) {
 
 
     'dreamwing-halo':`<defs>
-<radialGradient id="dwAura"><stop stop-color="#f48fc4" stop-opacity=".55"/><stop offset=".52" stop-color="#c9a4ef" stop-opacity=".25"/><stop offset="1" stop-color="#c9a4ef" stop-opacity="0"/></radialGradient>
-<linearGradient id="dwPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff9ff"/><stop offset=".35" stop-color="#ffc5e3"/><stop offset=".72" stop-color="#e98ac7"/><stop offset="1" stop-color="#a85fae"/></linearGradient>
-<linearGradient id="dwLilac" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffaff"/><stop offset=".4" stop-color="#d9c8ff"/><stop offset=".78" stop-color="#a99ae9"/><stop offset="1" stop-color="#7467b8"/></linearGradient>
-<linearGradient id="dwBody" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff1c9"/><stop offset=".5" stop-color="#e9bf78"/><stop offset="1" stop-color="#a97847"/></linearGradient>
-<radialGradient id="dwHeart"><stop stop-color="#fff"/><stop offset=".4" stop-color="#ffd7ee"/><stop offset="1" stop-color="#d76eaa"/></radialGradient>
-<filter id="dwGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="4.5" result="blur"/><feFlood flood-color="#ff82c2" flood-opacity=".98" result="pink"/><feComposite in="pink" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<filter id="dwInnerGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="2.8" result="blur"/><feFlood flood-color="#f7b7f0" flood-opacity=".95" result="light"/><feComposite in="light" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<radialGradient id="dwAura"><stop stop-color="#ffb5df" stop-opacity=".72"/><stop offset=".48" stop-color="#c9a4ff" stop-opacity=".34"/><stop offset="1" stop-color="#c9a4ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="dwPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffaff"/><stop offset=".3" stop-color="#ffd4ed"/><stop offset=".68" stop-color="#f18acb"/><stop offset="1" stop-color="#a653ad"/></linearGradient>
+<linearGradient id="dwLilac" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffaff"/><stop offset=".36" stop-color="#e5d8ff"/><stop offset=".74" stop-color="#ad9af1"/><stop offset="1" stop-color="#7162b9"/></linearGradient>
+<linearGradient id="dwGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff7d8"/><stop offset=".55" stop-color="#e8bd77"/><stop offset="1" stop-color="#a97847"/></linearGradient>
+<radialGradient id="dwHeart"><stop stop-color="#fff"/><stop offset=".42" stop-color="#ffe0f2"/><stop offset="1" stop-color="#d65fa8"/></radialGradient>
+<filter id="dwGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/><feFlood flood-color="#ff83ca" flood-opacity="1" result="pink"/><feComposite in="pink" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="dwInnerGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.4" result="blur"/><feFlood flood-color="#ffd0f0" flood-opacity="1" result="light"/><feComposite in="light" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-<circle cx="32" cy="31" r="29" fill="url(#dwAura)"/>
+<circle cx="32" cy="31" r="30" fill="url(#dwAura)" class="dw-aura"/>
+<circle cx="32" cy="31" r="23" fill="none" stroke="#fff4ff" stroke-opacity=".32" stroke-width=".7" stroke-dasharray="1.5 3"/>
 <g class="dw-wings" filter="url(#dwGlow)" stroke="#a65d9f" stroke-width="1.05" stroke-linejoin="round">
 <path class="dw-wing dw-wing-left" d="M29 32C24 17 14 7 8 13 1 21 8 38 28 42c-5-8-6-16-8-23 5 5 8 10 9 16Z" fill="url(#dwPink)"/>
 <path class="dw-wing dw-wing-left-lower" d="M28 37C17 32 8 35 10 46c2 9 13 11 22 1-4-3-6-6-4-10Z" fill="url(#dwLilac)"/>
 <path class="dw-wing dw-wing-right" d="M35 32C40 17 50 7 56 13c7 8 0 25-20 29 5-8 6-16 8-23-5 5-8 10-9 16Z" fill="url(#dwLilac)"/>
 <path class="dw-wing dw-wing-right-lower" d="M36 37c11-5 20-2 18 9-2 9-13 11-22 1 4-3 6-6 4-10Z" fill="url(#dwPink)"/>
 </g>
-<g class="dw-veins" fill="none" stroke="#fff8ff" stroke-width="1.05" stroke-linecap="round" opacity=".92">
+<g class="dw-wing-jewels" fill="none" stroke="#fffaff" stroke-width=".9">
+<path d="M9 18q8-8 16 8m-13 7q7-2 14 7m28-22q-8-8-16 8m13 7q-7-2-14 7" opacity=".85"/>
+<path d="M12 22q5-2 9 5m31-5q-5-2-9 5" stroke="#fff" stroke-width="1.4"/>
+<circle cx="15" cy="20" r="2.2" fill="#fff0fa" stroke="#e78cc8"/><circle cx="49" cy="20" r="2.2" fill="#f3eaff" stroke="#a99ae9"/>
+<circle cx="17" cy="42" r="1.7" fill="#fff0fa"/><circle cx="47" cy="42" r="1.7" fill="#fff0fa"/>
+</g>
+<g class="dw-veins" fill="none" stroke="#fff8ff" stroke-width="1.05" stroke-linecap="round" opacity=".96">
 <path d="M29 34 10 16m18 23L11 43m18-8L18 23m17 11 19-18M36 39l17 4M36 35l11-12"/>
 <path d="M12 27c5 1 9 5 12 10m28-10c-5 1-9 5-12 10"/>
 </g>
 <g class="dw-center" filter="url(#dwInnerGlow)">
-<path d="M32 18c-4 4-5 10 0 15 5-5 4-11 0-15Z" fill="url(#dwBody)" stroke="#b47c4a" stroke-width="1.2"/>
-<path d="M32 27c-8-7-14 2-7 9l7 7 7-7c7-7 1-16-7-9Z" fill="url(#dwHeart)" stroke="#c36a9e" stroke-width="1.3"/>
-<path d="m32 29 0 10m-5-8 5 4 5-4" fill="none" stroke="#fff9ff" stroke-width="1.05" stroke-linecap="round"/>
-<path d="M27 45q5 4 10 0" fill="none" stroke="url(#dwBody)" stroke-width="2" stroke-linecap="round"/>
+<path d="M32 15c-5 5-6 11 0 17 6-6 5-12 0-17Z" fill="url(#dwGold)" stroke="#b47c4a" stroke-width="1.2"/>
+<path d="M32 26c-8-8-15 2-7 10l7 8 7-8c8-8 1-18-7-10Z" fill="url(#dwHeart)" stroke="#c36a9e" stroke-width="1.35"/>
+<path d="m32 28 0 12m-5-9 5 4 5-4" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+<path d="M27 46q5 4 10 0" fill="none" stroke="url(#dwGold)" stroke-width="2.2" stroke-linecap="round"/>
+<circle cx="32" cy="34" r="1.5" fill="#fff"/>
 </g>
-<g class="dw-sparkles" fill="#fff8ff">
-<path d="m8 12 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm46 25 1.6-4 1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6Z"/>
+<g class="dw-sparkles" fill="#fffaff">
+<path d="m7 12 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm48 28 1.6-4 1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6Z"/>
 <path d="m18 7 1.2-3 1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2Zm27 4 1.3-3.2 1.3 3.2 3.2 1.3-3.2 1.3-1.3 3.2-1.3-3.2-3.2-1.3Z"/>
 <circle cx="12" cy="53" r="1.4"/><circle cx="51" cy="52" r="1.2"/><circle cx="32" cy="8" r="1.1"/>
 </g>`,
     'moon-goddess-tiara':`<defs>
-<radialGradient id="mtAura"><stop stop-color="#f4a1d0" stop-opacity=".58"/><stop offset=".56" stop-color="#c8a5ef" stop-opacity=".24"/><stop offset="1" stop-color="#c8a5ef" stop-opacity="0"/></radialGradient>
-<linearGradient id="mtGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff9d9"/><stop offset=".28" stop-color="#f5d98e"/><stop offset=".62" stop-color="#d9a84f"/><stop offset="1" stop-color="#95612f"/></linearGradient>
-<linearGradient id="mtPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff6ff"/><stop offset=".48" stop-color="#f3b4df"/><stop offset="1" stop-color="#b95eaa"/></linearGradient>
-<linearGradient id="mtViolet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#c9b7fa"/><stop offset="1" stop-color="#7566b8"/></linearGradient>
-<radialGradient id="mtMoon"><stop stop-color="#fffde9"/><stop offset=".6" stop-color="#ffe5a0"/><stop offset="1" stop-color="#d39c4b"/></radialGradient>
-<filter id="mtGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="4.6" result="blur"/><feFlood flood-color="#ff83c4" flood-opacity=".98" result="pink"/><feComposite in="pink" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<filter id="mtGemGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/><feFlood flood-color="#d9a9ff" flood-opacity=".98" result="light"/><feComposite in="light" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<radialGradient id="mtAura"><stop stop-color="#f8b5df" stop-opacity=".72"/><stop offset=".52" stop-color="#c8a5ff" stop-opacity=".34"/><stop offset="1" stop-color="#c8a5ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="mtGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffde7"/><stop offset=".25" stop-color="#ffe7a6"/><stop offset=".58" stop-color="#e7b85f"/><stop offset="1" stop-color="#95612f"/></linearGradient>
+<linearGradient id="mtPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8ff"/><stop offset=".48" stop-color="#f4b9e3"/><stop offset="1" stop-color="#b95eaa"/></linearGradient>
+<linearGradient id="mtViolet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#d5c5ff"/><stop offset="1" stop-color="#7566b8"/></linearGradient>
+<radialGradient id="mtMoon"><stop stop-color="#fff"/><stop offset=".55" stop-color="#fff0bd"/><stop offset="1" stop-color="#d39c4b"/></radialGradient>
+<filter id="mtGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/><feFlood flood-color="#ff9bd3" flood-opacity="1" result="pink"/><feComposite in="pink" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="mtGemGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="blur"/><feFlood flood-color="#e1b2ff" flood-opacity="1" result="light"/><feComposite in="light" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-<circle cx="32" cy="31" r="29" fill="url(#mtAura)"/>
+<circle cx="32" cy="31" r="30" fill="url(#mtAura)" class="mt-aura"/>
+<circle cx="32" cy="31" r="23" fill="none" stroke="#fff7dc" stroke-opacity=".3" stroke-width=".7" stroke-dasharray="1.5 3"/>
 <g class="mt-tiara" filter="url(#mtGlow)">
-<path d="M9 42c4-11 11-17 23-17s19 6 23 17c-13 9-33 9-46 0Z" fill="url(#mtGold)" stroke="#98632f" stroke-width="1.7" stroke-linejoin="round"/>
-<path d="M13 40c9-7 29-7 38 0M15 44c10 5 24 5 34 0" fill="none" stroke="#fff4c7" stroke-width="1.25"/>
-<path d="M12 39 8 24l13 10m31 5 4-15-13 10" fill="url(#mtGold)" stroke="#a9783d" stroke-width="1.7" stroke-linejoin="round"/>
-<path d="M32 7c-9 7-11 19 0 27C43 26 41 14 32 7Z" fill="url(#mtMoon)" stroke="#a9783d" stroke-width="1.7"/>
-<path d="M35 11c-7 7-6 15 1 19-9 0-14-9-9-16 2-3 5-4 8-3Z" fill="#fff8dc" opacity=".95"/>
-<path d="M21 31 18 18l11 9m14 4 3-13-11 9" fill="none" stroke="#f8e6ae" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M7 42c5-12 13-17 25-17s20 5 25 17c-13 9-37 9-50 0Z" fill="url(#mtGold)" stroke="#98632f" stroke-width="1.7" stroke-linejoin="round"/>
+<path d="M11 40c10-8 32-8 42 0M13 44c11 5 27 5 38 0" fill="none" stroke="#fff8d9" stroke-width="1.35"/>
+<path d="M10 39 6 22l15 13m33 4 4-17-15 13" fill="url(#mtGold)" stroke="#a9783d" stroke-width="1.6" stroke-linejoin="round"/>
+<path d="M20 32 16 14l13 12m15 6 4-18-13 12" fill="none" stroke="#f8e6ae" stroke-width="1.8" stroke-linecap="round"/>
+<path d="M32 5c-10 8-12 21 0 30C44 26 42 13 32 5Z" fill="url(#mtMoon)" stroke="#a9783d" stroke-width="1.7"/>
+<path d="M36 10c-8 8-7 17 1 21-10 0-15-10-9-18 2-3 5-4 8-3Z" fill="#fffdf0" opacity=".96"/>
+<path d="M32 8v-3m-2 0h4" stroke="#fff9d8" stroke-width="1.2" stroke-linecap="round"/>
+</g>
+<g class="mt-filigree" fill="none" stroke="url(#mtGold)" stroke-width="1.45" stroke-linecap="round">
+<path d="M14 36q-7-10 0-16 6-3 9 5m27 11q7-10 0-16-6-3-9 5"/>
+<path d="M22 27q-4-9 3-14m17 14q4-9-3-14M15 46q17 9 34 0"/>
+<path d="M19 33q-2-7 3-9m23 9q2-7-3-9"/>
 </g>
 <g class="mt-gems" filter="url(#mtGemGlow)">
-<path d="m32 34 6 7-6 8-6-8Z" fill="url(#mtPink)" stroke="#a95b99" stroke-width="1.3"/>
-<path d="m18 36 4-5 4 5-4 5Z" fill="url(#mtViolet)" stroke="#8c72b5" stroke-width="1.1"/>
-<path d="m38 36 4-5 4 5-4 5Z" fill="url(#mtPink)" stroke="#a95b99" stroke-width="1.1"/>
-<path d="m12 41 3-4 3 4-3 4Zm34 0 3-4 3 4-3 4Z" fill="url(#mtViolet)" stroke="#8c72b5" stroke-width="1"/>
-<path d="M32 37v8m-2-5 2 2 2-2" stroke="#fff" stroke-width="1.1" fill="none"/>
+<path d="m32 33 7 8-7 10-7-10Z" fill="url(#mtPink)" stroke="#a95b99" stroke-width="1.35"/>
+<path d="m18 35 4-6 4 6-4 6Z" fill="url(#mtViolet)" stroke="#8c72b5" stroke-width="1.1"/>
+<path d="m38 35 4-6 4 6-4 6Z" fill="url(#mtPink)" stroke="#a95b99" stroke-width="1.1"/>
+<path d="m10 41 3-5 3 5-3 5Zm38 0 3-5 3 5-3 5Z" fill="url(#mtViolet)" stroke="#8c72b5" stroke-width="1"/>
+<path d="M32 36v10m-3-6 3 3 3-3" stroke="#fff" stroke-width="1.15" fill="none"/>
+<circle cx="32" cy="41" r="1.5" fill="#fff"/>
 </g>
-<g class="mt-filigree" fill="none" stroke="url(#mtGold)" stroke-width="1.35" stroke-linecap="round">
-<path d="M15 35q-5-9 1-13 5-2 7 4m26 9q5-9-1-13-5-2-7 4"/>
-<path d="M23 27q-3-8 3-11m15 11q3-8-3-11M18 46q14 7 28 0"/>
+<g class="mt-celestial-dust" fill="#fff8e5">
+<circle cx="21" cy="19" r="1.2"/><circle cx="43" cy="19" r="1.2"/><circle cx="13" cy="30" r=".9"/><circle cx="51" cy="30" r=".9"/>
 </g>
-<g class="mt-sparkles" fill="#fff8e5">
+<g class="mt-sparkles" fill="#fffdf0">
 <path d="m7 13 1.7-4 1.7 4 4 1.7-4 1.7-1.7 4-1.7-4-4-1.7Zm47 31 1.5-3.5L57 42l3.5 1.5L57 47l-1.5-3.5L52 42Z"/>
 <path d="m18 7 1.2-3 1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2Zm28 4 1.4-3.4 1.4 3.4 3.4 1.4-3.4 1.4-1.4 3.4-1.4-3.4-3.4-1.4Z"/>
 <circle cx="12" cy="53" r="1.3"/><circle cx="50" cy="53" r="1.1"/>

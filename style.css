@@ -14266,3 +14266,32 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 }
 
 
+
+/* Legendary bunny keepsakes — rose/lotus-grade glow and living details */
+.dreamwing-halo .sg-collectible-art svg,
+.garden-rarity-dreamwing-halo svg,
+.item-dreamwing-halo .sg-collectible-art svg,
+.moon-goddess-tiara .sg-collectible-art svg,
+.garden-rarity-moon-goddess-tiara svg,
+.item-moon-goddess-tiara .sg-collectible-art svg{overflow:visible}
+.dw-wings{transform-box:fill-box;transform-origin:center;animation:dw-wing-breathe 3.8s ease-in-out infinite}
+.dw-wing-left{transform-origin:28px 33px;animation:dw-wing-left 3.8s ease-in-out infinite}
+.dw-wing-right{transform-origin:36px 33px;animation:dw-wing-right 3.8s ease-in-out infinite}
+.dw-wing-left-lower{transform-origin:28px 39px;animation:dw-wing-left 4.2s ease-in-out infinite reverse}
+.dw-wing-right-lower{transform-origin:36px 39px;animation:dw-wing-right 4.2s ease-in-out infinite reverse}
+.dw-center{transform-box:fill-box;transform-origin:center;animation:dw-heart-pulse 2.7s ease-in-out infinite}
+.dw-sparkles,.mt-sparkles{transform-box:fill-box;transform-origin:center;animation:dw-sparkle-drift 3.2s ease-in-out infinite}
+.dw-veins{animation:dw-vein-shimmer 3.8s ease-in-out infinite}
+.mt-tiara{transform-box:fill-box;transform-origin:center;animation:mt-tiara-float 4s ease-in-out infinite;filter:drop-shadow(0 0 4px #ff8fc8) drop-shadow(0 0 8px #e7a8f5)}
+.mt-gems{transform-box:fill-box;transform-origin:center;animation:mt-gem-glimmer 2.6s ease-in-out infinite}
+.mt-filigree{opacity:.9}
+.mt-sparkles{animation-delay:-1.4s}
+@keyframes dw-wing-breathe{0%,100%{filter:drop-shadow(0 0 3px #f7a4d8)}50%{filter:drop-shadow(0 0 8px #ff9bd4) drop-shadow(0 0 13px #c7a6f5)}}
+@keyframes dw-wing-left{0%,100%{transform:rotate(-1deg) scale(1)}50%{transform:rotate(-3deg) scale(1.025)}}
+@keyframes dw-wing-right{0%,100%{transform:rotate(1deg) scale(1)}50%{transform:rotate(3deg) scale(1.025)}}
+@keyframes dw-heart-pulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 3px #ffb2df)}50%{transform:scale(1.07);filter:drop-shadow(0 0 8px #ff80c5)}}
+@keyframes dw-sparkle-drift{0%,100%{opacity:.78;transform:translateY(0) scale(.96)}50%{opacity:1;transform:translateY(-2px) scale(1.08)}}
+@keyframes dw-vein-shimmer{0%,100%{opacity:.7}50%{opacity:1}}
+@keyframes mt-tiara-float{0%,100%{transform:translateY(0) scale(1);filter:drop-shadow(0 0 4px #ff8fc8) drop-shadow(0 0 8px #e7a8f5)}50%{transform:translateY(-1.5px) scale(1.018);filter:drop-shadow(0 0 8px #ff83c4) drop-shadow(0 0 14px #d4a4ff)}}
+@keyframes mt-gem-glimmer{0%,100%{filter:drop-shadow(0 0 2px #ffc2e5);opacity:.94}50%{filter:drop-shadow(0 0 7px #ff9bd7) drop-shadow(0 0 10px #b9a5ff);opacity:1}}
+@media(prefers-reduced-motion:reduce){.dw-wings,.dw-wing-left,.dw-wing-right,.dw-wing-left-lower,.dw-wing-right-lower,.dw-center,.dw-sparkles,.dw-veins,.mt-tiara,.mt-gems,.mt-sparkles{animation:none!important}}

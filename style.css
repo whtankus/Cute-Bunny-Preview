@@ -14679,3 +14679,29 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
   .chat-page .chat-bubble-wrap>.chat-bubble,
   .home-note-memory .chat-bubble-wrap>.chat-bubble{transition:none!important}
 }
+
+
+/* Notes inline editing: instant darker feedback, without waiting for a save request. */
+.chat-bubble.is-editing {
+  background: linear-gradient(145deg, #d8a9bd, #c99bb5) !important;
+  border-color: rgba(139, 76, 111, .42) !important;
+  color: #482b3d !important;
+  box-shadow: inset 0 2px 7px rgba(92, 43, 69, .18), 0 5px 15px rgba(122, 70, 100, .12) !important;
+  transition: background-color .12s ease, box-shadow .12s ease, border-color .12s ease !important;
+}
+.chat-bubble.is-editing .chat-message-text {
+  display: inline-block;
+  min-width: 2ch;
+  outline: none;
+  cursor: text;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.chat-bubble.is-editing .chat-message-text:focus { caret-color: #713d5a; }
+.chat-actions-popup .edit-btn { border-color: rgba(166, 112, 143, .28); }
+.chat-actions-popup .edit-save-btn { background: #8b5877; color: #fff; border-color: #8b5877; }
+@media(prefers-reduced-motion:reduce) {
+  .chat-bubble.is-editing { transition: none !important; }
+}

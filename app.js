@@ -2711,6 +2711,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const messageText = esc(m.text || '');
   const createdAt = m.createdAt || m.created_at || '';
   const time = esc(formatNoteClock(createdAt));
+  const editedLabel = m.edited_at ? '<small class="chat-edited-label">Edited</small>' : '';
   const senderTag = mine ? 'div' : 'button';
   const senderAttrs = mine ? '' : `type="button" data-friend-profile="${handle}" data-friend-id="${esc(ownerId)}" aria-label="Open ${name}'s profile"`;
   const senderMeta = showMeta ? `
@@ -2733,7 +2734,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
       <div class="chat-message-content">
         ${senderMeta}
         <div class="chat-message-line">
-          <time class="chat-message-time" datetime="${esc(createdAt)}">${time}</time>
+          <time class="chat-message-time" datetime="${esc(createdAt)}">${time}</time>${editedLabel}
           <div class="chat-bubble-wrap">
             <div class="chat-bubble${hasHeartReaction ? '' : ' no-heart-reaction'}${isShortMessage ? ' is-short-message' : ''}" tabindex="0" data-chat-message-id="${esc(id)}" aria-label="Message from ${name}">
               ${heartButton}

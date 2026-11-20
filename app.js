@@ -2475,7 +2475,8 @@ async function toggleNoteReaction(memoryId, emoji) {
   const previous = (item.reactions || []).map(reaction => ({ ...reaction }));
   const current = item.reactions || [];
   const existing = current.find(reaction => reaction.emoji === emoji);
-  if (existing?.mine) {
+  const wasMine = !!existing?.mine;
+  if (wasMine) {
     existing.count = Math.max(0, existing.count - 1);
     existing.mine = false;
     item.reactions = current.filter(reaction => reaction.count > 0);
@@ -2487,7 +2488,7 @@ async function toggleNoteReaction(memoryId, emoji) {
   }
   if (page === 'notes') renderNotesPage(); else if (page === 'home') render();
   try {
-    const result = existing?.mine
+    const result = wasMine
       ? await sb.from('memory_reactions').delete().eq('memory_id', Number(memoryId)).eq('user_id', me.id).eq('emoji', emoji)
       : await sb.from('memory_reactions').insert({ memory_id: Number(memoryId), user_id: me.id, emoji });
     if (result.error) throw result.error;
@@ -3796,7 +3797,7 @@ function showMessageActions(id, bubbleElement) {
   popup.setAttribute('role', 'toolbar');
   popup.setAttribute('aria-label', 'Message options');
   popup.innerHTML = `
-    <div class="chat-quick-reactions" aria-label="Quick reactions">${['❤️','😂','🥰','😮','😢','👏'].map(emoji => `<button type="button" class="chat-quick-reaction" data-note-reaction="${emoji}" data-memory-id="${esc(id)}" aria-label="React ${emoji}">${emoji}</button>`).join('')}</div>
+    ${!ownsMessage ? `<div class="chat-quick-reactions" aria-label="Quick reactions">${['❤️','😂','🥰','😮','😢','👏'].map(emoji => `<button type="button" class="chat-quick-reaction" data-note-reaction="${emoji}" data-memory-id="${esc(id)}" aria-label="React ${emoji}">${emoji}</button>`).join('')}</div>` : ''}
     <button type="button" class="chat-action-btn reply-btn" data-chat-reply="${esc(id)}">Reply</button>
     ${ownsMessage ? `<button type="button" class="chat-action-btn edit-btn" data-chat-edit="${esc(id)}">Edit</button><button type="button" class="chat-action-btn" data-chat-history="${esc(id)}">History</button>` : ''}
     <button type="button" class="chat-action-btn" data-chat-copy="${esc(id)}">Copy</button>
@@ -5798,7 +5799,7 @@ document.addEventListener('click', async e => {
   if (replyBtn) {
     replyingToMessageId = String(replyBtn.dataset.chatReply);
     hideMessageActions();
-    renderNotesPage();
+    if (page !== 'notes') go('notes'); else renderNotesPage();
     const input = $('#chatInput');
     input?.focus({ preventScroll: true });
     syncNotesKeyboardLayout();

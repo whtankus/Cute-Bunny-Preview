@@ -44,6 +44,8 @@ let typingHeartbeatTimer = null, typingStopTimer = null, typingActive = false, t
 let notesTypingChannelReady = false, notesTypingQueuedState = null;
 const remoteTypingUsers = new Map();
 let activeMessageActionsId = null;
+let replyingToMessageId = null;
+const noteReactionInFlight = new Set();
 let hiddenNoteIds = new Set();
 let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
@@ -2654,6 +2656,9 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const seenReceipt = showSeen && mine && Number(m.seen_by_count || 0) > 0
     ? '<small class="chat-seen-receipt" data-seen-at="' + esc(m.last_seen_at || '') + '" aria-label="' + esc(seenLabel) + '">' + esc(seenLabel) + '</small>'
     : '';
+  const replyTarget = m.reply_to_id ? feed.find(item => String(item.id) === String(m.reply_to_id)) : null;
+  const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to replied message"><b>${esc(replyTarget?.author?.displayName || replyTarget?.author?.display_name || replyTarget?.author?.username || 'Original message')}</b><span>${esc(replyTarget?.text || 'Original message unavailable')}</span></button>` : '';
+  const reactionMarkup = (m.reactions || []).length ? `<div class="chat-message-reactions" aria-label="Message reactions">${m.reactions.map(reaction => `<button type="button" class="chat-reaction-chip${reaction.mine ? ' is-mine' : ''}" data-note-reaction="${esc(reaction.emoji)}" data-memory-id="${esc(id)}" ${!mine || reaction.mine ? '' : 'disabled'} aria-label="${esc(reaction.emoji)} ${Number(reaction.count) || 0} reactions">${esc(reaction.emoji)} <small>${Number(reaction.count) || 0}</small></button>`).join('')}</div>` : '';
 
   return `
     <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}">
@@ -2664,8 +2669,10 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
           <div class="chat-bubble-wrap">
             <div class="chat-bubble${hasHeartReaction ? '' : ' no-heart-reaction'}${isShortMessage ? ' is-short-message' : ''}" tabindex="0" data-chat-message-id="${esc(id)}" aria-label="Message from ${name}">
               ${heartButton}
+              ${replyMarkup}
               <span class="chat-message-text" dir="auto">${messageText}</span>
             </div>
+            ${reactionMarkup}
           </div>
         </div>
       </div>
@@ -2815,6 +2822,16 @@ function renderNotesPage(options = {}) {
           const desiredText = desiredNode.querySelector('.chat-message-text')?.textContent;
           const currentText = current.querySelector('.chat-message-text');
           if (currentText && desiredText != null && currentText.textContent !== desiredText) currentText.textContent = desiredText;
+          const desiredReply = desiredNode.querySelector('.chat-reply-preview');
+          const currentReply = current.querySelector('.chat-reply-preview');
+          if (desiredReply && currentReply) { currentReply.innerHTML = desiredReply.innerHTML; currentReply.dataset.chatJump = desiredReply.dataset.chatJump; }
+          else if (desiredReply && !currentReply) current.querySelector('.chat-bubble')?.prepend(desiredReply);
+          else if (!desiredReply && currentReply) currentReply.remove();
+          const desiredReactions = desiredNode.querySelector('.chat-message-reactions');
+          const currentReactions = current.querySelector('.chat-message-reactions');
+          if (desiredReactions && currentReactions) currentReactions.replaceWith(desiredReactions);
+          else if (desiredReactions && !currentReactions) current.querySelector('.chat-bubble-wrap')?.append(desiredReactions);
+          else if (!desiredReactions && currentReactions) currentReactions.remove();
           const desiredTime = desiredNode.querySelector('.chat-message-time');
           const currentTime = current.querySelector('.chat-message-time');
           if (desiredTime && currentTime && currentTime.dateTime !== desiredTime.dateTime) {
@@ -2884,6 +2901,7 @@ function renderNotesPage(options = {}) {
       </div>
       <form id="chatComposer" class="chat-composer" autocomplete="off">
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
+        <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}>${replyingToMessageId ? `<span>Replying to <b>${esc((feed.find(item => String(item.id) === String(replyingToMessageId))?.author?.displayName || feed.find(item => String(item.id) === String(replyingToMessageId))?.author?.username || 'message'))}</b></span><small>${esc(feed.find(item => String(item.id) === String(replyingToMessageId))?.text || '')}</small>` : ''}<button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button></div>
         <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
         <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
       </form>
@@ -3711,7 +3729,9 @@ function showMessageActions(id, bubbleElement) {
   popup.setAttribute('role', 'toolbar');
   popup.setAttribute('aria-label', 'Message options');
   popup.innerHTML = `
-    ${ownsMessage ? `<button type="button" class="chat-action-btn edit-btn" data-chat-edit="${esc(id)}">Edit</button>` : ''}
+    <div class="chat-quick-reactions" aria-label="Quick reactions">${['❤️','😂','🥰','😮','😢','👏'].map(emoji => `<button type="button" class="chat-quick-reaction" data-note-reaction="${emoji}" data-memory-id="${esc(id)}" aria-label="React ${emoji}">${emoji}</button>`).join('')}</div>
+    <button type="button" class="chat-action-btn reply-btn" data-chat-reply="${esc(id)}">Reply</button>
+    ${ownsMessage ? `<button type="button" class="chat-action-btn edit-btn" data-chat-edit="${esc(id)}">Edit</button><button type="button" class="chat-action-btn" data-chat-history="${esc(id)}">History</button>` : ''}
     <button type="button" class="chat-action-btn" data-chat-copy="${esc(id)}">Copy</button>
     <button type="button" class="chat-action-btn delete-btn" ${ownsMessage ? 'data-chat-delete' : 'data-chat-hide'}="${esc(id)}">Delete</button>
   `;
@@ -3912,12 +3932,14 @@ async function sendChatMessage() {
   const field = $('#chatInput');
   const text = field?.value.trim();
   if (!text) return;
+  const replyId = replyingToMessageId;
   const tempId = 'local-note-' + Date.now();
   const createdAt = new Date().toISOString();
   const optimistic = {
     id: tempId,
     kind: 'note',
     text,
+    reply_to_id: replyId ? Number(replyId) : null,
     createdAt,
     created_at: createdAt,
     isPending: true,
@@ -3944,17 +3966,19 @@ async function sendChatMessage() {
 
   try {
     const { data: saved, error: sendError } = await sb.from('memories')
-      .insert({ owner_id: me.id, kind: 'note', text })
-      .select('id,owner_id,kind,text,created_at')
+      .insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
+      .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at')
       .single();
     if (sendError) throw sendError;
     recordStreakNoteQuest(text);
+    if (replyingToMessageId === replyId) replyingToMessageId = null;
     const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
     feed = feed.map(m => String(m.id) === tempId ? record : m);
     renderNotesPage({ followLatest: true });
     refocusComposer();
   } catch (error) {
     feed = feed.filter(m => String(m.id) !== tempId);
+    if (replyId) replyingToMessageId = replyId;
     renderNotesPage({ followLatest: true });
     refocusComposer(true);
     toast(error.message);
@@ -4561,6 +4585,20 @@ function startRealtime() {
       });
 
     memoryChannel = sb.channel('cute-bunny-memories-' + me.id)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'memories' }, payload => {
+        const updated = payload?.new || {};
+        const item = feed.find(memory => String(memory.id) === String(updated.id));
+        if (item) Object.assign(item, updated);
+        if (page === 'notes') renderNotesPage();
+        else if (page === 'home') render();
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'memories' }, payload => {
+        const removedId = String(payload?.old?.id || '');
+        if (!removedId) return;
+        feed = feed.filter(memory => String(memory.id) !== removedId);
+        if (page === 'notes') renderNotesPage();
+        else if (page === 'home') render();
+      })
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'memories' }, payload => {
         const incoming = payload?.new || {};
         if (incoming.kind === 'note' && String(incoming.owner_id || '') !== String(me.id)) {
@@ -4587,6 +4625,10 @@ function startRealtime() {
             console.warn('Live Notes update could not refresh the feed:', error?.message || error);
           }
         }, 0);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'memory_reactions' }, () => {
+        clearTimeout(window.cuteMemoryReactionsRefresh);
+        window.cuteMemoryReactionsRefresh = setTimeout(() => { void refreshMemoryReactions(); }, 45);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'memory_likes' }, () => {
         clearTimeout(window.cuteMemoryLikesRefresh);
@@ -5669,9 +5711,10 @@ document.addEventListener('click', async e => {
     try {
       const { data, error } = await sb.from('memories').update({ text: nextText })
         .eq('id', id).eq('owner_id', me.id).eq('kind', 'note')
-        .select('id,text').single();
+        .select('id,text,edited_at').single();
       if (error) throw error;
       item.text = data.text;
+      item.edited_at = data.edited_at || new Date().toISOString();
       hideMessageActions();
       if (page === 'notes') renderNotesPage();
       else render();
@@ -5682,6 +5725,47 @@ document.addEventListener('click', async e => {
       toast(error.message || 'Could not update this message.');
     }
     return;
+  }
+
+  const replyBtn = e.target.closest('[data-chat-reply]');
+  if (replyBtn) {
+    replyingToMessageId = String(replyBtn.dataset.chatReply);
+    hideMessageActions();
+    renderNotesPage();
+    const input = $('#chatInput');
+    input?.focus({ preventScroll: true });
+    syncNotesKeyboardLayout();
+    return;
+  }
+  if (e.target.closest('[data-chat-reply-cancel]')) { replyingToMessageId = null; renderNotesPage(); return; }
+  const jumpReply = e.target.closest('[data-chat-jump]');
+  if (jumpReply) {
+    const target = document.querySelector(`.chat-message[data-memory="${CSS.escape(jumpReply.dataset.chatJump)}"]`);
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    target?.classList.add('chat-message-highlight');
+    setTimeout(() => target?.classList.remove('chat-message-highlight'), 1000);
+    return;
+  }
+  const reactionButton = e.target.closest('[data-note-reaction][data-memory-id]');
+  if (reactionButton) { void toggleNoteReaction(reactionButton.dataset.memoryId, reactionButton.dataset.noteReaction); return; }
+  const historyBtn = e.target.closest('[data-chat-history]');
+  if (historyBtn) {
+    const id = String(historyBtn.dataset.chatHistory);
+    const { data, error } = await sb.from('memory_edit_history').select('id,previous_text,edited_at').eq('memory_id', id).order('edited_at', { ascending: false }).limit(8);
+    if (error) { toast(error.message || 'Edit history could not be loaded.'); return; }
+    const popup = document.querySelector('.chat-actions-popup');
+    if (popup) popup.innerHTML = `<b class="chat-history-title">Previous versions</b>${(data || []).map(entry => `<div class="chat-history-entry"><span>${esc(entry.previous_text)}</span><button type="button" data-chat-restore="${esc(entry.id)}" data-memory-id="${esc(id)}">Restore</button></div>`).join('') || '<small>No earlier edits yet.</small>'}<button type="button" class="chat-action-btn" data-chat-history-close>Close</button>`;
+    return;
+  }
+  if (e.target.closest('[data-chat-history-close]')) { hideMessageActions(); return; }
+  const restoreEdit = e.target.closest('[data-chat-restore]');
+  if (restoreEdit) {
+    restoreEdit.disabled = true;
+    const { data, error } = await sb.rpc('restore_note_edit', { p_history_id: Number(restoreEdit.dataset.chatRestore) });
+    if (error) { restoreEdit.disabled = false; toast(error.message || 'This version could not be restored.'); return; }
+    const item = feed.find(memory => String(memory.id) === String(restoreEdit.dataset.memoryId));
+    if (item && data?.ok) { item.text = data.text; item.edited_at = data.edited_at; }
+    hideMessageActions(); renderNotesPage(); toast('Previous version restored ♡'); return;
   }
 
   // Chat action: Copy

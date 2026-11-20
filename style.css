@@ -14420,3 +14420,52 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
   .item-celestial-rose .sg-collectible-art svg,
   .item-divine-lotus .sg-collectible-art svg{width:66px;height:66px}
 }
+
+
+/* Final collectible polish: restore the raised 3D purchase button and normalize icon scale. */
+.sg-collectible-card>button{
+  position:relative;
+  transform:translateY(0);
+  border:1px solid #d79ab9;
+  border-bottom-width:3px;
+  border-bottom-color:#c58aa9;
+  border-radius:12px;
+  background:linear-gradient(180deg,#fff5fa 0%,#f6dce9 58%,#edc9dc 100%);
+  color:#78445f;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 2px 0 rgba(190,130,162,.32),0 5px 10px rgba(165,104,139,.13);
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+.sg-collectible-card>button:not(:disabled):hover{
+  transform:translateY(-1px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 3px 0 rgba(190,130,162,.32),0 7px 13px rgba(165,104,139,.18);
+}
+.sg-collectible-card>button:not(:disabled):active{
+  transform:translateY(2px);
+  border-bottom-width:1px;
+  box-shadow:inset 0 2px 4px rgba(150,91,126,.12),0 1px 2px rgba(165,104,139,.12);
+}
+.sg-collectible-card>button:disabled{
+  opacity:.62;
+  color:#98778a;
+  border-color:#e2c3d3;
+  border-bottom-width:3px;
+  border-bottom-color:#d6b2c6;
+  background:linear-gradient(180deg,#fbf0f6 0%,#f2e0ea 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 2px 0 rgba(202,164,187,.3),0 4px 8px rgba(165,104,139,.08);
+  cursor:not-allowed;
+}
+.item-celestial-rose .sg-collectible-art svg,
+.item-divine-lotus .sg-collectible-art svg{
+  width:64px;
+  height:64px;
+  transform:scale(.84);
+  transform-origin:50% 50%;
+}
+@media(max-width:380px){
+  .item-celestial-rose .sg-collectible-art svg,
+  .item-divine-lotus .sg-collectible-art svg{
+    width:60px;
+    height:60px;
+    transform:scale(.84);
+  }
+}

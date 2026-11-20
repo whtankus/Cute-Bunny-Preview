@@ -14618,3 +14618,20 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 @media(prefers-reduced-motion:reduce){
   .mt-tiara{animation:none!important}
 }
+
+/* Aurora Butterfly Badge — animated legendary wearable */
+.ab-aura{transform-box:fill-box;transform-origin:center;animation:ab-aura-breathe 4.4s ease-in-out infinite}
+.ab-wings{transform-box:fill-box;transform-origin:center;animation:ab-wing-glow 3.8s ease-in-out infinite}
+.ab-wing-left{transform-box:fill-box;transform-origin:29px 32px;animation:ab-wing-left 3.8s ease-in-out infinite}
+.ab-wing-right{transform-box:fill-box;transform-origin:35px 32px;animation:ab-wing-right 3.8s ease-in-out infinite}
+.ab-wing-left-lower{transform-box:fill-box;transform-origin:28px 39px;animation:ab-wing-left 4.2s ease-in-out infinite reverse}
+.ab-wing-right-lower{transform-box:fill-box;transform-origin:36px 39px;animation:ab-wing-right 4.2s ease-in-out infinite reverse}
+.ab-gems{transform-box:fill-box;transform-origin:center;animation:ab-gem-shimmer 2.5s ease-in-out infinite}
+.ab-sparkles{transform-box:fill-box;transform-origin:center;animation:dw-sparkle-drift 3s ease-in-out infinite}
+.ab-veins{animation:dw-vein-shimmer 3.4s ease-in-out infinite}
+@keyframes ab-aura-breathe{0%,100%{opacity:.65;transform:scale(.96)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes ab-wing-left{0%,100%{transform:rotate(-1deg) scale(1)}50%{transform:rotate(-3deg) scale(1.035)}}
+@keyframes ab-wing-right{0%,100%{transform:rotate(1deg) scale(1)}50%{transform:rotate(3deg) scale(1.035)}}
+@keyframes ab-wing-glow{0%,100%{filter:drop-shadow(0 0 3px #a6eaff)}50%{filter:drop-shadow(0 0 8px #9cecff) drop-shadow(0 0 13px #c6a5ff)}}
+@keyframes ab-gem-shimmer{0%,100%{filter:drop-shadow(0 0 2px #d9c6ff);opacity:.82}50%{filter:drop-shadow(0 0 7px #fff) drop-shadow(0 0 11px #9feaff);opacity:1}}
+@media(prefers-reduced-motion:reduce){.ab-aura,.ab-wings,.ab-wing-left,.ab-wing-right,.ab-wing-left-lower,.ab-wing-right-lower,.ab-gems,.ab-sparkles,.ab-veins{animation:none!important}}

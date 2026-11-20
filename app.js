@@ -1416,6 +1416,7 @@ function updateGardenPetalBalance() {
 async function buyGardenCollectible(id) {
   const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
   if (!item || !me || gardenPurchaseInFlight) return;
+  let pendingPurchaseKey = '';
   gardenPurchaseInFlight = true;
   const buttons = [...document.querySelectorAll('[data-buy-collectible]')];
   buttons.forEach(button => { button.disabled = true; button.setAttribute('aria-busy', 'true'); });
@@ -1441,7 +1442,9 @@ async function buyGardenCollectible(id) {
       toast('You need ' + (item.cost - currentBalance) + ' more Petal Points.');
       return;
     }
-    if (!awardPetalReward('purchase:' + id, -item.cost, false)) {
+    pendingPurchaseKey = 'purchase:' + id;
+    if (!awardPetalReward(pendingPurchaseKey, -item.cost, false)) {
+      pendingPurchaseKey = '';
       toast('This item purchase is already recorded.');
       return;
     }
@@ -1464,6 +1467,13 @@ async function buyGardenCollectible(id) {
     updateGardenPetalBalance();
     toast(item.name + ' purchased and equipped!');
   } catch (error) {
+    if (pendingPurchaseKey) {
+      const pendingRewards = readPetalRewards();
+      if (pendingRewards[pendingPurchaseKey] === -item.cost) {
+        pendingRewards[pendingPurchaseKey] = 0;
+        try { localStorage.setItem(streakStorageKey('petal-rewards'), JSON.stringify(pendingRewards)); } catch {}
+      }
+    }
     console.error('Garden shop action failed:', error?.message || error);
     toast(error?.message || 'The shop could not complete that action. Please try again.');
   } finally {

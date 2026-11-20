@@ -1286,7 +1286,7 @@ function gardenIllustration(kind) {
 <linearGradient id="mtGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffde7"/><stop offset=".25" stop-color="#ffe7a6"/><stop offset=".58" stop-color="#e7b85f"/><stop offset="1" stop-color="#95612f"/></linearGradient>
 <linearGradient id="mtPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8ff"/><stop offset=".48" stop-color="#f4b9e3"/><stop offset="1" stop-color="#b95eaa"/></linearGradient>
 <linearGradient id="mtViolet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#d5c5ff"/><stop offset="1" stop-color="#7566b8"/></linearGradient>
-<radialGradient id="mtMoon"><stop stop-color="#fff"/><stop offset=".55" stop-color="#fff0bd"/><stop offset="1" stop-color="#d39c4b"/></radialGradient>
+
 <filter id="mtGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/><feFlood flood-color="#ff9bd3" flood-opacity="1" result="pink"/><feComposite in="pink" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <filter id="mtGemGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="blur"/><feFlood flood-color="#e1b2ff" flood-opacity="1" result="light"/><feComposite in="light" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
@@ -1299,9 +1299,9 @@ function gardenIllustration(kind) {
 <path d="M11 40c10-8 32-8 42 0M13 44c11 5 27 5 38 0" fill="none" stroke="#fff8d9" stroke-width="1.35"/>
 <path d="M10 39 6 22l15 13m33 4 4-17-15 13" fill="url(#mtGold)" stroke="#a9783d" stroke-width="1.6" stroke-linejoin="round"/>
 <path d="M20 32 16 14l13 12m15 6 4-18-13 12" fill="none" stroke="#f8e6ae" stroke-width="1.8" stroke-linecap="round"/>
-<path d="M32 5c-10 8-12 21 0 30C44 26 42 13 32 5Z" fill="url(#mtMoon)" stroke="#a9783d" stroke-width="1.7"/>
-<path d="M36 10c-8 8-7 17 1 21-10 0-15-10-9-18 2-3 5-4 8-3Z" fill="#fffdf0" opacity=".96"/>
-<path d="M32 8v-3m-2 0h4" stroke="#fff9d8" stroke-width="1.2" stroke-linecap="round"/>
+<path d="m32 7 5 6-5 7-5-7Z" fill="url(#mtPink)" stroke="#a95b99" stroke-width="1.35" stroke-linejoin="round"/>
+<path d="m32 9 0 9m-2-6 2 2 2-2" fill="none" stroke="#fff" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="32" cy="13" r="1.2" fill="#fff8ff"/>
 </g>
 <g class="mt-filigree" fill="none" stroke="url(#mtGold)" stroke-width="1.45" stroke-linecap="round">
 <path d="M14 36q-7-10 0-16 6-3 9 5m27 11q7-10 0-16-6-3-9 5"/>

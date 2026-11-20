@@ -1211,6 +1211,7 @@ async function loadFriendGardenCollection(user, isOwnProfile) {
   renderFriendGardenCollection(collection, user.id, isOwnProfile);
 }
 
+let gardenIllustrationSequence = 0;
 function gardenIllustration(kind) {
   const art = {
     'pink-tulips':'<path d="M32 53V34m0 12c-12-13-20-5-15 2 5 5 11 3 15-2Zm0-8c12-13 20-5 15 2-5 5-11 3-15-2Z" fill="#91ad83" stroke="#718f70" stroke-width="2"/><path d="M32 34c-13-3-13-18-3-20 0-9 13-9 14 0 10 3 8 18-5 20Z" fill="#e9a1b8" stroke="#bd7895" stroke-width="2"/><path d="M32 34c-7-8-5-16 1-20 7 5 7 13-1 20Z" fill="#f7c7d5"/>',
@@ -1232,23 +1233,29 @@ function gardenIllustration(kind) {
     'crystal-dew':'<path d="M32 8 49 28 32 56 15 28Z" fill="#c9e9f4" stroke="#78b6c9" stroke-width="2.5"/><path d="m32 8 1 48M15 28h34M32 8 23 28l9 28 9-28Z" fill="#f6ffff" fill-opacity=".48" stroke="#fff" stroke-width="1.4"/><path d="m12 13 3-6 3 6 6 3-6 3-3 6-3-6-6-3Zm39 31 2-4 2 4 4 2-4 2-2 4-2-4-4-2Z" fill="#fff0b8"/>',
     'aurora-fountain':'<path d="M13 43h38l-5 12H18Z" fill="#b9a5dc" stroke="#8874b5" stroke-width="2.5"/><path d="M19 42c-7-11 1-19 7-10 2-16 13-17 14-1 8-7 13 3 5 11" fill="none" stroke="#8ed8d0" stroke-width="4" stroke-linecap="round"/><path d="M26 40c-4-10 2-17 7-10 2-11 9-10 10 0" fill="none" stroke="#d4b7f4" stroke-width="3" stroke-linecap="round"/><circle cx="32" cy="18" r="4" fill="#fff0b8"/><path d="m12 18 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm38 4 2-4 2 4 4 2-4 2-2 4-2-4-4-2Z" fill="#fff"/>',
     'moon-bunny-hood':'<path d="M20 43 15 13c-1-8 8-10 12-2l5 12 5-12c4-8 13-6 12 2l-5 30Z" fill="#b9a9e5" stroke="#8977b5" stroke-width="2.5"/><path d="M22 39c4-10 16-14 25-3l-4 12H24Z" fill="#f7eafa" stroke="#b49bcf" stroke-width="2"/><path d="M28 39q4-4 8 0m-8 5h8" fill="none" stroke="#a47eaa" stroke-width="2" stroke-linecap="round"/><path d="m35 12 2 4 4 1-4 2-2 4-2-4-4-2 4-1Z" fill="#fff0b8"/>',
-    'celestial-rose':'<path d="M32 54V32m0 15c-13-12-20-4-14 3 5 4 10 2 14-3Z" fill="#8eae88" stroke="#688d72" stroke-width="2"/><g fill="#e9a8ce" stroke="#b77fa8" stroke-width="1.8"><ellipse cx="32" cy="20" rx="7" ry="15"/><ellipse cx="32" cy="20" rx="7" ry="15" transform="rotate(60 32 20)"/><ellipse cx="32" cy="20" rx="7" ry="15" transform="rotate(120 32 20)"/></g><circle cx="32" cy="20" r="7" fill="#ffe6a6" stroke="#c9a45e" stroke-width="1.5"/><path d="m10 19 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm42 13 2-4 2 4 4 2-4 2-2 4-2-4-4-2Z" fill="#fff"/>'
+    'celestial-rose':'<defs><linearGradient id="rosePetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0f7"/><stop offset=".48" stop-color="#e98fbd"/><stop offset="1" stop-color="#a85b9d"/></linearGradient><linearGradient id="roseLeaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d5edbd"/><stop offset="1" stop-color="#628e79"/></linearGradient><radialGradient id="roseCore"><stop stop-color="#fffbd1"/><stop offset=".58" stop-color="#f7d77f"/><stop offset="1" stop-color="#d99b57"/></radialGradient></defs><circle cx="32" cy="27" r="24" fill="#fff4cf" opacity=".18"/><path d="M32 57V31" stroke="#648d75" stroke-width="3" stroke-linecap="round"/><path d="M31 48C13 34 8 48 19 52c5 2 9-1 12-4Zm2-7c17-15 22-2 12 4-5 3-9 0-12-4Z" fill="url(#roseLeaf)" stroke="#5f896f" stroke-width="1.5"/><g fill="url(#rosePetal)" stroke="#b66f9e" stroke-width="1.2"><ellipse cx="32" cy="23" rx="7.3" ry="17"/><ellipse cx="32" cy="23" rx="7.3" ry="17" transform="rotate(45 32 23)"/><ellipse cx="32" cy="23" rx="7.3" ry="17" transform="rotate(90 32 23)"/><ellipse cx="32" cy="23" rx="7.3" ry="17" transform="rotate(135 32 23)"/></g><g fill="#f8c6df" stroke="#c57eaa" stroke-width="1"><ellipse cx="32" cy="23" rx="5.4" ry="12" transform="rotate(22 32 23)"/><ellipse cx="32" cy="23" rx="5.4" ry="12" transform="rotate(82 32 23)"/><ellipse cx="32" cy="23" rx="5.4" ry="12" transform="rotate(142 32 23)"/></g><circle cx="32" cy="23" r="6.3" fill="url(#roseCore)" stroke="#c99a55" stroke-width="1.2"/><circle cx="30" cy="21" r="1.3" fill="#fff"/><g fill="#fff6d6"><path d="m10 17 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm43 17 1.7-4 1.7 4 4 1.7-4 1.7-1.7 4-1.7-4-4-1.7Z"/><circle cx="49" cy="9" r="1.5"/><circle cx="14" cy="39" r="1.2"/></g>',
+    'divine-lotus':'<defs><linearGradient id="lotusPetal" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#fffaff"/><stop offset=".42" stop-color="#e5d6ff"/><stop offset="1" stop-color="#9e83d2"/></linearGradient><linearGradient id="lotusPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff1fa"/><stop offset="1" stop-color="#d78fbd"/></linearGradient><radialGradient id="lotusPearl"><stop stop-color="#fffbdc"/><stop offset=".65" stop-color="#f5d68e"/><stop offset="1" stop-color="#c99b55"/></radialGradient></defs><ellipse cx="32" cy="53" rx="23" ry="5" fill="#a8d9d3" opacity=".45"/><path d="M32 48c-14-13-24-6-19 1 5 6 13 4 19-1Zm0 0c14-13 24-6 19 1-5 6-13 4-19-1Z" fill="#82b9a1" stroke="#5f967e" stroke-width="1.5"/><g fill="url(#lotusPetal)" stroke="#a28bc9" stroke-width="1.1"><ellipse cx="32" cy="29" rx="6.4" ry="23"/><ellipse cx="32" cy="29" rx="6.4" ry="23" transform="rotate(30 32 29)"/><ellipse cx="32" cy="29" rx="6.4" ry="23" transform="rotate(60 32 29)"/><ellipse cx="32" cy="29" rx="6.4" ry="23" transform="rotate(90 32 29)"/><ellipse cx="32" cy="29" rx="6.4" ry="23" transform="rotate(120 32 29)"/><ellipse cx="32" cy="29" rx="6.4" ry="23" transform="rotate(150 32 29)"/></g><g fill="url(#lotusPink)" stroke="#bd83b0" stroke-width=".9"><ellipse cx="32" cy="31" rx="4.5" ry="14"/><ellipse cx="32" cy="31" rx="4.5" ry="14" transform="rotate(45 32 31)"/><ellipse cx="32" cy="31" rx="4.5" ry="14" transform="rotate(90 32 31)"/><ellipse cx="32" cy="31" rx="4.5" ry="14" transform="rotate(135 32 31)"/></g><circle cx="32" cy="29" r="5.5" fill="url(#lotusPearl)" stroke="#c59a59" stroke-width="1.2"/><g fill="#fff7d9"><path d="m11 19 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm42 4 1.5-3.5L56 23l3.5 1.5L56 26l-1.5 3.5L53 26l-3.5-1.5Z"/><circle cx="49" cy="11" r="1.5"/><circle cx="14" cy="39" r="1.2"/></g>'
   };
-  return '<svg viewBox="0 0 64 64" role="img" focusable="false" aria-hidden="true">' + (art[kind] || art['pink-tulips']) + '</svg>';
+  const prefix = 'garden-art-' + (++gardenIllustrationSequence) + '-';
+  const illustration = (art[kind] || art['pink-tulips'])
+    .replace(/id="([^"]+)"/g, 'id="' + prefix + '$1"')
+    .replace(/url\(#([^\)]+)\)/g, 'url(#' + prefix + '$1)');
+  return '<svg viewBox="0 0 64 64" role="img" focusable="false" aria-hidden="true">' + illustration + '</svg>';
 }
 
 const GARDEN_COLLECTIBLES = [
-  {id:'pink-tulips',name:'Pink Tulip Patch',art:gardenIllustration('pink-tulips'),cost:30,type:'garden',rarity:'common'},
+  {id:'pink-tulips',name:'Pink Tulips',art:gardenIllustration('pink-tulips'),cost:30,type:'garden',rarity:'common'},
   {id:'moon-lantern',name:'Moon Lantern',art:gardenIllustration('moon-lantern'),cost:45,type:'garden',rarity:'common'},
   {id:'tiny-mushroom',name:'Tiny Mushroom',art:gardenIllustration('tiny-mushroom'),cost:60,type:'garden',rarity:'common'},
-  {id:'golden-bell',name:'Golden Garden Bell',art:gardenIllustration('golden-bell'),cost:80,type:'garden',rarity:'rare'},
-  {id:'bunny-bow',name:'Blush Bunny Bow',art:gardenIllustration('bunny-bow'),cost:35,type:'bunny',rarity:'common'},
+  {id:'golden-bell',name:'Golden Bell',art:gardenIllustration('golden-bell'),cost:80,type:'garden',rarity:'rare'},
+  {id:'bunny-bow',name:'Blush Bow',art:gardenIllustration('bunny-bow'),cost:35,type:'bunny',rarity:'common'},
   {id:'flower-crown',name:'Flower Crown',art:gardenIllustration('flower-crown'),cost:65,type:'bunny',rarity:'rare'},
-  {id:'starry-hat',name:'Starry Night Hat',art:gardenIllustration('starry-hat'),cost:90,type:'bunny',rarity:'rare'},
+  {id:'starry-hat',name:'Starry Hat',art:gardenIllustration('starry-hat'),cost:90,type:'bunny',rarity:'rare'},
   {id:'crystal-dew',name:'Crystal Dew',art:gardenIllustration('crystal-dew'),cost:120,type:'garden',rarity:'rare'},
   {id:'aurora-fountain',name:'Aurora Fountain',art:gardenIllustration('aurora-fountain'),cost:180,type:'garden',rarity:'epic'},
-  {id:'moon-bunny-hood',name:'Moon Bunny Hood',art:gardenIllustration('moon-bunny-hood'),cost:220,type:'bunny',rarity:'epic'},
-  {id:'celestial-rose',name:'Celestial Rose',art:gardenIllustration('celestial-rose'),cost:300,type:'garden',rarity:'legendary'}
+  {id:'moon-bunny-hood',name:'Moon Hood',art:gardenIllustration('moon-bunny-hood'),cost:220,type:'bunny',rarity:'epic'},
+  {id:'celestial-rose',name:'Celestial Rose',art:gardenIllustration('celestial-rose'),cost:300,type:'garden',rarity:'legendary'},
+  {id:'divine-lotus',name:'Divine Lotus',art:gardenIllustration('divine-lotus'),cost:450,type:'garden',rarity:'legendary'}
 ];
 async function buyGardenCollectible(id) {
   const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
@@ -1799,7 +1806,7 @@ function renderStreakPage() {
       const owned = collection.owned.includes(item.id);
       const equipped = (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id;
       const affordable = petalRewardBalance(petalRewards) >= item.cost;
-      return '<article class="sg-collectible-card rarity-' + item.rarity + (equipped ? ' is-equipped' : '') + '" data-rarity="' + item.rarity + '"><span class="sg-collectible-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><b>' + item.name + '</b><small>' + (item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)) + ' · ' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
+      return '<article class="sg-collectible-card item-' + item.id + ' rarity-' + item.rarity + (equipped ? ' is-equipped' : '') + '" data-rarity="' + item.rarity + '"><span class="sg-collectible-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><b>' + item.name + '</b><small>' + (item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)) + ' · ' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
     }).join('') + '</div><div class="sg-equipped-summary">Garden: ' + (GARDEN_COLLECTIBLES.find(item => item.id === collection.equipped)?.name || 'Original look') + ' · Bunny: ' + (GARDEN_COLLECTIBLES.find(item => item.id === collection.bunny)?.name || 'Original look') + '</div></section>';
   const weeklyProgress = getWeeklyBloomProgress(todayKey);
   const weeklyTiers = [{days:3,points:30,title:'Little Bloom',art:gardenIllustration('bloom-3')},{days:5,points:50,title:'Garden Glow',art:gardenIllustration('bloom-5')},{days:7,points:100,title:'Full Bloom',art:gardenIllustration('bloom-7')}];

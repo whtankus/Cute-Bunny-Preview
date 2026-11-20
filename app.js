@@ -1368,52 +1368,7 @@ function gardenIllustration(kind) {
 <path d="m18 7 1.2-3 1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2Zm27 4 1.3-3.2 1.3 3.2 3.2 1.3-3.2 1.3-1.3 3.2-1.3-3.2-3.2-1.3Z"/>
 <circle cx="12" cy="53" r="1.4"/><circle cx="51" cy="52" r="1.2"/><circle cx="32" cy="8" r="1.1"/>
 </g>`,
-    'moon-goddess-tiara':`<defs>
-<radialGradient id="mtAura"><stop stop-color="#f8b5df" stop-opacity=".72"/><stop offset=".52" stop-color="#c8a5ff" stop-opacity=".34"/><stop offset="1" stop-color="#c8a5ff" stop-opacity="0"/></radialGradient>
-<linearGradient id="mtGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffde7"/><stop offset=".25" stop-color="#ffe7a6"/><stop offset=".58" stop-color="#e7b85f"/><stop offset="1" stop-color="#95612f"/></linearGradient>
-<linearGradient id="mtPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8ff"/><stop offset=".48" stop-color="#f4b9e3"/><stop offset="1" stop-color="#b95eaa"/></linearGradient>
-<linearGradient id="mtViolet" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".48" stop-color="#d5c5ff"/><stop offset="1" stop-color="#7566b8"/></linearGradient>
 
-<filter id="mtGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/><feFlood flood-color="#ff9bd3" flood-opacity="1" result="pink"/><feComposite in="pink" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<filter id="mtGemGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="blur"/><feFlood flood-color="#e1b2ff" flood-opacity="1" result="light"/><feComposite in="light" in2="blur" operator="in" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-</defs>
-<circle cx="32" cy="31" r="30" fill="url(#mtAura)" class="mt-aura"/>
-<circle cx="32" cy="31" r="26" fill="none" stroke="#fff5ff" stroke-width=".8" stroke-dasharray="1 3" opacity=".7" class="mt-orbit"/>
-<circle cx="32" cy="31" r="20" fill="none" stroke="#ffd9f2" stroke-width=".65" opacity=".5"/>
-<circle cx="32" cy="31" r="23" fill="none" stroke="#fff7dc" stroke-opacity=".3" stroke-width=".7" stroke-dasharray="1.5 3"/>
-<g class="mt-artwork"><g class="mt-tiara" filter="url(#mtGlow)">
-<path d="M7 42c5-12 13-17 25-17s20 5 25 17c-13 9-37 9-50 0Z" fill="url(#mtGold)" stroke="#98632f" stroke-width="1.7" stroke-linejoin="round"/>
-<path d="M11 40c10-8 32-8 42 0M13 44c11 5 27 5 38 0" fill="none" stroke="#fff8d9" stroke-width="1.35"/>
-<path d="M10 39 6 22l15 13m33 4 4-17-15 13" fill="url(#mtGold)" stroke="#a9783d" stroke-width="1.6" stroke-linejoin="round"/>
-<path d="M20 32 16 14l13 12m15 6 4-18-13 12" fill="none" stroke="#f8e6ae" stroke-width="1.8" stroke-linecap="round"/>
-<path d="m32 7 5 6-5 7-5-7Z" fill="url(#mtPink)" stroke="#a95b99" stroke-width="1.35" stroke-linejoin="round"/>
-<path d="m32 9 0 9m-2-6 2 2 2-2" fill="none" stroke="#fff" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="32" cy="13" r="1.2" fill="#fff8ff"/>
-</g>
-<g class="mt-filigree" fill="none" stroke="url(#mtGold)" stroke-width="1.45" stroke-linecap="round">
-<path d="M14 36q-7-10 0-16 6-3 9 5m27 11q7-10 0-16-6-3-9 5"/>
-<path d="M22 27q-4-9 3-14m17 14q4-9-3-14M15 46q17 9 34 0"/>
-<path d="M19 33q-2-7 3-9m23 9q2-7-3-9"/>
-</g>
-<g class="mt-gems" filter="url(#mtGemGlow)">
-<path d="m32 33 7 8-7 10-7-10Z" fill="url(#mtPink)" stroke="#a95b99" stroke-width="1.35"/>
-<path d="m18 35 4-6 4 6-4 6Z" fill="url(#mtViolet)" stroke="#8c72b5" stroke-width="1.1"/>
-<path d="m38 35 4-6 4 6-4 6Z" fill="url(#mtPink)" stroke="#a95b99" stroke-width="1.1"/>
-<path d="m10 41 3-5 3 5-3 5Zm38 0 3-5 3 5-3 5Z" fill="url(#mtViolet)" stroke="#8c72b5" stroke-width="1"/>
-<path d="M32 36v10m-3-6 3 3 3-3" stroke="#fff" stroke-width="1.15" fill="none"/>
-<circle cx="32" cy="41" r="1.5" fill="#fff"/>
-</g>
-<g class="mt-celestial-dust" fill="#fff8e5">
-<circle cx="21" cy="19" r="1.2"/><circle cx="43" cy="19" r="1.2"/><circle cx="13" cy="30" r=".9"/><circle cx="51" cy="30" r=".9"/>
-</g>
-<g class="mt-crown-rays" fill="none" stroke="#fff4ff" stroke-width=".8" stroke-linecap="round">
-<path d="M32 2v5M4 29l5 1M55 29l5-1M13 8l4 5M51 8l-4 5" opacity=".72"/>
-</g>
-<g class="mt-sparkles" fill="#fffdf0">
-<path d="m7 13 1.7-4 1.7 4 4 1.7-4 1.7-1.7 4-1.7-4-4-1.7Zm47 31 1.5-3.5L57 42l3.5 1.5L57 47l-1.5-3.5L52 42Z"/>
-<path d="m18 7 1.2-3 1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2Zm28 4 1.4-3.4 1.4 3.4 3.4 1.4-3.4 1.4-1.4 3.4-1.4-3.4-3.4-1.4Z"/>
-<circle cx="12" cy="53" r="1.3"/><circle cx="50" cy="53" r="1.1"/>
-</g></g>`,
 
 
   };
@@ -1438,7 +1393,6 @@ const GARDEN_COLLECTIBLES = [
   {id:'celestial-rose',name:'Celestial Rose',art:gardenIllustration('celestial-rose'),cost:350,type:'garden',rarity:'legendary'},
   {id:'divine-lotus',name:'Divine Lotus',art:gardenIllustration('divine-lotus'),cost:350,type:'garden',rarity:'legendary'},
   {id:'dreamwing-halo',name:'Dreamwing Halo',art:gardenIllustration('dreamwing-halo'),cost:400,type:'bunny',rarity:'legendary'},
-  {id:'moon-goddess-tiara',name:'Goddess Tiara',art:gardenIllustration('moon-goddess-tiara'),cost:400,type:'bunny',rarity:'legendary'}
 ];
 function updateGardenShopItem(id, collection) {
   const normalized = normalizeGardenCollection(collection);

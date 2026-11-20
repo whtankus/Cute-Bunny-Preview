@@ -1436,14 +1436,10 @@ async function buyGardenCollectible(id) {
     const alreadyOwned = collection.owned.includes(id);
     if (alreadyOwned) {
       const equipped = new Set(collection.equippedItems || []);
-      if (equipped.has(id)) {
-        equipped.delete(id);
-      } else {
-        // Each collectible type occupies one equipment slot. Replace the previous
-        // item of that type so the newly selected item becomes the active one.
-        GARDEN_COLLECTIBLES.filter(entry => entry.type === item.type).forEach(entry => equipped.delete(entry.id));
-        equipped.add(id);
-      }
+      // Collectibles are independently equipable: selecting one must not
+      // unequip another owned decoration or style.
+      if (equipped.has(id)) equipped.delete(id);
+      else equipped.add(id);
       const normalized = normalizeGardenCollection({ ...collection, equippedItems: [...equipped] });
       if (!saveGardenCollection(normalized)) throw new Error('Could not save your collection on this device.');
       if (!await syncGardenCollectionToCloud(normalized)) throw new Error('Could not sync your collection. Please try again.');
@@ -1465,7 +1461,8 @@ async function buyGardenCollectible(id) {
     }
     collection.owned = [...new Set([...collection.owned, id])];
     const equippedAfterPurchase = new Set(collection.equippedItems || []);
-    GARDEN_COLLECTIBLES.filter(entry => entry.type === item.type).forEach(entry => equippedAfterPurchase.delete(entry.id));
+    // Newly purchased collectibles are added to the active set without
+    // replacing anything the player has already equipped.
     equippedAfterPurchase.add(id);
     collection.equippedItems = [...equippedAfterPurchase];
     const normalized = normalizeGardenCollection(collection);

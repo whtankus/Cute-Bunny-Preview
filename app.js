@@ -1292,7 +1292,7 @@ function gardenIllustration(kind) {
 </defs>
 <circle cx="32" cy="31" r="30" fill="url(#mtAura)" class="mt-aura"/>
 <circle cx="32" cy="31" r="23" fill="none" stroke="#fff7dc" stroke-opacity=".3" stroke-width=".7" stroke-dasharray="1.5 3"/>
-<g class="mt-tiara" filter="url(#mtGlow)">
+<g class="mt-artwork"><g class="mt-tiara" filter="url(#mtGlow)">
 <path d="M7 42c5-12 13-17 25-17s20 5 25 17c-13 9-37 9-50 0Z" fill="url(#mtGold)" stroke="#98632f" stroke-width="1.7" stroke-linejoin="round"/>
 <path d="M11 40c10-8 32-8 42 0M13 44c11 5 27 5 38 0" fill="none" stroke="#fff8d9" stroke-width="1.35"/>
 <path d="M10 39 6 22l15 13m33 4 4-17-15 13" fill="url(#mtGold)" stroke="#a9783d" stroke-width="1.6" stroke-linejoin="round"/>
@@ -1321,7 +1321,7 @@ function gardenIllustration(kind) {
 <path d="m7 13 1.7-4 1.7 4 4 1.7-4 1.7-1.7 4-1.7-4-4-1.7Zm47 31 1.5-3.5L57 42l3.5 1.5L57 47l-1.5-3.5L52 42Z"/>
 <path d="m18 7 1.2-3 1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2Zm28 4 1.4-3.4 1.4 3.4 3.4 1.4-3.4 1.4-1.4 3.4-1.4-3.4-3.4-1.4Z"/>
 <circle cx="12" cy="53" r="1.3"/><circle cx="50" cy="53" r="1.1"/>
-</g>`,
+</g></g>`,
 
 
   };

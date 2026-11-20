@@ -1165,7 +1165,7 @@ function renderFriendGardenCollection(collection, userId, isOwnProfile = false) 
   if (!gate || gate.dataset.collectionUserId !== String(userId)) return;
   const section = $('#friendProfileCollection');
   const catalog = typeof GARDEN_COLLECTIBLES !== 'undefined' ? GARDEN_COLLECTIBLES : [];
-  const ownedItems = catalog.filter(item => collection.owned.includes(item.id));
+  const ownedItems = catalog.filter(item => collection.owned.includes(item.id) && (item.type === 'garden' ? collection.equipped : collection.bunny) === item.id);
   const count = $('#friendProfileCollectionCount');
   if (count) {
     count.textContent = ownedItems.length + (ownedItems.length === 1 ? ' treasure' : ' treasures');

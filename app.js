@@ -1395,17 +1395,18 @@ const GARDEN_COLLECTIBLES = [
   {id:'moon-goddess-tiara',name:'Goddess Tiara',art:gardenIllustration('moon-goddess-tiara'),cost:400,type:'bunny',rarity:'legendary'}
 ];
 function updateGardenShopItem(id, collection) {
-  const item = GARDEN_COLLECTIBLES.find(entry => entry.id === id);
-  const card = document.querySelector('.sg-collectible-card [data-buy-collectible="' + id + '"]')?.closest('.sg-collectible-card');
-  if (!item || !card) return;
-  const equipped = collection.equippedItems.includes(id);
-  card.classList.toggle('is-equipped', equipped);
-  const button = card.querySelector('[data-buy-collectible]');
-  if (button) {
-    button.textContent = equipped ? 'Equipped ✓' : 'Equip';
-    button.disabled = false;
-    button.setAttribute('aria-label', (equipped ? 'Unequip ' : 'Equip ') + item.name);
-  }
+  const normalized = normalizeGardenCollection(collection);
+  GARDEN_COLLECTIBLES.forEach(item => {
+    const card = document.querySelector('.sg-collectible-card [data-buy-collectible="' + item.id + '"]')?.closest('.sg-collectible-card');
+    const button = card?.querySelector('[data-buy-collectible]');
+    if (!card || !button) return;
+    const owned = normalized.owned.includes(item.id);
+    const equipped = normalized.equippedItems.includes(item.id);
+    card.classList.toggle('is-equipped', equipped);
+    button.textContent = equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect';
+    button.disabled = !owned && petalRewardBalance() < item.cost;
+    button.setAttribute('aria-label', equipped ? 'Unequip ' + item.name : owned ? 'Equip ' + item.name : 'Collect ' + item.name + ' for ' + item.cost + ' Petal Points');
+  });
 }
 function updateGardenPetalBalance() {
   const balance = document.querySelector('.sg-petal-balance b');
@@ -1428,7 +1429,14 @@ async function buyGardenCollectible(id) {
     const alreadyOwned = collection.owned.includes(id);
     if (alreadyOwned) {
       const equipped = new Set(collection.equippedItems || []);
-      if (equipped.has(id)) equipped.delete(id); else equipped.add(id);
+      if (equipped.has(id)) {
+        equipped.delete(id);
+      } else {
+        // Each collectible type occupies one equipment slot. Replace the previous
+        // item of that type so the newly selected item becomes the active one.
+        GARDEN_COLLECTIBLES.filter(entry => entry.type === item.type).forEach(entry => equipped.delete(entry.id));
+        equipped.add(id);
+      }
       const normalized = normalizeGardenCollection({ ...collection, equippedItems: [...equipped] });
       if (!saveGardenCollection(normalized)) throw new Error('Could not save your collection on this device.');
       if (!await syncGardenCollectionToCloud(normalized)) throw new Error('Could not sync your collection. Please try again.');
@@ -1449,7 +1457,10 @@ async function buyGardenCollectible(id) {
       return;
     }
     collection.owned = [...new Set([...collection.owned, id])];
-    collection.equippedItems = [...new Set([...collection.equippedItems, id])];
+    const equippedAfterPurchase = new Set(collection.equippedItems || []);
+    GARDEN_COLLECTIBLES.filter(entry => entry.type === item.type).forEach(entry => equippedAfterPurchase.delete(entry.id));
+    equippedAfterPurchase.add(id);
+    collection.equippedItems = [...equippedAfterPurchase];
     const normalized = normalizeGardenCollection(collection);
     saveGardenCollection(normalized);
     // Persist the balance and ownership sequentially; never race two upserts on the same row.

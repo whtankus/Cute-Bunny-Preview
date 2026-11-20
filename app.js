@@ -573,9 +573,13 @@ function setUser(u) {
   }
   me = u;
   // Hydrate the cloud collection before any shop action can read or write it.
+  gardenCollectionHydratedUserId = String(u.id);
+  gardenCollectionReadyUserId = '';
   gardenCollectionHydration = hydrateGardenCollectionFromCloud().then(() => {
+    gardenCollectionReadyUserId = String(u.id);
     const ownPetals = $('#friendProfilePetals');
     if (ownPetals && $('#friendProfileGate')?.dataset.ownProfile === 'true') ownPetals.textContent = petalRewardBalance().toLocaleString();
+    if (page === 'streak') renderStreakPage();
   });
   try {
     const savedHiddenNotes = JSON.parse(localStorage.getItem('cuteBunnyHiddenNotes:' + u.id) || '[]');
@@ -1132,6 +1136,7 @@ function saveGardenCollection(value) {
 
 let friendGardenRequestSequence = 0;
 let gardenCollectionHydratedUserId = '';
+let gardenCollectionReadyUserId = '';
 let gardenCollectionHydration = Promise.resolve();
 function normalizeGardenCollection(value = {}) {
   const validIds = new Set(GARDEN_COLLECTIBLES.map(item => item.id));
@@ -1175,8 +1180,16 @@ async function hydrateGardenCollectionFromCloud() {
   }
   if (data) {
     cloudPetalPoints = Math.max(0, Number(data.petal_points) || 0);
-    const normalized = normalizeGardenCollection(data);
+    // Ownership is permanent once purchased: merge cloud and locally saved ownership
+    // so a stale/empty copy cannot make a paid-for item appear purchasable again.
+    const localCollection = normalizeGardenCollection(readGardenCollection());
+    const cloudCollection = normalizeGardenCollection(data);
+    const normalized = normalizeGardenCollection({
+      ...data,
+      owned: [...new Set([...cloudCollection.owned, ...localCollection.owned])]
+    });
     try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized)); } catch {}
+    if (normalized.owned.length !== cloudCollection.owned.length) await syncGardenCollectionToCloud(normalized);
     return normalized;
   }
   const legacy = normalizeGardenCollection(readGardenCollection());
@@ -1851,9 +1864,19 @@ const STREAK_MILESTONE_ILLUSTRATIONS = [
 function renderStreakPage() {
   const content = $('#content');
   if (!content || !me) return;
-  if (gardenCollectionHydratedUserId !== String(me.id)) {
-    gardenCollectionHydratedUserId = String(me.id);
-    hydrateGardenCollectionFromCloud().then(() => { if (page === 'streak') renderStreakPage(); });
+  const collectionUserId = String(me.id);
+  if (gardenCollectionHydratedUserId !== collectionUserId) {
+    gardenCollectionHydratedUserId = collectionUserId;
+    gardenCollectionReadyUserId = '';
+    gardenCollectionHydration = hydrateGardenCollectionFromCloud().then(() => {
+      gardenCollectionReadyUserId = collectionUserId;
+      if (page === 'streak') renderStreakPage();
+    });
+  }
+  // Never render shop prices from a stale local cache while cloud ownership is loading.
+  if (gardenCollectionReadyUserId !== collectionUserId) {
+    content.innerHTML = '<div class="streak-garden-page"><p class="sg-petal-note">Loading your garden collection…</p></div>';
+    return;
   }
   const timezone = normalizeStreakTimeZone(me.streak_timezone || getBrowserStreakTimeZone());
   const todayKey = streakDateInTimeZone(timezone);

@@ -14304,3 +14304,38 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
   background:radial-gradient(circle,rgba(245,169,205,.25),rgba(255,255,255,.05) 72%);
   box-shadow:0 0 12px rgba(255,157,195,.36),0 0 24px rgba(255,190,215,.2);
 }
+
+
+/* Gentle living glow for the legendary blooms — lotus matches the rose. */
+.sg-collectible-card.item-celestial-rose .sg-collectible-art,
+.sg-collectible-card.item-divine-lotus .sg-collectible-art,
+.friend-profile-collection-item.garden-rarity-legendary .friend-profile-collection-art {
+  animation: legendary-bloom-aura 3.2s ease-in-out infinite alternate;
+}
+.sg-collectible-card.item-celestial-rose .sg-collectible-art::before,
+.sg-collectible-card.item-divine-lotus .sg-collectible-art::before,
+.friend-profile-collection-item.garden-rarity-legendary .friend-profile-collection-art::before {
+  animation: legendary-bloom-halo 3.2s ease-in-out infinite alternate;
+}
+@keyframes legendary-bloom-aura {
+  from {
+    box-shadow: 0 0 12px rgba(255,157,195,.42), 0 0 25px rgba(255,190,215,.30), inset 0 0 12px rgba(255,255,255,.72);
+  }
+  to {
+    box-shadow: 0 0 17px rgba(255,139,188,.68), 0 0 34px rgba(255,174,207,.52), inset 0 0 16px rgba(255,255,255,.92);
+  }
+}
+@keyframes legendary-bloom-halo {
+  from { opacity: .62; transform: scale(.96); }
+  to { opacity: 1; transform: scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sg-collectible-card.item-celestial-rose .sg-collectible-art,
+  .sg-collectible-card.item-divine-lotus .sg-collectible-art,
+  .friend-profile-collection-item.garden-rarity-legendary .friend-profile-collection-art,
+  .sg-collectible-card.item-celestial-rose .sg-collectible-art::before,
+  .sg-collectible-card.item-divine-lotus .sg-collectible-art::before,
+  .friend-profile-collection-item.garden-rarity-legendary .friend-profile-collection-art::before {
+    animation: none !important;
+  }
+}

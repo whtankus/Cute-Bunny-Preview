@@ -5253,6 +5253,7 @@ document.addEventListener('pointerdown', e => {
   messagePressState.startX = e.clientX;
   messagePressState.startY = e.clientY;
   bubble.classList.add('is-pressed');
+  playBoing();
 
   messagePressState.timer = setTimeout(() => {
     if (!messagePressState.bubble?.isConnected || messagePressState.pointerId !== e.pointerId) return;

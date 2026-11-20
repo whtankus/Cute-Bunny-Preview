@@ -1329,6 +1329,42 @@ function gardenIllustration(kind) {
     'divine-lotus':'<defs><radialGradient id="lotusAura"><stop stop-color="#f47da9" stop-opacity=".48"/><stop offset=".52" stop-color="#f47da9" stop-opacity=".28"/><stop offset=".82" stop-color="#f47da9" stop-opacity=".12"/><stop offset="1" stop-color="#f47da9" stop-opacity="0"/></radialGradient><linearGradient id="lotusOuter" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#fff0f6"/><stop offset=".3" stop-color="#ffb1ce"/><stop offset=".68" stop-color="#ed659b"/><stop offset="1" stop-color="#ad2e68"/></linearGradient><linearGradient id="lotusInnerPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff3f9"/><stop offset=".42" stop-color="#f8a6ca"/><stop offset="1" stop-color="#d94f91"/></linearGradient><linearGradient id="lotusInnerBlue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4f0ff"/><stop offset=".42" stop-color="#b9b8f1"/><stop offset="1" stop-color="#777bc9"/></linearGradient><linearGradient id="lotusInnerPurple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0fb"/><stop offset=".42" stop-color="#d8b1ee"/><stop offset="1" stop-color="#9869c4"/></linearGradient><linearGradient id="lotusLeaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c5e9b7"/><stop offset=".48" stop-color="#83bb8b"/><stop offset="1" stop-color="#477d65"/></linearGradient><radialGradient id="lotusSeed"><stop stop-color="#fff4c9"/><stop offset=".55" stop-color="#f5c873"/><stop offset="1" stop-color="#c9824f"/></radialGradient><filter id="lotusGlow" x="-95%" y="-85%" width="290%" height="270%"><feGaussianBlur in="SourceAlpha" stdDeviation="4.8" result="blur"/><feFlood flood-color="#ff6fa8" flood-opacity=".96" result="pink"/><feComposite in="pink" in2="blur" operator="in" result="pinkGlow"/><feMerge><feMergeNode in="pinkGlow"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="lotusInnerPinkGlow" x="-100%" y="-90%" width="300%" height="280%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.8" result="blur"/><feFlood flood-color="#ff9ac7" flood-opacity=".95" result="light"/><feComposite in="light" in2="blur" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="lotusInnerBlueGlow" x="-100%" y="-90%" width="300%" height="280%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.8" result="blur"/><feFlood flood-color="#aaaaff" flood-opacity=".98" result="light"/><feComposite in="light" in2="blur" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="lotusInnerPurpleGlow" x="-100%" y="-90%" width="300%" height="280%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.8" result="blur"/><feFlood flood-color="#d4a0ff" flood-opacity=".98" result="light"/><feComposite in="light" in2="blur" operator="in" result="glow"/><feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><ellipse cx="32" cy="28" rx="33" ry="31" fill="url(#lotusAura)"/><ellipse cx="32" cy="53" rx="27" ry="6" fill="#9bd3ae" opacity=".62"/><path d="M32 49C13 36 4 43 13 50c6 5 13 3 19-1Zm0 0c19-13 28-6 19 1-6 5-13 3-19-1Z" fill="url(#lotusLeaf)" stroke="#477d65" stroke-width="1.7"/><path d="M32 49c-8-7-17-7-21-2 8 1 14 3 21 2Zm0 0c8-7 17-7 21-2-8 1-14 3-21 2Z" fill="#b4dfa9" opacity=".9"/><g filter="url(#lotusGlow)"><g fill="url(#lotusOuter)" stroke="#a33368" stroke-width="1.15"><path d="M32 42C22 32 19 17 32 5c13 12 10 27 0 37Z"/><path d="M30 43C15 37 8 25 14 13c13 5 20 17 16 30Z"/><path d="M34 43c15-6 22-18 16-30-13 5-20 17-16 30Z"/><path d="M29 44C12 43 5 34 7 25c13 1 22 8 22 19Z"/><path d="M35 44c17-1 24-10 22-19-13 1-22 8-22 19Z"/></g></g><g filter="url(#lotusInnerGlow)"><path filter="url(#lotusInnerBlueGlow)" d="M32 42C24 32 24 19 32 11c8 8 8 21 0 31Z" fill="url(#lotusInnerBlue)" stroke="#7776bd" stroke-width="1.1"/><path filter="url(#lotusInnerPinkGlow)" d="M30 43C20 36 18 27 23 19c9 7 12 15 7 24Z" fill="url(#lotusInnerPink)" stroke="#c56c9c" stroke-width="1.05"/><path filter="url(#lotusInnerPurpleGlow)" d="M34 43c10-7 12-16 7-24-9 7-12 15-7 24Z" fill="url(#lotusInnerPurple)" stroke="#9a70c2" stroke-width="1.05"/></g><g fill="none" stroke="#fff7fc" stroke-linecap="round" opacity=".72"><path d="M32 15c4 7 4 15 1 22" stroke-width="1.1"/><path d="M24 23c4 5 6 10 5 15" stroke-width=".9"/><path d="M40 23c-4 5-6 10-5 15" stroke-width=".9"/></g><ellipse cx="32" cy="39" rx="7" ry="5" fill="url(#lotusSeed)" stroke="#b87543" stroke-width="1"/><g fill="#87502e"><circle cx="28" cy="38" r=".8"/><circle cx="32" cy="37" r=".8"/><circle cx="36" cy="38" r=".8"/><circle cx="30" cy="41" r=".8"/><circle cx="34" cy="41" r=".8"/></g><g fill="#fff7fc"><path d="m10 17 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm43 5 1.5-3.5L56 22l3.5 1.5L56 25l-1.5 3.5L53 25l-1.5-3.5L56 22Z"/><circle cx="49" cy="10" r="1.4"/></g>',
 
 
+    'aurora-butterfly-badge':`<defs>
+<radialGradient id="abAura"><stop stop-color="#b8f5ff" stop-opacity=".7"/><stop offset=".55" stop-color="#c9a7ff" stop-opacity=".32"/><stop offset="1" stop-color="#c9a7ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="abAqua" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4ffff"/><stop offset=".35" stop-color="#a8eff4"/><stop offset=".72" stop-color="#65bddb"/><stop offset="1" stop-color="#557abf"/></linearGradient>
+<linearGradient id="abLilac" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8ff"/><stop offset=".38" stop-color="#e5cfff"/><stop offset=".75" stop-color="#b49bea"/><stop offset="1" stop-color="#7968bd"/></linearGradient>
+<linearGradient id="abRose" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff7ff"/><stop offset=".5" stop-color="#f7b5df"/><stop offset="1" stop-color="#bf6dbb"/></linearGradient>
+<linearGradient id="abSilver" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset=".5" stop-color="#c8d9f5"/><stop offset="1" stop-color="#8b9bc9"/></linearGradient>
+<filter id="abGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="4.2" result="b"/><feFlood flood-color="#8deeff" flood-opacity=".95" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="abGemGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur in="SourceAlpha" stdDeviation="2.8" result="b"/><feFlood flood-color="#f6baff" flood-opacity="1" result="c"/><feComposite in="c" in2="b" operator="in" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<circle class="ab-aura" cx="32" cy="32" r="30" fill="url(#abAura)"/>
+<circle cx="32" cy="32" r="25" fill="none" stroke="#effaff" stroke-opacity=".55" stroke-width=".8" stroke-dasharray="1 3"/>
+<g class="ab-wings" filter="url(#abGlow)" stroke="#7895c8" stroke-width="1.1" stroke-linejoin="round">
+<path class="ab-wing-left" d="M29 30C22 15 11 8 7 16 2 26 12 40 28 42c-5-7-7-14-8-21 5 4 8 8 9 13Z" fill="url(#abAqua)"/>
+<path class="ab-wing-right" d="M35 30C42 15 53 8 57 16c5 10-5 24-21 26 5-7 7-14 8-21-5 4-8 8-9 13Z" fill="url(#abLilac)"/>
+<path class="ab-wing-left-lower" d="M28 37C17 32 9 38 12 47c3 8 12 9 19 1-4-3-5-7-3-11Z" fill="url(#abRose)"/>
+<path class="ab-wing-right-lower" d="M36 37c11-5 19 1 16 10-3 8-12 9-19 1 4-3 5-7 3-11Z" fill="url(#abAqua)"/>
+</g>
+<g class="ab-veins" fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity=".9">
+<path d="M28 34 9 17m19 22L14 44m7-20 7 11m8-1 19-17m-19 22 15 5m-8-21-7 11"/>
+<path d="M13 30q8 1 14 9m24-9q-8 1-14 9" stroke="#fff7ff"/>
+</g>
+<g class="ab-crown" fill="none" stroke="url(#abSilver)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M19 22 24 13l8 8 8-8 5 9-5 10H24Z"/>
+<path d="m24 32 8 5 8-5"/>
+</g>
+<g class="ab-gems" filter="url(#abGemGlow)">
+<path d="M32 15 27 22l5 7 5-7Z" fill="url(#abRose)" stroke="#b879bd" stroke-width="1"/>
+<path d="m32 31-6 6 6 8 6-8Z" fill="url(#abAqua)" stroke="#6d9fc8" stroke-width="1"/>
+<circle cx="16" cy="23" r="2" fill="#fff"/><circle cx="48" cy="23" r="2" fill="#fff"/>
+<circle cx="17" cy="43" r="1.5" fill="#e8ddff"/><circle cx="47" cy="43" r="1.5" fill="#e8ddff"/>
+</g>
+<g class="ab-sparkles" fill="#fff">
+<path d="m7 10 1.7-4 1.7 4 4 1.7-4 1.7-1.7 4-1.7-4-4-1.7Zm48 34 1.4-3.4 1.4 3.4 3.4 1.4-3.4 1.4-1.4 3.4-1.4-3.4-3.4-1.4Z"/>
+<path d="m19 5 1.1-2.7L21.2 5l2.7 1.1-2.7 1.1-1.1 2.7-1.1-2.7-2.7-1.1Zm26 4 1.2-3 1.2 3 3 1.2-3 1.2-1.2 3-1.2-3-3-1.2Z"/>
+<circle cx="10" cy="53" r="1.3"/><circle cx="53" cy="54" r="1.2"/><circle cx="32" cy="5" r="1.2"/>
+</g>`,
     'dreamwing-halo':`<defs>
 <radialGradient id="dwAura"><stop stop-color="#ffb5df" stop-opacity=".72"/><stop offset=".48" stop-color="#c9a4ff" stop-opacity=".34"/><stop offset="1" stop-color="#c9a4ff" stop-opacity="0"/></radialGradient>
 <linearGradient id="dwPink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffaff"/><stop offset=".3" stop-color="#ffd4ed"/><stop offset=".68" stop-color="#f18acb"/><stop offset="1" stop-color="#a653ad"/></linearGradient>
@@ -1393,6 +1429,7 @@ const GARDEN_COLLECTIBLES = [
   {id:'celestial-rose',name:'Celestial Rose',art:gardenIllustration('celestial-rose'),cost:350,type:'garden',rarity:'legendary'},
   {id:'divine-lotus',name:'Divine Lotus',art:gardenIllustration('divine-lotus'),cost:350,type:'garden',rarity:'legendary'},
   {id:'dreamwing-halo',name:'Dreamwing Halo',art:gardenIllustration('dreamwing-halo'),cost:400,type:'bunny',rarity:'legendary'},
+  {id:'aurora-butterfly-badge',name:'Aurora Butterfly Badge',art:gardenIllustration('aurora-butterfly-badge'),cost:450,type:'bunny',rarity:'legendary'},
 ];
 function updateGardenShopItem(id, collection) {
   const normalized = normalizeGardenCollection(collection);

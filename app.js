@@ -46,6 +46,8 @@ const remoteTypingUsers = new Map();
 let activeMessageActionsId = null;
 let replyingToMessageId = null;
 const noteReactionInFlight = new Set();
+const noteDeliveryInFlight = new Set();
+const noteDeliveredLocally = new Set();
 let hiddenNoteIds = new Set();
 let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
@@ -2722,6 +2724,8 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
         </${senderTag}>
   ` : '';
   const seenLabel = m.last_seen_at ? formatSeenRelative(m.last_seen_at) : 'Seen';
+  const deliveryLabel = Number(m.seen_by_count || 0) > 0 ? 'Seen' : Number(m.delivered_by_count || 0) > 0 ? 'Delivered' : 'Sent';
+  const deliveryStatus = mine && !m.isPending ? `<small class="chat-delivery-status ${deliveryLabel.toLowerCase()}">${deliveryLabel}</small>` : '';
   const seenReceipt = showSeen && mine && Number(m.seen_by_count || 0) > 0
     ? '<small class="chat-seen-receipt" data-seen-at="' + esc(m.last_seen_at || '') + '" aria-label="' + esc(seenLabel) + '">' + esc(seenLabel) + '</small>'
     : '';
@@ -2734,7 +2738,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
       <div class="chat-message-content">
         ${senderMeta}
         <div class="chat-message-line">
-          <time class="chat-message-time" datetime="${esc(createdAt)}">${time}</time>${editedLabel}
+          <time class="chat-message-time" datetime="${esc(createdAt)}">${time}</time>${editedLabel}${deliveryStatus}
           <div class="chat-bubble-wrap">
             <div class="chat-bubble${hasHeartReaction ? '' : ' no-heart-reaction'}${isShortMessage ? ' is-short-message' : ''}" tabindex="0" data-chat-message-id="${esc(id)}" aria-label="Message from ${name}">
               ${heartButton}
@@ -2804,6 +2808,7 @@ function renderNotesPage(options = {}) {
     .filter(m => m.kind === 'note' && !hiddenNoteIds.has(String(m.id)) && !pendingDeleteTimers.has(String(m.id)))
     .slice()
     .reverse();
+  void markNotesDelivered(chatNotes);
 
   let previousLabel = '';
   let previousOwnerId = '';
@@ -4403,6 +4408,27 @@ function startNotesIncomingPoll() {
   }, 5000);
 }
 
+
+async function markNotesDelivered(messages = []) {
+  if (!sb || !me?.id) return;
+  const ids = messages
+    .filter(item => item?.kind === 'note' && !item.isPending &&
+      String(item.author?.id || item.owner_id || '') !== String(me.id))
+    .map(item => Number(item.id)).filter(Number.isFinite)
+    .filter(id => !noteDeliveredLocally.has(String(id)) && !noteDeliveryInFlight.has(String(id)));
+  if (!ids.length) return;
+  ids.forEach(id => noteDeliveryInFlight.add(String(id)));
+  try {
+    const { error } = await sb.rpc('mark_notes_delivered', { p_message_ids: ids });
+    if (error) throw error;
+    ids.forEach(id => noteDeliveredLocally.add(String(id)));
+  } catch (error) {
+    console.warn('Message delivery acknowledgement deferred:', error?.message || error);
+  } finally {
+    ids.forEach(id => noteDeliveryInFlight.delete(String(id)));
+  }
+}
+
 async function refreshOwnNoteSeenStatus() {
   if (!me || !sb) return;
   if (seenStatusRefreshInFlight) {
@@ -4413,19 +4439,24 @@ async function refreshOwnNoteSeenStatus() {
   try {
     // Fetch the owner's newest note and read cursors directly in parallel.
     // This avoids the extra API wrapper request and its duplicate cursor query.
-    const [{ data: latestOwnNote, error: latestError }, { data: cursors, error: cursorError }] = await Promise.all([
+    const [{ data: latestOwnNote, error: latestError }, { data: cursors, error: cursorError }, { data: deliveries, error: deliveryError }] = await Promise.all([
       sb.from('memories').select('id').eq('owner_id', me.id).eq('kind', 'note')
         .order('id', { ascending: false }).limit(1).maybeSingle(),
       sb.from('note_read_cursors').select('reader_id,last_read_message_id,last_read_at')
-        .eq('owner_id', me.id).order('last_read_message_id', { ascending: false })
+        .eq('owner_id', me.id).order('last_read_message_id', { ascending: false }),
+      sb.from('note_delivery_receipts').select('message_id,reader_id,delivered_at').eq('owner_id', me.id)
     ]);
     if (latestError) throw latestError;
     if (cursorError) throw cursorError;
+    if (deliveryError) throw deliveryError;
 
     for (const item of feed) {
       if (item.kind !== 'note' || String(item.author?.id || item.owner_id) !== String(me.id)) continue;
-      item.seen_by_count = 0;
-      item.last_seen_at = null;
+      const messageId = Number(item.id) || 0;
+      const readers = (cursors || []).filter(cursor => Number(cursor.last_read_message_id) >= messageId && messageId > 0);
+      item.seen_by_count = readers.length;
+      item.last_seen_at = readers.map(cursor => cursor.last_read_at).filter(Boolean).sort().at(-1) || null;
+      item.delivered_by_count = (deliveries || []).filter(receipt => Number(receipt.message_id) === messageId).length;
     }
 
     const latestConversationNote = feed
@@ -4694,6 +4725,10 @@ function startRealtime() {
             console.warn('Live Notes update could not refresh the feed:', error?.message || error);
           }
         }, 0);
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'note_delivery_receipts', filter: 'owner_id=eq.' + me.id }, () => {
+        clearTimeout(window.cuteNoteDeliveryRefresh);
+        window.cuteNoteDeliveryRefresh = setTimeout(() => { void refreshOwnNoteSeenStatus(); }, 45);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'memory_reactions' }, () => {
         clearTimeout(window.cuteMemoryReactionsRefresh);

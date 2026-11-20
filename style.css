@@ -14339,3 +14339,51 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
     animation: none !important;
   }
 }
+
+
+/* Divine Lotus: give the pale petals a richer, more visible rose-like aura. */
+.sg-collectible-card.item-divine-lotus .sg-collectible-art {
+  background:
+    radial-gradient(ellipse at 50% 43%, rgba(255,180,211,.78) 0%, rgba(255,205,226,.48) 38%, rgba(255,226,239,.20) 67%, transparent 82%),
+    radial-gradient(circle, rgba(255,235,244,.42), transparent 72%) !important;
+  box-shadow:
+    0 0 15px rgba(255,133,183,.62),
+    0 0 30px rgba(255,165,202,.52),
+    0 0 48px rgba(255,194,220,.34),
+    inset 0 0 17px rgba(255,255,255,.94) !important;
+  animation: divine-lotus-rose-aura 2.8s ease-in-out infinite alternate !important;
+}
+.sg-collectible-card.item-divine-lotus .sg-collectible-art::before {
+  inset: -13px;
+  background: radial-gradient(circle, rgba(255,145,190,.48) 0%, rgba(255,185,215,.32) 42%, rgba(255,220,235,.14) 64%, transparent 78%);
+  filter: blur(8px);
+  animation: divine-lotus-rose-halo 2.8s ease-in-out infinite alternate !important;
+}
+.sg-collectible-card.item-divine-lotus .sg-collectible-art svg {
+  filter:
+    drop-shadow(0 0 4px rgba(255,135,185,.88))
+    drop-shadow(0 0 9px rgba(255,166,204,.72))
+    drop-shadow(0 0 16px rgba(255,196,222,.52)) !important;
+}
+.sg-collectible-card.item-divine-lotus .sg-art-glint {
+  color: #fff !important;
+  text-shadow: 0 0 6px #ff8fbd, 0 0 13px #ff9fc8, 0 0 20px #ffd0e3 !important;
+}
+@keyframes divine-lotus-rose-aura {
+  from {
+    box-shadow: 0 0 13px rgba(255,133,183,.48), 0 0 27px rgba(255,165,202,.40), 0 0 42px rgba(255,194,220,.24), inset 0 0 14px rgba(255,255,255,.86);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(255,115,174,.78), 0 0 39px rgba(255,151,194,.68), 0 0 58px rgba(255,185,215,.42), inset 0 0 20px rgba(255,255,255,1);
+  }
+}
+@keyframes divine-lotus-rose-halo {
+  from { opacity: .58; transform: scale(.94); }
+  to { opacity: 1; transform: scale(1.08); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sg-collectible-card.item-divine-lotus .sg-collectible-art,
+  .sg-collectible-card.item-divine-lotus .sg-collectible-art::before {
+    animation: none !important;
+  }
+}

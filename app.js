@@ -52,6 +52,7 @@ let streakSelectedWeekDate = '';
 let streakGardenActiveTab = 'daily';
 let streakSelectedDailyQuest = 0;
 let streakPetalGame = { cards: [], flipped: [], matched: [], moves: 0, locked: false, completed: false, newBest: false };
+let cloudPetalPoints = 0, petalPointsSyncInFlight = null;
 let streakCountdownInterval = null, streakCountdownDayKey = '';
 let presenceStatus = 'closed';
 let lastActiveWriteAt = 0, lastActiveWriteUserId = '';
@@ -1089,7 +1090,22 @@ function readPetalRewards() {
   } catch { return {}; }
 }
 function petalRewardBalance(rewards = readPetalRewards()) {
-  return Object.values(rewards).reduce((sum, amount) => sum + (Number.isFinite(amount) ? Math.max(-1000, Math.min(100, amount)) : 0), 0);
+  return Math.max(0, cloudPetalPoints + Object.values(rewards).reduce((sum, amount) => sum + (Number.isFinite(amount) ? Math.max(-1000, Math.min(100, amount)) : 0), 0));
+}
+async function syncPetalPointsToCloud() {
+  if (!sb || !me?.id) return false;
+  if (petalPointsSyncInFlight) await petalPointsSyncInFlight;
+  const rewards = readPetalRewards();
+  const total = petalRewardBalance(rewards);
+  petalPointsSyncInFlight = (async () => {
+    const { error } = await sb.from('profile_garden_collections').upsert({ user_id: me.id, petal_points: total, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+    if (error) { console.warn('Petal Points sync failed:', error.message || error); return false; }
+    cloudPetalPoints = total;
+    const settled = Object.fromEntries(Object.keys(rewards).map(key => [key, 0]));
+    try { localStorage.setItem(streakStorageKey('petal-rewards'), JSON.stringify(settled)); } catch {}
+    return true;
+  })();
+  try { return await petalPointsSyncInFlight; } finally { petalPointsSyncInFlight = null; }
 }
 function awardPetalReward(key, amount) {
   if (!me || !key) return false;
@@ -1098,6 +1114,7 @@ function awardPetalReward(key, amount) {
   rewards[key] = amount;
   try { localStorage.setItem(streakStorageKey('petal-rewards'), JSON.stringify(rewards)); }
   catch { return false; }
+  void syncPetalPointsToCloud();
   return true;
 }
 function readGardenCollection() {
@@ -1145,7 +1162,7 @@ async function syncGardenCollectionToCloud(value = readGardenCollection()) {
 async function hydrateGardenCollectionFromCloud() {
   if (!sb || !me?.id) return readGardenCollection();
   const { data, error } = await sb.from('profile_garden_collections')
-    .select('owned,equipped,bunny,equipped_items')
+    .select('owned,equipped,bunny,equipped_items,petal_points')
     .eq('user_id', me.id)
     .maybeSingle();
   if (error) {
@@ -1153,11 +1170,13 @@ async function hydrateGardenCollectionFromCloud() {
     return readGardenCollection();
   }
   if (data) {
+    cloudPetalPoints = Math.max(0, Number(data.petal_points) || 0);
     const normalized = normalizeGardenCollection(data);
     try { localStorage.setItem(streakStorageKey('garden-collection'), JSON.stringify(normalized)); } catch {}
     return normalized;
   }
   const legacy = normalizeGardenCollection(readGardenCollection());
+  cloudPetalPoints = 0;
   await syncGardenCollectionToCloud(legacy);
   return legacy;
 }
@@ -1197,15 +1216,19 @@ async function loadFriendGardenCollection(user, isOwnProfile) {
   let collection;
   if (isOwnProfile) {
     collection = await hydrateGardenCollectionFromCloud();
+    const petalsNode = $('#friendProfilePetals');
+    if (petalsNode && gate.dataset.collectionUserId === String(user.id)) petalsNode.textContent = petalRewardBalance().toLocaleString();
   } else {
     if (!sb) return;
     try {
       const { data, error } = await sb.from('profile_garden_collections')
-        .select('owned,equipped,bunny,equipped_items')
+        .select('owned,equipped,bunny,equipped_items,petal_points')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;
       collection = normalizeGardenCollection(data || {});
+      const petalsNode = $('#friendProfilePetals');
+      if (petalsNode && gate.dataset.collectionUserId === String(user.id)) petalsNode.textContent = Math.max(0, Number(data?.petal_points) || 0).toLocaleString();
       try { localStorage.setItem(friendGardenCollectionCacheKey(user.id), JSON.stringify(collection)); } catch {}
     } catch (error) {
       console.warn('Friend garden collection could not be loaded:', error?.message || error);

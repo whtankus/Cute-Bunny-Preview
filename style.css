@@ -14266,3 +14266,41 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 }
 
 
+
+/* Legendary garden blooms — shared soft pink glow */
+.sg-collectible-card.item-celestial-rose .sg-collectible-art,
+.sg-collectible-card.item-divine-lotus .sg-collectible-art,
+.friend-profile-collection-item.garden-rarity-legendary .friend-profile-collection-art {
+  position:relative;
+  isolation:isolate;
+  background:radial-gradient(circle,rgba(255,205,225,.72) 0%,rgba(255,225,237,.38) 54%,rgba(255,245,249,.12) 100%);
+  box-shadow:0 0 12px rgba(255,157,195,.48),0 0 25px rgba(255,190,215,.38),inset 0 0 12px rgba(255,255,255,.8);
+}
+.sg-collectible-card.item-celestial-rose .sg-collectible-art::before,
+.sg-collectible-card.item-divine-lotus .sg-collectible-art::before,
+.friend-profile-collection-item.garden-rarity-legendary .friend-profile-collection-art::before {
+  content:"";
+  position:absolute;
+  inset:-7px;
+  z-index:-1;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,174,207,.4),rgba(255,220,235,.18) 55%,transparent 74%);
+  filter:blur(5px);
+  pointer-events:none;
+}
+.sg-collectible-card.item-celestial-rose .sg-collectible-art svg,
+.sg-collectible-card.item-divine-lotus .sg-collectible-art svg {
+  filter:drop-shadow(0 0 3px rgba(255,176,207,.72)) drop-shadow(0 0 7px rgba(255,198,221,.48));
+}
+.sg-collectible-card.item-celestial-rose .sg-art-glint,
+.sg-collectible-card.item-divine-lotus .sg-art-glint {
+  color:#fff8fc;
+  text-shadow:0 0 5px #ffacd0,0 0 10px #ffacd0;
+}
+[data-theme="midnight"] .sg-collectible-card.item-celestial-rose .sg-collectible-art,
+[data-theme="midnight"] .sg-collectible-card.item-divine-lotus .sg-collectible-art,
+.dark .sg-collectible-card.item-celestial-rose .sg-collectible-art,
+.dark .sg-collectible-card.item-divine-lotus .sg-collectible-art {
+  background:radial-gradient(circle,rgba(245,169,205,.25),rgba(255,255,255,.05) 72%);
+  box-shadow:0 0 12px rgba(255,157,195,.36),0 0 24px rgba(255,190,215,.2);
+}

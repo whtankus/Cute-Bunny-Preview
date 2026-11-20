@@ -4645,3 +4645,8 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   .chat-action-btn{padding:7px 8px;font-size:11px}
   .chat-quick-reaction{width:31px;height:30px}
 }
+
+.chat-delivery-status{align-self:center;margin-left:3px;color:#a18a9c;font-size:9px;white-space:nowrap}
+.chat-delivery-status.delivered{color:#8a9b88}
+.chat-delivery-status.seen{color:#b8799b}
+.chat-delivery-status.sent{color:#aa98a8}

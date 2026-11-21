@@ -4973,18 +4973,18 @@ function syncPresenceUI(presenceEvent = 'sync') {
     }
   });
 
-  const onlineNow = new Set();
   const notesNow = new Set();
   (Array.isArray(friends) ? friends : []).forEach(friend => {
     const friendId = String(friend?.id || friend?.user_id || '');
     const username = String(friend?.username || '').trim().toLowerCase();
     if (!friendId && !username) return;
+    // Never treat this user's own session as a friend activity event.
+    if ((me?.id && friendId === String(me.id)) ||
+        (me?.username && username === String(me.username).trim().toLowerCase())) return;
     const matches = new Set([
       ...(friendId ? sessionsById.get(friendId) || [] : []),
       ...(username ? sessionsByUsername.get(username) || [] : [])
     ]);
-    if (!matches.size) return;
-    if (friendId) onlineNow.add(friendId);
     if ([...matches].some(session =>
       String(session?.active_page || session?.current_page || session?.page || '').toLowerCase() === 'notes'
     )) {
@@ -4992,18 +4992,18 @@ function syncPresenceUI(presenceEvent = 'sync') {
     }
   });
 
-  const hasBaseline = knownOnlineFriendIds !== null && knownFriendNotesIds !== null;
-  const joinedFriend = hasBaseline && [...onlineNow].some(id => !knownOnlineFriendIds.has(id));
-  const leftFriend = hasBaseline && [...knownOnlineFriendIds].some(id => !onlineNow.has(id));
-  const friendEnteredNotes = hasBaseline && [...notesNow].some(id => !knownFriendNotesIds.has(id));
-  const friendLeftNotes = hasBaseline && [...knownFriendNotesIds].some(id => !notesNow.has(id));
-  const openedNotesWithFriend = page === 'notes' && lastPresenceObservedPage !== 'notes' && notesNow.size > 0;
+  // Only a friend changing Notes presence while we were already in Notes
+  // should animate. Our own navigation and online/offline changes are ignored.
+  const hasBaseline = knownFriendNotesIds !== null;
+  const weWereAlreadyInNotes = page === 'notes' && lastPresenceObservedPage === 'notes';
+  const friendEnteredNotes = hasBaseline && weWereAlreadyInNotes &&
+    [...notesNow].some(id => !knownFriendNotesIds.has(id));
+  const friendLeftNotes = hasBaseline && weWereAlreadyInNotes &&
+    [...knownFriendNotesIds].some(id => !notesNow.has(id));
 
-  if (joinedFriend || leftFriend || friendEnteredNotes || friendLeftNotes || openedNotesWithFriend) {
-    triggerHeaderActivitySweep();
-  }
+  if (friendEnteredNotes || friendLeftNotes) triggerHeaderActivitySweep();
 
-  knownOnlineFriendIds = onlineNow;
+  knownOnlineFriendIds = new Set();
   knownFriendNotesIds = notesNow;
   lastPresenceObservedPage = page;
   syncNotesTypingFromPresence(state);

@@ -44,4 +44,4 @@ jobs:
         run: npm run build
 
       - name: Run Chromium smoke tests
-        run: node --test tests/browser-smoke.test.js
+        run: node --test tests/browser-smoke.test.js tests/swipe-gestures.test.js

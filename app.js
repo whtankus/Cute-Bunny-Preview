@@ -2395,6 +2395,7 @@ function playCuteSound(kind = 'tap') {
     const presets = {
       tap:     { start: 620, end: 470, duration: .075, volume: .035, type: 'sine' },
       buddy:   { start: 520, peak: 760, end: 390, duration: .25, volume: .075, type: 'sine' },
+      boing:   { start: 360, peak: 790, end: 320, duration: .23, volume: .07, type: 'sine' },
       sparkle: { start: 880, peak: 1320, end: 1180, duration: .22, volume: .045, type: 'sine' },
       success: { start: 660, peak: 990, end: 1320, duration: .32, volume: .055, type: 'sine' },
       card:    { start: 420, end: 560, duration: .09, volume: .03, type: 'triangle' }
@@ -2557,6 +2558,7 @@ function go(p, options = {}) {
   syncPresenceUI();
 
   if (p === 'notes') {
+    void clearActiveNotesNotifications();
     requestAnimationFrame(() => {
       if (page !== 'notes') return;
       const thread = $('#chatThread');
@@ -4659,19 +4661,27 @@ function startRealtime() {
 
     notificationChannel = sb.channel('cute-bunny-notifications-' + me.id)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: 'recipient_id=eq.' + me.id }, payload => {
-        // Fetch the inserted notification directly; loadNotifications() may be
-        // busy with an older request and otherwise return before this row arrives.
+        const inserted = payload?.new;
+        const isActiveNotesUpdate = page === 'notes' && String(inserted?.kind || '') === 'note';
+        if (isActiveNotesUpdate) {
+          toast('New note activity ♡');
+          if (inserted?.id) {
+            notificationRows = notificationRows.filter(row => String(row.id) !== String(inserted.id));
+            updateNotificationBadge();
+            void api('/notifications/' + encodeURIComponent(inserted.id), { method: 'DELETE' })
+              .catch(error => console.warn('Active Notes notification could not be dismissed:', error?.message || error));
+          }
+          return;
+        }
         void api('/notifications').then(rows => {
           notificationRows = rows;
           notificationLoaded = true;
           updateNotificationBadge();
-          const added = rows.find(row => String(row.id) === String(payload?.new?.id));
+          const added = rows.find(row => String(row.id) === String(inserted?.id));
           if (added) void showPhoneNotification(added);
           if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();
         }).catch(error => console.warn('Live notification refresh failed:', error?.message || error));
-        if (!(page === 'notes' && String(payload?.new?.kind || '') === 'note')) {
-          toast('A little hello from your friend ♡');
-        }
+        toast('A little hello from your friend ♡');
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: 'recipient_id=eq.' + me.id }, payload => {
         const changed = payload?.new;
@@ -4903,6 +4913,27 @@ function syncPresenceUI() {
   });
 }
 
+async function clearActiveNotesNotifications() {
+  if (!me || page !== 'notes') return;
+  const userId = String(me.id);
+  try {
+    const rows = await api('/notifications');
+    if (String(me?.id || '') !== userId || page !== 'notes') return;
+    const noteRows = rows.filter(row => row.kind === 'note');
+    if (!noteRows.length) return;
+    const noteIds = new Set(noteRows.map(row => String(row.id)));
+    notificationRows = notificationRows.filter(row => !noteIds.has(String(row.id)));
+    updateNotificationBadge();
+    await Promise.all(noteRows.map(row =>
+      api('/notifications/' + encodeURIComponent(row.id), { method: 'DELETE' }).catch(error => {
+        console.warn('Active Notes notification could not be dismissed:', error?.message || error);
+      })
+    ));
+  } catch (error) {
+    console.warn('Active Notes notifications could not be refreshed:', error?.message || error);
+  }
+}
+
 async function loadNotifications() {
   if (!me || notificationLoading) return;
   const req = me.id;
@@ -4951,7 +4982,7 @@ async function showPhoneNotification(notification) {
 }
 
 function updateNotificationBadge() {
-  const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at).length;
+  const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at && !(page === 'notes' && n.kind === 'note')).length;
   badge.textContent = count > 9 ? '9+' : String(count);
   badge.classList.toggle('hidden', count === 0);
 }
@@ -5003,7 +5034,7 @@ function renderNotifications() {
   const soundToggle = $('#notifySounds');
   if (soundToggle) soundToggle.checked = localStorage.getItem('cuteBunnyAppSounds') !== 'off';
   const previousScrollTop = list.scrollTop;
-  const visibleRows = notificationRows.slice(0, notificationVisibleCount);
+  const visibleRows = notificationRows.filter(notification => !(page === 'notes' && notification.kind === 'note'));
   const groups = new Map();
   visibleRows.forEach(notification => {
     const label = notificationGroupLabel(notification.created_at);
@@ -5028,16 +5059,13 @@ function renderNotifications() {
           <span class="notification-kind" aria-label="${esc(meta.label)}">${esc(meta.icon)}</span>
           ${unread ? '<i class="notification-unread-dot" aria-label="Unread"></i>' : ''}
         </button>
-        <button type="button" class="notification-delete" data-notification-delete="${esc(n.id)}" aria-label="Delete notification">×</button>
       </div>`;
     }).join('');
     return `<section class="notification-group"><h3>${label}</h3>${rows}</section>`;
   }).join('');
-  const remaining = Math.max(0, notificationRows.length - visibleRows.length);
   list.innerHTML = content || (notificationLoading && !notificationLoaded
     ? '<div class="notification-loading" aria-label="Loading notifications"><span class="notification-loader" aria-hidden="true"></span></div>'
     : '<div class="notification-empty"><span aria-hidden="true">♡</span><b>You’re all caught up</b><small>New shared activity will appear here.</small></div>');
-  if (remaining) list.insertAdjacentHTML('beforeend', `<button type="button" class="notification-load-more" data-notification-more>Show older notifications <span>${remaining}</span></button>`);
   list.scrollTop = previousScrollTop;
   observeNotificationListRows();
 }
@@ -5064,10 +5092,11 @@ function observeNotificationListRows() {
 }
 
 async function dismissViewedNotifications() {
-  // Viewing a notification never deletes it; history remains until explicit deletion.
   notificationListSeenObserver?.disconnect();
   notificationListSeenObserver = null;
+  const viewedIds = [...notificationViewedIds];
   notificationViewedIds.clear();
+  await Promise.all(viewedIds.map(id => dismissNotification(id, { silent: true }).catch(() => false)));
 }
 
 async function dismissNotification(id, options = {}) {
@@ -5834,6 +5863,7 @@ document.addEventListener('click', async e => {
       return;
     }
     if (selectedText || bubble.classList.contains('no-heart-reaction')) return;
+    playCuteSound('boing');
     clearTimeout(bubbleTapState.timer);
     bubbleTapState.timer = null;
     bubbleTapState.bubble = null;
@@ -6182,7 +6212,6 @@ document.addEventListener('click', async e => {
     return;
   }
   if (e.target.closest('#notificationOpen')) {
-    notificationViewedIds.clear();
     notificationVisibleCount = 3;
     $('#notificationGate').classList.remove('hidden');
     void loadNotifications().then(() => {
@@ -6425,22 +6454,14 @@ document.addEventListener('click', async e => {
   }
 
   // Notifications
-  if (e.target.closest('[data-notification-more]')) {
-    notificationVisibleCount = Math.min(notificationRows.length, notificationVisibleCount + 10);
-    renderNotifications();
-    return;
-  }
-  const deleteNotificationButton = e.target.closest('[data-notification-delete]');
-  if (deleteNotificationButton) {
-    void dismissNotification(deleteNotificationButton.dataset.notificationDelete);
-    return;
-  }
-  const notifItem = e.target.closest('[data-notification]');
+    const notifItem = e.target.closest('[data-notification]');
   if (notifItem) {
     const notification = notificationRows.find(row => String(row.id) === String(notifItem.dataset.notification));
     try {
       if (notification) await markNotificationRead(notification.id);
+      if (notification) notificationViewedIds.add(String(notification.id));
       $('#notificationGate').classList.add('hidden');
+      await dismissViewedNotifications();
       if (notification?.memory_id) {
         const pageForKind = ({ photo: 'gallery', song: 'music', note: 'notes' })[notification.kind] || 'home';
         go(pageForKind);
@@ -6890,6 +6911,11 @@ sharedAudioElement?.addEventListener('playing', () => {
   button?.classList.remove('is-buffering', 'is-loading');
 });
 
+document.addEventListener('click', event => {
+  const button = event.target.closest?.('button, [role="button"]');
+  if (!button || button.closest('#nav, nav') || button.disabled) return;
+  playCuteSound('boing');
+});
 document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
   const gate = $('#notificationGate');

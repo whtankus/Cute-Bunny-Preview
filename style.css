@@ -14714,17 +14714,3 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 }
 
 
-/* Thin live-presence ring around chat sender pets; outline does not affect layout. */
-.chat-meta .sender-pet {
-  display:inline-block;
-  border-radius:50%;
-  outline:1.25px solid transparent;
-  outline-offset:1.5px;
-  transition:outline-color 90ms ease-out;
-}
-.chat-meta .sender-pet.is-online {
-  outline-color:#43b978;
-}
-@media(prefers-reduced-motion:reduce) {
-  .chat-meta .sender-pet { transition:none; }
-}

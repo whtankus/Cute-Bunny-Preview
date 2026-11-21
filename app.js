@@ -388,6 +388,24 @@ async function api(path, options = {}) {
       likesByMemory.set(key, state);
     }
 
+    // Emoji reactions are stored independently from the single-heart like
+    // toggle. Load the complete reaction set for each page of messages.
+    let reactionRows = [];
+    if (memoryIds.length) {
+      const { data, error: reactionsError } = await sb.from('memory_reactions')
+        .select('memory_id,user_id,emoji,created_at')
+        .in('memory_id', memoryIds);
+      fail(reactionsError);
+      reactionRows = data || [];
+    }
+    const reactionsByMemory = new Map();
+    for (const reaction of reactionRows) {
+      const key = String(reaction.memory_id);
+      const items = reactionsByMemory.get(key) || [];
+      items.push(reaction);
+      reactionsByMemory.set(key, items);
+    }
+
     return (rows || []).map(m => {
       const likeState = likesByMemory.get(String(m.id)) || { count: 0, likedByMe: false };
       const author = Array.isArray(m.author) ? m.author[0] : (m.author || {});
@@ -395,6 +413,7 @@ async function api(path, options = {}) {
         ...m,
         like_count: likeState.count,
         liked_by_me: likeState.likedByMe,
+        reactions: reactionsByMemory.get(String(m.id)) || [],
         is_latest_own_note: m.kind === 'note' && String(m.id) === String(latestOwnNoteId),
         seen_by_count: m.kind === 'note' && String(m.id) === String(latestOwnNoteId) ? ownNoteSeenCount : 0,
         createdAt: m.created_at,

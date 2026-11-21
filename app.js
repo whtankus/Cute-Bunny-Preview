@@ -55,7 +55,6 @@ let notesHeaderLastScrollTop = null;
 let notesHeaderActivityTimer = null;
 let presenceTrackQueue = Promise.resolve();
 let lastPresenceObservedPage = 'home';
-let knownOnlineFriendIds = null;
 let knownFriendNotesIds = null;
 let notesKeyboardDismissed = false;
 let streakSelectedWeekDate = '';
@@ -5003,7 +5002,6 @@ function syncPresenceUI(presenceEvent = 'sync') {
 
   if (friendEnteredNotes || friendLeftNotes) triggerHeaderActivitySweep();
 
-  knownOnlineFriendIds = new Set();
   knownFriendNotesIds = notesNow;
   lastPresenceObservedPage = page;
   syncNotesTypingFromPresence(state);

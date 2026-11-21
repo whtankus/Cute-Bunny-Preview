@@ -4701,14 +4701,3 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   white-space: nowrap !important;
   text-overflow: ellipsis !important;
 }
-#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) > .chat-message-text {
-  display: block !important;
-  width: auto !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  transform: none !important;
-  text-align: left !important;
-  white-space: pre-wrap !important;
-  overflow-wrap: anywhere !important;
-}

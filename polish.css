@@ -4776,3 +4776,88 @@ body[data-mode="dark"] #notificationList .notification-delete:hover{background:v
   .notification-preference-pair{gap:8px}
   .notification-preference-pair>label{font-size:.69rem!important}
 }
+
+/* Reply context sits below the message field as one readable message bubble. */
+#content .chat-composer{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:stretch;
+  column-gap:9px;
+  row-gap:8px;
+}
+#content .chat-composer #chatSeenStatus{grid-column:1/-1;grid-row:1}
+#content .chat-composer #chatInput{grid-column:1;grid-row:2;width:100%;min-width:0}
+#content .chat-composer #chatSend{grid-column:2;grid-row:2;align-self:stretch}
+#content .chat-composer #chatReplyingTo{
+  grid-column:1/-1;
+  grid-row:3;
+  position:relative;
+  display:flex;
+  align-items:flex-start;
+  width:100%;
+  min-width:0;
+  margin:0;
+  padding:10px 42px 10px 13px;
+  border:1px solid var(--cb-border,#efd9e4);
+  border-left:3px solid var(--cb-accent,#d78cac);
+  border-radius:14px;
+  background:var(--cb-surface,#fffafd);
+  color:var(--cb-text,#80677d);
+  box-shadow:0 2px 8px rgba(151,103,133,.06);
+  animation:chatReplyIn .2s ease-out;
+}
+#content .chat-composer #chatReplyingTo[hidden]{display:none!important}
+#content .chat-replying-content{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:3px;
+  min-width:0;
+  width:100%;
+}
+#content .chat-replying-label{
+  display:block;
+  max-width:100%;
+  color:var(--cb-accent-strong,#a45e80);
+  font-size:11px;
+  font-weight:700;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+#content .chat-replying-label b{font-weight:900}
+#content .chat-replying-message{
+  display:-webkit-box;
+  width:100%;
+  max-width:100%;
+  overflow:hidden;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  color:var(--cb-text-soft,#866b80);
+  font-size:12px;
+  font-weight:600;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+  white-space:normal;
+}
+#content .chat-composer #chatReplyingTo button{
+  position:absolute;
+  top:8px;
+  right:8px;
+  flex:0 0 26px;
+  width:26px;
+  height:26px;
+  min-height:26px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:var(--cb-accent-soft,#f7e8ef);
+  color:var(--cb-accent-strong,#9b6380);
+  font-size:18px;
+  line-height:1;
+}
+body[data-mode="dark"] #content .chat-composer #chatReplyingTo{
+  background:var(--cb-surface,#302838);
+  border-color:var(--cb-border,#59495d);
+  border-left-color:var(--cb-accent,#d78cac);
+}

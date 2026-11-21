@@ -2414,8 +2414,6 @@ function playCuteSound(kind = 'tap') {
     oscillator.stop(t + sound.duration + .015);
   } catch {}
 }
-function playBoing() { playCuteSound('buddy'); }
-
 async function popLoveHeart(card, event) {
   if (!card || !me || !sb) return false;
   const memoryRoot = card.closest('[data-memory]');
@@ -5316,13 +5314,6 @@ document.addEventListener('pointercancel', event => {
   const button = event.target.closest('button, [role="button"]');
   if (button) releaseCuteButton(button);
 }, true);
-// Keyboard activation has no pointerdown, so give it the same sound.
-document.addEventListener('click', event => {
-  if (event.detail !== 0) return;
-  const button = event.target.closest('button:not(:disabled), [role="button"]:not([aria-disabled="true"])');
-
-}, true);
-
 // Tapping effect on pointerdown
 document.addEventListener('pointerup', e => {
   const interactive = e.target.closest('button, .primary, .round, .tile, .ig-note-item, .feed-photo, .bunny-button, .daily, [data-go], #nav button');

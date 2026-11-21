@@ -4687,3 +4687,13 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   white-space: pre-wrap !important;
   overflow-wrap: anywhere !important;
 }
+
+
+/* Fine-tune only the user's reply text: lift it slightly within the bubble
+   while retaining the quote-first stack and the bubble's natural dimensions. */
+#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) {
+  gap: 3px !important;
+}
+#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) > .chat-message-text {
+  transform: translateY(-2px) !important;
+}

@@ -344,3 +344,45 @@ test('Notes activity sweep reacts only to friend Notes entry and exit broadcasts
   assert.equal(outgoing.message.payload.from_page, 'notes');
   assert.equal(outgoing.message.payload.to_page, 'gallery');
 });
+
+
+test('friend presence sweep covers online, offline, Notes entry, and Notes exit from both sides', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.waitForFunction(() => window.__cuteBunnyTestState.presenceTracks.length > 0);
+
+  const setFriendPresence = async activePage => page.evaluate(activePage => {
+    const state = window.__cuteBunnyTestState;
+    state.presenceState = activePage ? {
+      'friend-test-session': [{
+        user_id: state.friend.id,
+        username: state.friend.username,
+        active_page: activePage
+      }]
+    } : {};
+    state.emitPresence('sync');
+  }, activePage);
+
+  // We come online while a friend is already online.
+  await setFriendPresence('home');
+  await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
+  await page.waitForTimeout(2100);
+
+  // A friend going offline is also visible to an already-online client.
+  await setFriendPresence(null);
+  await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
+  await page.waitForTimeout(2100);
+
+  // A friend returns and is already in Notes before we open Notes.
+  await setFriendPresence('notes');
+  await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
+  await page.waitForTimeout(2100);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
+
+  // Their Notes exit must reach us while we remain in Notes.
+  await page.waitForTimeout(2100);
+  await setFriendPresence('gallery');
+  await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
+  assert.equal(await page.locator('#cb-presence-sweep').evaluate(node => getComputedStyle(node).visibility), 'visible');
+});

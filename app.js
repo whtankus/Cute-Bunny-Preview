@@ -2657,8 +2657,6 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
         </${senderTag}>
   ` : '';
   const seenLabel = m.last_seen_at ? formatSeenRelative(m.last_seen_at) : 'Seen';
-  const deliveryLabel = Number(m.seen_by_count || 0) > 0 ? 'Seen' : Number(m.delivered_by_count || 0) > 0 ? 'Delivered' : 'Sent';
-  const deliveryStatus = mine && !m.isPending ? `<small class="chat-delivery-status ${deliveryLabel.toLowerCase()}">${deliveryLabel}</small>` : '';
   const seenReceipt = showSeen && mine && Number(m.seen_by_count || 0) > 0
     ? '<small class="chat-seen-receipt" data-seen-at="' + esc(m.last_seen_at || '') + '" aria-label="' + esc(seenLabel) + '">' + esc(seenLabel) + '</small>'
     : '';
@@ -2672,7 +2670,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
       <div class="chat-message-content">
         ${senderMeta}
         <div class="chat-message-line">
-          <time class="chat-message-time" datetime="${esc(createdAt)}">${time}</time>${editedLabel}${deliveryStatus}
+          <time class="chat-message-time" datetime="${esc(createdAt)}">${time}</time>${editedLabel}
           <div class="chat-bubble-wrap">
             <div class="chat-bubble${hasHeartReaction ? '' : ' no-heart-reaction'}${isShortMessage ? ' is-short-message' : ''}" tabindex="0" data-chat-message-id="${esc(id)}" aria-label="Message from ${name}">
               ${heartButton}

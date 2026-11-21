@@ -802,7 +802,17 @@ let feedHistoryTouchY = null;
 document.addEventListener('touchstart', event => { feedHistoryTouchY = event.touches?.[0]?.clientY ?? null; }, { passive: true });
 window.addEventListener('wheel', event => {
   const towardHistory = page === 'notes' ? event.deltaY < 0 : event.deltaY > 0;
-  if (towardHistory) { feedHistoryScrollArmed = true; requestAnimationFrame(tryAutoLoadFeedHistory); }
+  if (!towardHistory) return;
+  if (page === 'notes' && ($('#chatThread')?.scrollTop ?? 1) <= 2) {
+    // A wheel-up gesture while the Notes thread is already at its top is an
+    // unambiguous request for older messages; load directly instead of
+    // depending on IntersectionObserver/viewport geometry.
+    feedHistoryScrollArmed = false;
+    void loadMoreFeed();
+    return;
+  }
+  feedHistoryScrollArmed = true;
+  requestAnimationFrame(tryAutoLoadFeedHistory);
 }, { passive: true });
 document.addEventListener('touchmove', event => {
   const y = event.touches?.[0]?.clientY;

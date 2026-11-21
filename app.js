@@ -4996,18 +4996,22 @@ function syncPresenceUI(presenceEvent = 'sync') {
     }
   });
 
-  // Only a friend changing Notes presence while we were already in Notes
-  // should animate. Our own navigation and online/offline changes are ignored.
-  const hasBaseline = knownFriendNotesIds !== null;
-  const weWereAlreadyInNotes = page === 'notes' && lastPresenceObservedPage === 'notes';
-  const friendEnteredNotes = hasBaseline && weWereAlreadyInNotes &&
-    [...notesNow].some(id => !knownFriendNotesIds.has(id));
-  const friendLeftNotes = hasBaseline && weWereAlreadyInNotes &&
-    [...knownFriendNotesIds].some(id => !notesNow.has(id));
+  // Treat a page navigation as a fresh baseline. Only subsequent remote
+  // presence snapshots while we remain in Notes can animate the header.
+  // This avoids both false pulses on our own navigation and missed pulses
+  // caused by the order in which route and Realtime callbacks are delivered.
+  const pageChanged = page !== lastPresenceObservedPage;
+  const hasBaseline = knownFriendNotesIds instanceof Set;
+  if (!pageChanged && page === 'notes' && hasBaseline &&
+      ['sync', 'join', 'leave'].includes(presenceEvent)) {
+    const friendEnteredNotes = [...notesNow].some(id => !knownFriendNotesIds.has(id));
+    const friendLeftNotes = [...knownFriendNotesIds].some(id => !notesNow.has(id));
+    if (friendEnteredNotes || friendLeftNotes) triggerHeaderActivitySweep();
+  }
 
-  if (friendEnteredNotes || friendLeftNotes) triggerHeaderActivitySweep();
-
-  knownFriendNotesIds = notesNow;
+  // Always advance the snapshot, including when outside Notes, so an online
+  // event or a page change cannot be replayed as a Notes transition later.
+  knownFriendNotesIds = new Set(notesNow);
   lastPresenceObservedPage = page;
   syncNotesTypingFromPresence(state);
   const profileGate = $('#friendProfileGate');

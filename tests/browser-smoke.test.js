@@ -245,7 +245,21 @@ test('Notes history uses stable keyset pagination and restores old message heart
     // listener receives the same bubbling event a real user gesture produces.
     thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
   });
-  await page.waitForFunction(() => document.querySelectorAll('#chatThread > .chat-message[data-memory]').length >= 80);
+  await page.waitForTimeout(500);
+  const historyLoadDebug = await page.evaluate(() => {
+    const thread = document.querySelector('#chatThread');
+    const sentinel = document.querySelector('[data-history-sentinel]');
+    return {
+      messageCount: document.querySelectorAll('#chatThread > .chat-message[data-memory]').length,
+      memorySelectCalls: window.__cuteBunnyTestState.calls.filter(call => call.table === 'memories' && call.action === 'select').length,
+      threadScrollTop: thread?.scrollTop,
+      threadRect: thread?.getBoundingClientRect().toJSON(),
+      sentinelRect: sentinel?.getBoundingClientRect().toJSON(),
+      pageAttribute: document.body.dataset.page || document.body.className,
+      newestIds: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'note').map(row => row.id).sort((a, b) => b - a).slice(0, 3)
+    };
+  });
+  assert.ok(historyLoadDebug.messageCount >= 80, 'first Notes history page should load older messages: ' + JSON.stringify(historyLoadDebug));
   await page.evaluate(() => {
     const thread = document.querySelector('#chatThread');
     thread.scrollTop = 0;

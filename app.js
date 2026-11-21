@@ -4656,6 +4656,18 @@ function startRealtime() {
         if (!(page === 'notes' && String(payload?.new?.kind || '') === 'note')) {
           toast('A little hello from your friend ♡');
         }
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: 'recipient_id=eq.' + me.id }, payload => {
+        const changed = payload?.new;
+        if (!changed?.id) return;
+        const row = notificationRows.find(item => String(item.id) === String(changed.id));
+        if (row) {
+          row.read_at = changed.read_at || null;
+          updateNotificationBadge();
+          if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();
+        } else if (notificationLoaded) {
+          void loadNotifications();
+        }
       }).subscribe();
 
     // The other person's read cursor is the source of our Seen receipt.
@@ -6447,12 +6459,13 @@ document.addEventListener('click', async e => {
   }
   if (e.target.closest('#notificationsSave')) {
     try {
-      await api('/me', {
+      const saved = await api('/me', {
         method: 'PUT',
         body: JSON.stringify({
           notificationPreferences: { memories: $('#notifyMemories').checked, buddy: $('#notifyBuddy').checked }
         })
       });
+      if (me && saved?.notification_preferences) me.notification_preferences = saved.notification_preferences;
       toast('Notification settings saved ♡');
     } catch (err) {
       toast(err.message);

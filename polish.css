@@ -4654,65 +4654,64 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
 #content .chat-page .chat-reply-preview-text{display:block;flex:1 1 auto;min-width:0;overflow:hidden;color:#826d80;font-size:11px;font-weight:650;line-height:1.4;text-align:left;overflow-wrap:anywhere;white-space:nowrap;text-overflow:ellipsis}
 
 
-/* Reply messages use the same natural bubble sizing and alignment as ordinary messages.
-   Only the contents are stacked; the surrounding chat row is left untouched. */
-#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) {
+/* Keep ordinary message text centered without changing bubble dimensions. */
+#content .chat-page .chat-bubble-wrap > .chat-bubble:not(:has(> .chat-reply-preview)) {
   display: flex !important;
   flex-direction: column !important;
-  align-items: stretch !important;
-  justify-content: flex-start !important;
-  gap: 2px !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+#content .chat-page .chat-bubble-wrap > .chat-bubble:not(:has(> .chat-reply-preview)) > .chat-message-text {
+  align-self: center !important;
+}
+
+/* Reply preview is removed from intrinsic sizing: it is positioned inside the
+   bubble, while the sender's own message remains the only width-sizing content. */
+#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) {
+  position: relative !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  padding-top: 54px !important;
   text-align: left !important;
 }
 #content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview {
+  position: absolute !important;
+  top: 8px !important;
+  left: 14px !important;
+  right: 14px !important;
   display: flex !important;
-  flex: 0 0 auto !important;
-  align-self: stretch !important;
   box-sizing: border-box !important;
-  width: 100% !important;
-  max-width: 100% !important;
+  width: auto !important;
+  max-width: none !important;
   min-width: 0 !important;
+  max-height: 38px !important;
   margin: 0 !important;
   padding: 4px 7px !important;
+  overflow: hidden !important;
 }
-#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-message-text {
-  display: block !important;
-  flex: 0 0 auto !important;
-  align-self: stretch !important;
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview .chat-reply-preview-quote {
+  display: flex !important;
+  align-items: center !important;
   width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview .chat-reply-preview-text {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) > .chat-message-text {
+  display: block !important;
+  width: auto !important;
   max-width: 100% !important;
   min-width: 0 !important;
   margin: 0 !important;
+  transform: none !important;
   text-align: left !important;
   white-space: pre-wrap !important;
   overflow-wrap: anywhere !important;
-}
-
-
-/* Reply quote must not dictate the outer bubble's intrinsic width.
-   Let the user's own message determine bubble width; quote bar fills that width. */
-#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) {
-  gap: 2px !important;
-}
-#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview {
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex: 0 0 auto !important;
-  align-self: stretch !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  contain: inline-size !important;
-}
-#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview .chat-reply-preview-quote {
-  width: 100% !important;
-  min-width: 0 !important;
-}
-#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-message-text {
-  transform: none !important;
-  width: auto !important;
-  max-width: 100% !important;
-  align-self: stretch !important;
-  margin: 0 !important;
 }

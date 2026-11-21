@@ -115,7 +115,7 @@ function rollKindness() {
     void p.offsetWidth;
     p.classList.add('kindness-pop');
   }
-  playBoing();
+  playCuteSound('sparkle');
   toast('A little drop of kindness for you ♡');
 }
 
@@ -1859,7 +1859,7 @@ function renderStreakPetalGame() {
 function flipStreakPetalCard(cardId) {
   const state = streakPetalGame;
   if (state.locked || state.completed || state.matched.includes(cardId) || state.flipped.includes(cardId)) return;
-  playBoing();
+  playCuteSound('card');
   state.flipped.push(cardId);
   if (state.flipped.length === 2) {
     state.moves += 1;
@@ -1867,6 +1867,7 @@ function flipStreakPetalCard(cardId) {
     const first = state.cards.find(card => card.id === firstId);
     const second = state.cards.find(card => card.id === secondId);
     if (first && second && first.pairKey === second.pairKey) {
+      playCuteSound('success');
       state.matched.push(firstId,secondId);
       state.flipped = [];
       state.completed = state.matched.length === state.cards.length;
@@ -2376,27 +2377,44 @@ function renderStreakPage() {
   syncPresenceUI();
 }
 
-function playBoing() {
+// Small, purpose-specific UI sound palette. Sounds are opt-in at meaningful moments,
+// not attached globally to every button press.
+let cuteSoundContext = null;
+let lastCuteSoundAt = 0;
+function playCuteSound(kind = 'tap') {
+  if (localStorage.getItem('cuteBunnyAppSounds') === 'off') return;
   try {
     const Audio = window.AudioContext || window.webkitAudioContext;
     if (!Audio) return;
-    const context = new Audio();
-    const oscillator = context.createOscillator(), gain = context.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(520, context.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(760, context.currentTime + .09);
-    oscillator.frequency.exponentialRampToValueAtTime(390, context.currentTime + .24);
-    gain.gain.setValueAtTime(.0001, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.12, context.currentTime + .025);
-    gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .28);
+    const now = performance.now();
+    if (now - lastCuteSoundAt < 55) return;
+    lastCuteSoundAt = now;
+    const context = cuteSoundContext || (cuteSoundContext = new Audio());
+    if (context.state === 'suspended') void context.resume();
+    const t = context.currentTime;
+    const presets = {
+      tap:     { start: 620, end: 470, duration: .075, volume: .035, type: 'sine' },
+      buddy:   { start: 520, peak: 760, end: 390, duration: .25, volume: .075, type: 'sine' },
+      sparkle: { start: 880, peak: 1320, end: 1180, duration: .22, volume: .045, type: 'sine' },
+      success: { start: 660, peak: 990, end: 1320, duration: .32, volume: .055, type: 'sine' },
+      card:    { start: 420, end: 560, duration: .09, volume: .03, type: 'triangle' }
+    };
+    const sound = presets[kind] || presets.tap;
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    oscillator.type = sound.type;
+    oscillator.frequency.setValueAtTime(sound.start, t);
+    if (sound.peak) oscillator.frequency.exponentialRampToValueAtTime(sound.peak, t + sound.duration * .42);
+    oscillator.frequency.exponentialRampToValueAtTime(sound.end, t + sound.duration);
+    gain.gain.setValueAtTime(.0001, t);
+    gain.gain.exponentialRampToValueAtTime(sound.volume, t + .012);
+    gain.gain.exponentialRampToValueAtTime(.0001, t + sound.duration);
     oscillator.connect(gain);
     gain.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + .29);
-    oscillator.onended = () => context.close();
+    oscillator.start(t);
+    oscillator.stop(t + sound.duration + .015);
   } catch {}
 }
-
 async function popLoveHeart(card, event) {
   if (!card || !me || !sb) return false;
   const memoryRoot = card.closest('[data-memory]');
@@ -4984,6 +5002,8 @@ function renderNotifications() {
   const prefs = me?.notification_preferences || {};
   $('#notifyMemories').checked = prefs.memories !== false;
   $('#notifyBuddy').checked = prefs.buddy !== false;
+  const soundToggle = $('#notifySounds');
+  if (soundToggle) soundToggle.checked = localStorage.getItem('cuteBunnyAppSounds') !== 'off';
   const previousScrollTop = list.scrollTop;
   const visibleRows = notificationRows.slice(0, notificationVisibleCount);
   const groups = new Map();
@@ -5269,9 +5289,16 @@ function formatProfileDate(value) {
   return `${date.getDate()} ${month}, ${date.getFullYear()}`;
 }
 
+/* App sound preference is local to this device and takes effect immediately. */
+document.addEventListener('change', event => {
+  if (!event.target.matches('#notifySounds')) return;
+  localStorage.setItem('cuteBunnyAppSounds', event.target.checked ? 'on' : 'off');
+  toast(event.target.checked ? 'App sounds are on ♡' : 'App sounds are off');
+});
+
 /* Event listeners */
 
-// Soft tactile button press + one gentle synthesized boing per activation.
+// Soft tactile button press animation. Audio is reserved for selected moments.
 const buttonPressTimers = new WeakMap();
 function releaseCuteButton(button) {
   if (!button) return;
@@ -5286,7 +5313,6 @@ document.addEventListener('pointerdown', event => {
   button.classList.remove('cute-press');
   void button.offsetWidth;
   button.classList.add('cute-press');
-  playBoing();
   const timer = setTimeout(() => releaseCuteButton(button), 190);
   buttonPressTimers.set(button, timer);
 }, true);
@@ -5298,13 +5324,6 @@ document.addEventListener('pointercancel', event => {
   const button = event.target.closest('button, [role="button"]');
   if (button) releaseCuteButton(button);
 }, true);
-// Keyboard activation has no pointerdown, so give it the same sound.
-document.addEventListener('click', event => {
-  if (event.detail !== 0) return;
-  const button = event.target.closest('button:not(:disabled), [role="button"]:not([aria-disabled="true"])');
-  if (button && !button.matches('#surprise, #bunnyBuddy, .sg-petal-card')) playBoing();
-}, true);
-
 // Tapping effect on pointerdown
 document.addEventListener('pointerup', e => {
   const interactive = e.target.closest('button, .primary, .round, .tile, .ig-note-item, .feed-photo, .bunny-button, .daily, [data-go], #nav button');
@@ -5466,7 +5485,6 @@ document.addEventListener('pointerdown', e => {
   messagePressState.startX = e.clientX;
   messagePressState.startY = e.clientY;
   bubble.classList.add('is-pressed');
-  playBoing();
 
   messagePressState.timer = setTimeout(() => {
     if (!messagePressState.bubble?.isConnected || messagePressState.pointerId !== e.pointerId) return;
@@ -6132,7 +6150,7 @@ document.addEventListener('click', async e => {
 
   // Mascot button — restore the earlier, soft CSS hop from the previous design.
   if (e.target.closest('#bunnyBuddy')) {
-    playBoing();
+    playCuteSound('buddy');
     const bunny = $('#bunnyBuddy'), buddy = me?.mascot || '🐰';
     const greetings = { '🐰': 'Bunny says hi! ♡', '🐱': 'Kitty says meow! ♡', '🐻': 'Bear sends a hug! ♡', '🐸': 'Froggy says ribbit! ♡' };
     bunny.classList.remove('bunny-happy');

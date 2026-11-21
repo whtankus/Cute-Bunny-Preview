@@ -21,6 +21,7 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     calls: [],
     broadcasts: [],
     presenceTracks: [],
+    presenceState: {},
     tables: {
       profiles: [me, friend],
       follows: [{ follower_id: me.id, followed_id: friend.id, created_at: now }],
@@ -180,7 +181,8 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
           const channel = {
             topic,
             on(type, filter, callback) {
-              if (type === 'broadcast') handlers.set(filter?.event, callback);
+              if (type === 'broadcast') handlers.set('broadcast:' + filter?.event, callback);
+            if (type === 'presence') handlers.set('presence:' + filter?.event, callback);
               return channel;
             },
             subscribe(callback) {
@@ -195,13 +197,17 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
               state.broadcasts.push({ topic, message });
               return Promise.resolve('ok');
             },
-            presenceState() { return {}; }
+            presenceState() { return state.presenceState || {}; }
           };
           if (!state.channelHandlers) state.channelHandlers = {};
           state.channelHandlers[topic] = handlers;
           state.emitBroadcast = (targetTopic, event, payload) => {
-            const handler = state.channelHandlers?.[targetTopic]?.get(event);
+            const handler = state.channelHandlers?.[targetTopic]?.get('broadcast:' + event);
             handler?.({ payload });
+          };
+          state.emitPresence = (event = 'sync') => {
+            const handlers = state.channelHandlers?.['cute-bunny-presence'];
+            handlers?.get('presence:' + event)?.({});
           };
           return channel;
         },

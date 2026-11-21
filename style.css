@@ -14714,3 +14714,26 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 }
 
 
+
+
+/* Brief Notes-entry activity sweep; visual-only, no page reload or layout change. */
+.app > header.notes-sync-active::after {
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-1px;
+  height:2px;
+  pointer-events:none;
+  background:linear-gradient(90deg,transparent 0%,#d78eaa 24%,#b49ad7 50%,#d78eaa 76%,transparent 100%);
+  background-size:200% 100%;
+  animation:notes-header-sweep 2s ease-in-out both;
+}
+@keyframes notes-header-sweep {
+  from { background-position:100% 0; opacity:.45; }
+  18% { opacity:1; }
+  to { background-position:0 0; opacity:.25; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .app > header.notes-sync-active::after { animation:none; opacity:.7; }
+}

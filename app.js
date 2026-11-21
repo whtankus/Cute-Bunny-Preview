@@ -31,6 +31,7 @@ let pendingDeleteTimers = new Map(), authMode = 'register';
 let playlist = [], playlistIndex = -1, audioObjectUrl = '', songLoadSequence = 0;
 const songUrlCache = new Map(), songUrlInFlight = new Map();
 let notificationRows = [], notificationLoaded = false, notificationLoading = false;
+let notificationVisibleCount = 3;
 let notificationSeenObserver = null, notificationDismissals = new Set();
 let noteSeenObserver = null, noteSeenDebounceTimer = null, seenRelativeInterval = null;
 const noteSeenPending = new Map(), noteSeenInFlight = new Map();
@@ -315,9 +316,10 @@ async function api(path, options = {}) {
   }
 
   if (path === '/notifications/read' && method === 'PUT') {
-    const ids = body.ids || [];
+    const ids = [...new Set((body.ids || []).map(String).filter(Boolean))];
     if (ids.length) {
-      const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() }).in('id', ids);
+      const { error } = await sb.from('notifications').update({ read_at: new Date().toISOString() })
+        .in('id', ids).eq('recipient_id', session.user.id).is('read_at', null);
       fail(error);
     }
     return {};
@@ -4894,7 +4896,7 @@ async function loadNotifications() {
 }
 
 async function showPhoneNotification(notification) {
-  if (!notification || !document.hidden || Notification.permission !== 'granted') return;
+  if (!notification || !document.hidden || !('Notification' in window) || Notification.permission !== 'granted') return;
   let enabled = false;
   try { enabled = localStorage.getItem('cuteBunnyPhoneNotifications') === 'on'; } catch {}
   if (!enabled || !('serviceWorker' in navigator)) return;
@@ -4925,6 +4927,44 @@ function updateNotificationBadge() {
   badge.classList.toggle('hidden', count === 0);
 }
 
+function notificationGroupLabel(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Earlier';
+  const today = new Date(), yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  if (date.toDateString() === today.toDateString()) return 'Today';
+  if (date.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return 'Earlier';
+}
+
+function notificationKindMeta(notification) {
+  const kind = String(notification?.kind || '').toLowerCase();
+  if (kind === 'buddy') return { icon: '♡', label: 'Friend hello' };
+  if (kind === 'photo') return { icon: '▧', label: 'Photo' };
+  if (kind === 'song') return { icon: '♫', label: 'Music' };
+  if (kind === 'note') return { icon: '✎', label: 'Note' };
+  return { icon: '♡', label: 'Activity' };
+}
+
+async function markNotificationRead(id) {
+  const key = String(id || '');
+  const row = notificationRows.find(item => String(item.id) === key);
+  if (!row || row.read_at) return true;
+  const previous = row.read_at;
+  row.read_at = new Date().toISOString();
+  updateNotificationBadge();
+  if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();
+  try {
+    await api('/notifications/read', { method: 'PUT', body: JSON.stringify({ ids: [key] }) });
+    return true;
+  } catch (error) {
+    row.read_at = previous;
+    updateNotificationBadge();
+    if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();
+    throw error;
+  }
+}
+
 function renderNotifications() {
   const list = $('#notificationList');
   if (!list) return;
@@ -4932,35 +4972,44 @@ function renderNotifications() {
   $('#notifyMemories').checked = prefs.memories !== false;
   $('#notifyBuddy').checked = prefs.buddy !== false;
   const previousScrollTop = list.scrollTop;
-  list.innerHTML = notificationRows.map(n => {
-    const actor = Array.isArray(n.actor) ? n.actor[0] : (n.actor || {});
-    const unread = !n.read_at;
-    const actorName = String(actor.display_name || actor.username || 'Friend');
-    const rawMessage = String(n.message || '');
-    const likedMatch = rawMessage.match(/\bliked your (photo|song|note)\b/i);
-    let actionText = likedMatch ? 'liked your ' + likedMatch[1] : rawMessage;
-    if (!likedMatch && actionText.toLowerCase().startsWith(actorName.toLowerCase())) {
-      actionText = actionText.slice(actorName.length).trim();
-    }
-    if (!actionText) actionText = 'shared something with you';
-    return `<div class="notification-row${unread ? ' is-unread' : ''}" data-notification-row="${esc(n.id)}">
-      <button type="button" class="notification-open" data-notification="${esc(n.id)}" aria-label="Open notification from ${esc(actorName)}">
-        <span class="notification-avatar">${esc(actor.mascot || '🐰')}</span>
-        <span class="notification-copy">
-          <b>${esc(actorName)}</b>
-          <small>${esc(actionText)}</small>
-          <time>${esc(formatMessageTime(n.created_at))}</time>
-        </span>
-        ${unread ? '<i class="notification-unread-dot" aria-label="Unread"></i>' : ''}
-      </button>
-    </div>`;
-  }).join('') || (notificationLoading && !notificationLoaded
+  const visibleRows = notificationRows.slice(0, notificationVisibleCount);
+  const groups = new Map();
+  visibleRows.forEach(notification => {
+    const label = notificationGroupLabel(notification.created_at);
+    if (!groups.has(label)) groups.set(label, []);
+    groups.get(label).push(notification);
+  });
+  const content = ['Today', 'Yesterday', 'Earlier'].filter(label => groups.has(label)).map(label => {
+    const rows = groups.get(label).map(n => {
+      const actor = Array.isArray(n.actor) ? n.actor[0] : (n.actor || {});
+      const unread = !n.read_at;
+      const actorName = String(actor.display_name || actor.username || 'Friend');
+      const rawMessage = String(n.message || '');
+      const likedMatch = rawMessage.match(/\bliked your (photo|song|note)\b/i);
+      let actionText = likedMatch ? 'liked your ' + likedMatch[1] : rawMessage;
+      if (!likedMatch && actionText.toLowerCase().startsWith(actorName.toLowerCase())) actionText = actionText.slice(actorName.length).trim();
+      if (!actionText) actionText = 'shared something with you';
+      const meta = notificationKindMeta(n);
+      return `<div class="notification-row${unread ? ' is-unread' : ''}" data-notification-row="${esc(n.id)}">
+        <button type="button" class="notification-open" data-notification="${esc(n.id)}" aria-label="Open notification from ${esc(actorName)}">
+          <span class="notification-avatar" aria-hidden="true">${esc(actor.mascot || meta.icon)}</span>
+          <span class="notification-copy"><b>${esc(actorName)}</b><small>${esc(actionText)}</small><time>${esc(formatMessageTime(n.created_at))}</time></span>
+          <span class="notification-kind" aria-label="${esc(meta.label)}">${esc(meta.icon)}</span>
+          ${unread ? '<i class="notification-unread-dot" aria-label="Unread"></i>' : ''}
+        </button>
+        <button type="button" class="notification-delete" data-notification-delete="${esc(n.id)}" aria-label="Delete notification">×</button>
+      </div>`;
+    }).join('');
+    return `<section class="notification-group"><h3>${label}</h3>${rows}</section>`;
+  }).join('');
+  const remaining = Math.max(0, notificationRows.length - visibleRows.length);
+  list.innerHTML = content || (notificationLoading && !notificationLoaded
     ? '<div class="notification-loading" aria-label="Loading notifications"><span class="notification-loader" aria-hidden="true"></span></div>'
     : '<div class="notification-empty"><span aria-hidden="true">♡</span><b>You’re all caught up</b><small>New shared activity will appear here.</small></div>');
+  if (remaining) list.insertAdjacentHTML('beforeend', `<button type="button" class="notification-load-more" data-notification-more>Show older notifications <span>${remaining}</span></button>`);
   list.scrollTop = previousScrollTop;
   observeNotificationListRows();
 }
-
 function observeNotificationListRows() {
   notificationListSeenObserver?.disconnect();
   notificationListSeenObserver = null;
@@ -4984,13 +5033,10 @@ function observeNotificationListRows() {
 }
 
 async function dismissViewedNotifications() {
+  // Viewing a notification never deletes it; history remains until explicit deletion.
   notificationListSeenObserver?.disconnect();
   notificationListSeenObserver = null;
-  const ids = [...notificationViewedIds];
   notificationViewedIds.clear();
-  for (const id of ids) {
-    try { await dismissNotification(id, { silent: true }); } catch {}
-  }
 }
 
 async function dismissNotification(id, options = {}) {
@@ -6107,13 +6153,10 @@ document.addEventListener('click', async e => {
     return;
   }
   if (e.target.closest('#notificationOpen')) {
-    notificationRows.forEach(row => notificationViewedIds.add(String(row.id)));
+    notificationVisibleCount = 3;
     $('#notificationGate').classList.remove('hidden');
     void loadNotifications().then(() => {
-      if (!$('#notificationGate').classList.contains('hidden')) {
-        notificationRows.forEach(row => notificationViewedIds.add(String(row.id)));
-        renderNotifications();
-      }
+      if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();
     });
     return;
   }
@@ -6352,13 +6395,22 @@ document.addEventListener('click', async e => {
   }
 
   // Notifications
+  if (e.target.closest('[data-notification-more]')) {
+    notificationVisibleCount = Math.min(notificationRows.length, notificationVisibleCount + 10);
+    renderNotifications();
+    return;
+  }
+  const deleteNotificationButton = e.target.closest('[data-notification-delete]');
+  if (deleteNotificationButton) {
+    void dismissNotification(deleteNotificationButton.dataset.notificationDelete);
+    return;
+  }
   const notifItem = e.target.closest('[data-notification]');
   if (notifItem) {
     const notification = notificationRows.find(row => String(row.id) === String(notifItem.dataset.notification));
     try {
-      if (notification) await dismissNotification(notification.id);
+      if (notification) await markNotificationRead(notification.id);
       $('#notificationGate').classList.add('hidden');
-      await dismissViewedNotifications();
       if (notification?.memory_id) {
         const pageForKind = ({ photo: 'gallery', song: 'music', note: 'notes' })[notification.kind] || 'home';
         go(pageForKind);

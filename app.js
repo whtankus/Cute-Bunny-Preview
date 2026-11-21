@@ -54,6 +54,7 @@ let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
 let notesHeaderActivityTimer = null;
 let knownOnlineFriendIds = null;
+let knownFriendNotesIds = null;
 let notesKeyboardDismissed = false;
 let streakSelectedWeekDate = '';
 let streakGardenActiveTab = 'daily';
@@ -2569,6 +2570,7 @@ function go(p, options = {}) {
   if (p === 'gallery' && !mediaInitialLoaded.photo) void loadLatestMedia('photo');
   else if (p === 'music' && !mediaInitialLoaded.song) void loadLatestMedia('song');
   syncPresenceUI();
+  void updateMyPresencePage();
 
   if (p === 'notes') {
     void clearActiveNotesNotifications();
@@ -4557,6 +4559,7 @@ document.addEventListener('pointerdown', () => { void touchLastActive(); }, { pa
 document.addEventListener('keydown', () => { void touchLastActive(); }, { passive: true });
 window.addEventListener('focus', () => { void touchLastActive(true); });
 document.addEventListener('visibilitychange', () => {
+  void updateMyPresencePage();
   if (!document.hidden) {
     void touchLastActive(true);
     if (page === 'notes') requestAnimationFrame(observeNoteSeenMessages);
@@ -4599,15 +4602,7 @@ function startRealtime() {
           presenceStatus = 'ready';
           syncPresenceUI();
           try {
-            await presence.track({
-              user_id: me.id,
-              userId: me.id,
-              username: me.username,
-              display_name: me.displayName || me.display_name || me.username,
-              online_at: new Date().toISOString(),
-              is_typing: typingActive && page === 'notes' && !document.hidden,
-              typing_at: Date.now()
-            });
+            await updateMyPresencePage();
             void touchLastActive(true);
           } catch (error) {
             presenceStatus = 'error';
@@ -4917,17 +4912,65 @@ function triggerHeaderActivitySweep() {
   }, 2000);
 }
 
+function friendPresenceSessions(friend, state) {
+  const friendId = String(friend?.id || friend?.user_id || '');
+  const friendUsername = String(friend?.username || '').trim().toLowerCase();
+  return Object.values(state || {}).flatMap(sessions => Array.isArray(sessions) ? sessions : [])
+    .filter(session => {
+      const sessionId = String(session?.user_id || session?.userId || session?.profile_id || session?.id || '');
+      const sessionUsername = String(session?.username || '').trim().toLowerCase();
+      return (!!friendId && sessionId === friendId) ||
+        (!!friendUsername && sessionUsername === friendUsername);
+    });
+}
+
+async function updateMyPresencePage() {
+  if (!presenceChannel || presenceStatus !== 'ready' || !me) return;
+  try {
+    await presenceChannel.track({
+      user_id: me.id,
+      userId: me.id,
+      username: me.username,
+      display_name: me.displayName || me.display_name || me.username,
+      online_at: new Date().toISOString(),
+      active_page: document.hidden ? 'away' : page,
+      is_typing: typingActive && page === 'notes' && !document.hidden,
+      typing_at: Date.now()
+    });
+  } catch (error) {
+    console.warn('Presence page update failed:', error?.message || error);
+  }
+}
+
 function syncPresenceUI(presenceEvent = 'sync') {
   let state = {};
   try { state = presenceChannel?.presenceState?.() || {}; } catch {}
-  const onlineNow = new Set(
-    friends.filter(friend => isPresenceUserOnline(friend, state)).map(friend => String(friend.id))
-  );
-  if (knownOnlineFriendIds !== null && presenceEvent === 'join') {
-    const friendJustCameOnline = [...onlineNow].some(id => !knownOnlineFriendIds.has(id));
-    if (friendJustCameOnline) triggerHeaderActivitySweep();
-  }
+  const onlineNow = new Set();
+  const notesNow = new Set();
+  (Array.isArray(friends) ? friends : []).forEach(friend => {
+    const friendId = String(friend?.id || friend?.user_id || '');
+    if (!friendId) return;
+    const sessions = friendPresenceSessions(friend, state);
+    if (!sessions.length) return;
+    onlineNow.add(friendId);
+    if (sessions.some(session => String(session?.active_page || session?.current_page || session?.page || '').toLowerCase() === 'notes')) {
+      notesNow.add(friendId);
+    }
+  });
+
+  const joinedFriend = knownOnlineFriendIds !== null &&
+    [...onlineNow].some(id => !knownOnlineFriendIds.has(id));
+  const friendEnteredNotes = knownFriendNotesIds !== null &&
+    [...notesNow].some(id => !knownFriendNotesIds.has(id));
+  const friendLeftNotes = knownFriendNotesIds !== null &&
+    [...knownFriendNotesIds].some(id => !notesNow.has(id));
+
+  if (presenceEvent === 'join' && joinedFriend) triggerHeaderActivitySweep();
+  if (friendEnteredNotes || friendLeftNotes) triggerHeaderActivitySweep();
+  if (page === 'notes' && knownFriendNotesIds === null && notesNow.size) triggerHeaderActivitySweep();
+
   knownOnlineFriendIds = onlineNow;
+  knownFriendNotesIds = notesNow;
   syncNotesTypingFromPresence(state);
   const profileGate = $('#friendProfileGate');
   if (profileGate && !profileGate.classList.contains('hidden') && profileGate.dataset.username) {

@@ -19,6 +19,8 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     nextEditHistoryId: 1,
     uploads: [],
     calls: [],
+    broadcasts: [],
+    presenceTracks: [],
     tables: {
       profiles: [me, friend],
       follows: [{ follower_id: me.id, followed_id: friend.id, created_at: now }],
@@ -173,8 +175,34 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
             };
           }
         },
-        channel() {
-          const channel = { on() { return channel; }, subscribe() { return channel; }, track() { return Promise.resolve(); }, send() { return Promise.resolve(); }, presenceState() { return {}; } };
+        channel(topic) {
+          const handlers = new Map();
+          const channel = {
+            topic,
+            on(type, filter, callback) {
+              if (type === 'broadcast') handlers.set(filter?.event, callback);
+              return channel;
+            },
+            subscribe(callback) {
+              queueMicrotask(() => callback?.('SUBSCRIBED'));
+              return channel;
+            },
+            track(payload) {
+              state.presenceTracks.push({ topic, payload: { ...payload } });
+              return Promise.resolve();
+            },
+            send(message) {
+              state.broadcasts.push({ topic, message });
+              return Promise.resolve('ok');
+            },
+            presenceState() { return {}; }
+          };
+          if (!state.channelHandlers) state.channelHandlers = {};
+          state.channelHandlers[topic] = handlers;
+          state.emitBroadcast = (targetTopic, event, payload) => {
+            const handler = state.channelHandlers?.[targetTopic]?.get(event);
+            handler?.({ payload });
+          };
           return channel;
         },
         async removeChannel() { return 'ok'; }

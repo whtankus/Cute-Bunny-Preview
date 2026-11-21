@@ -57,6 +57,9 @@ let presenceTrackQueue = Promise.resolve();
 let lastPublishedPresencePage = null;
 let notesActivityChannel = null, notesActivityChannelReady = false;
 let pendingNotesPageTransitions = [];
+let knownOnlineFriendKeys = new Set(), knownNotesFriendKeys = new Set();
+let presenceSnapshotInitialized = false, lastPresenceUiPage = null;
+let lastPresenceSweepKey = '', lastPresenceSweepAt = 0;
 let notesKeyboardDismissed = false;
 let streakSelectedWeekDate = '';
 let streakGardenActiveTab = 'daily';
@@ -4901,6 +4904,12 @@ function closeRealtime() {
   notesTypingQueuedState = null;
   presenceStatus = 'closed';
   lastPublishedPresencePage = null;
+  knownOnlineFriendKeys = new Set();
+  knownNotesFriendKeys = new Set();
+  presenceSnapshotInitialized = false;
+  lastPresenceUiPage = null;
+  lastPresenceSweepKey = '';
+  lastPresenceSweepAt = 0;
   if (streakCountdownInterval) {
     window.clearInterval(streakCountdownInterval);
     streakCountdownInterval = null;
@@ -4923,6 +4932,16 @@ function isPresenceUserOnline(userOrId, state) {
         (!!targetUsername && sessionUsername === targetUsername);
     })
   );
+}
+
+function triggerFriendPresenceSweep(friendKey, transition) {
+  const key = String(friendKey || 'friend') + ':' + String(transition || 'activity');
+  const now = Date.now();
+  // Presence and Broadcast can report the same transition; collapse duplicates.
+  if (key === lastPresenceSweepKey && now - lastPresenceSweepAt < 900) return;
+  lastPresenceSweepKey = key;
+  lastPresenceSweepAt = now;
+  triggerHeaderActivitySweep();
 }
 
 function triggerHeaderActivitySweep() {
@@ -4965,7 +4984,7 @@ function handleNotesPageTransition(payload) {
 
   const transition = String(payload?.transition || '').toLowerCase();
   if (transition !== 'entered' && transition !== 'left') return;
-  triggerHeaderActivitySweep();
+  triggerFriendPresenceSweep(senderId || senderUsername, transition);
 }
 
 async function sendNotesPageTransition(payload) {
@@ -5072,6 +5091,58 @@ function syncPresenceUI(presenceEvent = 'local') {
       notesNow.add(friendId || username);
     }
   });
+
+  // Reconcile both online status and Notes location from the authoritative
+  // Presence snapshot. Broadcasts provide instant Notes transitions; this
+  // snapshot comparison is the safety net for missed/reordered broadcasts.
+  const onlineNow = new Set();
+  const friendKeys = new Map();
+  (Array.isArray(friends) ? friends : []).forEach(friend => {
+    const id = String(friend?.id || friend?.user_id || '');
+    const username = String(friend?.username || '').trim().toLowerCase();
+    const key = id || username;
+    if (!key) return;
+    friendKeys.set(key, { id, username });
+    const sessions = new Set([
+      ...(id ? sessionsById.get(id) || [] : []),
+      ...(username ? sessionsByUsername.get(username) || [] : [])
+    ]);
+    if (sessions.size) onlineNow.add(key);
+  });
+
+  const previousOnline = knownOnlineFriendKeys;
+  const previousNotes = knownNotesFriendKeys;
+  if (presenceSnapshotInitialized) {
+    onlineNow.forEach(key => {
+      if (!previousOnline.has(key)) triggerFriendPresenceSweep(key, 'online');
+    });
+    previousOnline.forEach(key => {
+      if (!onlineNow.has(key)) triggerFriendPresenceSweep(key, 'offline');
+    });
+    if (page === 'notes' && !document.hidden) {
+      notesNow.forEach(key => {
+        if (!previousNotes.has(key)) triggerFriendPresenceSweep(key, 'notes-entered');
+      });
+      previousNotes.forEach(key => {
+        if (!notesNow.has(key)) triggerFriendPresenceSweep(key, 'notes-left');
+      });
+    }
+  } else if (onlineNow.size) {
+    // When this client first comes online, show the activity sweep if a
+    // friend was already online; do not require a fresh join event.
+    triggerFriendPresenceSweep([...onlineNow][0], 'online');
+  }
+
+  // If we navigate into Notes after a friend is already there, there will be
+  // no new remote event. Reconcile the existing snapshot on our page entry.
+  if (page === 'notes' && !document.hidden &&
+      lastPresenceUiPage !== 'notes' && notesNow.size) {
+    triggerFriendPresenceSweep([...notesNow][0], 'notes-entered');
+  }
+  knownOnlineFriendKeys = onlineNow;
+  knownNotesFriendKeys = notesNow;
+  presenceSnapshotInitialized = true;
+  lastPresenceUiPage = document.hidden ? 'away' : page;
 
   syncNotesTypingFromPresence(state);
   const profileGate = $('#friendProfileGate');

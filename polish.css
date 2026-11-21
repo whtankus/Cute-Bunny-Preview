@@ -4654,30 +4654,29 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
 #content .chat-page .chat-reply-preview-text{display:block;flex:1 1 auto;min-width:0;overflow:hidden;color:#826d80;font-size:11px;font-weight:650;line-height:1.4;text-align:left;overflow-wrap:anywhere;white-space:nowrap;text-overflow:ellipsis}
 
 
-/* Keep the reply quote and the actual message vertically stacked in one bubble.
-   The bubble may inherit flex-row rules from other chat layouts, so enforce column flow. */
-#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble {
+/* Reply messages use the same natural bubble sizing and alignment as ordinary messages.
+   Only the contents are stacked; the surrounding chat row is left untouched. */
+#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) {
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
   justify-content: flex-start !important;
-  gap: 7px !important;
-  box-sizing: border-box !important;
+  gap: 2px !important;
   text-align: left !important;
 }
-#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble > .chat-reply-preview {
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview {
   display: flex !important;
-  position: relative !important;
   flex: 0 0 auto !important;
   align-self: stretch !important;
+  box-sizing: border-box !important;
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
   margin: 0 !important;
+  padding: 4px 7px !important;
 }
-#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble > .chat-message-text {
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-message-text {
   display: block !important;
-  position: relative !important;
   flex: 0 0 auto !important;
   align-self: stretch !important;
   width: 100% !important;
@@ -4687,106 +4686,4 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   text-align: left !important;
   white-space: pre-wrap !important;
   overflow-wrap: anywhere !important;
-}
-
-
-/* Keep reply bubbles inside the chat column and aligned with their sender.
-   The timestamp occupies its own column, so cap the bubble to the remaining viewport width. */
-#content .chat-page .chat-message-content:has(.chat-reply-preview) {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-}
-#content .chat-page .chat-message-line:has(.chat-reply-preview) {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-}
-#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
-  box-sizing: border-box !important;
-  flex: 0 1 360px !important;
-  width: min(360px, calc(100vw - 8.5rem)) !important;
-  max-width: min(360px, calc(100vw - 8.5rem)) !important;
-  min-width: 0 !important;
-}
-#content .chat-page .chat-message.is-mine .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
-  margin-left: auto !important;
-  margin-right: 0 !important;
-}
-#content .chat-page .chat-message.is-friend .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
-  margin-left: 0 !important;
-  margin-right: auto !important;
-}
-#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble {
-  box-sizing: border-box !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-}
-@media (max-width: 560px) {
-  #content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
-    flex-basis: min(300px, calc(100vw - 7.5rem)) !important;
-    width: min(300px, calc(100vw - 7.5rem)) !important;
-    max-width: min(300px, calc(100vw - 7.5rem)) !important;
-  }
-}
-@media (max-width: 360px) {
-  #content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
-    flex-basis: calc(100vw - 6.5rem) !important;
-    width: calc(100vw - 6.5rem) !important;
-    max-width: calc(100vw - 6.5rem) !important;
-  }
-}
-
-
-/* Align the whole reply-message row to the chat edge, not just its sender label.
-   A shrink-to-fit content column was letting the timestamp + bubble overflow leftward. */
-#content .chat-page .chat-message.is-mine .chat-message-content:has(.chat-reply-preview),
-#content .chat-page .chat-message.is-friend .chat-message-content:has(.chat-reply-preview) {
-  display: flex !important;
-  flex: 0 1 720px !important;
-  width: 100% !important;
-  max-width: min(100%, 720px) !important;
-  min-width: 0 !important;
-}
-#content .chat-page .chat-message.is-mine .chat-message-content:has(.chat-reply-preview) {
-  margin-left: auto !important;
-  margin-right: 0 !important;
-  align-items: flex-end !important;
-}
-#content .chat-page .chat-message.is-friend .chat-message-content:has(.chat-reply-preview) {
-  margin-left: 0 !important;
-  margin-right: auto !important;
-  align-items: flex-start !important;
-}
-#content .chat-page .chat-message-line:has(.chat-reply-preview) {
-  display: flex !important;
-  flex: 0 0 auto !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-}
-#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
-  flex: 0 1 360px !important;
-  width: min(360px, calc(100% - 4.5rem)) !important;
-  max-width: min(360px, calc(100% - 4.5rem)) !important;
-  min-width: 0 !important;
-}
-#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble {
-  gap: 3px !important;
-  padding-top: 10px !important;
-  padding-bottom: 9px !important;
-}
-#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) .chat-reply-preview {
-  padding: 5px 8px !important;
-}
-@media (max-width: 560px) {
-  #content .chat-page .chat-message-content:has(.chat-reply-preview) {
-    max-width: 100% !important;
-  }
-  #content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
-    flex-basis: min(300px, calc(100% - 4.5rem)) !important;
-    width: min(300px, calc(100% - 4.5rem)) !important;
-    max-width: min(300px, calc(100% - 4.5rem)) !important;
-  }
 }

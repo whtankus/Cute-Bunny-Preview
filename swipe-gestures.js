@@ -82,13 +82,13 @@
       const messageId = String(target.dataset.chatMessageId || '');
       if (!messageId) return;
       suppressClickUntil = Date.now() + 650;
-      window.replyingToMessageId = messageId;
-      // app.js owns the reply state and navigation; this invokes its existing flow.
       try {
-        if (window.CuteBunnySwipeReply) window.CuteBunnySwipeReply(messageId);
-        else {
-          document.dispatchEvent(new CustomEvent('cb:swipe-reply', { detail: { messageId } }));
-        }
+        replyingToMessageId = messageId;
+        hideMessageActions();
+        if (page !== 'notes') go('notes');
+        else renderNotesPage();
+        document.querySelector('#chatInput')?.focus({ preventScroll: true });
+        if (typeof syncNotesKeyboardLayout === 'function') syncNotesKeyboardLayout();
       } catch (error) { console.warn('Swipe reply could not open:', error); }
       return;
     }
@@ -99,8 +99,7 @@
       if (!reducedMotion) await new Promise(resolve => setTimeout(resolve, 170));
       const id = String(target.dataset.notificationRow || '');
       try {
-        if (window.CuteBunnySwipeDismiss) await window.CuteBunnySwipeDismiss(id);
-        else document.dispatchEvent(new CustomEvent('cb:swipe-dismiss-notification', { detail: { id } }));
+        await dismissNotification(id);
       } catch (error) {
         target.classList.remove('cb-swipe-dismiss');
         clearTracking();
@@ -111,13 +110,10 @@
 
     clearTracking();
     if (mode === 'pages' && Math.abs(dx) >= 88 && Math.abs(dy) < 60) {
-      const current = window.CuteBunnySwipePage?.() || '';
+      const current = typeof page === 'string' ? page : '';
       const index = pageOrder.indexOf(current);
       const next = pageOrder[index + (dx < 0 ? 1 : -1)];
-      if (next && window.CuteBunnySwipeNavigate) {
-        suppressClickUntil = Date.now() + 300;
-        window.CuteBunnySwipeNavigate(next);
-      }
+      if (next) { suppressClickUntil = Date.now() + 300; go(next); }
     }
   }
 
@@ -140,6 +136,5 @@
 
   // The shop becomes a native snap-scroller on narrow screens; normal grid layout
   // remains intact on desktop and all purchase/equip buttons retain their handlers.
-  const shop = document.querySelector('.sg-collectible-grid');
-  if (shop) shop.setAttribute('aria-label', 'Swipe horizontally to browse garden collectibles');
+  document.addEventListener('focusin', event => { const grid = event.target.closest?.('.sg-collectible-grid'); if (grid) grid.setAttribute('aria-label', 'Swipe horizontally to browse garden collectibles'); });
 })();

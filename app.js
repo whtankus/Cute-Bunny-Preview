@@ -53,6 +53,7 @@ let hiddenNoteIds = new Set();
 let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
 let notesHeaderActivityTimer = null;
+let knownOnlineFriendIds = null;
 let notesKeyboardDismissed = false;
 let streakSelectedWeekDate = '';
 let streakGardenActiveTab = 'daily';
@@ -2555,18 +2556,7 @@ function go(p, options = {}) {
 
   hideMessageActions();
   document.body.classList.toggle('notes-page-active', p === 'notes');
-  const appHeader = document.querySelector('.app > header');
-  clearTimeout(notesHeaderActivityTimer);
-  appHeader?.classList.remove('notes-sync-active');
-  if (p === 'notes' && appHeader) {
-    // Briefly sweep the header line whenever Notes is entered or revisited.
-    void appHeader.offsetWidth;
-    appHeader.classList.add('notes-sync-active');
-    notesHeaderActivityTimer = setTimeout(() => {
-      appHeader.classList.remove('notes-sync-active');
-      notesHeaderActivityTimer = null;
-    }, 2000);
-  }
+  if (p === 'notes') triggerHeaderActivitySweep();
   if (p === 'notes') {
     document.body.classList.remove('notes-header-hidden');
     notesHeaderLastScrollTop = null;
@@ -4914,9 +4904,37 @@ function isPresenceUserOnline(userOrId, state) {
   );
 }
 
+function triggerHeaderActivitySweep() {
+  const header = document.querySelector('#app > header');
+  if (!header) return;
+  let line = header.querySelector('.header-activity-line');
+  if (!line) {
+    line = document.createElement('span');
+    line.className = 'header-activity-line';
+    line.setAttribute('aria-hidden', 'true');
+    header.appendChild(line);
+  }
+  clearTimeout(notesHeaderActivityTimer);
+  line.classList.remove('is-active');
+  void line.offsetWidth;
+  line.classList.add('is-active');
+  notesHeaderActivityTimer = setTimeout(() => {
+    line.classList.remove('is-active');
+    notesHeaderActivityTimer = null;
+  }, 2000);
+}
+
 function syncPresenceUI() {
   let state = {};
   try { state = presenceChannel?.presenceState?.() || {}; } catch {}
+  const onlineNow = new Set(
+    friends.filter(friend => isPresenceUserOnline(friend, state)).map(friend => String(friend.id))
+  );
+  if (knownOnlineFriendIds !== null) {
+    const friendJustCameOnline = [...onlineNow].some(id => !knownOnlineFriendIds.has(id));
+    if (friendJustCameOnline) triggerHeaderActivitySweep();
+  }
+  knownOnlineFriendIds = onlineNow;
   syncNotesTypingFromPresence(state);
   const profileGate = $('#friendProfileGate');
   if (profileGate && !profileGate.classList.contains('hidden') && profileGate.dataset.username) {

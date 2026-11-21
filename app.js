@@ -5852,6 +5852,7 @@ document.addEventListener('click', event => {
   if (!retryButton && !streakButton) return;
   event.preventDefault();
   event.stopImmediatePropagation();
+  if (streakButton) playCuteSound('boing');
   openStreakGarden();
 }, true);
 
@@ -5859,6 +5860,7 @@ document.addEventListener('keydown', event => {
   const thumbnail = event.target?.closest?.('.streak-art-trigger[data-open-streak]');
   if (!thumbnail || (event.key !== 'Enter' && event.key !== ' ')) return;
   event.preventDefault();
+  playCuteSound('boing');
   openStreakGarden();
 }, true);
 

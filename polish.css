@@ -4683,7 +4683,7 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   margin: 0 !important;
   padding: 4px 7px !important;
 }
-#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-message-text {
+#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) > .chat-message-text {
   display: block !important;
   flex: 0 0 auto !important;
   align-self: stretch !important;

@@ -2461,14 +2461,9 @@ async function popLoveHeart(card, event) {
       ? await sb.from('memory_likes').upsert({ memory_id: item.id, user_id: me.id }, { onConflict: 'memory_id,user_id', ignoreDuplicates: true })
       : await sb.from('memory_likes').delete().eq('memory_id', item.id).eq('user_id', me.id);
     if (result.error) throw result.error;
-    const { data: persistedLikes, error: likesReadError } = await sb.from('memory_likes')
-      .select('memory_id,user_id')
-      .eq('memory_id', item.id);
-    if (likesReadError) throw likesReadError;
-    item.like_count = (persistedLikes || []).length;
-    item.liked_by_me = (persistedLikes || []).some(like => String(like.user_id) === String(me.id));
-    paint();
-    if (nextLiked && item.liked_by_me) recordStreakDailyQuest('heart', memoryId);
+    // Keep the optimistic state: the memory_likes Realtime subscription
+    // reconciles counts across devices. Avoid a second SELECT on every tap.
+    if (nextLiked) recordStreakDailyQuest('heart', memoryId);
     return true;
   } catch (error) {
     item.liked_by_me = wasLiked; item.like_count = previousCount; paint();
@@ -4121,9 +4116,9 @@ async function clearIgNote() {
    The typing hint is attached to the conversation thread, never the composer,
    and heartbeat/expiry timings are short enough to feel live without flicker. */
 let notesTypingChannel = null;
-const NOTES_TYPING_HEARTBEAT_MS = 500;
-const NOTES_TYPING_EXPIRY_MS = 2500;
-const NOTES_TYPING_IDLE_MS = 1000;
+const NOTES_TYPING_HEARTBEAT_MS = 650;
+const NOTES_TYPING_EXPIRY_MS = 2300;
+const NOTES_TYPING_IDLE_MS = 800;
 
 async function sendNotesTyping(isTyping) {
   const nextState = !!isTyping && page === 'notes' && !document.hidden;
@@ -4299,14 +4294,19 @@ function queueNoteSeen(ownerId, messageId) {
   const known = Math.max(noteSeenLastAck.get(owner) || 0, noteSeenPending.get(owner) || 0);
   if (id <= known) return;
   noteSeenPending.set(owner, id);
-  // Mark visible incoming notes immediately; do not wait for a debounce timer.
-  clearTimeout(noteSeenDebounceTimer);
-  noteSeenDebounceTimer = null;
-  void flushNoteSeenReceipts();
+  // Coalesce all visible messages from the same friend into one highest-ID
+  // cursor update instead of sending one RPC for every observer callback.
+  if (!noteSeenDebounceTimer) {
+    noteSeenDebounceTimer = setTimeout(() => {
+      noteSeenDebounceTimer = null;
+      void flushNoteSeenReceipts();
+    }, 70);
+  }
 }
 
 async function flushNoteSeenReceipts() {
   if (!sb || !me || page !== 'notes' || document.hidden || !document.hasFocus()) return;
+  noteSeenDebounceTimer = null;
   const batch = [...noteSeenPending.entries()];
   noteSeenPending.clear();
   for (const [ownerId, messageId] of batch) {
@@ -4314,6 +4314,7 @@ async function flushNoteSeenReceipts() {
       noteSeenPending.set(ownerId, Math.max(noteSeenPending.get(ownerId) || 0, messageId));
       continue;
     }
+    let retryDelay = 40;
     const request = (async () => {
       const { error } = await sb.rpc('mark_notes_seen', {
         p_owner_id: ownerId,
@@ -4323,14 +4324,20 @@ async function flushNoteSeenReceipts() {
       noteSeenLastAck.set(ownerId, Math.max(noteSeenLastAck.get(ownerId) || 0, messageId));
     })();
     noteSeenInFlight.set(ownerId, request);
-    request.catch(error => console.warn('Notes seen receipt could not be saved:', error?.message || error))
-      .finally(() => {
-        noteSeenInFlight.delete(ownerId);
-        if (noteSeenPending.size && page === 'notes' && !document.hidden) {
-          clearTimeout(noteSeenDebounceTimer);
-          noteSeenDebounceTimer = setTimeout(flushNoteSeenReceipts, 40);
-        }
-      });
+    request.catch(error => {
+      console.warn('Notes seen receipt could not be saved:', error?.message || error);
+      // Do not silently lose a read receipt on a transient network failure.
+      if (page === 'notes' && !document.hidden) {
+        noteSeenPending.set(ownerId, Math.max(noteSeenPending.get(ownerId) || 0, messageId));
+        retryDelay = 1200;
+      }
+    }).finally(() => {
+      noteSeenInFlight.delete(ownerId);
+      if (noteSeenPending.size && page === 'notes' && !document.hidden) {
+        clearTimeout(noteSeenDebounceTimer);
+        noteSeenDebounceTimer = setTimeout(flushNoteSeenReceipts, retryDelay);
+      }
+    });
   }
 }
 

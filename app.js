@@ -785,9 +785,12 @@ function tryAutoLoadFeedHistory() {
   const sentinel = document.querySelector('[data-history-sentinel]');
   if (!sentinel) return;
   const rect = sentinel.getBoundingClientRect();
-  const threadTop = $('#chatThread')?.getBoundingClientRect().top || 0;
+  const thread = page === 'notes' ? $('#chatThread') : null;
+  // Notes history lives at the top of its own scroll container. Checking the
+  // container's scroll position is more reliable than comparing sentinel and
+  // viewport rectangles, which can diverge across mobile/desktop layouts.
   const near = page === 'notes'
-    ? rect.bottom >= threadTop - 220 && rect.top <= threadTop + 220
+    ? !!thread && thread.scrollTop <= 2
     : rect.top <= window.innerHeight + 500;
   if (near) {
     feedHistoryScrollArmed = false;

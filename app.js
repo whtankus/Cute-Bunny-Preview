@@ -2382,6 +2382,7 @@ function renderStreakPage() {
 let cuteSoundContext = null;
 let lastCuteSoundAt = 0;
 function playCuteSound(kind = 'tap') {
+  if (localStorage.getItem('cuteBunnyAppSounds') === 'off') return;
   try {
     const Audio = window.AudioContext || window.webkitAudioContext;
     if (!Audio) return;
@@ -5001,6 +5002,8 @@ function renderNotifications() {
   const prefs = me?.notification_preferences || {};
   $('#notifyMemories').checked = prefs.memories !== false;
   $('#notifyBuddy').checked = prefs.buddy !== false;
+  const soundToggle = $('#notifySounds');
+  if (soundToggle) soundToggle.checked = localStorage.getItem('cuteBunnyAppSounds') !== 'off';
   const previousScrollTop = list.scrollTop;
   const visibleRows = notificationRows.slice(0, notificationVisibleCount);
   const groups = new Map();
@@ -5285,6 +5288,13 @@ function formatProfileDate(value) {
   const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(date);
   return `${date.getDate()} ${month}, ${date.getFullYear()}`;
 }
+
+/* App sound preference is local to this device and takes effect immediately. */
+document.addEventListener('change', event => {
+  if (!event.target.matches('#notifySounds')) return;
+  localStorage.setItem('cuteBunnyAppSounds', event.target.checked ? 'on' : 'off');
+  toast(event.target.checked ? 'App sounds are on ♡' : 'App sounds are off');
+});
 
 /* Event listeners */
 

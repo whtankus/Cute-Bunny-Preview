@@ -21,7 +21,8 @@ const memoryLikeInFlight = new Set();
 let feedHasMore = false, feedLoadingMore = false;
 const FEED_PAGE_SIZE = 40;
 const feedPageOffsets = { all: 0, photo: 0, song: 0 };
-const feedPageHasMore = { all: false, photo: true, song: true };
+const feedPageHasMore = { all: false, photo: true, song: true, note: false };
+let noteHistoryCursor = null;
 const mediaVisibleCount = { photo: 8, song: 8 };
 let feedHistoryObserver = null, feedHistoryScrollArmed = false, mediaPageLoading = { photo: false, song: false };
 let mediaObserver = null;
@@ -338,13 +339,22 @@ async function api(path, options = {}) {
     const offsetMatch = path.match(/[?&]offset=(\d+)/);
     const kindMatch = path.match(/[?&]kind=(photo|song|note)/);
     const limitMatch = path.match(/[?&]limit=(\d+)/);
+    const beforeIdMatch = path.match(/[?&]beforeId=(\d+)/);
     const offset = Math.max(0, Number(offsetMatch?.[1]) || 0);
+    const beforeId = Math.max(0, Number(beforeIdMatch?.[1]) || 0);
     const pageSize = Math.min(120, Math.max(1, Number(limitMatch?.[1]) || FEED_PAGE_SIZE));
     let memoriesQuery = sb.from('memories')
       .select('*,author:profiles!memories_owner_id_fkey(id,username,display_name,mascot,theme)')
       .order('created_at', { ascending: false }).order('id', { ascending: false });
     if (kindMatch) memoriesQuery = memoriesQuery.eq('kind', kindMatch[1]);
-    const { data: rows, error } = await memoriesQuery.range(offset, offset + pageSize - 1);
+    if (beforeId && kindMatch?.[1] === 'note') {
+      // Keyset pagination is stable when new messages arrive; inserting at the
+      // newest end cannot shift the next historical page.
+      memoriesQuery = memoriesQuery.lt('id', beforeId).order('id', { ascending: false });
+    }
+    const { data: rows, error } = beforeId && kindMatch?.[1] === 'note'
+      ? await memoriesQuery.limit(pageSize)
+      : await memoriesQuery.range(offset, offset + pageSize - 1);
     fail(error);
 
     let latestOwnNoteId = null;
@@ -623,14 +633,15 @@ async function refresh() {
       api('/following'),
       api('/feed?kind=photo&limit=8').catch(error => { console.warn('Photo warm cache skipped:', error?.message || error); return null; }),
       api('/feed?kind=song&limit=8').catch(error => { console.warn('Music warm cache skipped:', error?.message || error); return null; }),
-      api('/notes/my-read-cursors').catch(error => { console.warn('Note read cursors could not be loaded:', error?.message || error); return [] })
+      api('/notes/my-read-cursors').catch(error => { console.warn('Note read cursors could not be loaded:', error?.message || error); return [] }),
+      api('/feed?kind=note&limit=' + FEED_PAGE_SIZE).catch(error => { console.warn('Notes history could not be loaded:', error?.message || error); return [] })
     ]);
     me = results[0];
     // The database profile is the source of truth for the colour palette.
     // Re-apply it on every refresh, not only during the initial session restore.
     setTheme(me?.theme);
     const feedById = new Map();
-    [...results[1], ...(results[3] || []), ...(results[4] || [])].forEach(item => feedById.set(String(item.id), item));
+    [...results[1], ...(results[3] || []), ...(results[4] || []), ...(results[6] || [])].forEach(item => feedById.set(String(item.id), item));
     feed = [...feedById.values()].sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
     feedPageOffsets.all = results[1].length;
     feedPageHasMore.all = results[1].length === FEED_PAGE_SIZE;
@@ -642,6 +653,9 @@ async function refresh() {
     mediaVisibleCount.photo = mediaVisibleCount.song = 8;
     feedPageHasMore.photo = (results[3] || []).length === 8;
     feedPageHasMore.song = (results[4] || []).length === 8;
+    const initialNotes = results[6] || [];
+    noteHistoryCursor = initialNotes.length ? String(initialNotes[initialNotes.length - 1].id) : null;
+    feedPageHasMore.note = initialNotes.length === FEED_PAGE_SIZE;
     friends = results[2];
 
     noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));
@@ -697,17 +711,24 @@ function setFeedHistoryLoading(loading) {
 
 async function loadMoreFeed() {
   if (feedLoadingMore || !me) return;
-  const kind = page === 'gallery' ? 'photo' : page === 'music' ? 'song' : 'all';
-  if (!feedPageHasMore[kind] || (kind !== 'all' && mediaPageLoading[kind])) return;
+  const kind = page === 'notes' ? 'note' : page === 'gallery' ? 'photo' : page === 'music' ? 'song' : 'all';
+  if (!feedPageHasMore[kind] || (kind !== 'all' && kind !== 'note' && mediaPageLoading[kind])) return;
   feedLoadingMore = true; setFeedHistoryLoading(true);
   const previousScrollTop = window.scrollY || document.documentElement.scrollTop || 0;
   try {
     const offset = feedPageOffsets[kind];
-    const query = kind === 'all' ? '/feed?offset=' + offset : '/feed?kind=' + kind + '&offset=' + offset;
+    const query = kind === 'note'
+      ? (noteHistoryCursor ? '/feed?kind=note&beforeId=' + encodeURIComponent(noteHistoryCursor) + '&limit=' + FEED_PAGE_SIZE : '')
+      : kind === 'all' ? '/feed?offset=' + offset : '/feed?kind=' + kind + '&offset=' + offset;
+    if (!query) return;
     const older = await api(query);
-    feedPageOffsets[kind] += older.length;
+    if (kind === 'note') {
+      if (older.length) noteHistoryCursor = String(older[older.length - 1].id);
+    } else {
+      feedPageOffsets[kind] += older.length;
+      if (kind !== 'all') mediaVisibleCount[kind] += older.length;
+    }
     feedPageHasMore[kind] = older.length === FEED_PAGE_SIZE;
-    if (kind !== 'all') mediaVisibleCount[kind] += older.length;
     mergeFeedRows(older); feedHasMore = feedPageHasMore.all;
     if (page === 'notes') {
       renderNotesPage();
@@ -2397,7 +2418,7 @@ async function popLoveHeart(card, event) {
   memoryLikeInFlight.add(memoryId);
   try {
     const result = nextLiked
-      ? await sb.from('memory_likes').insert({ memory_id: item.id, user_id: me.id })
+      ? await sb.from('memory_likes').upsert({ memory_id: item.id, user_id: me.id }, { onConflict: 'memory_id,user_id', ignoreDuplicates: true })
       : await sb.from('memory_likes').delete().eq('memory_id', item.id).eq('user_id', me.id);
     if (result.error) throw result.error;
     if (nextLiked) recordStreakDailyQuest('heart', memoryId);

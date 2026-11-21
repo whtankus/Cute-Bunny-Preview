@@ -54,6 +54,7 @@ let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
 let notesHeaderActivityTimer = null;
 let presenceTrackQueue = Promise.resolve();
+let lastPublishedPresencePage = null;
 let lastPresenceObservedPage = 'home';
 let knownFriendNotesIds = null;
 let notesKeyboardDismissed = false;
@@ -4595,6 +4596,16 @@ function startRealtime() {
         }
       });
     presence
+      .on('broadcast', { event: 'notes_page_transition' }, ({ payload }) => {
+        const senderId = String(payload?.user_id || '');
+        if (!senderId || senderId === String(me?.id || '') || page !== 'notes' || document.hidden) return;
+        const isFriend = Array.isArray(friends) && friends.some(friend =>
+          String(friend?.id || friend?.user_id || '') === senderId
+        );
+        if (isFriend && ['entered', 'left'].includes(String(payload?.transition || ''))) {
+          triggerHeaderActivitySweep();
+        }
+      })
       .on('presence', { event: 'sync' }, () => syncPresenceUI('sync'))
       .on('presence', { event: 'join' }, () => syncPresenceUI('join'))
       .on('presence', { event: 'leave' }, () => syncPresenceUI('leave'))
@@ -4877,6 +4888,7 @@ function closeRealtime() {
   notesTypingChannelReady = false;
   notesTypingQueuedState = null;
   presenceStatus = 'closed';
+  lastPublishedPresencePage = null;
   if (streakCountdownInterval) {
     window.clearInterval(streakCountdownInterval);
     streakCountdownInterval = null;
@@ -4902,14 +4914,20 @@ function isPresenceUserOnline(userOrId, state) {
 }
 
 function triggerHeaderActivitySweep() {
-  const appRoot = document.querySelector('#app');
-  if (!appRoot) return;
+  if (!document.body) return;
   clearTimeout(notesHeaderActivityTimer);
-  appRoot.classList.remove('app-activity-pulse');
-  void appRoot.offsetWidth;
-  appRoot.classList.add('app-activity-pulse');
+  let sweep = document.getElementById('cb-presence-sweep');
+  if (!sweep) {
+    sweep = document.createElement('span');
+    sweep.id = 'cb-presence-sweep';
+    sweep.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(sweep);
+  }
+  sweep.classList.remove('is-active');
+  void sweep.offsetWidth;
+  sweep.classList.add('is-active');
   notesHeaderActivityTimer = setTimeout(() => {
-    appRoot.classList.remove('app-activity-pulse');
+    sweep.classList.remove('is-active');
     notesHeaderActivityTimer = null;
   }, 2000);
 }
@@ -4929,29 +4947,48 @@ function friendPresenceSessions(friend, state) {
 async function updateMyPresencePage() {
   if (!presenceChannel || presenceStatus !== 'ready' || !me) return;
   const channel = presenceChannel;
-  const payload = {
-    user_id: me.id,
-    userId: me.id,
-    username: me.username,
-    display_name: me.displayName || me.display_name || me.username,
-    online_at: new Date().toISOString(),
-    active_page: document.hidden ? 'away' : page,
-    is_typing: typingActive && page === 'notes' && !document.hidden,
-    typing_at: Date.now()
-  };
 
-  // Serialize rapid navigation/visibility updates so an older page state can
-  // never finish tracking after a newer one.
+  // Serialize page tracking and the corresponding transition event together.
+  // This makes every tab publish the exact page change that it successfully
+  // tracked, rather than relying on another client's Presence snapshot timing.
   presenceTrackQueue = presenceTrackQueue.catch(() => {}).then(async () => {
     if (presenceChannel !== channel || presenceStatus !== 'ready') return;
+    const nextPage = document.hidden ? 'away' : page;
+    const payload = {
+      user_id: me.id,
+      userId: me.id,
+      username: me.username,
+      display_name: me.displayName || me.display_name || me.username,
+      online_at: new Date().toISOString(),
+      active_page: nextPage,
+      is_typing: typingActive && nextPage === 'notes',
+      typing_at: Date.now()
+    };
     await channel.track(payload);
+
+    const previousPage = lastPublishedPresencePage;
+    lastPublishedPresencePage = nextPage;
+    if (previousPage !== null && previousPage !== nextPage &&
+        (previousPage === 'notes' || nextPage === 'notes')) {
+      const result = await channel.send({
+        type: 'broadcast',
+        event: 'notes_page_transition',
+        payload: {
+          user_id: String(me.id),
+          username: String(me.username || ''),
+          transition: nextPage === 'notes' ? 'entered' : 'left',
+          from_page: previousPage,
+          to_page: nextPage,
+          occurred_at: Date.now()
+        }
+      });
+      if (result !== 'ok') {
+        console.warn('Notes page transition broadcast was not acknowledged:', result);
+      }
+    }
   });
   try {
     await presenceTrackQueue;
-    // Reconcile our local page transition immediately after track() resolves.
-    // Supabase does not guarantee that this tab receives its own presence
-    // sync callback, so without this the Notes-page baseline can remain stale
-    // (for example, "home") and suppress every subsequent friend transition.
     syncPresenceUI('local-track');
   } catch (error) {
     console.warn('Presence page update failed:', error?.message || error);
@@ -4996,21 +5033,8 @@ function syncPresenceUI(presenceEvent = 'local') {
     }
   });
 
-  // Treat a page navigation as a fresh baseline. Only subsequent remote
-  // presence snapshots while we remain in Notes can animate the header.
-  // This avoids both false pulses on our own navigation and missed pulses
-  // caused by the order in which route and Realtime callbacks are delivered.
-  const pageChanged = page !== lastPresenceObservedPage;
-  const hasBaseline = knownFriendNotesIds instanceof Set;
-  if (!pageChanged && page === 'notes' && hasBaseline &&
-      ['sync', 'join', 'leave'].includes(presenceEvent)) {
-    const friendEnteredNotes = [...notesNow].some(id => !knownFriendNotesIds.has(id));
-    const friendLeftNotes = [...knownFriendNotesIds].some(id => !notesNow.has(id));
-    if (friendEnteredNotes || friendLeftNotes) triggerHeaderActivitySweep();
-  }
-
-  // Always advance the snapshot, including when outside Notes, so an online
-  // event or a page change cannot be replayed as a Notes transition later.
+  // Presence snapshots continue to drive online indicators, but Notes
+  // enter/leave animation is driven by explicit broadcast events above.
   knownFriendNotesIds = new Set(notesNow);
   lastPresenceObservedPage = page;
   syncNotesTypingFromPresence(state);

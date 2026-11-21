@@ -53,6 +53,8 @@ let hiddenNoteIds = new Set();
 let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
 let notesHeaderActivityTimer = null;
+let presenceTrackQueue = Promise.resolve();
+let lastPresenceObservedPage = 'home';
 let knownOnlineFriendIds = null;
 let knownFriendNotesIds = null;
 let notesKeyboardDismissed = false;
@@ -683,6 +685,7 @@ async function refresh() {
     noteHistoryCursor = initialNotes.length ? String(initialNotes[initialNotes.length - 1].id) : null;
     feedPageHasMore.note = initialNotes.length === FEED_PAGE_SIZE;
     friends = results[2];
+    syncPresenceUI();
 
     noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));
     render();
@@ -2557,7 +2560,6 @@ function go(p, options = {}) {
 
   hideMessageActions();
   document.body.classList.toggle('notes-page-active', p === 'notes');
-  if (p === 'notes') triggerHeaderActivitySweep();
   if (p === 'notes') {
     document.body.classList.remove('notes-header-hidden');
     notesHeaderLastScrollTop = null;
@@ -4822,6 +4824,7 @@ function startRealtime() {
             }),
             api('/following').then(rows => {
               friends = rows;
+              syncPresenceUI();
 
               if (page === 'friends') render();
               const openProfile = $('#friendProfileGate');
@@ -4926,17 +4929,26 @@ function friendPresenceSessions(friend, state) {
 
 async function updateMyPresencePage() {
   if (!presenceChannel || presenceStatus !== 'ready' || !me) return;
+  const channel = presenceChannel;
+  const payload = {
+    user_id: me.id,
+    userId: me.id,
+    username: me.username,
+    display_name: me.displayName || me.display_name || me.username,
+    online_at: new Date().toISOString(),
+    active_page: document.hidden ? 'away' : page,
+    is_typing: typingActive && page === 'notes' && !document.hidden,
+    typing_at: Date.now()
+  };
+
+  // Serialize rapid navigation/visibility updates so an older page state can
+  // never finish tracking after a newer one.
+  presenceTrackQueue = presenceTrackQueue.catch(() => {}).then(async () => {
+    if (presenceChannel !== channel || presenceStatus !== 'ready') return;
+    await channel.track(payload);
+  });
   try {
-    await presenceChannel.track({
-      user_id: me.id,
-      userId: me.id,
-      username: me.username,
-      display_name: me.displayName || me.display_name || me.username,
-      online_at: new Date().toISOString(),
-      active_page: document.hidden ? 'away' : page,
-      is_typing: typingActive && page === 'notes' && !document.hidden,
-      typing_at: Date.now()
-    });
+    await presenceTrackQueue;
   } catch (error) {
     console.warn('Presence page update failed:', error?.message || error);
   }
@@ -4945,32 +4957,55 @@ async function updateMyPresencePage() {
 function syncPresenceUI(presenceEvent = 'sync') {
   let state = {};
   try { state = presenceChannel?.presenceState?.() || {}; } catch {}
+  const allSessions = Object.values(state || {}).flatMap(sessions => Array.isArray(sessions) ? sessions : []);
+  const sessionsById = new Map();
+  const sessionsByUsername = new Map();
+  allSessions.forEach(session => {
+    const id = String(session?.user_id || session?.userId || session?.profile_id || '');
+    const username = String(session?.username || '').trim().toLowerCase();
+    if (id) {
+      if (!sessionsById.has(id)) sessionsById.set(id, []);
+      sessionsById.get(id).push(session);
+    }
+    if (username) {
+      if (!sessionsByUsername.has(username)) sessionsByUsername.set(username, []);
+      sessionsByUsername.get(username).push(session);
+    }
+  });
+
   const onlineNow = new Set();
   const notesNow = new Set();
   (Array.isArray(friends) ? friends : []).forEach(friend => {
     const friendId = String(friend?.id || friend?.user_id || '');
-    if (!friendId) return;
-    const sessions = friendPresenceSessions(friend, state);
-    if (!sessions.length) return;
-    onlineNow.add(friendId);
-    if (sessions.some(session => String(session?.active_page || session?.current_page || session?.page || '').toLowerCase() === 'notes')) {
-      notesNow.add(friendId);
+    const username = String(friend?.username || '').trim().toLowerCase();
+    if (!friendId && !username) return;
+    const matches = new Set([
+      ...(friendId ? sessionsById.get(friendId) || [] : []),
+      ...(username ? sessionsByUsername.get(username) || [] : [])
+    ]);
+    if (!matches.size) return;
+    if (friendId) onlineNow.add(friendId);
+    if ([...matches].some(session =>
+      String(session?.active_page || session?.current_page || session?.page || '').toLowerCase() === 'notes'
+    )) {
+      notesNow.add(friendId || username);
     }
   });
 
-  const joinedFriend = knownOnlineFriendIds !== null &&
-    [...onlineNow].some(id => !knownOnlineFriendIds.has(id));
-  const friendEnteredNotes = knownFriendNotesIds !== null &&
-    [...notesNow].some(id => !knownFriendNotesIds.has(id));
-  const friendLeftNotes = knownFriendNotesIds !== null &&
-    [...knownFriendNotesIds].some(id => !notesNow.has(id));
+  const hasBaseline = knownOnlineFriendIds !== null && knownFriendNotesIds !== null;
+  const joinedFriend = hasBaseline && [...onlineNow].some(id => !knownOnlineFriendIds.has(id));
+  const leftFriend = hasBaseline && [...knownOnlineFriendIds].some(id => !onlineNow.has(id));
+  const friendEnteredNotes = hasBaseline && [...notesNow].some(id => !knownFriendNotesIds.has(id));
+  const friendLeftNotes = hasBaseline && [...knownFriendNotesIds].some(id => !notesNow.has(id));
+  const openedNotesWithFriend = page === 'notes' && lastPresenceObservedPage !== 'notes' && notesNow.size > 0;
 
-  if (joinedFriend) triggerHeaderActivitySweep();
-  if (friendEnteredNotes || friendLeftNotes) triggerHeaderActivitySweep();
-  if (page === 'notes' && knownFriendNotesIds === null && notesNow.size) triggerHeaderActivitySweep();
+  if (joinedFriend || leftFriend || friendEnteredNotes || friendLeftNotes || openedNotesWithFriend) {
+    triggerHeaderActivitySweep();
+  }
 
   knownOnlineFriendIds = onlineNow;
   knownFriendNotesIds = notesNow;
+  lastPresenceObservedPage = page;
   syncNotesTypingFromPresence(state);
   const profileGate = $('#friendProfileGate');
   if (profileGate && !profileGate.classList.contains('hidden') && profileGate.dataset.username) {

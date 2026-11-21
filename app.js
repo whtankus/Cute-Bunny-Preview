@@ -4948,6 +4948,11 @@ async function updateMyPresencePage() {
   });
   try {
     await presenceTrackQueue;
+    // Reconcile our local page transition immediately after track() resolves.
+    // Supabase does not guarantee that this tab receives its own presence
+    // sync callback, so without this the Notes-page baseline can remain stale
+    // (for example, "home") and suppress every subsequent friend transition.
+    syncPresenceUI('local-track');
   } catch (error) {
     console.warn('Presence page update failed:', error?.message || error);
   }

@@ -14705,3 +14705,41 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 @media(prefers-reduced-motion:reduce) {
   .chat-bubble.is-editing { transition: none !important; }
 }
+
+
+/* Reply previews must not participate in shrink-to-fit sizing of the message bubble.
+   Give reply bubbles a stable available width so the actual message stays readable. */
+.chat-bubble-wrap:has(>.chat-bubble > .chat-reply-preview) {
+  flex: 0 1 360px;
+  width: min(360px, calc(100% - 4.5rem));
+  max-width: calc(100% - 4.5rem);
+  min-width: 0;
+}
+.chat-bubble-wrap:has(>.chat-bubble > .chat-reply-preview) > .chat-bubble {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  text-align: left;
+}
+.chat-bubble-wrap:has(>.chat-bubble > .chat-reply-preview) > .chat-bubble > .chat-message-text {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  text-align: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+.chat-bubble-wrap:has(>.chat-bubble > .chat-reply-preview) .chat-reply-preview {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+@media (max-width: 560px) {
+  .chat-bubble-wrap:has(>.chat-bubble > .chat-reply-preview) {
+    flex-basis: min(300px, calc(100vw - 120px));
+    width: min(300px, calc(100vw - 120px));
+    max-width: calc(100% - 4.5rem);
+  }
+}

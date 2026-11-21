@@ -4662,42 +4662,36 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   align-items: stretch !important;
 }
 
-/* Reply preview is removed from intrinsic sizing: it is positioned inside the
-   bubble, while the sender's own message remains the only width-sizing content. */
+/* Reply messages: restore the original in-flow layout so the actual reply text
+   uses the same bubble positioning and sizing behavior as before the sizing experiment. */
 #content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) {
-  position: relative !important;
-  display: block !important;
-  box-sizing: border-box !important;
-  padding-top: 54px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 2px !important;
   text-align: left !important;
 }
 #content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview {
-  position: absolute !important;
-  top: 8px !important;
-  left: 14px !important;
-  right: 14px !important;
   display: flex !important;
+  flex: 0 0 auto !important;
+  align-self: stretch !important;
   box-sizing: border-box !important;
-  width: auto !important;
-  max-width: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
   min-width: 0 !important;
-  max-height: 38px !important;
   margin: 0 !important;
   padding: 4px 7px !important;
-  overflow: hidden !important;
 }
-#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview .chat-reply-preview-quote {
-  display: flex !important;
-  align-items: center !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-}
-#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview .chat-reply-preview-text {
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-message-text {
   display: block !important;
-  flex: 1 1 auto !important;
+  flex: 0 0 auto !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
   min-width: 0 !important;
-  overflow: hidden !important;
-  white-space: nowrap !important;
-  text-overflow: ellipsis !important;
+  margin: 0 !important;
+  text-align: left !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
 }

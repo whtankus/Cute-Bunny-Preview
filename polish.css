@@ -3800,14 +3800,14 @@ body[data-theme] .app button:focus-visible,body[data-theme] .auth-gate button:fo
   animation:cb-refresh-glide .9s ease-in-out infinite;
   pointer-events:none;
 }
-#cb-presence-sweep{
+body > #cb-presence-sweep{
   position:fixed;z-index:2147483647;top:calc(env(safe-area-inset-top,0px) + 7px);left:50%;
-  width:34px;height:4px;border-radius:99px;transform:translateX(-50%);
-  opacity:0;pointer-events:none;
+  display:block;width:34px;height:4px;border-radius:99px;transform:translateX(-50%);
+  opacity:0;pointer-events:none;visibility:hidden;
   background:linear-gradient(90deg,color-mix(in srgb,var(--cb-accent,#c87598) 18%,transparent),var(--cb-accent,#c87598),color-mix(in srgb,var(--cb-accent,#c87598) 18%,transparent));
   background-size:220% 100%;box-shadow:0 1px 5px color-mix(in srgb,var(--cb-accent,#c87598) 22%,transparent);
 }
-#cb-presence-sweep.is-active{animation:cb-refresh-glide .9s ease-in-out infinite}
+body > #cb-presence-sweep.is-active{visibility:visible;animation:cb-refresh-glide .9s ease-in-out infinite}
 @keyframes cb-refresh-glide{0%{background-position:100% 0;opacity:.55}50%{opacity:1}100%{background-position:-120% 0;opacity:.55}}
 .notification-loading{min-height:34px!important;padding:6px!important}
 .notification-loader{

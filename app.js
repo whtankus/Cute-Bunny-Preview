@@ -2797,7 +2797,7 @@ function syncChatReplyPreview() {
     : null;
   preview.hidden = !item;
   preview.innerHTML = item
-    ? `<div class="chat-replying-content"><span class="chat-replying-label">Replying to <b>${esc(item.author?.displayName || item.author?.display_name || item.author?.username || 'message')}</b></span><span class="chat-replying-message">${esc(item.text || 'Message unavailable')}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
+    ? `<div class="chat-replying-content"><span class="chat-replying-message">${esc(item.text || 'Message unavailable')}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
     : '';
 }
 
@@ -2990,10 +2990,10 @@ function renderNotesPage(options = {}) {
         <div id="chatTypingIndicator" class="chat-typing-indicator" aria-live="polite" aria-atomic="true" hidden></div>
       </div>
       <form id="chatComposer" class="chat-composer" autocomplete="off">
+        <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
         <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
         <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
-        <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
       </form>
     </section>
   `;

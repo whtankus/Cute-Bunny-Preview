@@ -2713,7 +2713,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote"><span class="chat-reply-preview-arrow" aria-hidden="true">↪</span><span class="chat-reply-preview-text">${esc(replyText)}</span></span></button>` : '';
 
   return `
-    <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}" data-reaction-count="${Array.isArray(m.reactions) ? m.reactions.length : 0}">
+    <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}" data-like-count="${Number(m.like_count) || 0}" data-reaction-count="${Array.isArray(m.reactions) ? m.reactions.length : 0}">
       <div class="chat-message-content">
         ${senderMeta}
         <div class="chat-message-line">
@@ -2905,6 +2905,7 @@ function renderNotesPage(options = {}) {
           }
           current.classList.toggle('is-uploading', desiredNode.classList.contains('is-uploading'));
           current.classList.toggle('is-loved', desiredNode.classList.contains('is-loved'));
+          current.setAttribute('data-like-count', desiredNode.getAttribute('data-like-count') || '0');
           current.setAttribute('data-reaction-count', desiredNode.getAttribute('data-reaction-count') || '0');
           nextNodes.push(current);
         } else {

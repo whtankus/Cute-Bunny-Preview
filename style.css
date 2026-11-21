@@ -14716,24 +14716,35 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 
 
 
-/* Brief Notes-entry activity sweep; visual-only, no page reload or layout change. */
-.app > header.notes-sync-active::after {
-  content:"";
+/* Header activity sweep: real child element avoids Notes masthead pseudo-element resets. */
+.app > header { position:relative; }
+.app > header > .header-activity-line {
   position:absolute;
+  z-index:20;
   left:0;
   right:0;
-  bottom:-1px;
+  bottom:0;
   height:2px;
   pointer-events:none;
-  background:linear-gradient(90deg,transparent 0%,#d78eaa 24%,#b49ad7 50%,#d78eaa 76%,transparent 100%);
-  background-size:200% 100%;
-  animation:notes-header-sweep 2s ease-in-out both;
+  opacity:0;
+  transform:scaleX(.15);
+  transform-origin:left center;
+  background:linear-gradient(90deg,#d78eaa 0%,#b49ad7 48%,#f1b7cc 100%);
+  box-shadow:0 0 7px rgba(206,137,174,.42);
 }
-@keyframes notes-header-sweep {
-  from { background-position:100% 0; opacity:.45; }
-  18% { opacity:1; }
-  to { background-position:0 0; opacity:.25; }
+.app > header > .header-activity-line.is-active {
+  animation:header-activity-sweep 2s cubic-bezier(.22,.72,.24,1) both;
+}
+@keyframes header-activity-sweep {
+  0% { opacity:0; transform:scaleX(.08); }
+  12% { opacity:1; }
+  72% { opacity:.95; transform:scaleX(1); }
+  100% { opacity:0; transform:scaleX(1); }
 }
 @media(prefers-reduced-motion:reduce) {
-  .app > header.notes-sync-active::after { animation:none; opacity:.7; }
+  .app > header > .header-activity-line.is-active {
+    animation:none;
+    opacity:.8;
+    transform:scaleX(1);
+  }
 }

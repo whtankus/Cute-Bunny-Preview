@@ -4905,21 +4905,14 @@ function isPresenceUserOnline(userOrId, state) {
 }
 
 function triggerHeaderActivitySweep() {
-  const header = document.querySelector('#app > header');
-  if (!header) return;
-  let line = header.querySelector('.header-activity-line');
-  if (!line) {
-    line = document.createElement('span');
-    line.className = 'header-activity-line';
-    line.setAttribute('aria-hidden', 'true');
-    header.appendChild(line);
-  }
+  const appRoot = document.querySelector('#app');
+  if (!appRoot) return;
   clearTimeout(notesHeaderActivityTimer);
-  line.classList.remove('is-active');
-  void line.offsetWidth;
-  line.classList.add('is-active');
+  appRoot.classList.remove('app-activity-pulse');
+  void appRoot.offsetWidth;
+  appRoot.classList.add('app-activity-pulse');
   notesHeaderActivityTimer = setTimeout(() => {
-    line.classList.remove('is-active');
+    appRoot.classList.remove('app-activity-pulse');
     notesHeaderActivityTimer = null;
   }, 2000);
 }

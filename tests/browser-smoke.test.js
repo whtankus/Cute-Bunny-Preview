@@ -254,21 +254,23 @@ test('Notes history uses stable keyset pagination and restores old message heart
 
 test('message text wraps naturally inside existing desktop and mobile bubble limits', async () => {
   for (const viewport of [{ width: 1280, height: 900 }, { width: 360, height: 780 }]) {
-    const page = await newTestPage({ authenticated: true, viewport });
+    const page = await newTestPage({ authenticated: true, viewport, seedHistory: true });
     await waitForSignedInApp(page);
     await page.locator('#nav button[data-page="notes"]').click();
-    const text = page.locator('.chat-message[data-memory="101"] .chat-message-text');
+    const text = page.locator('.chat-message[data-memory="1089"] .chat-message-text');
     await text.waitFor({ state: 'visible' });
     const metrics = await text.evaluate(node => ({
       overflowWrap: getComputedStyle(node).overflowWrap,
       wordBreak: getComputedStyle(node).wordBreak,
       whiteSpace: getComputedStyle(node).whiteSpace,
-      bubbleOverflow: node.closest('.chat-bubble').scrollWidth > node.closest('.chat-bubble').clientWidth
+      bubbleOverflow: node.closest('.chat-bubble').scrollWidth > node.closest('.chat-bubble').clientWidth,
+      renderedLines: (() => { const range = document.createRange(); range.selectNodeContents(node); return range.getClientRects().length; })()
     }));
     assert.equal(metrics.overflowWrap, 'break-word');
     assert.equal(metrics.wordBreak, 'normal');
     assert.equal(metrics.whiteSpace, 'pre-wrap');
     assert.equal(metrics.bubbleOverflow, false);
+    assert.ok(metrics.renderedLines >= 2, 'the long emoji-containing message should wrap naturally');
     await page.context().close();
     contexts.delete(page.context());
   }

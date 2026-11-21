@@ -235,6 +235,7 @@ test('Notes history uses stable keyset pagination and restores old message heart
   await page.locator('#nav button[data-page="notes"]').click();
   await page.locator('.chat-message[data-memory="1089"]').waitFor({ state: 'visible' });
   assert.equal(await page.locator('.chat-message[data-memory="1000"]').count(), 0, 'older rows should begin outside the first page');
+  const initialMessageCount = await page.locator('#chatThread > .chat-message[data-memory]').count();
 
   await page.evaluate(() => {
     const state = window.__cuteBunnyTestState;
@@ -245,21 +246,10 @@ test('Notes history uses stable keyset pagination and restores old message heart
     // listener receives the same bubbling event a real user gesture produces.
     thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
   });
-  await page.waitForTimeout(500);
-  const historyLoadDebug = await page.evaluate(() => {
-    const thread = document.querySelector('#chatThread');
-    const sentinel = document.querySelector('[data-history-sentinel]');
-    return {
-      messageCount: document.querySelectorAll('#chatThread > .chat-message[data-memory]').length,
-      memorySelectCalls: window.__cuteBunnyTestState.calls.filter(call => call.table === 'memories' && call.action === 'select').length,
-      threadScrollTop: thread?.scrollTop,
-      threadRect: thread?.getBoundingClientRect().toJSON(),
-      sentinelRect: sentinel?.getBoundingClientRect().toJSON(),
-      pageAttribute: document.body.dataset.page || document.body.className,
-      newestIds: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'note').map(row => row.id).sort((a, b) => b - a).slice(0, 3)
-    };
-  });
-  assert.ok(historyLoadDebug.messageCount >= 80, 'first Notes history page should load older messages: ' + JSON.stringify(historyLoadDebug));
+  await page.waitForFunction(
+    initialCount => document.querySelectorAll('#chatThread > .chat-message[data-memory]').length >= initialCount + 38,
+    initialMessageCount
+  );
   await page.evaluate(() => {
     const thread = document.querySelector('#chatThread');
     thread.scrollTop = 0;

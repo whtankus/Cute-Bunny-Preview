@@ -4591,9 +4591,9 @@ function startRealtime() {
         }
       });
     presence
-      .on('presence', { event: 'sync' }, syncPresenceUI)
-      .on('presence', { event: 'join' }, syncPresenceUI)
-      .on('presence', { event: 'leave' }, syncPresenceUI)
+      .on('presence', { event: 'sync' }, () => syncPresenceUI('sync'))
+      .on('presence', { event: 'join' }, () => syncPresenceUI('join'))
+      .on('presence', { event: 'leave' }, () => syncPresenceUI('leave'))
       .subscribe(async status => {
         if (status === 'SUBSCRIBED') {
           presenceStatus = 'ready';
@@ -4924,13 +4924,13 @@ function triggerHeaderActivitySweep() {
   }, 2000);
 }
 
-function syncPresenceUI() {
+function syncPresenceUI(presenceEvent = 'sync') {
   let state = {};
   try { state = presenceChannel?.presenceState?.() || {}; } catch {}
   const onlineNow = new Set(
     friends.filter(friend => isPresenceUserOnline(friend, state)).map(friend => String(friend.id))
   );
-  if (knownOnlineFriendIds !== null) {
+  if (knownOnlineFriendIds !== null && presenceEvent === 'join') {
     const friendJustCameOnline = [...onlineNow].some(id => !knownOnlineFriendIds.has(id));
     if (friendJustCameOnline) triggerHeaderActivitySweep();
   }

@@ -4958,7 +4958,7 @@ async function updateMyPresencePage() {
   }
 }
 
-function syncPresenceUI(presenceEvent = 'sync') {
+function syncPresenceUI(presenceEvent = 'local') {
   let state = {};
   try { state = presenceChannel?.presenceState?.() || {}; } catch {}
   const allSessions = Object.values(state || {}).flatMap(sessions => Array.isArray(sessions) ? sessions : []);
@@ -4990,7 +4990,7 @@ function syncPresenceUI(presenceEvent = 'sync') {
       ...(username ? sessionsByUsername.get(username) || [] : [])
     ]);
     if ([...matches].some(session =>
-      String(session?.active_page || session?.current_page || session?.page || '').toLowerCase() === 'notes'
+      String(session?.active_page || session?.activePage || session?.current_page || session?.currentPage || session?.page || '').trim().toLowerCase() === 'notes'
     )) {
       notesNow.add(friendId || username);
     }

@@ -4695,3 +4695,14 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   white-space: pre-wrap !important;
   overflow-wrap: anywhere !important;
 }
+
+
+/* Natural browser line layout: preserve normal word boundaries and only break
+   an unbroken token when it cannot fit inside the existing bubble width. */
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-message-text,
+.home-note-memory .chat-bubble-wrap > .chat-bubble > .chat-message-text {
+  white-space: pre-wrap !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  min-width: 0 !important;
+}

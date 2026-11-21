@@ -55,8 +55,8 @@ let notesHeaderLastScrollTop = null;
 let notesHeaderActivityTimer = null;
 let presenceTrackQueue = Promise.resolve();
 let lastPublishedPresencePage = null;
-let lastPresenceObservedPage = 'home';
-let knownFriendNotesIds = null;
+let notesActivityChannel = null, notesActivityChannelReady = false;
+let pendingNotesPageTransitions = [];
 let notesKeyboardDismissed = false;
 let streakSelectedWeekDate = '';
 let streakGardenActiveTab = 'daily';
@@ -4595,17 +4595,27 @@ function startRealtime() {
           console.warn('Notes typing channel status:', status);
         }
       });
-    presence
+    // Keep transient Notes activity on its own broadcast-only channel.
+    // Presence remains responsible solely for online/page metadata.
+    notesActivityChannelReady = false;
+    notesActivityChannel = sb.channel('cute-bunny-notes-activity', {
+      config: { broadcast: { self: false, ack: true } }
+    })
       .on('broadcast', { event: 'notes_page_transition' }, ({ payload }) => {
-        const senderId = String(payload?.user_id || '');
-        if (!senderId || senderId === String(me?.id || '') || page !== 'notes' || document.hidden) return;
-        const isFriend = Array.isArray(friends) && friends.some(friend =>
-          String(friend?.id || friend?.user_id || '') === senderId
-        );
-        if (isFriend && ['entered', 'left'].includes(String(payload?.transition || ''))) {
-          triggerHeaderActivitySweep();
-        }
+        handleNotesPageTransition(payload);
       })
+      .subscribe(status => {
+        if (status === 'SUBSCRIBED') {
+          notesActivityChannelReady = true;
+          const queued = pendingNotesPageTransitions.splice(0);
+          queued.forEach(payload => { void sendNotesPageTransition(payload); });
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          notesActivityChannelReady = false;
+          console.warn('Notes activity channel status:', status);
+        }
+      });
+
+    presence
       .on('presence', { event: 'sync' }, () => syncPresenceUI('sync'))
       .on('presence', { event: 'join' }, () => syncPresenceUI('join'))
       .on('presence', { event: 'leave' }, () => syncPresenceUI('leave'))
@@ -4878,11 +4888,13 @@ function closeRealtime() {
   remoteTypingUsers.forEach(entry => clearTimeout(entry.timer));
   remoteTypingUsers.clear();
   syncNotesTypingIndicator();
-  [presenceChannel, notesTypingChannel, notificationChannel, memoryChannel, profileChannel, noteReadCursorChannel].forEach(channel => {
+  [presenceChannel, notesActivityChannel, notesTypingChannel, notificationChannel, memoryChannel, profileChannel, noteReadCursorChannel].forEach(channel => {
     if (channel && sb) sb.removeChannel(channel);
   });
 
-  presenceChannel = notesTypingChannel = notificationChannel = memoryChannel = profileChannel = noteReadCursorChannel = null;
+  presenceChannel = notesActivityChannel = notesTypingChannel = notificationChannel = memoryChannel = profileChannel = noteReadCursorChannel = null;
+  notesActivityChannelReady = false;
+  pendingNotesPageTransitions = [];
   clearTimeout(seenStatusRefreshTimer);
   seenStatusRefreshTimer = null;
   notesTypingChannelReady = false;
@@ -4932,25 +4944,58 @@ function triggerHeaderActivitySweep() {
   }, 2000);
 }
 
-function friendPresenceSessions(friend, state) {
-  const friendId = String(friend?.id || friend?.user_id || '');
-  const friendUsername = String(friend?.username || '').trim().toLowerCase();
-  return Object.values(state || {}).flatMap(sessions => Array.isArray(sessions) ? sessions : [])
-    .filter(session => {
-      const sessionId = String(session?.user_id || session?.userId || session?.profile_id || session?.id || '');
-      const sessionUsername = String(session?.username || '').trim().toLowerCase();
-      return (!!friendId && sessionId === friendId) ||
-        (!!friendUsername && sessionUsername === friendUsername);
+function handleNotesPageTransition(payload) {
+  const senderId = String(payload?.user_id || payload?.userId || '');
+  const senderUsername = String(payload?.username || '').trim().toLowerCase();
+  if (!senderId && !senderUsername) return;
+  if (page !== 'notes' || document.hidden) return;
+
+  const ownId = String(me?.id || '');
+  const ownUsername = String(me?.username || '').trim().toLowerCase();
+  if ((senderId && senderId === ownId) ||
+      (senderUsername && senderUsername === ownUsername)) return;
+
+  const isFriend = (Array.isArray(friends) ? friends : []).some(friend => {
+    const friendId = String(friend?.id || friend?.user_id || '');
+    const friendUsername = String(friend?.username || '').trim().toLowerCase();
+    return (!!senderId && !!friendId && senderId === friendId) ||
+      (!!senderUsername && !!friendUsername && senderUsername === friendUsername);
+  });
+  if (!isFriend) return;
+
+  const transition = String(payload?.transition || '').toLowerCase();
+  if (transition !== 'entered' && transition !== 'left') return;
+  triggerHeaderActivitySweep();
+}
+
+async function sendNotesPageTransition(payload) {
+  if (!payload) return;
+  if (!notesActivityChannel || !notesActivityChannelReady) {
+    pendingNotesPageTransitions.push(payload);
+    if (pendingNotesPageTransitions.length > 20) pendingNotesPageTransitions.shift();
+    return;
+  }
+  const channel = notesActivityChannel;
+  try {
+    const result = await channel.send({
+      type: 'broadcast',
+      event: 'notes_page_transition',
+      payload
     });
+    if (result !== 'ok') {
+      console.warn('Notes page transition broadcast was not acknowledged:', result);
+    }
+  } catch (error) {
+    console.warn('Notes page transition broadcast failed:', error?.message || error);
+  }
 }
 
 async function updateMyPresencePage() {
   if (!presenceChannel || presenceStatus !== 'ready' || !me) return;
   const channel = presenceChannel;
 
-  // Serialize page tracking and the corresponding transition event together.
-  // This makes every tab publish the exact page change that it successfully
-  // tracked, rather than relying on another client's Presence snapshot timing.
+  // Keep Presence metadata as the source of truth for online status and active
+  // page. Publish a separate broadcast only when this client crosses Notes.
   presenceTrackQueue = presenceTrackQueue.catch(() => {}).then(async () => {
     if (presenceChannel !== channel || presenceStatus !== 'ready') return;
     const nextPage = document.hidden ? 'away' : page;
@@ -4964,29 +5009,24 @@ async function updateMyPresencePage() {
       is_typing: typingActive && nextPage === 'notes',
       typing_at: Date.now()
     };
-    await channel.track(payload);
 
+    await channel.track(payload);
     const previousPage = lastPublishedPresencePage;
     lastPublishedPresencePage = nextPage;
+
     if (previousPage !== null && previousPage !== nextPage &&
         (previousPage === 'notes' || nextPage === 'notes')) {
-      const result = await channel.send({
-        type: 'broadcast',
-        event: 'notes_page_transition',
-        payload: {
-          user_id: String(me.id),
-          username: String(me.username || ''),
-          transition: nextPage === 'notes' ? 'entered' : 'left',
-          from_page: previousPage,
-          to_page: nextPage,
-          occurred_at: Date.now()
-        }
+      void sendNotesPageTransition({
+        user_id: String(me.id),
+        username: String(me.username || ''),
+        transition: nextPage === 'notes' ? 'entered' : 'left',
+        from_page: previousPage,
+        to_page: nextPage,
+        occurred_at: Date.now()
       });
-      if (result !== 'ok') {
-        console.warn('Notes page transition broadcast was not acknowledged:', result);
-      }
     }
   });
+
   try {
     await presenceTrackQueue;
     syncPresenceUI('local-track');
@@ -5033,10 +5073,6 @@ function syncPresenceUI(presenceEvent = 'local') {
     }
   });
 
-  // Presence snapshots continue to drive online indicators, but Notes
-  // enter/leave animation is driven by explicit broadcast events above.
-  knownFriendNotesIds = new Set(notesNow);
-  lastPresenceObservedPage = page;
   syncNotesTypingFromPresence(state);
   const profileGate = $('#friendProfileGate');
   if (profileGate && !profileGate.classList.contains('hidden') && profileGate.dataset.username) {

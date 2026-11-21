@@ -23,7 +23,7 @@
     const notification = closest(target, '.notification-row[data-notification-row]');
     if (bubble && !closest(target, 'button, a, input, textarea, select, [contenteditable="true"]')) {
       mode = 'reply'; surface = bubble;
-    } else if (notification && !closest(target, 'button, a, input, textarea, select')) {
+    } else if (notification) {
       mode = 'notification'; surface = notification;
     } else if (closest(target, '#mainContent') && !isEditable(target) && !isNestedSwipeArea(target)) {
       mode = 'pages'; surface = document.querySelector('#mainContent');

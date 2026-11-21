@@ -4652,3 +4652,39 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
 #content .chat-page .chat-reply-preview-quote{display:flex;flex-direction:row;align-items:flex-start;gap:7px;min-width:0;width:100%}
 #content .chat-page .chat-reply-preview-arrow{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;width:16px;height:16px;margin:0;color:#bd7899;font-family:Arial,sans-serif;font-size:17px;font-weight:700;line-height:1}
 #content .chat-page .chat-reply-preview-text{display:block;flex:1 1 auto;min-width:0;overflow:hidden;color:#826d80;font-size:11px;font-weight:650;line-height:1.4;text-align:left;overflow-wrap:anywhere;white-space:nowrap;text-overflow:ellipsis}
+
+
+/* Keep the reply quote and the actual message vertically stacked in one bubble.
+   The bubble may inherit flex-row rules from other chat layouts, so enforce column flow. */
+#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 7px !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+}
+#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble > .chat-reply-preview {
+  display: flex !important;
+  position: relative !important;
+  flex: 0 0 auto !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble > .chat-message-text {
+  display: block !important;
+  position: relative !important;
+  flex: 0 0 auto !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  text-align: left !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+}

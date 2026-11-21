@@ -52,6 +52,7 @@ const noteDeliveredLocally = new Set();
 let hiddenNoteIds = new Set();
 let homeNavRefreshInFlight = false;
 let notesHeaderLastScrollTop = null;
+let notesHeaderActivityTimer = null;
 let notesKeyboardDismissed = false;
 let streakSelectedWeekDate = '';
 let streakGardenActiveTab = 'daily';
@@ -2554,6 +2555,18 @@ function go(p, options = {}) {
 
   hideMessageActions();
   document.body.classList.toggle('notes-page-active', p === 'notes');
+  const appHeader = document.querySelector('.app > header');
+  clearTimeout(notesHeaderActivityTimer);
+  appHeader?.classList.remove('notes-sync-active');
+  if (p === 'notes' && appHeader) {
+    // Briefly sweep the header line whenever Notes is entered or revisited.
+    void appHeader.offsetWidth;
+    appHeader.classList.add('notes-sync-active');
+    notesHeaderActivityTimer = setTimeout(() => {
+      appHeader.classList.remove('notes-sync-active');
+      notesHeaderActivityTimer = null;
+    }, 2000);
+  }
   if (p === 'notes') {
     document.body.classList.remove('notes-header-hidden');
     notesHeaderLastScrollTop = null;

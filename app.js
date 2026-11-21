@@ -4913,8 +4913,9 @@ async function showPhoneNotification(notification) {
   try { enabled = localStorage.getItem('cuteBunnyPhoneNotifications') === 'on'; } catch {}
   if (!enabled || !('serviceWorker' in navigator)) return;
   const prefs = me?.notification_preferences || {};
-  if (notification.kind && prefs.memories === false) return;
-  if (!notification.kind && prefs.buddy === false) return;
+  const isBuddyNotification = notification.kind === 'buddy';
+  if (isBuddyNotification && prefs.buddy === false) return;
+  if (!isBuddyNotification && prefs.memories === false) return;
   const actor = Array.isArray(notification.actor) ? notification.actor[0] : (notification.actor || {});
   const title = actor.display_name || actor.username || 'A little hello from Cute Bunny';
   const body = String(notification.message || 'Your friend shared something with you.').slice(0, 160);

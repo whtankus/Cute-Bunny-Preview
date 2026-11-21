@@ -4688,3 +4688,52 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   white-space: pre-wrap !important;
   overflow-wrap: anywhere !important;
 }
+
+
+/* Keep reply bubbles inside the chat column and aligned with their sender.
+   The timestamp occupies its own column, so cap the bubble to the remaining viewport width. */
+#content .chat-page .chat-message-content:has(.chat-reply-preview) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+#content .chat-page .chat-message-line:has(.chat-reply-preview) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
+  box-sizing: border-box !important;
+  flex: 0 1 360px !important;
+  width: min(360px, calc(100vw - 8.5rem)) !important;
+  max-width: min(360px, calc(100vw - 8.5rem)) !important;
+  min-width: 0 !important;
+}
+#content .chat-page .chat-message.is-mine .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+#content .chat-page .chat-message.is-friend .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+#content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) > .chat-bubble {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+@media (max-width: 560px) {
+  #content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
+    flex-basis: min(300px, calc(100vw - 7.5rem)) !important;
+    width: min(300px, calc(100vw - 7.5rem)) !important;
+    max-width: min(300px, calc(100vw - 7.5rem)) !important;
+  }
+}
+@media (max-width: 360px) {
+  #content .chat-page .chat-bubble-wrap:has(> .chat-bubble > .chat-reply-preview) {
+    flex-basis: calc(100vw - 6.5rem) !important;
+    width: calc(100vw - 6.5rem) !important;
+    max-width: calc(100vw - 6.5rem) !important;
+  }
+}

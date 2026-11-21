@@ -2723,6 +2723,9 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const name = esc(owner.displayName || owner.display_name || owner.username || 'Friend');
   const handle = esc(owner.username || 'friend');
   const pet = esc(owner.mascot || '🐰');
+  let chatPresenceState = {};
+  try { chatPresenceState = presenceChannel?.presenceState?.() || {}; } catch {}
+  const senderOnline = !mine && isPresenceUserOnline(ownerId, chatPresenceState);
   const messageText = esc(m.text || '');
   const createdAt = m.createdAt || m.created_at || '';
   const time = esc(formatNoteClock(createdAt));
@@ -2731,7 +2734,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const senderAttrs = mine ? '' : `type="button" data-friend-profile="${handle}" data-friend-id="${esc(ownerId)}" aria-label="Open ${name}'s profile"`;
   const senderMeta = showMeta ? `
         <${senderTag} class="chat-meta${mine ? '' : ' chat-sender-link'}" ${senderAttrs}>
-          <span class="sender-pet" aria-hidden="true">${pet}</span>
+          <span class="sender-pet${senderOnline ? " is-online" : ""}" aria-hidden="true">${pet}</span>
           <b title="${name}">${name}</b>
           <small>@${handle}</small>
         </${senderTag}>
@@ -4918,6 +4921,11 @@ function syncPresenceUI() {
       dot?.setAttribute('aria-label', online ? 'Online' : 'Offline');
     }
   }
+  // Update chat sender pet rings in place; no message re-render or layout shift.
+  document.querySelectorAll('.chat-message[data-owner] .sender-pet').forEach(pet => {
+    const ownerId = pet.closest('.chat-message')?.dataset.owner;
+    pet.classList.toggle('is-online', !!ownerId && isPresenceUserOnline(ownerId, state));
+  });
   document.querySelectorAll('.sg-friend-card[data-friend-id], .friend-row[data-friend-id]').forEach(node => {
     const nodeUser = [...friends, ...friendResults, ...(me ? [me] : [])].find(user =>
       String(user.id) === String(node.dataset.friendId) ||

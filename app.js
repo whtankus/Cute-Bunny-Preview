@@ -2377,10 +2377,11 @@ function renderStreakPage() {
   syncPresenceUI();
 }
 
-// One consistent boing sound for interactive controls and chat bubbles.
+// Small, purpose-specific UI sound palette. Sounds are opt-in at meaningful moments,
+// not attached globally to every button press.
 let cuteSoundContext = null;
 let lastCuteSoundAt = 0;
-function playCuteSound() {
+function playCuteSound(kind = 'tap') {
   if (localStorage.getItem('cuteBunnyAppSounds') === 'off') return;
   try {
     const Audio = window.AudioContext || window.webkitAudioContext;
@@ -2391,19 +2392,28 @@ function playCuteSound() {
     const context = cuteSoundContext || (cuteSoundContext = new Audio());
     if (context.state === 'suspended') void context.resume();
     const t = context.currentTime;
+    const presets = {
+      tap:     { start: 620, end: 470, duration: .075, volume: .035, type: 'sine' },
+      buddy:   { start: 520, peak: 760, end: 390, duration: .25, volume: .075, type: 'sine' },
+      boing:   { start: 360, peak: 790, end: 320, duration: .23, volume: .07, type: 'sine' },
+      sparkle: { start: 880, peak: 1320, end: 1180, duration: .22, volume: .045, type: 'sine' },
+      success: { start: 660, peak: 990, end: 1320, duration: .32, volume: .055, type: 'sine' },
+      card:    { start: 420, end: 560, duration: .09, volume: .03, type: 'triangle' }
+    };
+    const sound = presets[kind] || presets.tap;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(520, t);
-    oscillator.frequency.exponentialRampToValueAtTime(880, t + .075);
-    oscillator.frequency.exponentialRampToValueAtTime(390, t + .19);
+    oscillator.type = sound.type;
+    oscillator.frequency.setValueAtTime(sound.start, t);
+    if (sound.peak) oscillator.frequency.exponentialRampToValueAtTime(sound.peak, t + sound.duration * .42);
+    oscillator.frequency.exponentialRampToValueAtTime(sound.end, t + sound.duration);
     gain.gain.setValueAtTime(.0001, t);
-    gain.gain.exponentialRampToValueAtTime(.07, t + .012);
-    gain.gain.exponentialRampToValueAtTime(.0001, t + .2);
+    gain.gain.exponentialRampToValueAtTime(sound.volume, t + .012);
+    gain.gain.exponentialRampToValueAtTime(.0001, t + sound.duration);
     oscillator.connect(gain);
     gain.connect(context.destination);
     oscillator.start(t);
-    oscillator.stop(t + .215);
+    oscillator.stop(t + sound.duration + .015);
   } catch {}
 }
 async function popLoveHeart(card, event) {
@@ -5341,9 +5351,8 @@ document.addEventListener('pointercancel', event => {
 }, true);
 // Tapping effect on pointerdown
 document.addEventListener('pointerup', e => {
-  const interactive = e.target.closest('button, .primary, .round, .tile, .ig-note-item, .feed-photo, .bunny-button, .daily, [data-go], #nav button, .chat-bubble');
+  const interactive = e.target.closest('button, .primary, .round, .tile, .ig-note-item, .feed-photo, .bunny-button, .daily, [data-go], #nav button');
   if (!interactive || e.target.closest('input, textarea, select')) return;
-  playCuteSound();
   interactive.classList.remove('cute-tap');
   void interactive.offsetWidth;
   interactive.classList.add('cute-tap');
@@ -5355,11 +5364,6 @@ document.addEventListener('pointerup', e => {
 
 }, { passive: true });
 
-// Keyboard activation gets the same sound without duplicating pointer sounds.
-document.addEventListener('click', event => {
-  if (event.detail !== 0 || event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
-  if (event.target.closest('button, [role="button"], .chat-bubble')) playCuteSound();
-});
 
 document.addEventListener('submit', e => {
   if (e.target.id !== 'streakGoalForm') return;
@@ -5858,6 +5862,7 @@ document.addEventListener('click', async e => {
       return;
     }
     if (selectedText || bubble.classList.contains('no-heart-reaction')) return;
+    playCuteSound('boing');
     clearTimeout(bubbleTapState.timer);
     bubbleTapState.timer = null;
     bubbleTapState.bubble = null;
@@ -6903,6 +6908,13 @@ sharedAudioElement?.addEventListener('playing', () => {
   const activeId = playlist[playlistIndex]?.id;
   const button = [...document.querySelectorAll('[data-play-song]')].find(item => String(item.dataset.playSong) === String(activeId));
   button?.classList.remove('is-buffering', 'is-loading');
+});
+
+// Restore the original PR #115 global boing feedback for every enabled button.
+document.addEventListener('click', event => {
+  const button = event.target.closest?.('button, [role="button"]');
+  if (!button || button.closest('#nav, nav') || button.disabled) return;
+  playCuteSound('boing');
 });
 
 document.addEventListener('keydown', event => {

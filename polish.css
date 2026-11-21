@@ -4689,11 +4689,30 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
 }
 
 
-/* Fine-tune only the user's reply text: lift it slightly within the bubble
-   while retaining the quote-first stack and the bubble's natural dimensions. */
+/* Reply quote must not dictate the outer bubble's intrinsic width.
+   Let the user's own message determine bubble width; quote bar fills that width. */
 #content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) {
-  gap: 3px !important;
+  gap: 2px !important;
 }
-#content .chat-page .chat-bubble-wrap > .chat-bubble:has(> .chat-reply-preview) > .chat-message-text {
-  transform: translateY(-2px) !important;
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  contain: inline-size !important;
+}
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-reply-preview .chat-reply-preview-quote {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+#content .chat-page .chat-bubble-wrap > .chat-bubble > .chat-message-text {
+  transform: none !important;
+  width: auto !important;
+  max-width: 100% !important;
+  align-self: stretch !important;
+  margin: 0 !important;
 }

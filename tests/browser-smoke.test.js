@@ -289,3 +289,58 @@ test('message text wraps naturally inside existing desktop and mobile bubble lim
     contexts.delete(page.context());
   }
 });
+
+
+test('Notes activity sweep reacts only to friend Notes entry and exit broadcasts', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.waitForFunction(() => window.__cuteBunnyTestState.presenceTracks.length > 0);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.presenceTracks.some(row => row.payload.active_page === 'notes'));
+
+  await page.evaluate(() => {
+    window.__cuteBunnyTestState.emitBroadcast('cute-bunny-notes-activity', 'notes_page_transition', {
+      user_id: 'friend-test', username: 'friend_test', transition: 'entered'
+    });
+  });
+  await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
+  assert.equal(await page.locator('#cb-presence-sweep').evaluate(node => getComputedStyle(node).visibility), 'visible');
+
+  await page.waitForTimeout(2100);
+  await page.evaluate(() => {
+    window.__cuteBunnyTestState.emitBroadcast('cute-bunny-notes-activity', 'notes_page_transition', {
+      user_id: 'friend-test', username: 'friend_test', transition: 'left'
+    });
+  });
+  await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
+
+  await page.waitForTimeout(2100);
+  await page.evaluate(() => {
+    window.__cuteBunnyTestState.emitBroadcast('cute-bunny-notes-activity', 'notes_page_transition', {
+      user_id: 'user-ankush-test', username: 'ankush_test', transition: 'entered'
+    });
+  });
+  await page.waitForTimeout(100);
+  assert.equal(await page.locator('#cb-presence-sweep.is-active').count(), 0, 'own activity must never animate');
+
+  await page.evaluate(() => {
+    window.__cuteBunnyTestState.emitBroadcast('cute-bunny-notes-activity', 'notes_page_transition', {
+      user_id: 'not-a-friend', username: 'stranger', transition: 'entered'
+    });
+  });
+  await page.waitForTimeout(100);
+  assert.equal(await page.locator('#cb-presence-sweep.is-active').count(), 0, 'non-friend activity must never animate');
+
+  await page.locator('#nav button[data-page="gallery"]').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.broadcasts.some(row =>
+    row.topic === 'cute-bunny-notes-activity' &&
+    row.message.event === 'notes_page_transition' &&
+    row.message.payload.transition === 'left'
+  ));
+  const outgoing = await page.evaluate(() => window.__cuteBunnyTestState.broadcasts.find(row =>
+    row.topic === 'cute-bunny-notes-activity' && row.message.payload.transition === 'left'
+  ));
+  assert.equal(outgoing.message.payload.user_id, 'user-ankush-test');
+  assert.equal(outgoing.message.payload.from_page, 'notes');
+  assert.equal(outgoing.message.payload.to_page, 'gallery');
+});

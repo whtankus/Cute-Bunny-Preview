@@ -2421,7 +2421,14 @@ async function popLoveHeart(card, event) {
       ? await sb.from('memory_likes').upsert({ memory_id: item.id, user_id: me.id }, { onConflict: 'memory_id,user_id', ignoreDuplicates: true })
       : await sb.from('memory_likes').delete().eq('memory_id', item.id).eq('user_id', me.id);
     if (result.error) throw result.error;
-    if (nextLiked) recordStreakDailyQuest('heart', memoryId);
+    const { data: persistedLikes, error: likesReadError } = await sb.from('memory_likes')
+      .select('memory_id,user_id')
+      .eq('memory_id', item.id);
+    if (likesReadError) throw likesReadError;
+    item.like_count = (persistedLikes || []).length;
+    item.liked_by_me = (persistedLikes || []).some(like => String(like.user_id) === String(me.id));
+    paint();
+    if (nextLiked && item.liked_by_me) recordStreakDailyQuest('heart', memoryId);
     return true;
   } catch (error) {
     item.liked_by_me = wasLiked; item.like_count = previousCount; paint();

@@ -4965,7 +4965,7 @@ function syncPresenceUI(presenceEvent = 'sync') {
   const friendLeftNotes = knownFriendNotesIds !== null &&
     [...knownFriendNotesIds].some(id => !notesNow.has(id));
 
-  if (presenceEvent === 'join' && joinedFriend) triggerHeaderActivitySweep();
+  if (joinedFriend) triggerHeaderActivitySweep();
   if (friendEnteredNotes || friendLeftNotes) triggerHeaderActivitySweep();
   if (page === 'notes' && knownFriendNotesIds === null && notesNow.size) triggerHeaderActivitySweep();
 

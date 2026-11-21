@@ -2395,7 +2395,6 @@ function playCuteSound(kind = 'tap') {
     const presets = {
       tap:     { start: 620, end: 470, duration: .075, volume: .035, type: 'sine' },
       buddy:   { start: 520, peak: 760, end: 390, duration: .25, volume: .075, type: 'sine' },
-      boing:   { start: 360, peak: 790, end: 320, duration: .23, volume: .07, type: 'sine' },
       sparkle: { start: 880, peak: 1320, end: 1180, duration: .22, volume: .045, type: 'sine' },
       success: { start: 660, peak: 990, end: 1320, duration: .32, volume: .055, type: 'sine' },
       card:    { start: 420, end: 560, duration: .09, volume: .03, type: 'triangle' }
@@ -5863,7 +5862,6 @@ document.addEventListener('click', async e => {
       return;
     }
     if (selectedText || bubble.classList.contains('no-heart-reaction')) return;
-    playCuteSound('boing');
     clearTimeout(bubbleTapState.timer);
     bubbleTapState.timer = null;
     bubbleTapState.bubble = null;
@@ -6911,11 +6909,6 @@ sharedAudioElement?.addEventListener('playing', () => {
   button?.classList.remove('is-buffering', 'is-loading');
 });
 
-document.addEventListener('click', event => {
-  const button = event.target.closest?.('button, [role="button"]');
-  if (!button || button.closest('#nav, nav') || button.disabled) return;
-  playCuteSound('boing');
-});
 document.addEventListener('keydown', event => {
   if (event.key !== 'Escape') return;
   const gate = $('#notificationGate');

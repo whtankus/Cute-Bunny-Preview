@@ -2733,7 +2733,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const replyTarget = m.reply_to_id ? feed.find(item => String(item.id) === String(m.reply_to_id)) : null;
   const replyAuthor = replyTarget?.author?.displayName || replyTarget?.author?.display_name || replyTarget?.author?.username || 'Original message';
   const replyText = replyTarget?.text || 'This message is no longer available';
-  const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote"><span class="chat-reply-preview-arrow" aria-hidden="true">↪</span><span class="chat-reply-preview-text">${esc(replyText)}</span></span></button>` : '';
+  const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote"><span class="chat-reply-preview-text">${esc(replyText)}</span></span></button>` : '';
 
   return `
     <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}" data-like-count="${Number(m.like_count) || 0}" data-reaction-count="${Array.isArray(m.reactions) ? m.reactions.length : 0}">
@@ -2796,6 +2796,10 @@ function syncChatReplyPreview() {
     ? feed.find(memory => String(memory.id) === String(replyingToMessageId))
     : null;
   preview.hidden = !item;
+  const replyOwnerId = String(item?.author?.id || item?.owner_id || '');
+  const isMine = !!item && replyOwnerId === String(me?.id || '');
+  preview.classList.toggle('is-mine', isMine);
+  preview.classList.toggle('is-friend', !!item && !isMine);
   preview.innerHTML = item
     ? `<div class="chat-replying-content"><span class="chat-replying-message">${esc(item.text || 'Message unavailable')}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
     : '';

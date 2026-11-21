@@ -241,7 +241,9 @@ test('Notes history uses stable keyset pagination and restores old message heart
     state.tables.memories.push({ id: 1090, owner_id: state.friend.id, kind: 'note', text: 'A new realtime message', created_at: new Date(Date.now() + 1000).toISOString(), file_name: '', content_type: '', storage_path: '' });
     const thread = document.querySelector('#chatThread');
     thread.scrollTop = 0;
-    window.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
+    // Dispatch from the actual scroll container so the window-level history
+    // listener receives the same bubbling event a real user gesture produces.
+    thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
   });
   await page.waitForFunction(() => document.querySelectorAll('#chatThread > .chat-message[data-memory]').length >= 80);
   await page.evaluate(() => {

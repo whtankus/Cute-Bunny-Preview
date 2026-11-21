@@ -250,7 +250,7 @@ test('Notes history uses stable keyset pagination and restores old message heart
   });
   await page.locator('.chat-message[data-memory="1000"]').waitFor({ state: 'visible' });
   const oldMessage = page.locator('.chat-message[data-memory="1000"]');
-  assert.match(await oldMessage.getAttribute('class'), /\\bis-loved\\b/, 'the historical message should render its saved heart state');
+  assert.match(await oldMessage.getAttribute('class'), /\bis-loved\b/, 'the historical message should render its saved heart state');
   assert.equal(await oldMessage.getAttribute('data-like-count'), '2', 'all hearts from different users should remain attached to the historical message');
   assert.equal(await oldMessage.getAttribute('data-reaction-count'), '2', 'all emoji reactions should hydrate with the historical message');
   const reactionQueryRan = await page.evaluate(() => window.__cuteBunnyTestState.calls.some(call => call.table === 'memory_reactions' && call.action === 'select'));

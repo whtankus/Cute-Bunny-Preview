@@ -245,8 +245,9 @@ test('Notes history uses stable keyset pagination and restores old message heart
   });
   await page.waitForFunction(() => document.querySelectorAll('#chatThread > .chat-message[data-memory]').length >= 80);
   await page.evaluate(() => {
-    document.querySelector('#chatThread').scrollTop = 0;
-    window.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
+    const thread = document.querySelector('#chatThread');
+    thread.scrollTop = 0;
+    thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
   });
   await page.locator('.chat-message[data-memory="1000"]').waitFor({ state: 'visible' });
   const oldMessage = page.locator('.chat-message[data-memory="1000"]');

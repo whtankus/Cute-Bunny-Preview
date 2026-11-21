@@ -25,7 +25,7 @@ async function gesturePage() {
     </main>
     <div id="notificationList"><div class="notification-row" data-notification-row="notification-9"><span>New activity</span></div></div>
   `);
-  await page.addStyleTag({ path: path.join(root, 'dist', 'swipe-gestures.css') });
+  await page.addStyleTag({ path: path.join(root, 'swipe-gestures.css') });
   await page.evaluate(() => {
     window.page = 'home';
     window.replyingToMessageId = '';
@@ -40,7 +40,7 @@ async function gesturePage() {
       return true;
     };
   });
-  await page.addScriptTag({ path: path.join(root, 'dist', 'swipe-gestures.js') });
+  await page.addScriptTag({ path: path.join(root, 'swipe-gestures.js') });
   return page;
 }
 

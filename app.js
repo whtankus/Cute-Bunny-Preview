@@ -4935,7 +4935,10 @@ function isPresenceUserOnline(userOrId, state) {
 }
 
 function triggerFriendPresenceSweep(friendKey, transition) {
-  const key = String(friendKey || 'friend') + ':' + String(transition || 'activity');
+  const transitionName = String(transition || 'activity');
+  const transitionGroup = ['entered', 'notes-entered', 'online'].includes(transitionName) ? 'arrived'
+    : ['left', 'notes-left', 'offline'].includes(transitionName) ? 'departed' : transitionName;
+  const key = String(friendKey || 'friend') + ':' + transitionGroup;
   const now = Date.now();
   // Presence and Broadcast can report the same transition; collapse duplicates.
   if (key === lastPresenceSweepKey && now - lastPresenceSweepAt < 900) return;
@@ -5096,13 +5099,11 @@ function syncPresenceUI(presenceEvent = 'local') {
   // Presence snapshot. Broadcasts provide instant Notes transitions; this
   // snapshot comparison is the safety net for missed/reordered broadcasts.
   const onlineNow = new Set();
-  const friendKeys = new Map();
   (Array.isArray(friends) ? friends : []).forEach(friend => {
     const id = String(friend?.id || friend?.user_id || '');
     const username = String(friend?.username || '').trim().toLowerCase();
     const key = id || username;
     if (!key) return;
-    friendKeys.set(key, { id, username });
     const sessions = new Set([
       ...(id ? sessionsById.get(id) || [] : []),
       ...(username ? sessionsByUsername.get(username) || [] : [])

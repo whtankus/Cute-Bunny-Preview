@@ -115,7 +115,7 @@ function rollKindness() {
     void p.offsetWidth;
     p.classList.add('kindness-pop');
   }
-  playCuteSound('sparkle');
+
   toast('A little drop of kindness for you ♡');
 }
 
@@ -1859,7 +1859,7 @@ function renderStreakPetalGame() {
 function flipStreakPetalCard(cardId) {
   const state = streakPetalGame;
   if (state.locked || state.completed || state.matched.includes(cardId) || state.flipped.includes(cardId)) return;
-  playCuteSound('card');
+
   state.flipped.push(cardId);
   if (state.flipped.length === 2) {
     state.moves += 1;
@@ -1867,7 +1867,7 @@ function flipStreakPetalCard(cardId) {
     const first = state.cards.find(card => card.id === firstId);
     const second = state.cards.find(card => card.id === secondId);
     if (first && second && first.pairKey === second.pairKey) {
-      playCuteSound('success');
+
       state.matched.push(firstId,secondId);
       state.flipped = [];
       state.completed = state.matched.length === state.cards.length;
@@ -2377,11 +2377,10 @@ function renderStreakPage() {
   syncPresenceUI();
 }
 
-// Small, purpose-specific UI sound palette. Sounds are opt-in at meaningful moments,
-// not attached globally to every button press.
+// One consistent boing sound for interactive controls and chat bubbles.
 let cuteSoundContext = null;
 let lastCuteSoundAt = 0;
-function playCuteSound(kind = 'tap') {
+function playCuteSound() {
   if (localStorage.getItem('cuteBunnyAppSounds') === 'off') return;
   try {
     const Audio = window.AudioContext || window.webkitAudioContext;
@@ -2392,27 +2391,19 @@ function playCuteSound(kind = 'tap') {
     const context = cuteSoundContext || (cuteSoundContext = new Audio());
     if (context.state === 'suspended') void context.resume();
     const t = context.currentTime;
-    const presets = {
-      tap:     { start: 620, end: 470, duration: .075, volume: .035, type: 'sine' },
-      buddy:   { start: 520, peak: 760, end: 390, duration: .25, volume: .075, type: 'sine' },
-      sparkle: { start: 880, peak: 1320, end: 1180, duration: .22, volume: .045, type: 'sine' },
-      success: { start: 660, peak: 990, end: 1320, duration: .32, volume: .055, type: 'sine' },
-      card:    { start: 420, end: 560, duration: .09, volume: .03, type: 'triangle' }
-    };
-    const sound = presets[kind] || presets.tap;
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    oscillator.type = sound.type;
-    oscillator.frequency.setValueAtTime(sound.start, t);
-    if (sound.peak) oscillator.frequency.exponentialRampToValueAtTime(sound.peak, t + sound.duration * .42);
-    oscillator.frequency.exponentialRampToValueAtTime(sound.end, t + sound.duration);
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(520, t);
+    oscillator.frequency.exponentialRampToValueAtTime(880, t + .075);
+    oscillator.frequency.exponentialRampToValueAtTime(390, t + .19);
     gain.gain.setValueAtTime(.0001, t);
-    gain.gain.exponentialRampToValueAtTime(sound.volume, t + .012);
-    gain.gain.exponentialRampToValueAtTime(.0001, t + sound.duration);
+    gain.gain.exponentialRampToValueAtTime(.07, t + .012);
+    gain.gain.exponentialRampToValueAtTime(.0001, t + .2);
     oscillator.connect(gain);
     gain.connect(context.destination);
     oscillator.start(t);
-    oscillator.stop(t + sound.duration + .015);
+    oscillator.stop(t + .215);
   } catch {}
 }
 async function popLoveHeart(card, event) {
@@ -3396,7 +3387,6 @@ function profileSettingsMarkup() {
     <div class="profile-settings-section profile-editor-settings hidden" id="profileSettingsNotifications" data-settings-section="notifications" role="tabpanel">
       <div class="settings-section-intro"><span class="settings-section-icon">♡</span><div><b>Your notifications</b><small>Choose what you want to hear about.</small></div></div>
       <div class="settings-notification-card"><span>Photos, songs & notes</span><small>Updates shared in your little corner</small><button type="button" class="settings-open-notifications" id="profileSettingsOpenNotifications">Manage alerts →</button></div>
-      <div class="settings-notification-card"><span>Buddy hellos</span><small>When your friends stop by</small><button type="button" class="settings-open-notifications" data-open-notification-settings>Notification preferences →</button></div>
     </div>
     <div class="profile-settings-actions">
       <p class="profile-settings-feedback" id="profileSettingsFeedback" role="status" aria-live="polite"></p>
@@ -5029,7 +5019,6 @@ function renderNotifications() {
   if (!list) return;
   const prefs = me?.notification_preferences || {};
   $('#notifyMemories').checked = prefs.memories !== false;
-  $('#notifyBuddy').checked = prefs.buddy !== false;
   const soundToggle = $('#notifySounds');
   if (soundToggle) soundToggle.checked = localStorage.getItem('cuteBunnyAppSounds') !== 'off';
   const previousScrollTop = list.scrollTop;
@@ -5352,8 +5341,9 @@ document.addEventListener('pointercancel', event => {
 }, true);
 // Tapping effect on pointerdown
 document.addEventListener('pointerup', e => {
-  const interactive = e.target.closest('button, .primary, .round, .tile, .ig-note-item, .feed-photo, .bunny-button, .daily, [data-go], #nav button');
+  const interactive = e.target.closest('button, .primary, .round, .tile, .ig-note-item, .feed-photo, .bunny-button, .daily, [data-go], #nav button, .chat-bubble');
   if (!interactive || e.target.closest('input, textarea, select')) return;
+  playCuteSound();
   interactive.classList.remove('cute-tap');
   void interactive.offsetWidth;
   interactive.classList.add('cute-tap');
@@ -5364,6 +5354,12 @@ document.addEventListener('pointerup', e => {
   const y = e.clientY || (rect.top + rect.height / 2);
 
 }, { passive: true });
+
+// Keyboard activation gets the same sound without duplicating pointer sounds.
+document.addEventListener('click', event => {
+  if (event.detail !== 0 || event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+  if (event.target.closest('button, [role="button"], .chat-bubble')) playCuteSound();
+});
 
 document.addEventListener('submit', e => {
   if (e.target.id !== 'streakGoalForm') return;
@@ -6176,7 +6172,7 @@ document.addEventListener('click', async e => {
 
   // Mascot button — restore the earlier, soft CSS hop from the previous design.
   if (e.target.closest('#bunnyBuddy')) {
-    playCuteSound('buddy');
+
     const bunny = $('#bunnyBuddy'), buddy = me?.mascot || '🐰';
     const greetings = { '🐰': 'Bunny says hi! ♡', '🐱': 'Kitty says meow! ♡', '🐻': 'Bear sends a hug! ♡', '🐸': 'Froggy says ribbit! ♡' };
     bunny.classList.remove('bunny-happy');
@@ -6499,7 +6495,7 @@ document.addEventListener('click', async e => {
       const saved = await api('/me', {
         method: 'PUT',
         body: JSON.stringify({
-          notificationPreferences: { memories: $('#notifyMemories').checked, buddy: $('#notifyBuddy').checked }
+          notificationPreferences: { memories: $('#notifyMemories').checked }
         })
       });
       if (me && saved?.notification_preferences) me.notification_preferences = saved.notification_preferences;

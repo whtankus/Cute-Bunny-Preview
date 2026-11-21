@@ -4659,10 +4659,7 @@ html body[data-theme].notes-page-active.notes-header-hidden #app > header {
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
-  align-items: center !important;
-}
-#content .chat-page .chat-bubble-wrap > .chat-bubble:not(:has(> .chat-reply-preview)) > .chat-message-text {
-  align-self: center !important;
+  align-items: stretch !important;
 }
 
 /* Reply preview is removed from intrinsic sizing: it is positioned inside the

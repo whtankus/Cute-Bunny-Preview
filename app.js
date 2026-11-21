@@ -547,6 +547,8 @@ async function api(path, options = {}) {
 function toast(msg) {
   const raw = String(msg ?? '').replace(/\s+/g, ' ').trim(), lower = raw.toLowerCase();
   let message = raw;
+  // Status toasts are plain text: remove decorative heart glyphs from every message.
+  message = message.replace(/\s*♥\s*/g, ' ').replace(/\s*♡\s*/g, ' ').replace(/\s+/g, ' ').trim();
   if (lower.includes('failed to send a request to the edge function')) message = 'Sign-in service unavailable. Try email instead.';
   else if (lower.includes('failed to fetch') || lower.includes('network request failed')) message = 'Could not connect. Check internet and retry.';
   else if (lower.includes('database error saving new user')) message = 'Could not save account. Try another username.';

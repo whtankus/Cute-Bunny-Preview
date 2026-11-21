@@ -3792,7 +3792,8 @@ body[data-theme] .app button:focus-visible,body[data-theme] .auth-gate button:fo
 
 /* 2026-11-18 — minimal, soft loading and refresh feedback. */
 #app.app-refreshing{position:relative}
-#app.app-refreshing::after{
+#app.app-refreshing::after,
+#app.app-activity-pulse::after{
   content:"";position:fixed;z-index:1000;top:calc(env(safe-area-inset-top,0px) + 7px);left:50%;
   width:34px;height:4px;border-radius:99px;transform:translateX(-50%);
   background:linear-gradient(90deg,color-mix(in srgb,var(--cb-accent,#c87598) 18%,transparent),var(--cb-accent,#c87598),color-mix(in srgb,var(--cb-accent,#c87598) 18%,transparent));

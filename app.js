@@ -2532,6 +2532,7 @@ function go(p, options = {}) {
   }
 
   page = p;
+  updateNotificationBadge();
   $('#crumb').textContent = ({ home: 'Home', gallery: 'Photos', music: 'Music', notes: 'Notes', friends: 'Friends', streak: 'Streak Garden' })[p];
   document.querySelectorAll('#nav button[data-page]').forEach(b => {
     const isCurrentPage = b.dataset.page === p;
@@ -4666,10 +4667,7 @@ function startRealtime() {
           updateNotificationBadge();
           const added = rows.find(row => String(row.id) === String(payload?.new?.id));
           if (added) void showPhoneNotification(added);
-          if (!$('#notificationGate').classList.contains('hidden')) {
-            rows.forEach(row => notificationViewedIds.add(String(row.id)));
-            renderNotifications();
-          }
+          if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();
         }).catch(error => console.warn('Live notification refresh failed:', error?.message || error));
         if (!(page === 'notes' && String(payload?.new?.kind || '') === 'note')) {
           toast('A little hello from your friend ♡');
@@ -6184,6 +6182,7 @@ document.addEventListener('click', async e => {
     return;
   }
   if (e.target.closest('#notificationOpen')) {
+    notificationViewedIds.clear();
     notificationVisibleCount = 3;
     $('#notificationGate').classList.remove('hidden');
     void loadNotifications().then(() => {
@@ -6889,4 +6888,12 @@ sharedAudioElement?.addEventListener('playing', () => {
   const activeId = playlist[playlistIndex]?.id;
   const button = [...document.querySelectorAll('[data-play-song]')].find(item => String(item.dataset.playSong) === String(activeId));
   button?.classList.remove('is-buffering', 'is-loading');
+});
+
+document.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  const gate = $('#notificationGate');
+  if (!gate || gate.classList.contains('hidden')) return;
+  gate.classList.add('hidden');
+  void dismissViewedNotifications();
 });

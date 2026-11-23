@@ -6,10 +6,11 @@ const LOVE_KEY = 'cuteBunnyBearLove:v1';
 const EQUIPPED_KEY_PREFIX = 'cuteBunnyBearEquippedRewards:v1:';
 const ACTIONS = new Set(['hug', 'kiss', 'flykiss', 'slap', 'hands', 'dance', 'pet', 'feed', 'sleep', 'tummy', 'idle']);
 const REWARDS = [
-  { id: 'sunset-meadow', level: 2, slot: 'background', previewClass: 'preview-forest', name: 'Whispering Forest', icon: '🌲', kind: 'Garden background', detail: 'A peaceful forest clearing with soft light and tiny fireflies', rarity: 'Rare' },
-  { id: 'strawberry-hat', level: 5, slot: 'accessory', previewClass: 'preview-caps', name: 'Berry Bestie Caps', icon: '🧢', kind: 'Matching accessories', detail: 'A pair of adorable little caps for both bears', rarity: 'Rare' },
-  { id: 'honey-bear', level: 8, slot: 'skin', previewClass: 'preview-honey', name: 'Golden Honey Bears', icon: '🍯', kind: 'Bear appearance', detail: 'A warm golden makeover with a soft honey glow', rarity: 'Epic' },
-  { id: 'starry-set', level: 11, slot: 'background', previewClass: 'preview-starry', name: 'Moonlit Dreamscape', icon: '🌙', kind: 'Magical background', detail: 'A dreamy night sky, glowing stars and royal crowns', rarity: 'Legendary' }
+  { id: 'sunset-meadow', level: 2, slot: 'background', previewClass: 'preview-forest', name: 'Cloverlight Meadow', icon: '🍀', kind: 'Scene background', detail: 'A soft sage meadow with little clover lights and warm morning glow', rarity: 'Rare' },
+  { id: 'strawberry-hat', level: 5, slot: 'headwear', previewClass: 'preview-caps', name: 'Berry Bonnet Pair', icon: '🍓', kind: 'Wearable headwear', detail: 'Tiny berry-pink caps attached to each bear’s head, so they move with every pose', rarity: 'Rare' },
+  { id: 'honey-bear', level: 8, slot: 'skin', previewClass: 'preview-honey', name: 'Honey Butter Bears', icon: '🍯', kind: 'Bear appearance', detail: 'A gentle golden fur tint that keeps every original movement and expression', rarity: 'Epic' },
+  { id: 'starry-set', level: 11, slot: 'background', previewClass: 'preview-starry', name: 'Moonlit Cloud Garden', icon: '🌙', kind: 'Scene background', detail: 'A quiet lavender night garden with soft moonlight and tiny stars', rarity: 'Legendary' },
+  { id: 'starlight-crowns', level: 14, slot: 'headwear', previewClass: 'preview-crowns', name: 'Little Starlight Crowns', icon: '👑', kind: 'Wearable headwear', detail: 'Matching gold crowns that follow the bears as they hug, dance and play', rarity: 'Legendary' }
 ];
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -139,19 +140,67 @@ function equipReward(id) {
   const active = equippedRewardIds.includes(id);
   if (active) equippedRewardIds = equippedRewardIds.filter(item => item !== id);
   else {
-    if (reward.slot === 'background') equippedRewardIds = equippedRewardIds.filter(item => !REWARDS.some(other => other.id === item && other.slot === 'background'));
+    if (['background', 'headwear', 'skin'].includes(reward.slot)) {
+      equippedRewardIds = equippedRewardIds.filter(item =>
+        !REWARDS.some(other => other.id === item && other.slot === reward.slot)
+      );
+    }
     equippedRewardIds = [...equippedRewardIds, id];
   }
   saveEquippedRewards();
   updateUI();
 }
+
+function ensureBearAccessoryLayers() {
+  const svg = $('#bearPoseSvg');
+  if (!svg) return;
+  [0, 1].forEach(index => {
+    const head = svg.querySelector('#h' + index);
+    if (!head || head.querySelector('.bear-visual-accessory')) return;
+    head.insertAdjacentHTML('beforeend',
+      '<g class="bear-visual-accessory bear-visual-cap" aria-hidden="true" pointer-events="none">' +
+        '<path d="M-25 -87 Q-22 -106 0 -108 Q22 -106 25 -87 Q2 -81 -25 -87Z" fill="#e96883" stroke="#a94361" stroke-width="2.4" stroke-linejoin="round"/>' +
+        '<path d="M-25 -87 Q0 -82 25 -87 Q19 -77 0 -77 Q-19 -77 -25 -87Z" fill="#f49ab0" stroke="#a94361" stroke-width="2.1" stroke-linejoin="round"/>' +
+        '<path d="M-2 -103 Q0 -108 3 -103" fill="none" stroke="#ffe9a9" stroke-width="2.2" stroke-linecap="round"/>' +
+        '<circle cx="0" cy="-99" r="3" fill="#fff0bd"/>' +
+      '</g>' +
+      '<g class="bear-visual-accessory bear-visual-crown" aria-hidden="true" pointer-events="none">' +
+        '<path d="M-25 -82 L-20 -105 L-8 -92 L0 -112 L8 -92 L20 -105 L25 -82Z" fill="#f3ca68" stroke="#9e7538" stroke-width="2.3" stroke-linejoin="round"/>' +
+        '<rect x="-25" y="-84" width="50" height="8" rx="3" fill="#ffe6a0" stroke="#9e7538" stroke-width="2"/>' +
+        '<circle cx="-19" cy="-101" r="2.5" fill="#fff8dd"/><circle cy="-108" r="2.5" fill="#fff8dd"/><circle cx="19" cy="-101" r="2.5" fill="#fff8dd"/>' +
+      '</g>'
+    );
+  });
+}
+
 function updateUI() {
   const root = $('#coupleBearGame');
   if (!root) return;
   const points = getPoints(), level = getLevel(points);
   const percent = Math.max(0, Math.min(100, ((points - level.previous) / (level.next - level.previous)) * 100));
+  const pointsIntoLevel = Math.max(0, points - level.previous);
+  const pointsForLevel = level.next - level.previous;
+  const pointsRemaining = Math.max(0, level.next - points);
   const nextReward = REWARDS.find(reward => level.level < reward.level);
   const newlyUnlocked = REWARDS.filter(reward => level.level >= reward.level);
+  const scene = $('.couple-bears-scene', root);
+
+  let careStrip = $('#bearCarePointsStrip', root);
+  if (!careStrip) {
+    careStrip = document.createElement('section');
+    careStrip.id = 'bearCarePointsStrip';
+    careStrip.className = 'bear-care-strip';
+    careStrip.setAttribute('aria-label', 'Shared Care Points and Bear Hugs level');
+  }
+  if (scene) scene.insertAdjacentElement('beforebegin', careStrip);
+  careStrip.innerHTML =
+    '<div class="bear-care-strip-head">' +
+      '<div class="bear-care-total"><span class="bear-care-mark" aria-hidden="true">✿</span><span><small>SHARED CARE POINTS</small><b>' + points.toLocaleString() + '</b></span></div>' +
+      '<span class="bear-care-level"><small>BEAR LEVEL</small><b>' + level.level + '</b></span>' +
+    '</div>' +
+    '<div class="bear-care-track" role="progressbar" aria-label="Care Points progress to Bear Hugs Level ' + (level.level + 1) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '"><span style="width:' + percent + '%"></span></div>' +
+    '<div class="bear-care-foot"><span>' + pointsIntoLevel.toLocaleString() + ' / ' + pointsForLevel.toLocaleString() + ' toward Level ' + (level.level + 1) + '</span><b>' + pointsRemaining.toLocaleString() + ' to go</b></div>';
+
   let panel = $('#bearProgressionPanel', root);
   if (!panel) {
     panel = document.createElement('section');
@@ -168,37 +217,38 @@ function updateUI() {
       if (button) equipReward(button.dataset.bearEquip);
     });
   }
-  const rewardCards = REWARDS.map((reward, index) => {
+
+  const rewardCards = REWARDS.map(reward => {
     const unlocked = level.level >= reward.level;
     const applied = equippedRewardIds.includes(reward.id);
-    const previousReward = REWARDS[index - 1];
-    const progressLabel = unlocked ? (applied ? 'Currently in your scene' : 'Ready to use') : (reward.level - level.level) + ' level' + (reward.level - level.level === 1 ? '' : 's') + ' away';
+    const progressLabel = unlocked ? (applied ? 'Equipped in your world' : 'Ready to use') : (reward.level - level.level) + ' level' + (reward.level - level.level === 1 ? '' : 's') + ' away';
     return '<article class="bear-reward ' + (unlocked ? 'is-unlocked' : 'is-locked') + (applied ? ' is-applied' : '') + (nextReward?.id === reward.id ? ' is-next' : '') + '">' +
-      '<div class="bear-reward-preview ' + reward.previewClass + '" aria-hidden="true"><span>' + reward.icon + '</span><i>✦</i><small>🐻　♡　🐻</small></div>' +
+      '<div class="bear-reward-preview ' + reward.previewClass + '" aria-hidden="true"><span>' + reward.icon + '</span><i>✦</i><small>🐻　✿　🐻</small></div>' +
       '<div class="bear-reward-copy"><span class="bear-reward-kicker">' + reward.rarity + ' · LEVEL ' + reward.level + '</span><b>' + reward.name + '</b><small>' + reward.detail + '</small></div>' +
       '<div class="bear-reward-bottom"><span class="bear-reward-state">' + progressLabel + '</span>' +
       (unlocked ? '<button type="button" class="bear-reward-apply" data-bear-equip="' + reward.id + '" aria-pressed="' + applied + '">' + (applied ? 'Unequip' : 'Use reward') + '</button>' : '<span class="bear-reward-lock">🔒 ' + reward.kind + '</span>') +
       '</div></article>';
   }).join('');
+
   const rewardSummary = nextReward
-    ? '<div class="bear-next-reward"><div class="bear-next-reward-art ' + nextReward.previewClass + '">' + nextReward.icon + '</div><div><small>NEXT TREASURE · LEVEL ' + nextReward.level + '</small><b>' + nextReward.name + '</b><span>' + Math.max(0, nextReward.level - level.level) + ' level' + (nextReward.level - level.level === 1 ? '' : 's') + ' to unlock · keep sharing little moments</span></div></div>'
-    : '<div class="bear-next-reward bear-all-unlocked"><div class="bear-next-reward-art preview-starry">✧</div><div><small>THE COLLECTION IS YOURS</small><b>Every treasure unlocked!</b><span>Keep growing your shared Love Meter together.</span></div></div>';
-  panel.innerHTML =
-    '<div class="bear-meter-topline"><span>♡ YOUR SHARED LOVE JOURNEY</span><strong>LEVEL ' + level.level + '</strong></div>' +
-    '<div class="bear-level-heading"><span class="bear-level-heart">♡</span><span><small>EVERY LITTLE MOMENT COUNTS</small><b>' + points.toLocaleString() + ' love points</b></span><strong>' + Math.round(percent) + '%<small>to Level ' + (level.level + 1) + '</small></strong></div>' +
-    '<div class="bear-level-track" role="progressbar" aria-label="Progress to Bear Hugs level ' + (level.level + 1) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '"><span style="width:' + percent + '%"></span></div>' +
-    '<div class="bear-level-next"><span>' + (level.next - points).toLocaleString() + ' points left</span><span>' + level.next.toLocaleString() + ' points · Level ' + (level.level + 1) + '</span></div>' +
-    rewardSummary +
-    '<section class="bear-rewards"><div class="bear-rewards-heading"><div><b>Your little treasures</b><small>' + newlyUnlocked.length + ' of ' + REWARDS.length + ' rewards unlocked · unlock together, equip anytime</small></div><span class="bear-reward-count">' + newlyUnlocked.length + '/' + REWARDS.length + '</span></div><div class="bear-rewards-list">' +
+    ? '<div class="bear-next-reward"><div class="bear-next-reward-art ' + nextReward.previewClass + '">' + nextReward.icon + '</div><div><small>NEXT LITTLE TREASURE · LEVEL ' + nextReward.level + '</small><b>' + nextReward.name + '</b><span>' + Math.max(0, nextReward.level - level.level) + ' level' + (nextReward.level - level.level === 1 ? '' : 's') + ' away · keep sharing little moments</span></div></div>'
+    : '<div class="bear-next-reward bear-all-unlocked"><div class="bear-next-reward-art preview-starry">✧</div><div><small>YOUR WORLD IS COMPLETE</small><b>Every treasure is yours!</b><span>Keep collecting sweet moments together.</span></div></div>';
+
+  panel.innerHTML = rewardSummary +
+    '<section class="bear-rewards"><div class="bear-rewards-heading"><div><b>Little treasures</b><small>' + newlyUnlocked.length + ' of ' + REWARDS.length + ' keepsakes unlocked · choose a background, bear look or headwear</small></div><span class="bear-reward-count">' + newlyUnlocked.length + '/' + REWARDS.length + '</span></div><div class="bear-rewards-list">' +
     rewardCards + '</div></section>';
-  const scene = $('.couple-bears-scene', root);
+
   if (scene) {
     scene.classList.toggle('bear-reward-sunset', equippedRewardIds.includes('sunset-meadow'));
     scene.classList.toggle('bear-reward-strawberry', equippedRewardIds.includes('strawberry-hat'));
     scene.classList.toggle('bear-reward-honey', equippedRewardIds.includes('honey-bear'));
     scene.classList.toggle('bear-reward-starry', equippedRewardIds.includes('starry-set'));
+    scene.classList.toggle('bear-reward-crowns', equippedRewardIds.includes('starlight-crowns'));
   }
+  ensureBearAccessoryLayers();
+  updatePartnerChip();
 }
+
 function partnerProfileFromRows(id) {
   for (const row of partnerRequests) {
     const sender = Array.isArray(row.sender) ? row.sender[0] : row.sender;
@@ -389,15 +439,20 @@ function updatePartnerChip() {
     chip = document.createElement('button');
     chip.type = 'button';
     chip.className = 'bear-partner-chip';
-    const scene = $('.couple-bears-scene', root);
-    if (scene) scene.insertAdjacentElement('afterend', chip);
-    else root.appendChild(chip);
     chip.addEventListener('click', () => openPicker());
   }
   const friend = getSelectedFriend();
-  chip.textContent = friend && isAcceptedPartner(selectedFriendId)
-    ? '♡ ' + (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Bearfriends · Change'
-    : '♡ Choose a Bearfriend';
+  const accepted = !!(friend && isAcceptedPartner(selectedFriendId));
+  chip.textContent = accepted
+    ? (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Bearfriends'
+    : 'Choose a Bearfriend';
+  chip.setAttribute('aria-label', accepted ? 'Change selected Bearfriend' : 'Choose a Bearfriend');
+  chip.title = accepted ? 'Choose a different Bearfriend' : 'Choose a Bearfriend';
+  const scene = $('.couple-bears-scene', root);
+  const careStrip = $('#bearCarePointsStrip', root);
+  const anchor = careStrip || scene;
+  if (anchor) anchor.insertAdjacentElement('beforebegin', chip);
+  else root.appendChild(chip);
 }
 function updateConnectionStatus() {
   if (!getSelectedFriend()) return;

@@ -44,3 +44,44 @@
 #coupleBearGame .couple-bears-scene.bear-forest-unlocked{background:linear-gradient(180deg,#e3f0df,#c4dfc6 60%,#a8caa8)!important}
 #coupleBearGame .couple-bears-scene.bear-caps-unlocked:before,#coupleBearGame .couple-bears-scene.bear-caps-unlocked:after{content:"🧢";position:absolute;top:17%;font-size:1.05rem;filter:drop-shadow(0 2px 2px rgba(70,50,60,.12));pointer-events:none}#coupleBearGame .couple-bears-scene.bear-caps-unlocked:before{left:25%}#coupleBearGame .couple-bears-scene.bear-caps-unlocked:after{right:25%}
 @media(max-width:520px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}}
+
+/* Keep progression separate from the legacy meter markup so it always appears below it. */
+#coupleBearGame .bear-progression-panel{display:block;position:relative;clear:both;width:100%;margin:12px 0 0;padding:15px;border:1px solid var(--cb-border);border-radius:18px;background:var(--cb-card,rgba(255,255,255,.58));box-sizing:border-box}
+#coupleBearGame .bear-progression-panel .bear-level-heading{display:flex;align-items:center;gap:10px;margin:0 0 10px;color:var(--cb-text)}
+#coupleBearGame .bear-level-heart{font-size:1.8rem;color:#d783a6}
+#coupleBearGame .bear-level-heading>span:nth-child(2){display:grid;gap:2px;flex:1}
+#coupleBearGame .bear-level-heading>span:nth-child(2)>small{font-size:.58rem;letter-spacing:.12em;color:var(--cb-text-soft);font-weight:900}
+#coupleBearGame .bear-level-heading>span:nth-child(2)>b{font-size:1.02rem}
+#coupleBearGame .bear-level-heading>strong{font-size:1rem;text-align:right}
+#coupleBearGame .bear-level-heading>strong small{display:block;font-size:.62rem;color:var(--cb-text-soft);font-weight:700}
+#coupleBearGame .bear-level-track{height:10px;overflow:hidden;border-radius:99px;background:rgba(198,154,177,.2)}
+#coupleBearGame .bear-level-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#eaa8c2,#b99bdc);transition:width .35s ease}
+#coupleBearGame .bear-level-next{margin:7px 0 0;color:var(--cb-text-soft);font-size:.68rem;text-align:right}
+#coupleBearGame .bear-progression-panel .bear-rewards{margin-top:15px;padding-top:14px;border-top:1px solid var(--cb-border)}
+#coupleBearGame .bear-rewards-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:var(--cb-text)}
+#coupleBearGame .bear-rewards-heading>span{font-size:1.4rem}
+#coupleBearGame .bear-rewards-heading>div{display:grid;gap:2px}
+#coupleBearGame .bear-rewards-heading b{font-size:.88rem}
+#coupleBearGame .bear-rewards-heading small{font-size:.68rem;color:var(--cb-text-soft)}
+#coupleBearGame .bear-rewards-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#coupleBearGame .bear-reward{display:flex;align-items:center;gap:8px;min-width:0;padding:9px;border:1px solid var(--cb-border);border-radius:14px;background:rgba(255,255,255,.45)}
+#coupleBearGame .bear-reward-icon{font-size:1.3rem}
+#coupleBearGame .bear-reward-copy{display:grid;gap:2px;min-width:0;flex:1}
+#coupleBearGame .bear-reward-copy b{font-size:.7rem;line-height:1.2}
+#coupleBearGame .bear-reward-copy small{font-size:.6rem;color:var(--cb-text-soft);line-height:1.3}
+#coupleBearGame .bear-reward-status{font-size:.56rem;font-weight:900;color:var(--cb-text-soft)}
+#coupleBearGame .bear-reward.is-unlocked{border-color:#e6c2d4;background:rgba(255,239,246,.65)}
+#coupleBearGame .bear-reward.is-unlocked .bear-reward-status{color:#a86d8c}
+.bear-request-section{display:grid;gap:8px;text-align:left;margin:12px 0}
+.bear-request-section h4{margin:4px 2px;color:#946d83;font-size:.78rem}
+.bear-friend-choice{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:1px solid #f0dce6;border-radius:15px;background:rgba(255,255,255,.78);color:#76566b;text-align:left}
+.bear-friend-choice-copy,.bear-request-copy{display:grid;gap:2px;min-width:0;flex:1}
+.bear-friend-choice-copy b,.bear-request-copy b{font-size:.82rem}
+.bear-friend-choice-copy small,.bear-request-copy small{font-size:.67rem;color:#a58c9b}
+.bear-friend-choice-action,.bear-request-accept{border:0;border-radius:999px;padding:8px 10px;background:#f4dce8;color:#94627d;font-size:.68rem;font-weight:800;white-space:nowrap}
+.bear-friend-choice-action.is-accepted{background:#e5f0df;color:#64815e}
+.bear-request-row{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid #e8c8d7;border-radius:15px;background:#fff8fb}
+.bear-request-decline{border:0;background:transparent;color:#a77d91;font-size:1.1rem}
+.bear-request-state{font-size:.66rem;color:#9d7890;font-weight:800}
+.bear-request-footnote{margin:8px 0;color:#967d8d;font-size:.68rem}
+@media(max-width:520px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}}

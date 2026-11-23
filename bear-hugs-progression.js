@@ -6,10 +6,10 @@ const LOVE_KEY = 'cuteBunnyBearLove:v1';
 const EQUIPPED_KEY_PREFIX = 'cuteBunnyBearEquippedRewards:v1:';
 const ACTIONS = new Set(['hug', 'kiss', 'flykiss', 'slap', 'hands', 'dance', 'pet', 'feed', 'sleep', 'tummy', 'idle']);
 const REWARDS = [
-  { id: 'sunset-meadow', level: 2, slot: 'background', previewClass: 'preview-sunset', name: 'Sunset Meadow', icon: '🌅', kind: 'Background', detail: 'A warm peach-and-sage garden' },
-  { id: 'strawberry-hat', level: 4, slot: 'accessory', previewClass: 'preview-strawberry', name: 'Strawberry Hat', icon: '🍓', kind: 'Accessory', detail: 'Tiny strawberry hats for both bears' },
-  { id: 'honey-bear', level: 6, slot: 'skin', previewClass: 'preview-honey', name: 'Honey Bear', icon: '🍯', kind: 'Bear skin', detail: 'A warm honey-gold bear finish' },
-  { id: 'starry-set', level: 8, slot: 'background', previewClass: 'preview-starry', name: 'Starry Night Set', icon: '🌌', kind: 'Legendary set', detail: 'A moonlit sky with little crowns' }
+  { id: 'sunset-meadow', level: 2, slot: 'background', previewClass: 'preview-forest', name: 'Whispering Forest', icon: '🌲', kind: 'Garden background', detail: 'A peaceful forest clearing with soft light and tiny fireflies', rarity: 'Rare' },
+  { id: 'strawberry-hat', level: 5, slot: 'accessory', previewClass: 'preview-caps', name: 'Berry Bestie Caps', icon: '🧢', kind: 'Matching accessories', detail: 'A pair of adorable little caps for both bears', rarity: 'Rare' },
+  { id: 'honey-bear', level: 8, slot: 'skin', previewClass: 'preview-honey', name: 'Golden Honey Bears', icon: '🍯', kind: 'Bear appearance', detail: 'A warm golden makeover with a soft honey glow', rarity: 'Epic' },
+  { id: 'starry-set', level: 11, slot: 'background', previewClass: 'preview-starry', name: 'Moonlit Dreamscape', icon: '🌙', kind: 'Magical background', detail: 'A dreamy night sky, glowing stars and royal crowns', rarity: 'Legendary' }
 ];
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -150,6 +150,8 @@ function updateUI() {
   if (!root) return;
   const points = getPoints(), level = getLevel(points);
   const percent = Math.max(0, Math.min(100, ((points - level.previous) / (level.next - level.previous)) * 100));
+  const nextReward = REWARDS.find(reward => level.level < reward.level);
+  const newlyUnlocked = REWARDS.filter(reward => level.level >= reward.level);
   let panel = $('#bearProgressionPanel', root);
   if (!panel) {
     panel = document.createElement('section');
@@ -166,22 +168,29 @@ function updateUI() {
       if (button) equipReward(button.dataset.bearEquip);
     });
   }
+  const rewardCards = REWARDS.map((reward, index) => {
+    const unlocked = level.level >= reward.level;
+    const applied = equippedRewardIds.includes(reward.id);
+    const previousReward = REWARDS[index - 1];
+    const progressLabel = unlocked ? (applied ? 'Currently in your scene' : 'Ready to use') : (reward.level - level.level) + ' level' + (reward.level - level.level === 1 ? '' : 's') + ' away';
+    return '<article class="bear-reward ' + (unlocked ? 'is-unlocked' : 'is-locked') + (applied ? ' is-applied' : '') + (nextReward?.id === reward.id ? ' is-next' : '') + '">' +
+      '<div class="bear-reward-preview ' + reward.previewClass + '" aria-hidden="true"><span>' + reward.icon + '</span><i>✦</i><small>🐻　♡　🐻</small></div>' +
+      '<div class="bear-reward-copy"><span class="bear-reward-kicker">' + reward.rarity + ' · LEVEL ' + reward.level + '</span><b>' + reward.name + '</b><small>' + reward.detail + '</small></div>' +
+      '<div class="bear-reward-bottom"><span class="bear-reward-state">' + progressLabel + '</span>' +
+      (unlocked ? '<button type="button" class="bear-reward-apply" data-bear-equip="' + reward.id + '" aria-pressed="' + applied + '">' + (applied ? 'Unequip' : 'Use reward') + '</button>' : '<span class="bear-reward-lock">🔒 ' + reward.kind + '</span>') +
+      '</div></article>';
+  }).join('');
+  const rewardSummary = nextReward
+    ? '<div class="bear-next-reward"><div class="bear-next-reward-art ' + nextReward.previewClass + '">' + nextReward.icon + '</div><div><small>NEXT TREASURE · LEVEL ' + nextReward.level + '</small><b>' + nextReward.name + '</b><span>' + Math.max(0, nextReward.level - level.level) + ' level' + (nextReward.level - level.level === 1 ? '' : 's') + ' to unlock · keep sharing little moments</span></div></div>'
+    : '<div class="bear-next-reward bear-all-unlocked"><div class="bear-next-reward-art preview-starry">✧</div><div><small>THE COLLECTION IS YOURS</small><b>Every treasure unlocked!</b><span>Keep growing your shared Love Meter together.</span></div></div>';
   panel.innerHTML =
-    '<div class="bear-meter-topline"><span>♡ LITTLE LOVE METER</span><strong>LEVEL ' + level.level + '</strong></div>' +
-    '<div class="bear-level-heading"><span class="bear-level-heart">♡</span><span><small>YOUR LOVE IS GROWING</small><b>' + points + ' love points</b></span><strong>' + Math.round(percent) + '%<small>to next level</small></strong></div>' +
-    '<div class="bear-level-track" role="progressbar" aria-label="Progress to next Bear Hugs level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '"><span style="width:' + percent + '%"></span></div>' +
-    '<p class="bear-level-next">' + points + ' / ' + level.next + ' points · ' + (level.next - points) + ' to Level ' + (level.level + 1) + '</p>' +
-    '<section class="bear-rewards"><div class="bear-rewards-heading"><span>🎁</span><div><b>Little level rewards</b><small>Unlock, preview and apply your keepsakes</small></div></div><div class="bear-rewards-list">' +
-    REWARDS.map(reward => {
-      const unlocked = level.level >= reward.level;
-      const applied = equippedRewardIds.includes(reward.id);
-      return '<article class="bear-reward ' + (unlocked ? 'is-unlocked' : 'is-locked') + (applied ? ' is-applied' : '') + '">' +
-        '<div class="bear-reward-preview ' + reward.previewClass + '"><span>' + reward.icon + '</span><small>🐻 ♡ 🐻</small></div>' +
-        '<span class="bear-reward-copy"><b>' + reward.name + '</b><small>' + reward.kind + ' · ' + reward.detail + '</small></span>' +
-        (unlocked ? '<button type="button" class="bear-reward-apply" data-bear-equip="' + reward.id + '" aria-pressed="' + applied + '">' + (applied ? 'Applied ✓' : 'Apply') + '</button>' : '<span class="bear-reward-status">Lv. ' + reward.level + '</span>') +
-        '</article>';
-    }).join('') +
-    '</div></section>';
+    '<div class="bear-meter-topline"><span>♡ YOUR SHARED LOVE JOURNEY</span><strong>LEVEL ' + level.level + '</strong></div>' +
+    '<div class="bear-level-heading"><span class="bear-level-heart">♡</span><span><small>EVERY LITTLE MOMENT COUNTS</small><b>' + points.toLocaleString() + ' love points</b></span><strong>' + Math.round(percent) + '%<small>to Level ' + (level.level + 1) + '</small></strong></div>' +
+    '<div class="bear-level-track" role="progressbar" aria-label="Progress to Bear Hugs level ' + (level.level + 1) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '"><span style="width:' + percent + '%"></span></div>' +
+    '<div class="bear-level-next"><span>' + (level.next - points).toLocaleString() + ' points left</span><span>' + level.next.toLocaleString() + ' points · Level ' + (level.level + 1) + '</span></div>' +
+    rewardSummary +
+    '<section class="bear-rewards"><div class="bear-rewards-heading"><div><b>Your little treasures</b><small>' + newlyUnlocked.length + ' of ' + REWARDS.length + ' rewards unlocked · unlock together, equip anytime</small></div><span class="bear-reward-count">' + newlyUnlocked.length + '/' + REWARDS.length + '</span></div><div class="bear-rewards-list">' +
+    rewardCards + '</div></section>';
   const scene = $('.couple-bears-scene', root);
   if (scene) {
     scene.classList.toggle('bear-reward-sunset', equippedRewardIds.includes('sunset-meadow'));

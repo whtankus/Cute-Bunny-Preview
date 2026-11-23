@@ -21,6 +21,8 @@ const getSupabase = () => typeof sb !== 'undefined' ? sb : null;
 
 let selectedFriendId = localStorage.getItem(SELECTED_KEY) || '';
 let sharedPoints = 0;
+let sharedProgressPairKey = '';
+let sharedProgressInitialized = false;
 let progressChannel = null;
 let progressTopic = '';
 let originalTrigger = typeof window.triggerBearAction === 'function' ? window.triggerBearAction : null;
@@ -45,14 +47,32 @@ let requestRefreshTimer = null;
 function getPoints() {
   return Math.max(0, Number(sharedPoints) || 0);
 }
+function announceSharedLevelUp(previousPoints, nextPoints) {
+  const previousLevel = getLevel(previousPoints).level;
+  const nextLevel = getLevel(nextPoints).level;
+  if (nextLevel <= previousLevel) return;
+  const unlocked = REWARDS.filter(reward => reward.level > previousLevel && reward.level <= nextLevel);
+  if (!unlocked.length) return;
+  const names = unlocked.map(reward => reward.name).join(', ');
+  if (typeof toast === 'function') toast('New Bear Hugs reward unlocked: ' + names + ' ♡');
+  else setStatus('New Bear Hugs reward unlocked: ' + names + ' ♡');
+}
 async function loadSharedProgress() {
   const user = getMe(), client = getSupabase();
   if (!user?.id || !selectedFriendId || !client || !isAcceptedPartner(selectedFriendId)) {
     sharedPoints = 0;
+    sharedProgressPairKey = '';
+    sharedProgressInitialized = false;
     updateUI();
     return;
   }
   const [low, high] = [String(user.id), String(selectedFriendId)].sort();
+  const pairKey = low + ':' + high;
+  if (pairKey !== sharedProgressPairKey) {
+    sharedProgressPairKey = pairKey;
+    sharedPoints = 0;
+    sharedProgressInitialized = false;
+  }
   const { data, error } = await client.from('bear_partner_progress')
     .select('love_points')
     .eq('partner_low', low)
@@ -63,7 +83,10 @@ async function loadSharedProgress() {
     setStatus('Your shared Love Meter could not load. Please try again. ♡');
     return;
   }
+  const previousPoints = sharedPoints;
   sharedPoints = Math.max(0, Number(data?.love_points) || 0);
+  if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
+  sharedProgressInitialized = true;
   updateUI();
 }
 async function recordSharedAction(action, partnerId = selectedFriendId) {
@@ -75,7 +98,10 @@ async function recordSharedAction(action, partnerId = selectedFriendId) {
     setStatus('Your bear moment was sent, but its Love Meter points could not be saved. ♡');
     return;
   }
+  const previousPoints = sharedPoints;
   sharedPoints = Math.max(0, Number(data) || 0);
+  if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
+  sharedProgressInitialized = true;
   updateUI();
 }
 function getLevel(points) {

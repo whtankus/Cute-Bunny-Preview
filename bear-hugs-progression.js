@@ -65,6 +65,7 @@ async function loadSharedProgress() {
   const user = getMe(), client = getSupabase();
   if (!user?.id || !selectedFriendId || !client || !isAcceptedPartner(selectedFriendId)) {
     sharedPoints = 0;
+    lastSharedAction = '';
     sharedProgressPairKey = '';
     sharedProgressInitialized = false;
     updateUI();
@@ -75,6 +76,7 @@ async function loadSharedProgress() {
   if (pairKey !== sharedProgressPairKey) {
     sharedProgressPairKey = pairKey;
     sharedPoints = 0;
+    lastSharedAction = '';
     sharedProgressInitialized = false;
   }
   const { data, error } = await client.from('bear_partner_progress')

@@ -28,3 +28,27 @@ create policy "Recipient responds to Bear Partner requests" on public.bear_partn
   with check (recipient_id = (select auth.uid()) and status in ('accepted','rejected'));
 grant select, insert on public.bear_partner_requests to authenticated;
 grant update (status, responded_at) on public.bear_partner_requests to authenticated;
+
+-- Prevent opposite-direction pending invitations for the same pair.
+create unique index if not exists bear_partner_requests_one_pending_pair
+  on public.bear_partner_requests (least(sender_id, recipient_id), greatest(sender_id, recipient_id))
+  where status = 'pending';
+
+-- Allow the sender to withdraw only their own pending invitation.
+drop policy if exists "Sender cancels own pending Bearfriend request" on public.bear_partner_requests;
+create policy "Sender cancels own pending Bearfriend request" on public.bear_partner_requests
+  for delete to authenticated
+  using (sender_id = (select auth.uid()) and status = 'pending');
+grant delete on public.bear_partner_requests to authenticated;
+
+-- Enable Realtime for request notifications if the table is not already published.
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'bear_partner_requests'
+  ) then
+    alter publication supabase_realtime add table public.bear_partner_requests;
+  end if;
+end
+$$;

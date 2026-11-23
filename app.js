@@ -3242,6 +3242,17 @@ function render(options = {}) {
           <button type="button" class="bear-action-button" data-couple-action="hug" aria-pressed="false"><span aria-hidden="true">🫂</span><b>Hug</b></button>
           <button type="button" class="bear-action-button" data-couple-action="kiss" aria-pressed="false"><span aria-hidden="true">💋</span><b>Kiss</b></button>
           <button type="button" class="bear-action-button" data-couple-action="hands" aria-pressed="false"><span aria-hidden="true">🤝</span><b>Hold hands</b></button>
+          <button type="button" class="bear-action-button" data-couple-action="dance" aria-pressed="false"><span aria-hidden="true">💃</span><b>Dance</b></button>
+          <button type="button" class="bear-action-button" data-couple-action="pet" aria-pressed="false"><span aria-hidden="true">🐾</span><b>Pet</b></button>
+          <button type="button" class="bear-action-button" data-couple-action="feed" aria-pressed="false"><span aria-hidden="true">🍓</span><b>Feed</b></button>
+          <button type="button" class="bear-action-button" data-couple-action="sleep" aria-pressed="false"><span aria-hidden="true">🌙</span><b>Sleep</b></button>
+        </div>
+        <div class="couple-bear-footer">
+          <div class="bear-love-meter" role="group" aria-label="Little love meter">
+            <div class="bear-love-meter-copy"><span>Little love meter</span><b id="bearLoveCount">0 hugs of happiness</b></div>
+            <div class="bear-love-track"><span id="bearLoveFill"></span></div>
+          </div>
+          <button type="button" class="bear-sound-toggle" id="bearSoundToggle" aria-pressed="true" aria-label="Turn bear sounds off" title="Turn bear sounds off">♫ Sound on</button>
         </div>
       </section>
     `;
@@ -5899,6 +5910,104 @@ document.addEventListener('change', e => {
   try { localStorage.setItem(streakStorageKey('checks:' + today), JSON.stringify(checks)); } catch {}
   updateStreakGoalProgress();
 });
+
+// Bear Hugs mini-game: all actions stay local to this browser and never write to Supabase.
+const bearLoveStorageKey = 'cuteBunnyBearLove:v1';
+const bearSoundStorageKey = 'cuteBunnyBearSounds:v1';
+function readBearLoveCount() {
+  try { return Math.max(0, Number(localStorage.getItem(bearLoveStorageKey)) || 0); }
+  catch { return 0; }
+}
+function updateBearLoveMeter() {
+  const count = readBearLoveCount();
+  const label = $('#bearLoveCount');
+  const fill = $('#bearLoveFill');
+  if (label) label.textContent = count + (count === 1 ? ' happy moment' : ' happy moments');
+  if (fill) fill.style.width = Math.min(100, (count % 20) * 5 || (count ? 5 : 0)) + '%';
+  const soundButton = $('#bearSoundToggle');
+  if (soundButton) {
+    const enabled = localStorage.getItem(bearSoundStorageKey) !== 'off';
+    soundButton.setAttribute('aria-pressed', String(enabled));
+    soundButton.setAttribute('aria-label', enabled ? 'Turn bear sounds off' : 'Turn bear sounds on');
+    soundButton.textContent = enabled ? '♫ Sound on' : '♫ Sound off';
+  }
+}
+function playBearSound(kind) {
+  if (localStorage.getItem(bearSoundStorageKey) === 'off') return;
+  const AudioCtor = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtor) return;
+  try {
+    const context = new AudioCtor();
+    const notes = kind === 'kiss' ? [660, 880] : kind === 'dance' ? [523, 659, 784] : kind === 'sleep' ? [440, 330] : [523, 659];
+    notes.forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const start = context.currentTime + index * 0.075;
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequency, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.045, start + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start + 0.19);
+    });
+    window.setTimeout(() => context.close().catch(() => {}), 650);
+  } catch (error) {
+    console.debug('Bear sound skipped:', error);
+  }
+}
+function triggerBearAction(action) {
+  const scene = $('#coupleBearGame .couple-bears-scene');
+  if (!scene) return;
+  const messages = {
+    hug: 'A big, warm bear hug! ♡',
+    kiss: 'A tiny kiss, sealed with a heart. 💗',
+    hands: 'Together, paw in paw. ♡',
+    dance: 'Look at them dance! Two happy little bears. ✨',
+    pet: 'A gentle head pat. They love it! 🐾',
+    feed: 'Strawberries for two. Yum, yum! 🍓',
+    sleep: 'Shhh… the little bears are dreaming together. 🌙'
+  };
+  scene.dataset.action = action;
+  scene.classList.remove('bear-action-replay');
+  void scene.offsetWidth;
+  scene.classList.add('bear-action-replay');
+  const status = $('#coupleBearStatus');
+  if (status) status.textContent = messages[action] || 'Two little bears, one big love.';
+  document.querySelectorAll('#coupleBearGame [data-couple-action]').forEach(button => {
+    button.setAttribute('aria-pressed', String(button.dataset.coupleAction === action));
+  });
+  try {
+    const next = readBearLoveCount() + 1;
+    localStorage.setItem(bearLoveStorageKey, String(next));
+  } catch {}
+  updateBearLoveMeter();
+  playBearSound(action);
+}
+document.addEventListener('click', event => {
+  const soundToggle = event.target.closest('#bearSoundToggle');
+  if (soundToggle) {
+    const next = localStorage.getItem(bearSoundStorageKey) === 'off' ? 'on' : 'off';
+    try { localStorage.setItem(bearSoundStorageKey, next); } catch {}
+    updateBearLoveMeter();
+    if (next === 'on') playBearSound('pet');
+    return;
+  }
+  const actionButton = event.target.closest('#coupleBearGame [data-couple-action]');
+  if (!actionButton) return;
+  triggerBearAction(actionButton.dataset.coupleAction);
+});
+document.addEventListener('click', event => {
+  const bear = event.target.closest('#coupleBearGame .couple-bear');
+  if (!bear) return;
+  triggerBearAction('pet');
+});
+document.addEventListener('click', event => {
+  if (!event.target.closest('#coupleBearGame')) return;
+  updateBearLoveMeter();
+}, true);
 
 // Open friend profiles from the card surface (but never from its Follow button).
 document.addEventListener('click', event => {

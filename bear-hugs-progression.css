@@ -283,3 +283,20 @@
 
 /* Avoid applying the previous whole-scene honey filter twice. */
 #coupleBearGame .couple-bears-scene.bear-reward-honey #bearPoseSvg #bears{filter:none!important}
+
+
+/* Bearfriend management: quiet selected state, clear remove action inside picker. */
+#coupleBearGame .bear-partner-chip[hidden]{display:none!important}
+.bear-current-partner{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border:1px solid #e9c4d6;border-radius:16px;background:linear-gradient(120deg,#fff7fa,#f7f2ff);text-align:left}
+.bear-current-partner .bear-friend-choice-copy{flex:1;min-width:0}
+.bear-current-partner .bear-friend-choice-copy b{font-size:.8rem;color:#805d73}
+.bear-current-partner .bear-friend-choice-copy small{font-size:.66rem;color:#a58c9b}
+.bear-partner-remove{flex:0 0 auto;padding:8px 10px;border:1px solid #ecc9d7;border-radius:999px;background:#fff;color:#a75f7d;font-size:.68rem;font-weight:850}
+.bear-partner-remove:active{transform:scale(.97)}
+.bear-request-state.is-current{padding:7px 9px;border-radius:999px;background:#f8eaf1;color:#a16f89;font-size:.65rem;font-weight:850}
+.bear-friend-choice.is-selected{border-color:#d69bb8;background:#fff3f8}
+.bear-friend-picker-card .bear-request-section h4{margin-top:8px}
+@media(max-width:420px){
+ .bear-current-partner{flex-wrap:wrap}
+ .bear-current-partner .bear-partner-remove{margin-left:50px}
+}

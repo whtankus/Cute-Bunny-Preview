@@ -66,8 +66,15 @@ let streakGardenActiveTab = 'daily';
 let streakSelectedDailyQuest = 0;
 let streakPetalGame = { cards: [], flipped: [], matched: [], moves: 0, locked: false, completed: false, newBest: false };
 let cloudPetalPoints = 0, petalPointsSyncInFlight = null;
+let kindnessEventStatus = null, kindnessEventStatusUserId = '', kindnessEventStatusLoading = false, kindnessClaimInFlight = false;
+let kindnessEventPollInterval = null;
 let streakCountdownInterval = null, streakCountdownDayKey = '';
 let presenceStatus = 'closed';
+let presenceHeartbeatTimer = null, presenceReconnectTimer = null;
+let presenceReconnectAttempts = 0, presenceLastSuccessfulTrackAt = 0, presenceClientGeneration = 0;
+const PRESENCE_HEARTBEAT_MS = 25000;
+const PRESENCE_RECONNECT_BASE_MS = 1500;
+const PRESENCE_RECONNECT_MAX_MS = 30000;
 let lastActiveWriteAt = 0, lastActiveWriteUserId = '';
 let streakRecordInFlight = null, streakRecordInFlightKey = '';
 const noteGraphemeSegmenter = typeof Intl.Segmenter === 'function'
@@ -173,19 +180,18 @@ async function optimizePhotoUpload(file) {
 async function fetchFriendHeartCounts(userIds) {
   const ids = [...new Set((userIds || []).filter(Boolean).map(String))];
   if (!ids.length) return new Map();
-  const { data, error } = await sb.from('memories')
-    .select('owner_id,memory_likes(count)')
-    .in('owner_id', ids);
+  // Profile hearts are lifetime totals stored separately from memories.
+  // Deleting or expiring an old message must never erase hearts it earned.
+  const { data, error } = await sb.from('profile_heart_totals')
+    .select('user_id,heart_count')
+    .in('user_id', ids);
   if (error) {
-    console.warn('Friend heart totals could not be loaded:', error.message || error);
+    console.warn('Persistent profile heart totals could not be loaded:', error.message || error);
     return null;
   }
   const totals = new Map(ids.map(id => [id, 0]));
-  (data || []).forEach(memory => {
-    const likes = Array.isArray(memory.memory_likes) ? memory.memory_likes : [];
-    const count = likes.reduce((sum, row) => sum + (Number(row.count) || 0), 0);
-    const ownerId = String(memory.owner_id);
-    totals.set(ownerId, (totals.get(ownerId) || 0) + count);
+  (data || []).forEach(row => {
+    totals.set(String(row.user_id), Math.max(0, Number(row.heart_count) || 0));
   });
   return totals;
 }
@@ -619,8 +625,13 @@ function setUser(u) {
   // Hydrate the cloud collection before any shop action can read or write it.
   gardenCollectionHydratedUserId = String(u.id);
   gardenCollectionReadyUserId = '';
-  gardenCollectionHydration = hydrateGardenCollectionFromCloud().then(() => {
+  gardenCollectionHydration = hydrateGardenCollectionFromCloud().then(async () => {
     if (String(me?.id || '') !== String(u.id)) return;
+    // Recover rewards earned offline/on another device after cloud balance loads.
+    const pendingPetalRewards = readPetalRewards();
+    if (Object.values(pendingPetalRewards).some(amount => Number(amount) !== 0)) {
+      await syncPetalPointsToCloud();
+    }
     gardenCollectionReadyUserId = String(u.id);
     const ownPetals = $('#friendProfilePetals');
     if (ownPetals && $('#friendProfileGate')?.dataset.ownProfile === 'true') ownPetals.textContent = petalRewardBalance().toLocaleString();
@@ -649,6 +660,8 @@ function setUser(u) {
   go('home', { resetStack: true });
   installAppBackNavigation();
   startRealtime();
+  void loadKindnessEventStatus();
+  if (!kindnessEventPollInterval) kindnessEventPollInterval = window.setInterval(() => { void loadKindnessEventStatus(); }, 30000);
   startStreakCountdown();
   void loadNotifications();
 }
@@ -1035,124 +1048,85 @@ function writeStreakDailyQuests(dateKey, state) {
   try { localStorage.setItem(streakStorageKey('daily-quests:' + dateKey), JSON.stringify(state)); } catch {}
 }
 function getDailyQuestRotation(dateKey) {
-  // 20-day guided journey: three hand-picked quests per day, in a fixed order.
-  const journey = [
-    [
-      ['Cloud watcher','Share a photo of the clouds drifting above you.','photo','photo'],
-      ['A note to the sky','Write a little Notes message about the clouds you saw.','note','note','cloud'],
-      ['Leave three hearts','Send love to three different memories.','heart','hearts',null,3]
-    ],
-    [
-      ['Pocket-sized soundtrack','Share a song that feels like a peaceful morning.','song','song'],
-      ['Blue above','Share a photo of something blue in the sky or around you.','photo','photo'],
-      ['A color you love','Write a Notes message about your favourite color.','note','note','color']
-    ],
-    [
-      ['A tiny kindness','Leave hearts on three memories that make you smile.','heart','hearts',null,3],
-      ['Send a little kiss','Send a Notes message with a kiss or heart-kiss emoji.','kiss-note','kissNote'],
-      ['One good thing','Write one small thing that made today better.','note','note','today']
-    ],
-    [
-      ['Nature postcard','Share a photo of a tree, leaf, flower, or garden.','photo','photo'],
-      ['Your current soundtrack','Share a song you would play on a slow evening.','song','song'],
-      ['A warm hello','Like three memories shared by someone else.','heart','hearts',null,3]
-    ],
-    [
-      ['A memory in a frame','Share a photo of a place you want to remember.','photo','photo'],
-      ['A note of gratitude','Write a Notes message thanking someone or something.','note','note','thank'],
-      ['Visit your little garden','Check in today and let your streak flower.','login','login']
-    ],
-    [
-      ['Soundtrack for the stars','Share a song that belongs under a night sky.','song','song'],
-      ['A little daydream','Write a Notes message about somewhere you wish to visit.','note','note','wish'],
-      ['Spread the softest love','Send hearts to three different memories.','heart','hearts',null,3]
-    ],
-    [
-      ['Golden-hour moment','Share a photo with a warm, sunny, or golden feeling.','photo','photo'],
-      ['A sweet surprise','Send a Notes message with a kiss emoji.','kiss-note','kissNote'],
-      ['A tiny poem','Write two short lines in Notes about something beautiful.','note','note','beautiful']
-    ],
-    [
-      ['Find a little wonder','Share a photo of something small and lovely.','photo','photo'],
-      ['Music that feels like home','Share a song that makes you feel at home.','song','song'],
-      ['Three smiles sent','Like three memories that brighten your day.','heart','hearts',null,3]
-    ],
-    [
-      ['A note to future you','Write a Notes message to your future self.','note','note','future'],
-      ['Kindness in the garden','Send three hearts to memories from other people.','heart','hearts',null,3],
-      ['A kiss in the margins','Send a little kiss through Notes.','kiss-note','kissNote']
-    ],
-    [
-      ['The view outside','Share a photo of the view from where you are.','photo','photo'],
-      ['A song for the journey','Share a song you would take on a long trip.','song','song'],
-      ['Today in three words','Write a Notes message describing today in three words.','note','note','today']
-    ],
-    [
-      ['Cloud shapes','Share a photo of clouds that look like something.','photo','photo'],
-      ['Three little appreciations','Leave hearts on three memories you appreciate.','heart','hearts',null,3],
-      ['A moment worth keeping','Write a Notes message about a moment you want to remember.','note','note','remember']
-    ],
-    [
-      ['A melody to share','Share a song that matches your mood right now.','song','song'],
-      ['A little love note','Send a Notes message with a kiss or affectionate emoji.','kiss-note','kissNote'],
-      ['A new perspective','Write one thing you noticed today that you usually overlook.','note','note','noticed']
-    ],
-    [
-      ['Nature, up close','Share a photo of a leaf, petal, raindrop, or tiny detail.','photo','photo'],
-      ['Three bright spots','Like three memories that deserve a little love.','heart','hearts',null,3],
-      ['A hopeful thought','Write a Notes message about something you are looking forward to.','note','note','forward']
-    ],
-    [
-      ['A song for the moon','Share a calm song for a quiet night.','song','song'],
-      ['A little piece of color','Share a photo with your favourite color in it.','photo','photo'],
-      ['Send kindness around','Leave hearts on three different memories.','heart','hearts',null,3]
-    ],
-    [
-      ['A photo with a story','Share a photo that has a small story behind it.','photo','photo'],
-      ['A note of encouragement','Write a Notes message to encourage someone.','note','note','encourage'],
-      ['A kiss for the day','Send a sweet kiss in Notes.','kiss-note','kissNote']
-    ],
-    [
-      ['A sound you love','Share a song whose sound you never get tired of.','song','song'],
-      ['A small victory','Write a Notes message about one thing you did well.','note','note','did'],
-      ['Three hearts of joy','Like three memories that make you happy.','heart','hearts',null,3]
-    ],
-    [
-      ['A quiet corner','Share a photo of a peaceful corner or cosy spot.','photo','photo'],
-      ['A thought worth sharing','Write a Notes message about an idea on your mind.','note','note','idea'],
-      ['Back to the garden','Check in and give your streak a little care.','login','login']
-    ],
-    [
-      ['A song to remember','Share a song connected to a special memory.','song','song'],
-      ['A little affection','Send a kiss or heart-kiss through Notes.','kiss-note','kissNote'],
-      ['Three thoughtful hearts','Leave hearts on three memories from others.','heart','hearts',null,3]
-    ],
-    [
-      ['A sky worth saving','Share a photo of the sky at any time of day.','photo','photo'],
-      ['A note about wonder','Write a Notes message about something that still amazes you.','note','note','wonder'],
-      ['Share the love','Like three different memories in the garden.','heart','hearts',null,3]
-    ],
-    [
-      ['The final soundtrack','Share one song that sums up these 20 days.','song','song'],
-      ['A postcard to yourself','Share a photo of something you want to carry into tomorrow.','photo','photo'],
-      ['Your 20-day reflection','Write a Notes message about your favourite moment from this journey.','note','note','favourite']
-    ]
+  // A shared 20-day journey: one fresh chat quest, one photo quest,
+  // and one community quest each day. Each category has 20 unique entries.
+  const chatQuests = [
+    ['Warm hello','Send a message that includes “hello”.','note','note','hello'],
+    ['A happy thought','Share a message with the word “happy”.','note','note','happy'],
+    ['A little thank-you','Send someone a thank-you message.','note','note','thank'],
+    ['Dream big','Tell someone about a dream or wish.','note','note','dream'],
+    ['Something beautiful','Share a thought using the word “beautiful”.','note','note','beautiful'],
+    ['Morning sunshine','Send a good-morning message.','note','note','morning'],
+    ['Moonlight wishes','Send a good-night message.','note','note','night'],
+    ['Kind words','Send a message with the word “kind”.','note','note','kind'],
+    ['Tiny victory','Share a little win from your day.','note','note','win'],
+    ['A note of appreciation','Tell someone what you appreciate.','note','note','appreciate'],
+    ['Favourite melody','Talk about a song you love.','note','note','song'],
+    ['A memory to keep','Share a message about a favourite memory.','note','note','remember'],
+    ['You can do it','Send someone an encouraging message.','note','note','proud'],
+    ['A heart in words','Send a message with a heart symbol.','note','note','♡'],
+    ['A hopeful note','Share something you are hopeful about.','note','note','hope'],
+    ['How was your day?','Ask someone how their day is going.','note','note','day'],
+    ['Pass on a smile','Send a message with the word “smile”.','note','note','smile'],
+    ['A little love','Send a message that includes “love”.','note','note','love'],
+    ['Three little messages','Send three chat messages today.','note','note',null,3],
+    ['Keep the conversation going','Send five chat messages today.','note','note',null,5]
   ];
-  const campaignKey = streakStorageKey('daily-quest-campaign-start');
-  let campaignStart = '';
-  try {
-    campaignStart = localStorage.getItem(campaignKey) || '';
-    if (!campaignStart) {
-      campaignStart = dateKey;
-      localStorage.setItem(campaignKey, campaignStart);
-    }
-  } catch { campaignStart = dateKey; }
+  const photoQuests = [
+    ['Sky postcard','Share a photo of the sky.','photo','photo'],
+    ['A favourite colour','Share a photo featuring your favourite colour.','photo','photo'],
+    ['Little piece of nature','Share a photo of something from nature.','photo','photo'],
+    ['Cosy corner','Share a photo of a cosy place or corner.','photo','photo'],
+    ['A tasty moment','Share a photo of something you enjoyed eating.','photo','photo'],
+    ['Tiny details','Share a close-up photo of an interesting detail.','photo','photo'],
+    ['Flower of the day','Share a photo of a flower or plant.','photo','photo'],
+    ['Golden hour','Share a photo in warm evening light.','photo','photo'],
+    ['A view worth keeping','Share a photo of a view you love.','photo','photo'],
+    ['Something handmade','Share a photo of something you made.','photo','photo'],
+    ['A bookish moment','Share a photo of a book, page, or reading spot.','photo','photo'],
+    ['Everyday beauty','Share a photo of something ordinary but lovely.','photo','photo'],
+    ['Pet or animal friend','Share a photo of an animal.','photo','photo'],
+    ['A little celebration','Share a photo of something that made you smile.','photo','photo'],
+    ['Rainy-day mood','Share a photo that captures a rainy-day feeling.','photo','photo'],
+    ['Your creative side','Share a photo of your art or creative work.','photo','photo'],
+    ['A special keepsake','Share a photo of an object you treasure.','photo','photo'],
+    ['Two tiny moments','Share two photos from your day.','photo','photo',null,2],
+    ['A mini photo story','Share two photos that tell a little story.','photo','photo',null,2],
+    ['Photo diary','Share three photos that capture your day.','photo','photo',null,3]
+  ];
+  const communityQuests = [
+    ['Three hearts of kindness','Leave hearts on three different memories.','heart','hearts',null,3],
+    ['A song to share','Share a song with your friends.','song','song'],
+    ['Garden hello','Visit your little garden today.','login','login'],
+    ['Five kind reactions','Leave hearts on five different memories.','heart','hearts',null,5],
+    ['A soundtrack for today','Share a song that matches your mood.','song','song'],
+    ['A little appreciation','Leave hearts on three memories from others.','heart','hearts',null,3],
+    ['Music for the moment','Share another song you enjoy.','song','song'],
+    ['A friendly visit','Check in and keep your streak growing.','login','login'],
+    ['Spread the sunshine','Like five memories that brighten your day.','heart','hearts',null,5],
+    ['A peaceful melody','Share a calm song.','song','song'],
+    ['Three thoughtful hearts','Send hearts to three different memories.','heart','hearts',null,3],
+    ['Back to the garden','Visit your garden and care for your streak.','login','login'],
+    ['Celebrate a creator','Leave hearts on five memories.','heart','hearts',null,5],
+    ['Share your soundtrack','Share a song you would recommend.','song','song'],
+    ['A little wave','Check in to your garden today.','login','login'],
+    ['Kindness all around','Like three memories from other people.','heart','hearts',null,3],
+    ['One more melody','Share a song that makes you smile.','song','song'],
+    ['Garden regular','Keep your daily streak alive.','login','login'],
+    ['Five bright hearts','Leave hearts on five lovely memories.','heart','hearts',null,5],
+    ['Music for everyone','Share one final song for today.','song','song']
+  ];
+
+  // Day 1 began on 2026-11-21. Every account sees the same set on each date.
+  const campaignStart = '2026-11-21';
   const startDate = new Date(campaignStart + 'T00:00:00Z');
   const currentDate = new Date(dateKey + 'T00:00:00Z');
   const elapsedDays = Number.isFinite(startDate.getTime()) && Number.isFinite(currentDate.getTime())
     ? Math.max(0, Math.floor((currentDate - startDate) / 86400000)) : 0;
-  const dayIndex = elapsedDays % journey.length;
-  return journey[dayIndex].map((entry, slot) => {
+  const dayIndex = elapsedDays % 20;
+  const entries = [chatQuests[dayIndex], photoQuests[dayIndex], communityQuests[dayIndex]];
+
+  return entries.map((entry, slot) => {
     const [title, description, kind, art, match, target = 1] = entry;
     const id = 'day-' + (dayIndex + 1) + '-quest-' + (slot + 1);
     const progress = state => {
@@ -1175,32 +1149,38 @@ function readPetalRewards() {
   } catch { return {}; }
 }
 function petalRewardBalance(rewards = readPetalRewards()) {
-  return Math.max(0, cloudPetalPoints + Object.values(rewards).reduce((sum, amount) => sum + (Number.isFinite(amount) ? Math.max(-1000, Math.min(100, amount)) : 0), 0));
+ const pending=Object.values(rewards).reduce((sum,amount)=>{const value=Number(amount);return sum+(Number.isFinite(value)&&value>0?Math.trunc(value):0);},0);
+ return Math.max(0,Math.trunc(Number(cloudPetalPoints)||0)+pending);
 }
 async function syncPetalPointsToCloud() {
-  if (!sb || !me?.id) return false;
-  if (petalPointsSyncInFlight) await petalPointsSyncInFlight;
-  const rewards = readPetalRewards();
-  const total = petalRewardBalance(rewards);
-  petalPointsSyncInFlight = (async () => {
-    const { error } = await sb.from('profile_garden_collections').upsert({ user_id: me.id, petal_points: total, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-    if (error) { console.warn('Petal Points sync failed:', error.message || error); return false; }
-    cloudPetalPoints = total;
-    const settled = Object.fromEntries(Object.keys(rewards).map(key => [key, 0]));
-    try { localStorage.setItem(streakStorageKey('petal-rewards'), JSON.stringify(settled)); } catch {}
-    return true;
-  })();
-  try { return await petalPointsSyncInFlight; } finally { petalPointsSyncInFlight = null; }
-}
-function awardPetalReward(key, amount, sync = true) {
-  if (!me || !key) return false;
-  const rewards = readPetalRewards();
-  if (Object.prototype.hasOwnProperty.call(rewards, key)) return false;
-  rewards[key] = amount;
-  try { localStorage.setItem(streakStorageKey('petal-rewards'), JSON.stringify(rewards)); }
-  catch { return false; }
-  if (sync) void syncPetalPointsToCloud();
+ if(!sb||!me?.id)return false;
+ if(petalPointsSyncInFlight)return petalPointsSyncInFlight;
+ const userId=String(me.id);
+ petalPointsSyncInFlight=(async()=>{
+  const pending=readPetalRewards();
+  for(const [key,rawAmount] of Object.entries(pending)){
+   const amount=Math.trunc(Number(rawAmount)); if(!key||!Number.isFinite(amount)||amount<1)continue;
+   const {data,error}=await sb.rpc('grant_petal_points',{p_grant_key:String(key),p_amount:amount});
+   if(error)throw error;
+   if(String(me?.id||'')!==userId)return false;
+   if(data&&Number.isFinite(Number(data.petal_points)))cloudPetalPoints=Math.max(0,Number(data.petal_points));
+   const latest=readPetalRewards();
+   if(Number(latest[key])===Number(rawAmount)){delete latest[key];try{localStorage.setItem(streakStorageKey('petal-rewards'),JSON.stringify(latest));}catch{return false;}}
+  }
   return true;
+ })();
+ try{return await petalPointsSyncInFlight;}
+ catch(error){console.warn('Petal Points sync failed; pending rewards were retained:',error?.message||error);return false;}
+ finally{petalPointsSyncInFlight=null;}
+}
+function awardPetalReward(key,amount,sync=true){
+ if(!me||!key)return false;
+ const rewardAmount=Math.trunc(Number(amount));
+ if(!Number.isFinite(rewardAmount)||rewardAmount<1||rewardAmount>1000)return false;
+ const rewards=readPetalRewards();if(Object.prototype.hasOwnProperty.call(rewards,key))return false;
+ rewards[key]=rewardAmount;
+ try{localStorage.setItem(streakStorageKey('petal-rewards'),JSON.stringify(rewards));}catch{return false;}
+ if(sync)void syncPetalPointsToCloud();return true;
 }
 function readGardenCollection() {
   try {
@@ -1992,6 +1972,56 @@ const STREAK_MILESTONE_ILLUSTRATIONS = [
     '<svg viewBox="0 0 100 88" aria-hidden="true"><path d="M50 80V40" stroke="#688b6c" stroke-width="5" stroke-linecap="round"/><path d="M50 67C22 48 17 63 29 73c8 6 15 1 21-6Zm0-14c23-25 37-8 24 4-8 7-16 2-24-4Z" fill="#83a47a"/><path d="M50 45C26 24 33 8 50 3c18 8 26 26 0 42Z" fill="#87a978"/><g fill="#e9a4bd"><circle cx="37" cy="22" r="8"/><circle cx="63" cy="24" r="9"/><circle cx="49" cy="11" r="9"/><circle cx="50" cy="34" r="9"/></g><g fill="#f1d17f"><circle cx="37" cy="22" r="3"/><circle cx="63" cy="24" r="3"/><circle cx="49" cy="11" r="3"/><circle cx="50" cy="34" r="3"/></g><path d="M20 80h60" stroke="#bd9a74" stroke-width="3" stroke-linecap="round"/></svg>'
   ];
 
+async function loadKindnessEventStatus() {
+ if(!sb||!me?.id||kindnessEventStatusLoading)return kindnessEventStatus;
+ const userId=String(me.id);kindnessEventStatusLoading=true;
+ try{
+  const {data,error}=await sb.rpc('get_kindness_event_status');if(error)throw error;
+  if(String(me?.id||'')!==userId)return null;
+  kindnessEventStatus=data&&typeof data==='object'?data:null;kindnessEventStatusUserId=userId;
+  const {data:garden,error:gardenError}=await sb.from('profile_garden_collections').select('petal_points').eq('user_id',userId).maybeSingle();
+  if(!gardenError&&String(me?.id||'')===userId&&garden)cloudPetalPoints=Math.max(0,Number(garden.petal_points)||0);
+  if(page==='streak')renderStreakPage();else if(page==='home')render();
+  return kindnessEventStatus;
+ }catch(error){console.warn('Kindness event status could not be loaded:',error?.message||error);return null;}
+ finally{kindnessEventStatusLoading=false;}
+}
+async function claimKindnessEventReward() {
+  if (!sb || !me?.id || kindnessClaimInFlight) return;
+  const button = $('[data-claim-kindness-event]');
+  if (button) button.disabled = true;
+  kindnessClaimInFlight = true;
+  try {
+    const { data, error } = await sb.rpc('claim_kindness_event_reward');
+    if (error) throw error;
+    await hydrateGardenCollectionFromCloud();
+    gardenCollectionReadyUserId = String(me.id);
+    kindnessEventStatus = { ...(kindnessEventStatus || {}), state: 'claimed', bubble_count: Number(data?.petal_points) || Number(kindnessEventStatus?.bubble_count) || 0 };
+    kindnessEventStatusUserId = String(me.id);
+    if (page === 'streak') renderStreakPage();
+    else if (page === 'home') render();
+    toast('Your ' + (Number(data?.petal_points) || 0) + ' Petal Points have been added ♡');
+  } catch (error) {
+    toast(error?.message || 'Your kindness reward could not be claimed. Please try again.');
+    void loadKindnessEventStatus();
+  } finally {
+    kindnessClaimInFlight = false;
+    if (button) button.disabled = false;
+  }
+}
+
+function renderKindnessEventMarkup() {
+ const status=kindnessEventStatusUserId===String(me?.id||'')?kindnessEventStatus:null;
+ if(!status||status.show_poster!==true)return '';
+ const friendTimes=(Array.isArray(friends)?friends:[]).filter(friend=>friend&&friend.id&&friend.streak_timezone).slice(0,6).map(friend=>'<span class="sg-kindness-friend-time"><b>'+esc(friend.displayName||friend.display_name||friend.username||'Friend')+'</b><small>11:00 PM · '+esc(friend.streak_timezone)+'</small></span>').join('');
+ const active=status.state==='active',count=Math.max(0,Number(status.bubble_count)||0);
+ const timeZone=status.timezone||'Local timezone';
+ const detail=active?count+' petals collected so far. Completed petals are added to your permanent balance after midnight.':'Your next kindness hour begins at 11 PM in your local timezone.';
+ return '<section class="sg-kindness-event" aria-label="Kindness Hour">'+
+ '<div class="sg-kindness-event-sparkle sg-kindness-sparkle-one" aria-hidden="true">✦</div><div class="sg-kindness-event-sparkle sg-kindness-sparkle-two" aria-hidden="true">✧</div>'+
+ '<div class="sg-kindness-event-heading"><span class="sg-kindness-heart" aria-hidden="true">♡</span><div class="sg-kindness-title-wrap"><span class="sg-kindness-eyebrow">SUNDAY &amp; WEDNESDAY</span><h3>Kindness Hour</h3><span class="sg-kindness-subtitle">A little love goes a long way</span></div><span class="sg-kindness-phase'+(active?' is-live':'')+'">'+(active?'LIVE NOW':'NEXT SESSION')+'</span></div>'+
+ '<div class="sg-kindness-timebar"><span class="sg-kindness-clock" aria-hidden="true">◷</span><span class="sg-kindness-time-label">YOUR LOCAL TIME</span><strong>11:00 PM – 12:00 AM</strong><span class="sg-kindness-timezone">'+esc(timeZone)+'</span></div>'+(friendTimes?'<div class="sg-kindness-friend-times"><span>FRIENDS’ LOCAL SCHEDULES</span>'+friendTimes+'</div>':'')+'<div class="sg-kindness-event-body"><div class="sg-kindness-copy"><p>Every chat bubble you send or receive during the hour earns <strong>1 Petal Point</strong>.</p><small>'+esc(detail)+'</small></div><div class="sg-kindness-reward"><span class="sg-kindness-petal-count">'+count+'</span><span class="sg-kindness-petal-label">PETALS THIS HOUR</span><span class="sg-kindness-state">'+(active?'Collecting…':'See you tonight ♡')+'</span></div></div></section>';
+}
 function renderStreakPage() {
   const content = $('#content');
   if (!content || !me) return;
@@ -2085,7 +2115,7 @@ function renderStreakPage() {
     '<div class="sg-petal-balance"><span class="sg-petal-balance-art">' + gardenIllustration('bloom-5') + '</span><div><b>' + petalRewardBalance(petalRewards) + ' Petal Points</b><small>Earn 10 per daily quest · 25 from the daily chest</small></div></div>' +
     '<button type="button" class="sg-petal-chest" data-claim-petal-chest' + (completedQuests !== 3 || chestClaimed ? ' disabled' : '') + '>' +
     '<span class="sg-chest-art">' + gardenIllustration('golden-bell') + '</span> ' + (chestClaimed ? 'Chest collected today' : completedQuests === 3 ? 'Open daily chest · +25' : 'Complete 3 quests to unlock chest') + '</button>' +
-    '<small class="sg-petal-note">Your Petal Points stay on this device; your collected treasures sync to your profile for friends to see.</small></div>';
+    '<small class="sg-petal-note">Your Petal Points sync to your account and stay available across your devices.</small></div>';
   const collection = readGardenCollection();
   const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Find a tiny treasure, from everyday blooms to magical keepsakes</p></div><span class="sg-shop-sparkle" aria-hidden="true">✧</span></div><div class="sg-collectible-grid">' +
     [...GARDEN_COLLECTIBLES].sort((a, b) => a.cost - b.cost).map(item => {
@@ -2392,7 +2422,7 @@ function renderStreakPage() {
       '<section class="sg-milestones-section sg-hearts-section"><div class="sg-section-heading"><div><h3>Your Hearts</h3><p>' + heartCount + ' hearts received · ' + heartMilestones.filter(item => heartCount >= item.hearts).length + ' of ' + heartMilestones.length + ' milestones unlocked</p></div></div>' +
       '<div class="sg-milestone-route">' + heartBadges + '</div></section></section>',
     '<section class="sg-tab-panel' + (streakGardenActiveTab === 'daily' ? ' is-active' : '') + '" id="sgDailyPanel" role="tabpanel"' + (streakGardenActiveTab === 'daily' ? '' : ' hidden') + '>' +
-      '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>20-day garden adventure · Day ' + (Math.floor(Math.max(0,(new Date(todayKey + 'T00:00:00Z') - new Date((localStorage.getItem(streakStorageKey('daily-quest-campaign-start')) || todayKey) + 'T00:00:00Z')) / 86400000) % 20) + 1) + ' of 20 · 60 little challenges</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
+      '<section class="sg-daily-quests-section"><div class="sg-section-heading"><div><h3>Daily Quest</h3><p>20-day garden adventure · Day ' + (Math.floor(Math.max(0,(new Date(todayKey + 'T00:00:00Z') - new Date('2026-11-21T00:00:00Z')) / 86400000) % 20) + 1) + ' of 20 · 20 chat + 20 photo quests</p></div><span class="sg-goal-count">' + completedQuests + ' / 3</span></div>' +
       dailyQuestMarkup + petalRewardsMarkup + weeklyMarkup + collectibleMarkup + '</section></section>',
     '</div>',
     '</div>',
@@ -3131,24 +3161,13 @@ function render(options = {}) {
       <div class="daily" id="dailyCard" role="button" tabindex="0" aria-label="A little kindness for today. Tap for another reminder">
         <span class="daily-icon">🌼</span><div><small>A LITTLE KINDNESS FOR TODAY</small><p id="compliment">${esc(getKindness())}</p></div>
       </div>
+      ${renderKindnessEventMarkup()}
       <div class="toolbar"><h3>Your happy things</h3><span>${visibleFeed.length} shared memories</span></div>
       <div class="grid happy-things-grid">
         ${streakWidget()}
         <article class="tile"><button type="button" class="tile-art note-art happy-thing-art happy-note-thumbnail" data-happy-go="notes" aria-label="Open Little Love Notes"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><defs><linearGradient id="note-paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffefa"/><stop offset="1" stop-color="#fff0f3"/></linearGradient><linearGradient id="note-envelope" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3c5d3"/><stop offset="1" stop-color="#df91ad"/></linearGradient><filter id="note-shadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="3"/></filter></defs><ellipse cx="111" cy="113" rx="66" ry="8" fill="#b77f98" opacity=".17" filter="url(#note-shadow)"/><g class="note-artwork"><g transform="rotate(-9 82 67)"><rect x="42" y="29" width="91" height="76" rx="8" fill="#f8e9ec" stroke="#d9a8b7" stroke-width="2"/><path d="M54 45h56M54 54h44M54 63h51" stroke="#d9b2bf" stroke-width="2" stroke-linecap="round"/><path d="M54 82q11-9 22 0t22 0" fill="none" stroke="#e3a7bb" stroke-width="2"/><path d="M106 88c-5-7-14-2-11 5 2 4 11 10 11 10s9-6 11-10c3-7-6-12-11-5Z" fill="#e6a1b9"/></g><g transform="rotate(5 133 67)"><rect x="91" y="18" width="88" height="91" rx="10" fill="url(#note-paper)" stroke="#d7a0b4" stroke-width="2.5"/><path d="M103 38h49M103 48h56M103 58h45M103 68h52" stroke="#e6c4ce" stroke-width="2.4" stroke-linecap="round"/><path d="M103 82q13-7 25 0t25 0" fill="none" stroke="#edc5d1" stroke-width="2"/><path d="M103 91h31" stroke="#e6c4ce" stroke-width="2" stroke-linecap="round"/><circle cx="164" cy="29" r="5" fill="#e6b66f"/></g><g transform="translate(59 77)"><path d="M0 0 53-28l54 28-54 34Z" fill="url(#note-envelope)" stroke="#c77f9e" stroke-width="2.2" stroke-linejoin="round"/><path d="m0 0 53 34L107 0" fill="#f8dce5" stroke="#c77f9e" stroke-width="2.2" stroke-linejoin="round"/><path d="M43 4c-6-8-16-2-12 6 2 5 12 12 12 12s10-7 12-12c4-8-6-14-12-6Z" fill="#d87899" stroke="#fff2f5" stroke-width="1.5"/></g><path d="M183 35c-5-7-14-2-11 5 2 4 11 10 11 10s9-6 11-10c3-7-6-12-11-5Z" fill="#e6a1b9"/><path d="m38 34 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#d9b36e"/></g></svg></button><h3>Little Love Notes</h3><p>${notes.length} saved notes</p><button class="primary" data-go="notes">Open notes →</button></article>
         <article class="tile"><button type="button" class="tile-art photo-art happy-thing-art happy-photo-thumbnail" data-happy-go="gallery" aria-label="Open Photo Garden"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><ellipse cx="110" cy="112" rx="63" ry="8" fill="#8fae8b" opacity=".17"/><rect x="68" y="20" width="84" height="91" rx="13" fill="#fffaf4" stroke="#c4d5b8" stroke-width="2.5" transform="rotate(-5 110 65)"/><rect x="79" y="29" width="84" height="91" rx="13" fill="#fffdf8" stroke="#b9cda9" stroke-width="2.5" transform="rotate(5 120 74)"/><rect x="88" y="38" width="68" height="69" rx="8" fill="#e8f0df"/><circle cx="122" cy="65" r="12" fill="#f2c6d1"/><circle cx="122" cy="51" r="7" fill="#e8a7ba"/><circle cx="136" cy="65" r="7" fill="#e8a7ba"/><circle cx="122" cy="79" r="7" fill="#e8a7ba"/><circle cx="108" cy="65" r="7" fill="#e8a7ba"/><circle cx="122" cy="65" r="5" fill="#e4be73"/><path d="M93 96q15-25 29-7t28-2" fill="none" stroke="#8da77e" stroke-width="3" stroke-linecap="round"/></svg></button><h3>Photo Garden</h3><p>${pics.length} shared photos</p><button class="primary" data-go="gallery">Open photos →</button></article>
         <article class="tile"><button type="button" class="tile-art music-art happy-thing-art happy-music-thumbnail" data-happy-go="music" aria-label="Open Cozy Playlist"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><defs><linearGradient id="music-deck" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4eafa"/><stop offset="1" stop-color="#cdb9e2"/></linearGradient><linearGradient id="music-vinyl" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#806d9d"/><stop offset=".55" stop-color="#544968"/><stop offset="1" stop-color="#9882ae"/></linearGradient></defs><ellipse cx="111" cy="113" rx="68" ry="8" fill="#8e79a9" opacity=".17"/><g class="music-artwork"><g transform="rotate(-5 111 75)"><rect x="43" y="40" width="136" height="66" rx="13" fill="url(#music-deck)" stroke="#a58cbd" stroke-width="2.5"/><rect x="51" y="48" width="120" height="50" rx="9" fill="#f9f3fb" opacity=".8"/><circle cx="105" cy="73" r="35" fill="url(#music-vinyl)" stroke="#76618f" stroke-width="2"/><circle cx="105" cy="73" r="27" fill="none" stroke="#c9b8d8" stroke-width="1.2" opacity=".48"/><circle cx="105" cy="73" r="20" fill="none" stroke="#c9b8d8" stroke-width="1.2" opacity=".42"/><circle cx="105" cy="73" r="12" fill="#f0c7d5" stroke="#b986a5" stroke-width="1.5"/><path d="M105 66c-4-5-10-1-7 4 1 3 7 7 7 7s6-4 7-7c3-5-3-9-7-4Z" fill="#b86f91"/><circle cx="105" cy="73" r="2.2" fill="#fff5f7"/><path d="M145 55 160 55 160 83Q160 91 152 91Q144 91 144 84Q144 77 153 77Q156 77 158 79V61H145Z" fill="#b79acb"/><path d="M60 58h13M60 64h8" stroke="#d4bfdc" stroke-width="2" stroke-linecap="round"/></g><path d="M52 29q-9 11 0 22m118-25q9 11 0 22" fill="none" stroke="#b29ac8" stroke-width="3" stroke-linecap="round"/><path d="M185 32c-5-7-14-2-11 5 2 4 11 10 11 10s9-6 11-10c3-7-6-12-11-5Z" fill="#d9b2df"/><path d="m38 81 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#d9b36e"/></g></svg></button><h3>Cozy Playlist</h3><p>${songs.length} shared songs</p><button class="primary" data-go="music">Open music →</button></article>
-      </div>
-      <div class="feed-list">
-        <h3>Your memory history</h3>
-        ${visibleFeed.map((m, index) => {
-          const previous = visibleFeed[index - 1];
-          const ownerId = String(m.author?.id || m.owner_id || '');
-          const previousOwnerId = String(previous?.author?.id || previous?.owner_id || '');
-          const sameDay = previous && noteDayLabel(m.createdAt || m.created_at) === noteDayLabel(previous.createdAt || previous.created_at);
-          const isContinuation = m.kind === 'note' && previous?.kind === 'note' && !!ownerId && ownerId === previousOwnerId && sameDay;
-          return memoryCard(m, { isContinuation });
-        }).join('') || '<div class="empty">Your shared scrapbook starts with one little note ♡</div>'}
-        ${historySentinelMarkup('bottom')}
       </div>
     `;
   } else if (page === 'gallery') {
@@ -3266,7 +3285,8 @@ function showFriendProfile(user) {
   if (settingsPanel && !isOwnProfile) settingsPanel.classList.add('hidden');
   const profileOnline = isPresenceUserOnline(user.id, (() => { try { return presenceChannel?.presenceState?.() || {}; } catch { return {}; } })());
   const presenceDot = $('#friendProfilePresenceDot');
-  $('#friendProfilePresence').textContent = profileOnline ? 'Active now' : formatFriendProfileActivity(user.last_active_at);
+  $('#friendProfilePresence').textContent = profileOnline ? 'Active now' :
+    presenceStatus === 'ready' ? formatFriendProfileActivity(user.last_active_at) : 'Checking activity…';
   presenceDot?.classList.toggle('is-online', profileOnline);
   presenceDot?.classList.toggle('is-offline', !profileOnline);
   presenceDot?.setAttribute('aria-label', profileOnline ? 'Online' : 'Offline');
@@ -4082,6 +4102,7 @@ async function sendChatMessage() {
       .single();
     if (sendError) throw sendError;
     recordStreakNoteQuest(text);
+    void loadKindnessEventStatus();
     if (replyingToMessageId === replyId) replyingToMessageId = null;
     const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
     feed = feed.map(m => String(m.id) === tempId ? record : m);
@@ -4564,11 +4585,16 @@ document.addEventListener('pointerdown', () => { void touchLastActive(); }, { pa
 document.addEventListener('keydown', () => { void touchLastActive(); }, { passive: true });
 window.addEventListener('focus', () => { void touchLastActive(true); });
 document.addEventListener('visibilitychange', () => {
-  void updateMyPresencePage();
   if (!document.hidden) {
+    if (presenceStatus === 'error' || presenceStatus === 'closed' || !presenceChannel) {
+      schedulePresenceReconnect('foreground');
+    } else {
+      void updateMyPresencePage();
+    }
     void touchLastActive(true);
     if (page === 'notes') requestAnimationFrame(observeNoteSeenMessages);
   } else {
+    void updateMyPresencePage();
     stopNotesTyping();
     clearTimeout(noteSeenDebounceTimer);
   }
@@ -4577,6 +4603,7 @@ document.addEventListener('visibilitychange', () => {
 function startRealtime() {
   if (!sb || !me) return;
   closeRealtime();
+  const realtimeGeneration = presenceClientGeneration;
   presenceStatus = 'connecting';
   try {
     // Each browser tab/device gets its own key; the user_id payload lets peers
@@ -4619,26 +4646,58 @@ function startRealtime() {
       });
 
     presence
-      .on('presence', { event: 'sync' }, () => syncPresenceUI('sync'))
-      .on('presence', { event: 'join' }, () => syncPresenceUI('join'))
-      .on('presence', { event: 'leave' }, () => syncPresenceUI('leave'))
+      .on('presence', { event: 'sync' }, () => {
+        if (realtimeGeneration === presenceClientGeneration) syncPresenceUI('sync');
+      })
+      .on('presence', { event: 'join' }, () => {
+        if (realtimeGeneration === presenceClientGeneration) syncPresenceUI('join');
+      })
+      .on('presence', { event: 'leave' }, () => {
+        if (realtimeGeneration === presenceClientGeneration) syncPresenceUI('leave');
+      })
       .subscribe(async status => {
+        if (realtimeGeneration !== presenceClientGeneration) return;
         if (status === 'SUBSCRIBED') {
           presenceStatus = 'ready';
+          clearTimeout(presenceReconnectTimer);
+          presenceReconnectTimer = null;
           syncPresenceUI();
-          try {
-            await updateMyPresencePage();
+          await updateMyPresencePage();
+          if (presenceStatus === 'ready') {
+            presenceReconnectAttempts = 0;
             void touchLastActive(true);
-          } catch (error) {
-            presenceStatus = 'error';
-            console.warn('Presence tracking failed:', error?.message || error);
-            syncPresenceUI();
+          } else {
+            schedulePresenceReconnect('initial-track-failed');
           }
         } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
           presenceStatus = 'error';
           syncPresenceUI();
+          schedulePresenceReconnect(status);
         }
       });
+
+    // Keep presence metadata fresh without coupling it to typing activity.
+    clearInterval(presenceHeartbeatTimer);
+    presenceHeartbeatTimer = setInterval(() => {
+      if (!me || !presenceChannel || document.hidden) return;
+      if (presenceStatus === 'ready') {
+        const trackAge = Date.now() - presenceLastSuccessfulTrackAt;
+        if (!presenceLastSuccessfulTrackAt || trackAge > PRESENCE_HEARTBEAT_MS * 2.5) {
+          // SUBSCRIBED can remain stale while the underlying socket is half-open.
+          // Force the normal backoff reconnect instead of displaying stale state.
+          presenceStatus = 'error';
+          syncPresenceUI();
+          schedulePresenceReconnect('heartbeat-stale-track');
+        } else if (trackAge >= PRESENCE_HEARTBEAT_MS) {
+          void updateMyPresencePage();
+        }
+      } else if (presenceStatus === 'error' || presenceStatus === 'closed') {
+        schedulePresenceReconnect('heartbeat');
+      }
+      // Keep last-active fallback current even when the user is reading without
+      // pointer or keyboard input; writes remain throttled inside touchLastActive.
+      void touchLastActive();
+    }, PRESENCE_HEARTBEAT_MS);
 
     profileChannel = sb.channel('cute-bunny-profiles-' + me.id)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, payload => {
@@ -4874,6 +4933,7 @@ function startRealtime() {
     presenceStatus = 'error';
     console.info('Realtime will start when supported.', error?.message || '');
     syncPresenceUI();
+    schedulePresenceReconnect('channel-setup-failed');
   }
 }
 
@@ -4903,6 +4963,14 @@ function closeRealtime() {
   notesTypingChannelReady = false;
   notesTypingQueuedState = null;
   presenceStatus = 'closed';
+  presenceClientGeneration += 1;
+  clearInterval(presenceHeartbeatTimer);
+  clearTimeout(presenceReconnectTimer);
+  presenceHeartbeatTimer = null;
+  presenceReconnectTimer = null;
+  // Preserve the retry count across reconnect attempts; reset only after a
+  // Presence channel has successfully subscribed and tracked its state.
+  presenceLastSuccessfulTrackAt = 0;
   lastPublishedPresencePage = null;
   knownOnlineFriendKeys = new Set();
   knownNotesFriendKeys = new Set();
@@ -4916,6 +4984,35 @@ function closeRealtime() {
   }
 }
 
+function schedulePresenceReconnect(reason = 'connection-lost') {
+  if (!sb || !me || presenceReconnectTimer || presenceStatus === 'connecting') return;
+  const attempt = Math.min(presenceReconnectAttempts++, 8);
+  const delay = Math.min(PRESENCE_RECONNECT_MAX_MS,
+    PRESENCE_RECONNECT_BASE_MS * Math.pow(2, attempt));
+  const jitteredDelay = Math.round(delay * (0.8 + Math.random() * 0.4));
+  console.warn('Presence reconnect scheduled:', reason, 'in', jitteredDelay, 'ms');
+  presenceReconnectTimer = setTimeout(() => {
+    presenceReconnectTimer = null;
+    if (!me || !sb || document.hidden || presenceStatus === 'ready' || presenceStatus === 'connecting') return;
+    startRealtime();
+  }, jitteredDelay);
+}
+
+function normalizePresenceFriendKey(friend) {
+  const id = String(friend?.id || friend?.user_id || '').trim();
+  const username = String(friend?.username || '').trim().toLowerCase();
+  return id ? 'id:' + id : username ? 'username:' + username : '';
+}
+
+function getPresenceSessionsForFriend(friend, sessionsById, sessionsByUsername) {
+  const id = String(friend?.id || friend?.user_id || '').trim();
+  const username = String(friend?.username || '').trim().toLowerCase();
+  return [...new Set([
+    ...(id ? sessionsById.get(id) || [] : []),
+    ...(username ? sessionsByUsername.get(username) || [] : [])
+  ])];
+}
+
 function isPresenceUserOnline(userOrId, state) {
   if (!userOrId || !state || typeof state !== 'object') return false;
   const targetId = typeof userOrId === 'object'
@@ -4924,15 +5021,26 @@ function isPresenceUserOnline(userOrId, state) {
   const targetUsername = typeof userOrId === 'object'
     ? String(userOrId.username || '').trim().toLowerCase()
     : '';
-  return Object.values(state).some(sessions =>
+  return Object.entries(state).some(([presenceKey, sessions]) =>
     Array.isArray(sessions) && sessions.some(session => {
       const sessionId = String(session?.user_id || session?.userId || session?.profile_id || session?.id || '');
       const sessionUsername = String(session?.username || '').trim().toLowerCase();
+      const keyMatches = !!targetId && (
+        presenceKey === targetId ||
+        presenceKey.startsWith('cb-' + targetId + '-') ||
+        presenceKey.startsWith(targetId + ':')
+      );
       return (!!targetId && sessionId === targetId) ||
-        (!!targetUsername && sessionUsername === targetUsername);
+        (!!targetUsername && sessionUsername === targetUsername) ||
+        keyMatches;
     })
   );
 }
+
+const presenceSweepRecentEvents = new Map();
+const presenceSweepQueue = [];
+let presenceSweepRunning = false;
+let pendingPresenceSweepWhileHidden = false;
 
 function triggerFriendPresenceSweep(friendKey, transition) {
   const transitionName = String(transition || 'activity');
@@ -4940,16 +5048,43 @@ function triggerFriendPresenceSweep(friendKey, transition) {
     : ['left', 'notes-left', 'offline'].includes(transitionName) ? 'departed' : transitionName;
   const key = String(friendKey || 'friend') + ':' + transitionGroup;
   const now = Date.now();
-  // Presence and Broadcast can report the same transition; collapse duplicates.
-  if (key === lastPresenceSweepKey && now - lastPresenceSweepAt < 900) return;
+  // Collapse duplicate Presence/Broadcast reports, but retain distinct rapid
+  // transitions so a quick switch into/out of Notes is still animated.
+  if (now - (presenceSweepRecentEvents.get(key) || 0) < 700) return;
+  presenceSweepRecentEvents.set(key, now);
+  if (presenceSweepRecentEvents.size > 100) {
+    for (const [eventKey, at] of presenceSweepRecentEvents) {
+      if (now - at > 10000) presenceSweepRecentEvents.delete(eventKey);
+    }
+  }
   lastPresenceSweepKey = key;
   lastPresenceSweepAt = now;
+  // Background tabs can throttle or finish CSS animations before the user
+  // sees them. Remember the activity and replay one sweep on return.
+  if (document.hidden) {
+    pendingPresenceSweepWhileHidden = true;
+    return;
+  }
+  pendingPresenceSweepWhileHidden = false;
   triggerHeaderActivitySweep();
 }
 
+function flushPendingPresenceSweep() {
+  if (document.hidden || !pendingPresenceSweepWhileHidden) return;
+  pendingPresenceSweepWhileHidden = false;
+  triggerHeaderActivitySweep();
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  // Reconcile the authoritative snapshot first; a missed join/leave is caught
+  // here, then any activity already observed while hidden is replayed once.
+  syncPresenceUI('visibility-resume');
+  flushPendingPresenceSweep();
+});
+
 function triggerHeaderActivitySweep() {
   if (!document.body) return;
-  clearTimeout(notesHeaderActivityTimer);
   let sweep = document.getElementById('cb-presence-sweep');
   if (!sweep) {
     sweep = document.createElement('span');
@@ -4957,13 +5092,27 @@ function triggerHeaderActivitySweep() {
     sweep.setAttribute('aria-hidden', 'true');
     document.body.appendChild(sweep);
   }
-  sweep.classList.remove('is-active');
-  void sweep.offsetWidth;
-  sweep.classList.add('is-active');
-  notesHeaderActivityTimer = setTimeout(() => {
+  if (presenceSweepRunning) {
+    if (presenceSweepQueue.length < 12) presenceSweepQueue.push(true);
+    return;
+  }
+  const playNext = () => {
+    presenceSweepRunning = true;
     sweep.classList.remove('is-active');
-    notesHeaderActivityTimer = null;
-  }, 2000);
+    void sweep.offsetWidth;
+    sweep.classList.add('is-active');
+    notesHeaderActivityTimer = setTimeout(() => {
+      sweep.classList.remove('is-active');
+      if (presenceSweepQueue.length) {
+        presenceSweepQueue.shift();
+        playNext();
+      } else {
+        presenceSweepRunning = false;
+        notesHeaderActivityTimer = null;
+      }
+    }, 950);
+  };
+  playNext();
 }
 
 function handleNotesPageTransition(payload) {
@@ -5032,7 +5181,21 @@ async function updateMyPresencePage() {
       typing_at: Date.now()
     };
 
-    await channel.track(payload);
+    // A stalled Realtime transport must not block every later page update.
+    // Bound each track attempt so the heartbeat can recover a half-open socket.
+    let trackTimeout;
+    try {
+      await Promise.race([
+        channel.track(payload),
+        new Promise((_, reject) => {
+          trackTimeout = setTimeout(() => reject(new Error('Presence track timed out after 8 seconds')), 8000);
+        })
+      ]);
+    } finally {
+      clearTimeout(trackTimeout);
+    }
+    if (presenceChannel !== channel || presenceStatus !== 'ready') return;
+    presenceLastSuccessfulTrackAt = Date.now();
     const previousPage = lastPublishedPresencePage;
     lastPublishedPresencePage = nextPage;
 
@@ -5053,7 +5216,14 @@ async function updateMyPresencePage() {
     await presenceTrackQueue;
     syncPresenceUI('local-track');
   } catch (error) {
+    // Release the serial queue after a failed/timed-out track so future
+    // heartbeats are not chained behind a permanently pending promise.
+    presenceTrackQueue = Promise.resolve();
+    presenceStatus = 'error';
+    presenceLastSuccessfulTrackAt = 0;
     console.warn('Presence page update failed:', error?.message || error);
+    syncPresenceUI();
+    schedulePresenceReconnect('presence-track-failed');
   }
 }
 
@@ -5063,17 +5233,26 @@ function syncPresenceUI(presenceEvent = 'local') {
   const allSessions = Object.values(state || {}).flatMap(sessions => Array.isArray(sessions) ? sessions : []);
   const sessionsById = new Map();
   const sessionsByUsername = new Map();
-  allSessions.forEach(session => {
-    const id = String(session?.user_id || session?.userId || session?.profile_id || '');
-    const username = String(session?.username || '').trim().toLowerCase();
-    if (id) {
-      if (!sessionsById.has(id)) sessionsById.set(id, []);
-      sessionsById.get(id).push(session);
-    }
-    if (username) {
-      if (!sessionsByUsername.has(username)) sessionsByUsername.set(username, []);
-      sessionsByUsername.get(username).push(session);
-    }
+  Object.entries(state || {}).forEach(([presenceKey, sessions]) => {
+    if (!Array.isArray(sessions)) return;
+    sessions.forEach(session => {
+      const id = String(session?.user_id || session?.userId || session?.profile_id || session?.id || '').trim();
+      const username = String(session?.username || '').trim().toLowerCase();
+      if (id) {
+        if (!sessionsById.has(id)) sessionsById.set(id, []);
+        sessionsById.get(id).push(session);
+      }
+      if (username) {
+        if (!sessionsByUsername.has(username)) sessionsByUsername.set(username, []);
+        sessionsByUsername.get(username).push(session);
+      }
+      const keyMatch = presenceKey.match(/^cb-(.+?)-[0-9a-f-]{20,}$/i);
+      if (keyMatch) {
+        const keyId = keyMatch[1];
+        if (!sessionsById.has(keyId)) sessionsById.set(keyId, []);
+        sessionsById.get(keyId).push(session);
+      }
+    });
   });
 
   const notesNow = new Set();
@@ -5084,11 +5263,8 @@ function syncPresenceUI(presenceEvent = 'local') {
     // Never treat this user's own session as a friend activity event.
     if ((me?.id && friendId === String(me.id)) ||
         (me?.username && username === String(me.username).trim().toLowerCase())) return;
-    const matches = new Set([
-      ...(friendId ? sessionsById.get(friendId) || [] : []),
-      ...(username ? sessionsByUsername.get(username) || [] : [])
-    ]);
-    if ([...matches].some(session =>
+    const matches = getPresenceSessionsForFriend(friend, sessionsById, sessionsByUsername);
+    if (matches.some(session =>
       String(session?.active_page || session?.activePage || session?.current_page || session?.currentPage || session?.page || '').trim().toLowerCase() === 'notes'
     )) {
       notesNow.add(friendId || username);
@@ -5102,13 +5278,10 @@ function syncPresenceUI(presenceEvent = 'local') {
   (Array.isArray(friends) ? friends : []).forEach(friend => {
     const id = String(friend?.id || friend?.user_id || '');
     const username = String(friend?.username || '').trim().toLowerCase();
-    const key = id || username;
+    const key = normalizePresenceFriendKey(friend);
     if (!key) return;
-    const sessions = new Set([
-      ...(id ? sessionsById.get(id) || [] : []),
-      ...(username ? sessionsByUsername.get(username) || [] : [])
-    ]);
-    if (sessions.size) onlineNow.add(key);
+    const sessions = getPresenceSessionsForFriend(friend, sessionsById, sessionsByUsername);
+    if (sessions.length) onlineNow.add(key);
   });
 
   const previousOnline = knownOnlineFriendKeys;
@@ -5153,7 +5326,8 @@ function syncPresenceUI(presenceEvent = 'local') {
       const online = isPresenceUserOnline(profileUser, state);
       const status = $('#friendProfilePresence');
       const dot = $('#friendProfilePresenceDot');
-      if (status) status.textContent = online ? 'Active now' : formatFriendProfileActivity(profileUser.last_active_at);
+      if (status) status.textContent = online ? 'Active now' :
+        presenceStatus === 'ready' ? formatFriendProfileActivity(profileUser.last_active_at) : 'Checking activity…';
       dot?.classList.toggle('is-online', online);
       dot?.classList.toggle('is-offline', !online);
       dot?.setAttribute('aria-label', online ? 'Online' : 'Offline');
@@ -5169,12 +5343,9 @@ function syncPresenceUI(presenceEvent = 'local') {
     node.classList.toggle('is-offline', !online);
     const presenceLabel = node.querySelector('.sg-friend-presence');
     if (presenceLabel) {
-      if (node.classList.contains('friend-row')) {
-        const friend = [...friends, ...friendResults, ...(me ? [me] : [])].find(user => String(user.id) === String(node.dataset.friendId));
-        presenceLabel.textContent = '';
-      } else {
-        presenceLabel.textContent = '';
-      }
+      const friend = nodeUser;
+      presenceLabel.textContent = online ? 'Active now' :
+        presenceStatus === 'ready' ? formatFriendProfileActivity(friend?.last_active_at) : 'Checking activity…';
     }
   });
 }
@@ -6409,6 +6580,10 @@ document.addEventListener('click', async e => {
     return;
   }
 
+  if (e.target.closest('[data-claim-kindness-event]')) {
+    void claimKindnessEventReward();
+    return;
+  }
   if (e.target.closest('[data-claim-petal-chest]')) {
     claimDailyPetalChest();
     return;

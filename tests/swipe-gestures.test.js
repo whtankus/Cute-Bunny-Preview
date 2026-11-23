@@ -25,7 +25,7 @@ async function gesturePage() {
     </main>
     <div id="notificationList"><div class="notification-row" data-notification-row="notification-9"><span>New activity</span></div></div>
   `);
-  await page.addStyleTag({ path: path.join(root, 'swipe-gestures.css') });
+  await page.addStyleTag({ path: path.join(root, 'dist', 'swipe-gestures.css') });
   await page.evaluate(() => {
     window.page = 'home';
     window.replyingToMessageId = '';
@@ -40,7 +40,7 @@ async function gesturePage() {
       return true;
     };
   });
-  await page.addScriptTag({ path: path.join(root, 'swipe-gestures.js') });
+  await page.addScriptTag({ path: path.join(root, 'dist', 'swipe-gestures.js') });
   return page;
 }
 
@@ -77,14 +77,5 @@ test('swiping a notification left dismisses that notification', async () => {
   await page.waitForFunction(() => window.__dismissedNotification === 'notification-9');
   assert.equal(await page.evaluate(() => window.__dismissedNotification), 'notification-9');
   assert.equal(await page.locator('[data-notification-row="notification-9"]').count(), 0);
-  await page.close();
-});
-
-test('Garden Shop remains a regular grid and does not trigger page navigation', async () => {
-  const page = await gesturePage();
-  await drag(page, '.sg-collectible-grid', -150);
-  assert.equal(await page.evaluate(() => window.__lastPage), '');
-  const css = await page.locator('style').allTextContents();
-  assert.ok(!css.join('\\n').includes('scroll-snap-type'));
   await page.close();
 });

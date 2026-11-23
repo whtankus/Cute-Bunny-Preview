@@ -5,10 +5,10 @@ const SELECTED_KEY = 'cuteBunnyBearSelectedFriend:v1';
 const LOVE_KEY = 'cuteBunnyBearLove:v1';
 const ACTIONS = new Set(['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep', 'idle']);
 const REWARDS = [
-  { level: 2, name: 'Enchanted Forest', icon: '🌲', detail: 'A peaceful forest scene' },
-  { level: 3, name: 'Little Picnic Basket', icon: '🧺', detail: 'A shared picnic accessory', coming: true },
-  { level: 4, name: 'Matching Flower Crowns', icon: '🌼', detail: 'A tiny crown for each bear', coming: true },
-  { level: 5, name: 'Matching Cute Caps', icon: '🧢', detail: 'One cute cap for each bear' }
+  { level: 2, name: 'Sunset Meadow', icon: '🌅', kind: 'Background', detail: 'A warm new home for your bears' },
+  { level: 4, name: 'Strawberry Hat', icon: '🍓', kind: 'Accessory', detail: 'A sweet little cap for your bears' },
+  { level: 6, name: 'Honey Bear', icon: '🍯', kind: 'Bear skin', detail: 'A golden honey-inspired bear look' },
+  { level: 8, name: 'Starry Night Legendary Set', icon: '🌌', kind: 'Legendary set', detail: 'Starry background, tiny crown and Galaxy Bear' }
 ];
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -20,6 +20,11 @@ const getMe = () => typeof me !== 'undefined' ? me : null;
 const getSupabase = () => typeof sb !== 'undefined' ? sb : null;
 
 let selectedFriendId = localStorage.getItem(SELECTED_KEY) || '';
+let sharedPoints = 0;
+let sharedProgressPairKey = '';
+let sharedProgressInitialized = false;
+let progressChannel = null;
+let progressTopic = '';
 let originalTrigger = typeof window.triggerBearAction === 'function' ? window.triggerBearAction : null;
 let originalCloseRealtime = typeof window.closeRealtime === 'function' ? window.closeRealtime : null;
 let ownChannel = null;
@@ -40,12 +45,64 @@ let requestTopic = '';
 let requestRefreshTimer = null;
 
 function getPoints() {
-  try { return Math.max(0, Number(localStorage.getItem(LOVE_KEY)) || 0); }
-  catch { return 0; }
+  return Math.max(0, Number(sharedPoints) || 0);
 }
-function addPoints(amount) {
-  try { localStorage.setItem(LOVE_KEY, String(getPoints() + amount)); }
-  catch {}
+function announceSharedLevelUp(previousPoints, nextPoints) {
+  const previousLevel = getLevel(previousPoints).level;
+  const nextLevel = getLevel(nextPoints).level;
+  if (nextLevel <= previousLevel) return;
+  const unlocked = REWARDS.filter(reward => reward.level > previousLevel && reward.level <= nextLevel);
+  if (!unlocked.length) return;
+  const names = unlocked.map(reward => reward.name).join(', ');
+  if (typeof toast === 'function') toast('New Bear Hugs reward unlocked: ' + names + ' ♡');
+  else setStatus('New Bear Hugs reward unlocked: ' + names + ' ♡');
+}
+async function loadSharedProgress() {
+  const user = getMe(), client = getSupabase();
+  if (!user?.id || !selectedFriendId || !client || !isAcceptedPartner(selectedFriendId)) {
+    sharedPoints = 0;
+    sharedProgressPairKey = '';
+    sharedProgressInitialized = false;
+    updateUI();
+    return;
+  }
+  const [low, high] = [String(user.id), String(selectedFriendId)].sort();
+  const pairKey = low + ':' + high;
+  if (pairKey !== sharedProgressPairKey) {
+    sharedProgressPairKey = pairKey;
+    sharedPoints = 0;
+    sharedProgressInitialized = false;
+  }
+  const { data, error } = await client.from('bear_partner_progress')
+    .select('love_points')
+    .eq('partner_low', low)
+    .eq('partner_high', high)
+    .maybeSingle();
+  if (error) {
+    console.warn('Shared Bear Hugs progress could not load:', error.message || error);
+    setStatus('Your shared Love Meter could not load. Please try again. ♡');
+    return;
+  }
+  const previousPoints = sharedPoints;
+  sharedPoints = Math.max(0, Number(data?.love_points) || 0);
+  if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
+  sharedProgressInitialized = true;
+  updateUI();
+}
+async function recordSharedAction(action, partnerId = selectedFriendId) {
+  const user = getMe(), client = getSupabase();
+  if (!user?.id || !partnerId || !client || !isAcceptedPartner(partnerId)) return;
+  const { data, error } = await client.rpc('record_bear_hug_action', { p_partner_id: partnerId });
+  if (error) {
+    console.warn('Shared Bear Hugs points could not be saved:', error.message || error);
+    setStatus('Your bear moment was sent, but its Love Meter points could not be saved. ♡');
+    return;
+  }
+  const previousPoints = sharedPoints;
+  sharedPoints = Math.max(0, Number(data) || 0);
+  if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
+  sharedProgressInitialized = true;
+  updateUI();
 }
 function getLevel(points) {
   if (points < 100) return { level: 1, previous: 0, next: 100 };
@@ -76,12 +133,14 @@ function updateUI() {
     '<div class="bear-level-track" role="progressbar" aria-label="Progress to next Bear Hugs level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '"><span style="width:' + percent + '%"></span></div>' +
     '<p class="bear-level-next">' + points + ' / ' + level.next + ' points · ' + (level.next - points) + ' to Level ' + (level.level + 1) + '</p>' +
     '<section class="bear-rewards"><div class="bear-rewards-heading"><span>🎁</span><div><b>Little level rewards</b><small>Collect sweet things as your love grows</small></div></div><div class="bear-rewards-list">' +
-    REWARDS.map(reward => '<article class="bear-reward ' + (!reward.coming && level.level >= reward.level ? 'is-unlocked' : 'is-locked') + '"><span class="bear-reward-icon">' + reward.icon + '</span><span class="bear-reward-copy"><b>' + reward.name + '</b><small>' + reward.detail + '</small></span><span class="bear-reward-status">' + (reward.coming ? 'Coming soon' : level.level >= reward.level ? 'Unlocked' : 'Locked') + '</span></article>').join('') +
+    REWARDS.map(reward => '<article class="bear-reward ' + (level.level >= reward.level ? 'is-unlocked' : 'is-locked') + '"><span class="bear-reward-icon">' + reward.icon + '</span><span class="bear-reward-copy"><b>' + reward.name + '</b><small>' + reward.kind + ' · ' + reward.detail + '</small></span><span class="bear-reward-status">' + (level.level >= reward.level ? 'Unlocked' : 'Unlocks at Lv. ' + reward.level) + '</span></article>').join('') +
     '</div></section>';
   const scene = $('.couple-bears-scene', root);
   if (scene) {
     scene.classList.toggle('bear-forest-unlocked', level.level >= 2);
-    scene.classList.toggle('bear-caps-unlocked', level.level >= 5);
+    scene.classList.toggle('bear-caps-unlocked', level.level >= 4);
+    scene.classList.toggle('bear-honey-unlocked', level.level >= 6);
+    scene.classList.toggle('bear-legendary-unlocked', level.level >= 8);
   }
 }
 function partnerProfileFromRows(id) {
@@ -403,22 +462,23 @@ async function chooseFriend(id) {
   const results = await Promise.all([ensureOwnChannel(), ensurePeerChannel(selectedFriendId)]);
   if (results.every(Boolean)) updateConnectionStatus();
   else setStatus('Your partner is selected, but the live connection is still reconnecting. Try an action again shortly. ♡');
+  await loadSharedProgress();
   if (pendingAction) {
     const action = pendingAction;
     pendingAction = null;
     runLocalAction(action);
   }
 }
-async function sendAction(action) {
-  const friend = getSelectedFriend();
+async function sendAction(action, partnerId = selectedFriendId) {
+  const friend = getFriends().find(item => String(item?.id) === String(partnerId)) || partnerProfileFromRows(partnerId);
   const user = getMe();
   const client = getSupabase();
-  if (!friend || !user?.id || !client || !isAcceptedPartner(friend.id)) {
+  if (!friend || !user?.id || !client || !isAcceptedPartner(partnerId)) {
     setStatus('Choose a friend before starting your little moment. ♡');
     openPicker();
     return false;
   }
-  const connected = await ensurePeerChannel(friend.id);
+  const connected = await ensurePeerChannel(partnerId);
   if (!connected || !peerChannel) {
     setStatus('Your bears are trying to reconnect. Please try that action again in a moment. ♡');
     return false;
@@ -426,7 +486,7 @@ async function sendAction(action) {
   const payload = {
     action,
     userId: String(user.id),
-    toUserId: String(friend.id),
+    toUserId: String(partnerId),
     gender: user.gender || null,
     sentAt: Date.now()
   };
@@ -454,7 +514,8 @@ function applyRemoteAction(action, payload) {
     setStatus((sender?.display_name || sender?.displayName || sender?.username || 'Your friend') +
       ' chose ' + (action === 'hands' ? 'to hold paws' : action) + '. ♡');
   } else {
-    addPoints(2);
+    // The sender records shared points once through the database RPC.
+    // Never award a second copy on the receiving browser.
     pendingRemoteAction = { action, payload };
   }
 }
@@ -497,7 +558,27 @@ function runLocalAction(action) {
     setStatus('The bear animation is still loading. Please try again in a moment. ♡');
     return;
   }
-  void sendAction(action);
+  const partnerId = selectedFriendId;
+  void sendAction(action, partnerId).then(delivered => {
+    if (delivered) void recordSharedAction(action, partnerId);
+  });
+}
+function ensureProgressChannel() {
+  const client = getSupabase(), user = getMe();
+  if (!client || !user?.id) return;
+  const topic = 'cute-bunny-bear-progress-' + String(user.id);
+  if (progressChannel && progressTopic === topic) return;
+  closeChannel(progressChannel);
+  progressChannel = client.channel(topic)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'bear_partner_progress' }, () => {
+      void loadSharedProgress();
+    })
+    .subscribe(status => {
+      if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
+        console.warn('Shared Bear Hugs progress updates unavailable:', status);
+      }
+    });
+  progressTopic = topic;
 }
 function ensureRequestChannel() {
   const client = getSupabase(), user = getMe();
@@ -533,11 +614,15 @@ function ensureRequestChannel() {
 }
 function startBearHugsRealtime() {
   ensureRequestChannel();
+  ensureProgressChannel();
   void ensureOwnChannel();
   if (selectedFriendId && getSelectedFriend()) void ensurePeerChannel(selectedFriendId);
 }
 function closeBearHugsRealtime() {
   closeChannel(requestChannel);
+  closeChannel(progressChannel);
+  progressChannel = null;
+  progressTopic = '';
   requestChannel = null;
   requestTopic = '';
   if (requestRefreshTimer) { clearTimeout(requestRefreshTimer); requestRefreshTimer = null; }
@@ -624,6 +709,7 @@ function install() {
     } else if (selectedFriendId) {
       updatePartnerChip();
       startBearHugsRealtime();
+      void loadSharedProgress();
     }
   });
 }

@@ -5938,38 +5938,54 @@ function updateBearLoveMeter() {
     soundButton.textContent = enabled ? '♫ Sound on' : '♫ Sound off';
   }
 }
+let bearAudioContext = null;
 function playBearSound(kind) {
   if (localStorage.getItem(bearSoundStorageKey) === 'off') return;
   const AudioCtor = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtor) return;
-  const soundPatterns = {
-    hug:   { notes: [196, 294, 392], wave: 'sine', interval: .085, duration: .2, volume: .042 },
-    kiss:  { notes: [784, 988, 1175], wave: 'sine', interval: .065, duration: .15, volume: .035 },
-    dance: { notes: [523, 659, 784, 1047], wave: 'triangle', interval: .105, duration: .19, volume: .035 },
-    pet:   { notes: [740, 659, 784, 698], wave: 'sine', interval: .09, duration: .16, volume: .028 },
-    feed:  { notes: [392, 494, 587, 784], wave: 'triangle', interval: .095, duration: .17, volume: .032 },
-    hands: { notes: [494, 622], wave: 'sine', interval: .09, duration: .18, volume: .03 },
-    sleep: { notes: [440, 330], wave: 'sine', interval: .13, duration: .24, volume: .022 }
-  };
-  const pattern = soundPatterns[kind] || soundPatterns.pet;
   try {
-    const context = new AudioCtor();
-    pattern.notes.forEach((frequency, index) => {
+    bearAudioContext ||= new AudioCtor();
+    const context = bearAudioContext;
+    if (context.state === 'suspended') void context.resume();
+    const now = context.currentTime + .012;
+    const tone = (frequency, delay, duration, volume, wave = 'sine', endFrequency = frequency) => {
       const oscillator = context.createOscillator();
       const gain = context.createGain();
-      const start = context.currentTime + index * pattern.interval;
-      oscillator.type = pattern.wave;
-      oscillator.frequency.setValueAtTime(frequency, start);
-      if (kind === 'hug') oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.12, start + .08);
-      gain.gain.setValueAtTime(.0001, start);
-      gain.gain.exponentialRampToValueAtTime(pattern.volume, start + .025);
-      gain.gain.exponentialRampToValueAtTime(.0001, start + pattern.duration);
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.start(start);
-      oscillator.stop(start + pattern.duration + .01);
-    });
-    window.setTimeout(() => context.close().catch(() => {}), 1200);
+      oscillator.type = wave;
+      oscillator.frequency.setValueAtTime(frequency, now + delay);
+      if (endFrequency !== frequency) oscillator.frequency.exponentialRampToValueAtTime(Math.max(1, endFrequency), now + delay + duration);
+      gain.gain.setValueAtTime(.0001, now + delay);
+      gain.gain.exponentialRampToValueAtTime(volume, now + delay + Math.min(.025, duration * .25));
+      gain.gain.exponentialRampToValueAtTime(.0001, now + delay + duration);
+      oscillator.connect(gain); gain.connect(context.destination);
+      oscillator.start(now + delay); oscillator.stop(now + delay + .015);
+    };
+    const noise = (delay, duration, volume, filterFrequency = 1200) => {
+      const length = Math.max(1, Math.ceil(context.sampleRate * duration));
+      const buffer = context.createBuffer(1, length, context.sampleRate);
+      const channel = buffer.getChannelData(0);
+      for (let i = 0; i < length; i++) channel[i] = (Math.random() * 2 - 1) * (1 - i / length);
+      const source = context.createBufferSource();
+      const filter = context.createBiquadFilter();
+      const gain = context.createGain();
+      source.buffer = buffer;
+      filter.type = 'lowpass'; filter.frequency.setValueAtTime(filterFrequency, now + delay);
+      gain.gain.setValueAtTime(.0001, now + delay);
+      gain.gain.exponentialRampToValueAtTime(volume, now + delay + .012);
+      gain.gain.exponentialRampToValueAtTime(.0001, now + delay + duration);
+      source.connect(filter); filter.connect(gain); gain.connect(context.destination);
+      source.start(now + delay); source.stop(now + delay + duration + .01);
+    };
+    const patterns = {
+      hug:   () => { tone(196,0,.22,.026); tone(294,.08,.24,.023); tone(392,.16,.28,.02); },
+      kiss:  () => { tone(620,0,.11,.035,'sine',340); tone(880,.10,.16,.022,'sine',1175); noise(.015,.075,.012,2200); },
+      dance: () => { [523,659,784,1047].forEach((n,i)=>tone(n,i*.105,.19,.024,'triangle')); },
+      pet:   () => { [740,659,784,698].forEach((n,i)=>tone(n,i*.09,.16,.022)); },
+      feed:  () => { noise(0,.105,.026,950); tone(520,.02,.10,.012,'triangle',390); noise(.13,.09,.021,1150); tone(660,.15,.12,.014,'triangle',490); tone(784,.28,.16,.018); },
+      hands: () => { tone(494,0,.18,.022); tone(622,.09,.22,.02); },
+      sleep: () => { noise(0,.28,.008,480); tone(220,.04,.55,.012,'sine',196); noise(.62,.3,.007,420); tone(196,.68,.65,.01,'sine',174); }
+    };
+    (patterns[kind] || patterns.pet)();
   } catch (error) {
     console.debug('Bear sound skipped:', error);
   }

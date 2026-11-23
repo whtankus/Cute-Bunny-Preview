@@ -3257,6 +3257,7 @@ function render(options = {}) {
           </div>
           <button type="button" class="bear-sound-toggle" id="bearSoundToggle" aria-pressed="true" aria-label="Turn bear sounds off" title="Turn bear sounds off">♫ Sound on</button>
         </div>
+        <a class="bear-full-experience-link" href="./bear-hugs.html"><span aria-hidden="true">✦</span> Open the full Bear Hugs experience <span aria-hidden="true">↗</span></a>
       </section>
     `;
   } else if (page === 'gallery') {

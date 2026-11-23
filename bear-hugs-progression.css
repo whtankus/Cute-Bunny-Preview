@@ -42,5 +42,5 @@
 #coupleBearGame .bear-reward.is-unlocked{border-color:#e6c2d4;background:rgba(255,239,246,.65)}
 #coupleBearGame .bear-reward.is-unlocked .bear-reward-status{color:#a86d8c}
 #coupleBearGame .couple-bears-scene.bear-forest-unlocked{background:linear-gradient(180deg,#e3f0df,#c4dfc6 60%,#a8caa8)!important}
-#coupleBearGame .couple-bears-scene.bear-caps-unlocked:after{content:"🧢　　 🧢";position:absolute;top:18%;left:50%;font-size:1.1rem;transform:translateX(-50%);filter:drop-shadow(0 2px 2px rgba(70,50,60,.12));pointer-events:none}
+#coupleBearGame .couple-bears-scene.bear-caps-unlocked:before,#coupleBearGame .couple-bears-scene.bear-caps-unlocked:after{content:"🧢";position:absolute;top:17%;font-size:1.05rem;filter:drop-shadow(0 2px 2px rgba(70,50,60,.12));pointer-events:none}#coupleBearGame .couple-bears-scene.bear-caps-unlocked:before{left:25%}#coupleBearGame .couple-bears-scene.bear-caps-unlocked:after{right:25%}
 @media(max-width:520px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}}

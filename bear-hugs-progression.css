@@ -156,3 +156,47 @@
 #coupleBearGame .couple-bears-scene.bear-reward-honey #bearPoseSvg #bears{filter:sepia(.34) saturate(1.4) hue-rotate(350deg)}
 #coupleBearGame .couple-bears-scene.bear-reward-starry:after{content:"👑       👑";position:absolute;top:15%;left:0;width:100%;text-align:center;font-size:1.1rem;pointer-events:none}
 @media(max-width:420px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}}
+
+
+/* Love journey refresh: clearer milestone hierarchy and illustrated keepsakes. */
+#coupleBearGame .bear-progression-panel{padding:clamp(14px,3vw,21px);border-radius:24px;background:linear-gradient(150deg,color-mix(in srgb,var(--cb-card) 94%,#fff 6%),color-mix(in srgb,var(--cb-accent) 7%,var(--cb-card)));box-shadow:0 12px 30px rgba(112,76,103,.09)}
+#coupleBearGame .bear-meter-topline{letter-spacing:.12em}
+#coupleBearGame .bear-level-heading{gap:12px}
+#coupleBearGame .bear-level-heart{display:grid;place-items:center;width:43px;height:43px;border-radius:16px;background:linear-gradient(145deg,#ffe2ec,#f1dfff);font-size:1.65rem;box-shadow:inset 0 1px 0 #fff}
+#coupleBearGame .bear-level-track{height:15px;border:3px solid rgba(255,255,255,.55);box-sizing:content-box}
+#coupleBearGame .bear-level-next{display:flex;justify-content:space-between;gap:8px;font-size:.68rem}
+#coupleBearGame .bear-next-reward{display:flex;align-items:center;gap:12px;margin:15px 0 3px;padding:11px;border:1px solid color-mix(in srgb,var(--cb-accent) 24%,var(--cb-border));border-radius:17px;background:rgba(255,255,255,.48)}
+#coupleBearGame .bear-next-reward-art{display:grid;place-items:center;flex:0 0 54px;height:54px;border-radius:15px;font-size:1.8rem;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+#coupleBearGame .bear-next-reward>div:last-child{display:grid;gap:3px;min-width:0}
+#coupleBearGame .bear-next-reward small,.bear-reward-kicker{font-size:.56rem;font-weight:950;letter-spacing:.1em;color:var(--cb-accent-strong)}
+#coupleBearGame .bear-next-reward b{font-size:.83rem;color:var(--cb-text)}
+#coupleBearGame .bear-next-reward span{font-size:.65rem;line-height:1.35;color:var(--cb-text-soft)}
+#coupleBearGame .bear-rewards{margin-top:15px;padding-top:15px}
+#coupleBearGame .bear-rewards-heading{justify-content:space-between;align-items:center}
+#coupleBearGame .bear-rewards-heading>div{display:grid;gap:3px}
+#coupleBearGame .bear-rewards-heading b{font-size:.94rem}
+#coupleBearGame .bear-rewards-heading small{line-height:1.4}
+#coupleBearGame .bear-reward-count{display:grid;place-items:center;min-width:34px;height:30px;padding:0 7px;border-radius:999px;background:color-mix(in srgb,var(--cb-accent) 13%,transparent);color:var(--cb-accent-strong);font-size:.68rem;font-weight:950}
+#coupleBearGame .bear-rewards-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#coupleBearGame .bear-reward{position:relative;display:grid;grid-template-columns:64px minmax(0,1fr);grid-template-rows:auto auto;gap:8px 10px;align-items:center;padding:10px;border-radius:17px;background:rgba(255,255,255,.52);transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+#coupleBearGame .bear-reward.is-next{border-color:color-mix(in srgb,var(--cb-accent) 58%,var(--cb-border));box-shadow:0 0 0 2px color-mix(in srgb,var(--cb-accent) 12%,transparent)}
+#coupleBearGame .bear-reward-preview{position:relative;grid-row:1;display:grid;place-items:center;width:64px;height:62px;border-radius:15px;font-size:1.8rem;overflow:hidden}
+#coupleBearGame .bear-reward-preview>i{position:absolute;top:5px;right:7px;font-style:normal;font-size:.62rem;color:rgba(255,255,255,.9)}
+#coupleBearGame .bear-reward-preview>small{position:absolute;bottom:5px;font-size:.57rem;letter-spacing:-.08em}
+#coupleBearGame .preview-forest{background:radial-gradient(circle at 20% 20%,#fff4bb 0 2px,transparent 3px),linear-gradient(150deg,#d9e9c8,#83ad8a 58%,#527e70)}
+#coupleBearGame .preview-caps{background:radial-gradient(circle at 80% 18%,#fff 0 2px,transparent 3px),linear-gradient(145deg,#ffe8ed,#f6b8c9 58%,#d889a8)}
+#coupleBearGame .preview-honey{background:radial-gradient(circle at 25% 20%,#fff5c7 0 2px,transparent 3px),linear-gradient(145deg,#fff0b8,#e8b45e 58%,#c88b45)}
+#coupleBearGame .preview-starry{background:radial-gradient(circle at 70% 20%,#fff1b9 0 3px,transparent 4px),radial-gradient(circle at 22% 68%,#fff 0 1px,transparent 2px),linear-gradient(145deg,#24264f,#78638f)}
+#coupleBearGame .bear-reward-copy{align-self:center}
+#coupleBearGame .bear-reward-copy b{display:block;margin:2px 0;font-size:.75rem;line-height:1.2;color:var(--cb-text)}
+#coupleBearGame .bear-reward-copy small{display:block;font-size:.62rem;line-height:1.35}
+#coupleBearGame .bear-reward-bottom{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;padding-top:7px;border-top:1px solid color-mix(in srgb,var(--cb-border) 75%,transparent)}
+#coupleBearGame .bear-reward-state,#coupleBearGame .bear-reward-lock{min-width:0;font-size:.59rem;line-height:1.25;color:var(--cb-text-soft)}
+#coupleBearGame .bear-reward-apply{grid-column:auto;justify-self:auto;flex:0 0 auto;padding:7px 10px;font-size:.62rem}
+#coupleBearGame .bear-reward.is-applied{background:color-mix(in srgb,var(--cb-accent) 10%,var(--cb-card))}
+#coupleBearGame .bear-reward.is-locked .bear-reward-preview{filter:saturate(.62);opacity:.78}
+#coupleBearGame .couple-bears-scene.bear-reward-strawberry:before{content:"🧢　　　🧢";top:12%;font-size:1.15rem;letter-spacing:.18rem}
+#coupleBearGame .couple-bears-scene.bear-reward-sunset{background:radial-gradient(circle at 20% 22%,rgba(255,245,191,.8) 0 3px,transparent 4px),radial-gradient(circle at 76% 35%,rgba(255,255,255,.65) 0 2px,transparent 3px),linear-gradient(165deg,#dcebc9 0%,#a9cba9 52%,#719b7e 100%)!important}
+#coupleBearGame .couple-bears-scene.bear-reward-sunset:after{content:"🌲　✦　🌲";position:absolute;inset:auto 0 8%;text-align:center;font-size:1rem;opacity:.78;pointer-events:none}
+@media(max-width:520px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}#coupleBearGame .bear-reward{grid-template-columns:66px minmax(0,1fr)}}
+@media(prefers-reduced-motion:no-preference){#coupleBearGame .bear-reward.is-unlocked:hover{transform:translateY(-2px)}}

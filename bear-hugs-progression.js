@@ -503,7 +503,6 @@ function updatePartnerChip() {
   chip.setAttribute('aria-label', accepted ? 'Manage Bearfriend' : 'Choose Bearfriend');
   chip.title = accepted ? 'Manage Bearfriend' : 'Choose Bearfriend';
   const scene = $('.couple-bears-scene', root);
-  const careStrip = $('#bearCarePointsStrip', root);
   if (scene) scene.insertAdjacentElement('beforebegin', chip);
   else root.appendChild(chip);
 }

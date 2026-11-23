@@ -266,20 +266,23 @@ function setStatus(message) {
   if (status) status.textContent = message;
 }
 let partnerRequests = [];
+let partnerRequestsLoaded = false;
 async function loadPartnerRequests() {
   const user = getMe(), client = getSupabase();
-  if (!user?.id || !client) return;
+  if (!user?.id || !client) return false;
   const { data, error } = await client.from('bear_partner_requests')
     .select('id,sender_id,recipient_id,status,created_at,sender:profiles!bear_partner_requests_sender_id_fkey(id,username,display_name,mascot),recipient:profiles!bear_partner_requests_recipient_id_fkey(id,username,display_name,mascot)')
     .or('sender_id.eq.' + user.id + ',recipient_id.eq.' + user.id)
     .order('created_at', { ascending: false }).limit(100);
   if (error) {
     console.warn('Bear Partner requests could not load:', error.message || error);
-    partnerRequests = [];
+    partnerRequestsLoaded = false;
     setStatus('Bearfriend requests could not load. Please try again. ♡');
     return false;
   }
   partnerRequests = data || [];
+  partnerRequestsLoaded = true;
+  updatePartnerChip();
   return true;
 }
 function isAcceptedPartner(id) {
@@ -298,33 +301,78 @@ function renderPickerList() {
   const modal = $('#bearFriendPicker');
   if (!modal) return;
   const uid = String(getMe()?.id || '');
+  const selected = getSelectedFriend();
+  const hasSelected = !!(selected && selectedFriendId && isAcceptedPartner(selectedFriendId));
   const incoming = partnerRequests.filter(row => row.status === 'pending' && String(row.recipient_id) === uid);
   const candidates = [...new Map([...getFriends(), ...(typeof friendResults !== 'undefined' ? friendResults : []), ...bearFriendSearchResults]
     .filter(friend => friend?.id && String(friend.id) !== uid)
     .map(friend => [String(friend.id), friend])).values()];
+
+  const selectedHtml = hasSelected
+    ? '<article class="bear-current-partner"><span class="bear-friend-avatar">' + esc(selected.mascot || '🐰') + '</span><span class="bear-friend-choice-copy"><b>' + esc(selected.display_name || selected.displayName || selected.username || 'Friend') + ' · Bearfriend</b><small>Your selected Bearfriend</small></span><button type="button" class="bear-partner-remove" data-bear-remove>Remove Bearfriend</button></article>'
+    : '';
 
   const requestsHtml = incoming.length
     ? incoming.map(row => {
         const sender = Array.isArray(row.sender) ? row.sender[0] : row.sender || {};
         return '<article class="bear-request-row"><span class="bear-friend-avatar">' + esc(sender.mascot || '🐰') + '</span><span class="bear-request-copy"><b>' + esc(sender.display_name || sender.displayName || sender.username || 'A friend') + '</b><small>@' + esc(sender.username || '') + ' wants to be your Bearfriend</small></span><button class="bear-request-accept" data-bear-accept="' + esc(row.id) + '">Accept</button><button class="bear-request-decline" data-bear-decline="' + esc(row.id) + '" aria-label="Decline request">×</button></article>';
       }).join('')
-    : '<div class="bear-request-empty">No Bearfriend requests yet. New requests will appear here. ♡</div>';
+    : '<div class="bear-request-empty">No Bearfriend requests yet.</div>';
 
   const peopleHtml = candidates.length ? candidates.map(friend => {
     const id = String(friend.id), req = requestFor(id);
     let action = isAcceptedPartner(id)
-      ? '<button class="bear-friend-choice-action is-accepted" data-bear-select="' + esc(id) + '">Choose Bearfriend</button>'
+      ? (id === selectedFriendId
+        ? '<span class="bear-request-state is-current">Your Bearfriend</span>'
+        : '<button class="bear-friend-choice-action is-accepted" data-bear-select="' + esc(id) + '">Choose Bearfriend</button>')
       : req?.status === 'pending' && String(req.sender_id) === uid
         ? '<span class="bear-request-state">Request sent</span><button class="bear-request-cancel" data-bear-cancel="' + esc(req.id) + '">Cancel</button>'
         : req?.status === 'pending'
           ? '<button class="bear-request-accept" data-bear-accept="' + esc(req.id) + '">Accept</button>'
-          : '<button class="bear-friend-choice-action" data-bear-invite="' + esc(id) + '">Request Bearfriend</button>';
-    return '<article class="bear-friend-choice"><span class="bear-friend-avatar">' + esc(friend.mascot || '🐰') + '</span><span class="bear-friend-choice-copy"><b>' + esc(friend.display_name || friend.displayName || friend.username || 'Friend') + '</b><small>@' + esc(friend.username || '') + '</small></span>' + action + '</article>';
-  }).join('') : '<div class="bear-no-friends">Your friend list is empty. Search for a username above, or add friends from the Friends tab. ♡</div>';
+          : '<button class="bear-friend-choice-action" data-bear-invite="' + esc(id) + '">Send request</button>';
+    return '<article class="bear-friend-choice' + (id === selectedFriendId ? ' is-selected' : '') + '"><span class="bear-friend-avatar">' + esc(friend.mascot || '🐰') + '</span><span class="bear-friend-choice-copy"><b>' + esc(friend.display_name || friend.displayName || friend.username || 'Friend') + '</b><small>@' + esc(friend.username || '') + '</small></span>' + action + '</article>';
+  }).join('') : '<div class="bear-no-friends">Your friend list is empty. Search for a username above, or add friends from the Friends tab.</div>';
 
   $('.bear-friend-picker-list', modal).innerHTML =
-    '<section class="bear-request-section"><h4>Requests to be your Bearfriend</h4>' + requestsHtml + '</section>' +
-    '<section class="bear-request-section"><h4>Request a friend to be your Bearfriend</h4>' + peopleHtml + '</section>';
+    (selectedHtml ? '<section class="bear-request-section"><h4>Current Bearfriend</h4>' + selectedHtml + '</section>' : '') +
+    '<section class="bear-request-section"><h4>Requests</h4>' + requestsHtml + '</section>' +
+    '<section class="bear-request-section"><h4>Choose a Bearfriend</h4>' + peopleHtml + '</section>';
+}
+
+async function removeBearfriend() {
+  const user = getMe(), client = getSupabase(), partnerId = selectedFriendId;
+  if (!user?.id || !client || !partnerId) return;
+  const request = requestFor(partnerId);
+  if (!request || request.status !== 'accepted') {
+    setStatus('Your Bearfriend connection could not be found. Refresh and try again.');
+    return;
+  }
+  const { data, error } = await client.from('bear_partner_requests')
+    .delete().eq('id', request.id).eq('status', 'accepted')
+    .select('id').maybeSingle();
+  if (error || !data) {
+    console.warn('Bearfriend removal failed:', error?.message || error);
+    setStatus('Could not remove this Bearfriend. Please try again.');
+    return;
+  }
+  partnerRequests = partnerRequests.filter(row => String(row.id) !== String(request.id));
+  selectedFriendId = '';
+  try { localStorage.removeItem(SELECTED_KEY); } catch {}
+  peerGeneration++;
+  closeChannel(peerChannel);
+  peerChannel = null;
+  peerTopic = '';
+  peerReady = false;
+  peerPromise = null;
+  sharedPoints = 0;
+  lastSharedAction = '';
+  sharedProgressPairKey = '';
+  sharedProgressInitialized = false;
+  equippedRewardIds = [];
+  updatePartnerChip();
+  updateUI();
+  renderPickerList();
+  setStatus('Bearfriend removed. You can choose another friend anytime.');
 }
 
 async function sendPartnerInvite(id) {
@@ -391,6 +439,8 @@ function ensurePicker() {
     if (cancel) { void cancelPartnerRequest(cancel.dataset.bearCancel); return; }
     const select = event.target.closest('[data-bear-select]');
     if (select) void chooseFriend(select.dataset.bearSelect);
+    const remove = event.target.closest('[data-bear-remove]');
+    if (remove) void removeBearfriend();
   });
   modal.addEventListener('submit', event => {
     if (!event.target.matches('#bearFriendSearchForm')) return;
@@ -443,11 +493,12 @@ function updatePartnerChip() {
   }
   const friend = getSelectedFriend();
   const accepted = !!(friend && isAcceptedPartner(selectedFriendId));
+  chip.hidden = !!selectedFriendId && !partnerRequestsLoaded;
   chip.textContent = accepted
-    ? (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Bearfriends'
-    : 'Choose a Bearfriend';
-  chip.setAttribute('aria-label', accepted ? 'Change selected Bearfriend' : 'Choose a Bearfriend');
-  chip.title = accepted ? 'Choose a different Bearfriend' : 'Choose a Bearfriend';
+    ? (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Bearfriend'
+    : 'Choose Bearfriend';
+  chip.setAttribute('aria-label', accepted ? 'Manage Bearfriend' : 'Choose Bearfriend');
+  chip.title = accepted ? 'Manage Bearfriend' : 'Choose Bearfriend';
   const scene = $('.couple-bears-scene', root);
   const careStrip = $('#bearCarePointsStrip', root);
   const anchor = careStrip || scene;

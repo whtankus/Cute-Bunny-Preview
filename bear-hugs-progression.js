@@ -35,6 +35,9 @@ let pendingRemoteAction = null;
 let pendingAction = null;
 let bearFriendSearchResults = [];
 let bearFriendSearchSequence = 0;
+let requestChannel = null;
+let requestTopic = '';
+let requestRefreshTimer = null;
 
 function getPoints() {
   try { return Math.max(0, Number(localStorage.getItem(LOVE_KEY)) || 0); }
@@ -147,7 +150,7 @@ function renderPickerList() {
     let action = isAcceptedPartner(id)
       ? '<button class="bear-friend-choice-action is-accepted" data-bear-select="' + esc(id) + '">Choose Bearfriend</button>'
       : req?.status === 'pending' && String(req.sender_id) === uid
-        ? '<span class="bear-request-state">Request sent</span>'
+        ? '<span class="bear-request-state">Request sent</span><button class="bear-request-cancel" data-bear-cancel="' + esc(req.id) + '">Cancel</button>'
         : req?.status === 'pending'
           ? '<button class="bear-request-accept" data-bear-accept="' + esc(req.id) + '">Accept</button>'
           : '<button class="bear-friend-choice-action" data-bear-invite="' + esc(id) + '">Request Bearfriend</button>';
@@ -175,6 +178,21 @@ async function sendPartnerInvite(id) {
   await loadPartnerRequests();
   renderPickerList();
   setStatus('Bearfriend request sent. ♡');
+}
+async function cancelPartnerRequest(id) {
+  const user = getMe(), client = getSupabase();
+  if (!user?.id || !client) return;
+  const { data, error } = await client.from('bear_partner_requests')
+    .delete().eq('id', id).eq('sender_id', user.id).eq('status', 'pending')
+    .select('id').maybeSingle();
+  if (error || !data) {
+    console.warn('Bearfriend request cancellation failed:', error?.message || error);
+    setStatus('That request could not be cancelled. Please refresh and try again. ♡');
+    return;
+  }
+  await loadPartnerRequests();
+  renderPickerList();
+  setStatus('Bearfriend request cancelled. ♡');
 }
 async function answerPartnerInvite(id, accept) {
   const user = getMe(), client = getSupabase();
@@ -204,6 +222,8 @@ function ensurePicker() {
     if (accept) { void answerPartnerInvite(accept.dataset.bearAccept, true); return; }
     const decline = event.target.closest('[data-bear-decline]');
     if (decline) { void answerPartnerInvite(decline.dataset.bearDecline, false); return; }
+    const cancel = event.target.closest('[data-bear-cancel]');
+    if (cancel) { void cancelPartnerRequest(cancel.dataset.bearCancel); return; }
     const select = event.target.closest('[data-bear-select]');
     if (select) void chooseFriend(select.dataset.bearSelect);
   });
@@ -479,11 +499,48 @@ function runLocalAction(action) {
   }
   void sendAction(action);
 }
+function ensureRequestChannel() {
+  const client = getSupabase(), user = getMe();
+  if (!client || !user?.id) return;
+  const topic = 'cute-bunny-bear-requests-' + String(user.id);
+  if (requestChannel && requestTopic === topic) return;
+  closeChannel(requestChannel);
+  requestChannel = null;
+  requestTopic = topic;
+  requestChannel = client.channel(topic)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'bear_partner_requests' }, () => {
+      if (requestRefreshTimer) clearTimeout(requestRefreshTimer);
+      requestRefreshTimer = setTimeout(async () => {
+        requestRefreshTimer = null;
+        const loaded = await loadPartnerRequests();
+        if (!loaded) return;
+        if (selectedFriendId && !isAcceptedPartner(selectedFriendId)) {
+          selectedFriendId = '';
+          try { localStorage.removeItem(SELECTED_KEY); } catch {}
+          closeChannel(peerChannel);
+          peerChannel = null;
+          peerTopic = '';
+          peerReady = false;
+        }
+        updatePartnerChip();
+        updateUI();
+        if (!$('#bearFriendPicker')?.classList.contains('hidden')) renderPickerList();
+      }, 180);
+    })
+    .subscribe(status => {
+      if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) console.warn('Bearfriend live request updates unavailable:', status);
+    });
+}
 function startBearHugsRealtime() {
+  ensureRequestChannel();
   void ensureOwnChannel();
   if (selectedFriendId && getSelectedFriend()) void ensurePeerChannel(selectedFriendId);
 }
 function closeBearHugsRealtime() {
+  closeChannel(requestChannel);
+  requestChannel = null;
+  requestTopic = '';
+  if (requestRefreshTimer) { clearTimeout(requestRefreshTimer); requestRefreshTimer = null; }
   closeChannel(ownChannel);
   closeChannel(peerChannel);
   ownChannel = peerChannel = null;

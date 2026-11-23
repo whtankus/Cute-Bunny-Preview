@@ -6153,10 +6153,8 @@ function triggerBearAction(action, options = {}) {
   document.querySelectorAll('#coupleBearGame [data-couple-action]').forEach(button => {
     button.setAttribute('aria-pressed', String(button.dataset.coupleAction === action));
   });
-  try {
-    const next = readBearLoveCount() + 2;
-    localStorage.setItem(bearLoveStorageKey, String(next));
-  } catch {}
+  // Shared Bear Hugs points are awarded by the progression module
+  // only after an action is successfully delivered to the accepted partner.
   updateBearLoveMeter();
   if (!options.remote) publishBearAction(action);
 }

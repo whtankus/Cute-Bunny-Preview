@@ -5965,7 +5965,7 @@ const idle=(b,t)=>{const w=Math.sin(t*1.2+b*1.7);return{x:0,y:0,rot:w*1.2,hr:Mat
 const BITES=[1.4,2.8,4.0];
 const ACT={
 idle:()=>({}),
-flykiss:(t,b)=>{const other=1-actor,phase=t<.72?0:t<1.42?1:2,flutter=Math.sin(t*8);if(b===actor){const mouth=ptH(actor,0,-28),target=ptH(other,0,-34),point=phase===0?mouth:target;return{x:34+Math.sin(t*2)*1.2,rot:2,hr:phase===0?8:phase===1?19:5,hx:phase===1?12:0,eye:1,mouth:.25,blush:.82,ik:phase<2?[point[0],point[1]+(phase===1?flutter*1.6:0)]:null,i1:-28,i2:-12,o1:phase===1?30:18,o2:phase===1?20:10}}return{x:58,y:Math.abs(flutter)*.8,rot:Math.sin(t*5)*.8,hr:t>1.05?-5:0,eye:t>1.05?.12:1,mouth:.48,blush:.98,i1:-24,i2:-10,o1:24,o2:10}},
+flykiss:(t,b)=>{const other=1-actor,phase=t<.72?0:t<1.42?1:2,flutter=Math.sin(t*8);if(b===actor){const mouth=ptH(actor,0,-28),target=ptH(other,0,-34),point=phase===0?mouth:target;return{x:34+Math.sin(t*2)*1.2,rot:2,hr:phase===0?8:phase===1?19:5,hx:phase===1?12:0,eye:1,mouth:.25,blush:.82,ik:phase<2?[point[0],point[1]+(phase===1?flutter*1.6:0)]:null,i1:-28,i2:-12,o1:phase===1?30:18,o2:phase===1?20:10}}return{x:34,y:Math.abs(flutter)*.8,rot:Math.sin(t*5)*.8,hr:t>1.05?-5:0,eye:t>1.05?.12:1,mouth:.48,blush:.98,i1:-24,i2:-10,o1:24,o2:10}},
 slap:(t,b)=>{const other=1-actor,impact=t>.82&&t<1.18,cheek=ptH(other,other===0?-32:32,-34),recoil=t>.86&&t<1.9;if(b===actor){return{x:40,rot:3,hr:t<.55?8:impact?24:8,hx:impact?16:0,eye:1,mouth:.22,blush:.6,ik:t>.32&&t<1.22?[cheek[0],cheek[1]+(impact?Math.sin(t*34)*1.5:0)]:null,i1:-28,i2:-12,o1:impact?34:18,o2:impact?22:10}}const kick=recoil?Math.sin((t-.86)*17):0;return{x:38+kick*5,y:Math.abs(kick)*1.2,rot:recoil?-kick*2.8:0,hr:recoil?-12-kick*3:0,eye:recoil?.12:1,mouth:recoil?.7:.15,blush:recoil?1:.45,i1:-24,i2:-10,o1:24,o2:10}},
 tummy:(t,b)=>{const sw=Math.sin(t*9),rub=t>.45&&t<4.05;if(b===actor){return{x:42+Math.sin(t*2)*1.2,rot:3,hr:rub?22+sw*2:9,hx:rub?20:6,eye:1,mouth:.22,blush:.65,i1:-16,i2:-8,o1:18,o2:8}}return{x:42,y:Math.abs(sw)*1.4,rot:Math.sin(t*9)*1.1,hr:-8+Math.sin(t*9)*2,eye:rub?.18:1,mouth:.42,blush:.95,i1:-24,i2:-10,o1:24,o2:10}},
 hug:(t,b)=>{const o=1-b,sq=t>1.4?Math.sin((t-1.4)*3.2):0,r={x:38+2*sq,y:-2.5*Math.abs(sq),rot:2,hr:12,hx:-18,hy:2*sq,eye:t>.9?.1:1,mouth:.1,blush:.9,o1:30,o2:20};
@@ -5982,7 +5982,7 @@ pet:(t,b)=>{const r=1-actor,sw=Math.sin(t*5);
  :{x:38,hr:14+sw*2,hx:16,hy:Math.abs(sw)*1.8,eye:.1,blush:1,mouth:.25}},
 feed:(t,b)=>{const a=actor,r=1-a,open=(t>1.1&&t<1.7)||(t>2.65&&t<3)||(t>3.85&&t<4.2),chew=(t>1.7&&t<2.65)||(t>3&&t<3.85)||(t>4.2&&t<5.2);
  if(b===a){const k=t<.9?40:open?14:chew?34:t<5.2?34:44,M=ptH(r,0,-22);return{x:38,hr:-6,hx:-16,mouth:.25,blush:.6,ik:[M[0]-S[a]*k,M[1]+2]}}
- return{x:64,hr:open?12:chew?7:4,hx:open?8:chew?3:0,mouth:open?.9:chew?.2+.2*Math.abs(Math.sin(t*14)):t>5.2?.05:0,eye:chew?.12:1,blush:chew||t>5.2?.9:.5}}
+ return{x:38,hr:open?12:chew?7:4,hx:open?8:chew?3:0,mouth:open?.9:chew?.2+.2*Math.abs(Math.sin(t*14)):t>5.2?.05:0,eye:chew?.12:1,blush:chew||t>5.2?.9:.5}}
 };
 const END={kiss:3.8,flykiss:3.6,slap:2.8,feed:6.8,tummy:4.6};
 

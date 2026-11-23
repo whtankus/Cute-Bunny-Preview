@@ -1,8 +1,7 @@
-const CACHE_NAME = "cute-bunny-shell-v354";
+const CACHE_NAME = "cute-bunny-shell-v355";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./bear-hugs.html",
   "./style.css?v=notes-inline-edit-fast2-20261120",
   "./polish.css?v=bear-hugs-natural-poses-20261123",
   "./button-interactions.css?v=nav-3d-depth-20261118",
@@ -18,7 +17,6 @@ const APP_ASSETS = [
 
 const SHELL_FILES = new Set([
   "index.html",
-  "bear-hugs.html",
   "style.css",
   "polish.css",
   "button-interactions.css",

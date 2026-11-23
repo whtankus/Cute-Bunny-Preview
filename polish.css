@@ -5163,23 +5163,25 @@ body[data-mode="dark"] #content .bear-name{background:rgba(54,43,58,.9);color:#e
 }
 
 
-/* Full interactive Bear Hugs experience link. */
-#content .bear-full-experience-link{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  width:fit-content;max-width:100%;margin:14px auto 2px;padding:10px 16px;
-  border:1px solid color-mix(in srgb,var(--cb-accent) 24%,var(--cb-border));
-  border-radius:999px;color:var(--cb-accent-strong);
-  background:color-mix(in srgb,var(--cb-surface) 88%,#f7dce8);
-  font-size:.78rem;font-weight:900;text-decoration:none;
-  transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+
+
+/* Bear Hugs: replace the old static character art with the articulated SVG pose engine. */
+#content .couple-bears-scene.bear-pose-scene{
+  display:block;width:min(100%,480px);min-height:0;aspect-ratio:420 / 270;
+  padding:0;margin:10px auto 0;overflow:hidden;border-radius:22px;
+  background:linear-gradient(180deg,rgba(255,255,255,.48),rgba(255,241,247,.62));
 }
-#content .bear-full-experience-link:hover{
-  transform:translateY(-2px);
-  box-shadow:0 7px 18px rgba(155,111,139,.13);
+#content .bear-pose-scene #bearPoseSvg{
+  display:block;width:100%;height:auto;max-height:none;aspect-ratio:420 / 270;
+  overflow:hidden;border-radius:22px;
+  background:linear-gradient(180deg,#fde7f0 0%,#fbeee6 70%,#f8e6e9 100%);
 }
-#content .bear-full-experience-link:focus-visible{
-  outline:3px solid var(--cb-accent);outline-offset:3px;
+#content .couple-bears-scene.bear-pose-scene::before,
+#content .couple-bears-scene.bear-pose-scene::after{content:none!important;display:none!important}
+@media(max-width:420px){
+  #content .couple-bears-scene.bear-pose-scene{width:100%;min-height:0;padding:0}
+  #content .bear-pose-scene #bearPoseSvg{width:100%;height:auto}
 }
 @media(prefers-reduced-motion:reduce){
-  #content .bear-full-experience-link{transition:none}
+  #content .bear-pose-scene #bearPoseSvg{scroll-behavior:auto}
 }

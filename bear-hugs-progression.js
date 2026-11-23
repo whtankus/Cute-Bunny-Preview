@@ -325,7 +325,7 @@ function ensurePicker() {
   const modal = document.createElement('div');
   modal.id = 'bearFriendPicker';
   modal.className = 'bear-friend-picker hidden';
-  modal.innerHTML = '<section class="bear-friend-picker-card" role="dialog" aria-modal="true" aria-labelledby="bearFriendPickerTitle"><button type="button" class="bear-friend-picker-close" aria-label="Close">×</button><span class="bear-picker-art">🐻 ♡ 🐻</span><small>YOUR LITTLE BEARFRIEND SPACE</small><h3 id="bearFriendPickerTitle">Become Bearfriends?</h3><p>Accept a request from a friend, or send one to someone you love. Your bears play together after both of you accept.</p><form class="bear-friend-search" id="bearFriendSearchForm"><input id="bearFriendSearchInput" type="search" maxlength="24" autocomplete="off" spellcheck="false" placeholder="Find a friend by username…" aria-label="Find a friend by username"><button type="submit">Find</button></form><div class="bear-friend-picker-list"><div class="bear-no-friends">Loading your requests and friends… ♡</div></div><p class="bear-picker-footnote">You can change your Bearfriend later. ♡</p></section>';
+  modal.innerHTML = '<section class="bear-friend-picker-card" role="dialog" aria-modal="true" aria-labelledby="bearFriendPickerTitle"><button type="button" class="bear-friend-picker-close" aria-label="Close">×</button><span class="bear-picker-art">🐻 ♡ 🐻</span><small>YOUR LITTLE BEARFRIEND SPACE</small><h3 id="bearFriendPickerTitle">Choose your Bearfriend</h3><p>Choose an accepted friend for your little bears. You can change this anytime; your choice will be remembered.</p><form class="bear-friend-search" id="bearFriendSearchForm"><input id="bearFriendSearchInput" type="search" maxlength="24" autocomplete="off" spellcheck="false" placeholder="Find a friend by username…" aria-label="Find a friend by username"><button type="submit">Find</button></form><div class="bear-friend-picker-list"><div class="bear-no-friends">Loading your requests and friends… ♡</div></div><p class="bear-picker-footnote">You can change your Bearfriend later. ♡</p></section>';
   document.body.appendChild(modal);
   modal.addEventListener('click', event => {
     if (event.target === modal || event.target.closest('.bear-friend-picker-close')) {
@@ -389,12 +389,14 @@ function updatePartnerChip() {
     chip = document.createElement('button');
     chip.type = 'button';
     chip.className = 'bear-partner-chip';
-    root.insertBefore(chip, $('.couple-bears-scene', root));
+    const scene = $('.couple-bears-scene', root);
+    if (scene) scene.insertAdjacentElement('afterend', chip);
+    else root.appendChild(chip);
     chip.addEventListener('click', () => openPicker());
   }
   const friend = getSelectedFriend();
   chip.textContent = friend && isAcceptedPartner(selectedFriendId)
-    ? '♡ Bearfriends with ' + (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Change'
+    ? '♡ ' + (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Bearfriends · Change'
     : '♡ Choose a Bearfriend';
 }
 function updateConnectionStatus() {
@@ -762,7 +764,8 @@ function install() {
   startBearHugsRealtime();
   updatePartnerChip();
   updateUI();
-  void loadPartnerRequests().then(() => {
+  void loadPartnerRequests().then(loaded => {
+    if (!loaded) return;
     if (selectedFriendId && !isAcceptedPartner(selectedFriendId)) {
       selectedFriendId = '';
       try { localStorage.removeItem(SELECTED_KEY); } catch {}

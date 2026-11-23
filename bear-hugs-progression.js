@@ -109,6 +109,7 @@ function ensurePicker() {
   document.body.appendChild(modal);
   modal.addEventListener('click', event => {
     if (event.target === modal || event.target.closest('.bear-friend-picker-close')) {
+      pendingAction = null;
       modal.classList.add('hidden');
       return;
     }
@@ -187,6 +188,7 @@ function ensureOwnChannel() {
       .on('broadcast', { event: 'bear-action' }, ({ payload }) => receiveAction(payload));
     ownChannel = channel;
     channel.subscribe(status => {
+      if (channel !== ownChannel) return;
       ownReady = status === 'SUBSCRIBED';
       if (ownReady) {
         updateConnectionStatus();
@@ -218,6 +220,7 @@ async function ensurePeerChannel(friendId) {
   if (!peerChannel) peerChannel = client.channel(topic, { config: { broadcast: { self: false, ack: true } } });
   if (peerReady) return true;
   const generation = peerGeneration;
+  const channel = peerChannel;
   peerPromise = new Promise(resolve => {
     let settled = false;
     const finish = value => {
@@ -234,7 +237,8 @@ async function ensurePeerChannel(friendId) {
       }
       resolve(value);
     };
-    peerChannel.subscribe(status => {
+    channel.subscribe(status => {
+      if (generation !== peerGeneration || channel !== peerChannel) return;
       peerReady = status === 'SUBSCRIBED';
       if (peerReady) {
         updateConnectionStatus();

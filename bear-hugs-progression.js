@@ -1,7 +1,8 @@
 (() => {
 'use strict';
 
-const SELECTED_KEY = 'cuteBunnyBearSelectedFriend:v1';
+const LEGACY_SELECTED_KEY = 'cuteBunnyBearSelectedFriend:v1';
+const SELECTED_KEY_PREFIX = 'cuteBunnyBearSelectedFriend:v2:';
 const LOVE_KEY = 'cuteBunnyBearLove:v1';
 const EQUIPPED_KEY_PREFIX = 'cuteBunnyBearEquippedRewards:v1:';
 const ACTIONS = new Set(['hug', 'kiss', 'flykiss', 'slap', 'hands', 'dance', 'pet', 'feed', 'sleep', 'tummy', 'idle']);
@@ -19,8 +20,49 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
 const getFriends = () => typeof friends !== 'undefined' && Array.isArray(friends) ? friends : [];
 const getMe = () => typeof me !== 'undefined' ? me : null;
 const getSupabase = () => typeof sb !== 'undefined' ? sb : null;
+function selectedStorageKey(userId = getMe()?.id) {
+  return userId ? SELECTED_KEY_PREFIX + String(userId) : '';
+}
+function saveSelectedFriend(id) {
+  selectedFriendId = String(id || '');
+  const key = selectedStorageKey();
+  if (!key) return;
+  try {
+    if (selectedFriendId) localStorage.setItem(key, selectedFriendId);
+    else localStorage.removeItem(key);
+    localStorage.removeItem(LEGACY_SELECTED_KEY);
+  } catch {}
+}
+function restoreSelectedFriend() {
+  const user = getMe();
+  if (!user?.id || !Array.isArray(partnerRequests)) return;
+  const key = selectedStorageKey(user.id);
+  let saved = '';
+  try { saved = localStorage.getItem(key) || localStorage.getItem(LEGACY_SELECTED_KEY) || ''; } catch {}
+  const accepted = partnerRequests.filter(row => row.status === 'accepted' &&
+    (String(row.sender_id) === String(user.id) || String(row.recipient_id) === String(user.id)))
+    .sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  const isValid = id => accepted.some(row => String(row.sender_id) === String(id) || String(row.recipient_id) === String(id));
+  const chosen = isValid(saved) ? saved : accepted.length
+    ? (String(accepted[0].sender_id) === String(user.id) ? String(accepted[0].recipient_id) : String(accepted[0].sender_id))
+    : '';
+  if (chosen !== selectedFriendId) {
+    selectedFriendId = chosen;
+    try { if (chosen) localStorage.setItem(key, chosen); else localStorage.removeItem(key); } catch {}
+  }
+  try { localStorage.removeItem(LEGACY_SELECTED_KEY); } catch {}
+  updatePartnerChip();
+  if (chosen) {
+    void ensurePeerChannel(chosen);
+    void loadSharedProgress();
+  } else {
+    sharedPoints = 0;
+    equippedRewardIds = [];
+    updateUI();
+  }
+}
 
-let selectedFriendId = localStorage.getItem(SELECTED_KEY) || '';
+let selectedFriendId = '';
 let sharedPoints = 0;
 let lastSharedAction = '';
 let equippedRewardIds = [];
@@ -197,6 +239,8 @@ function updateUI() {
     scene.classList.toggle('bear-reward-strawberry', equippedRewardIds.includes('strawberry-hat'));
     scene.classList.toggle('bear-reward-honey', equippedRewardIds.includes('honey-bear'));
     scene.classList.toggle('bear-reward-starry', equippedRewardIds.includes('starry-set'));
+    const hats = scene.querySelectorAll('#rewardHat0, #rewardHat1');
+    hats.forEach(hat => hat.setAttribute('visibility', equippedRewardIds.includes('strawberry-hat') ? 'visible' : 'hidden'));
   }
 }
 function partnerProfileFromRows(id) {
@@ -230,6 +274,7 @@ async function loadPartnerRequests() {
     return false;
   }
   partnerRequests = data || [];
+  restoreSelectedFriend();
   return true;
 }
 function isAcceptedPartner(id) {
@@ -510,8 +555,7 @@ async function chooseFriend(id) {
     await openPicker();
     return;
   }
-  selectedFriendId = String(friend.id);
-  try { localStorage.setItem(SELECTED_KEY, selectedFriendId); } catch {}
+  saveSelectedFriend(String(friend.id));
   $('#bearFriendPicker')?.classList.add('hidden');
   updatePartnerChip();
   setStatus('Connecting your two little bears… ♡');
@@ -583,8 +627,7 @@ function receiveAction(payload) {
   const senderIsFriend = getFriends().some(friend => String(friend?.id) === String(payload.userId)) || !!partnerProfileFromRows(payload.userId);
   if (!senderIsFriend || !isAcceptedPartner(payload.userId) || !ACTIONS.has(String(payload.action || ''))) return;
   // The recipient automatically pairs with the friend who initiated the shared action.
-  selectedFriendId = String(payload.userId);
-  try { localStorage.setItem(SELECTED_KEY, selectedFriendId); } catch {}
+  saveSelectedFriend(String(payload.userId));
   updatePartnerChip();
   void ensurePeerChannel(selectedFriendId);
   applyRemoteAction(String(payload.action), payload);
@@ -655,14 +698,7 @@ function ensureRequestChannel() {
         requestRefreshTimer = null;
         const loaded = await loadPartnerRequests();
         if (!loaded) return;
-        if (selectedFriendId && !isAcceptedPartner(selectedFriendId)) {
-          selectedFriendId = '';
-          try { localStorage.removeItem(SELECTED_KEY); } catch {}
-          closeChannel(peerChannel);
-          peerChannel = null;
-          peerTopic = '';
-          peerReady = false;
-        }
+        restoreSelectedFriend();
         updatePartnerChip();
         updateUI();
         if (!$('#bearFriendPicker')?.classList.contains('hidden')) renderPickerList();
@@ -744,9 +780,10 @@ function install() {
 
   window.addEventListener('storage', event => {
     if (event.key === LOVE_KEY) updateUI();
-    if (event.key === SELECTED_KEY) {
-      selectedFriendId = localStorage.getItem(SELECTED_KEY) || '';
+    if (event.key === selectedStorageKey()) {
+      selectedFriendId = localStorage.getItem(selectedStorageKey()) || '';
       updatePartnerChip();
+      if (selectedFriendId) { void ensurePeerChannel(selectedFriendId); void loadSharedProgress(); }
     }
   });
   window.addEventListener('focus', () => {
@@ -763,14 +800,8 @@ function install() {
   updatePartnerChip();
   updateUI();
   void loadPartnerRequests().then(() => {
-    if (selectedFriendId && !isAcceptedPartner(selectedFriendId)) {
-      selectedFriendId = '';
-      try { localStorage.removeItem(SELECTED_KEY); } catch {}
-    } else if (selectedFriendId) {
-      updatePartnerChip();
-      startBearHugsRealtime();
-      void loadSharedProgress();
-    }
+    restoreSelectedFriend();
+    if (selectedFriendId) startBearHugsRealtime();
   });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });

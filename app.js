@@ -41,6 +41,7 @@ let notificationListSeenObserver = null, notificationRowViewTimers = new Map();
 let notificationViewedIds = new Set();
 let navRefreshInFlight = false, appExitStep = 0;
 let presenceChannel = null, notificationChannel = null, memoryChannel = null, profileChannel = null, noteReadCursorChannel = null;
+let bearRealtimeChannel = null, bearRealtimeTopic = '';
 let seenStatusRefreshTimer = null, seenStatusRefreshInFlight = false, seenStatusRefreshQueued = false;
 let typingHeartbeatTimer = null, typingStopTimer = null, typingActive = false, typingLastSentAt = 0;
 let notesTypingChannelReady = false, notesTypingQueuedState = null;
@@ -3176,7 +3177,7 @@ function render(options = {}) {
           <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bear Hugs</h3><p>Choose how our little bears show their love.</p></div>
           <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
         </div>
-        <div class="couple-bears-scene" data-action="idle" aria-label="A white bear and a brown bear">
+        <div class="couple-bears-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Mommy, the white bear, and Daddy, the brown bear">
           <span class="bear-scene-cloud cloud-one" aria-hidden="true">☁</span>
           <span class="bear-scene-cloud cloud-two" aria-hidden="true">☁</span>
           <span class="bear-floating-heart" aria-hidden="true">♥</span>
@@ -3205,7 +3206,7 @@ function render(options = {}) {
               <ellipse class="bear-paw-pad" cx="113" cy="169" rx="7" ry="4"/>
               <path class="bear-shine" d="M66 53q8-13 20-13"/>
             </svg>
-            <span class="bear-name">Snowy</span>
+            <span class="bear-name">Mommy</span>
           </div>
           <div class="couple-bear brown-bear" aria-label="Brown bear">
             <svg viewBox="0 0 180 190" role="img" aria-label="Cute caramel brown cartoon bear">
@@ -3232,7 +3233,7 @@ function render(options = {}) {
               <ellipse class="bear-paw-pad" cx="113" cy="169" rx="7" ry="4"/>
               <path class="bear-shine" d="M66 53q8-13 20-13"/>
             </svg>
-            <span class="bear-name">Cocoa</span>
+            <span class="bear-name">Daddy</span>
           </div>
           <span class="bear-hand-link" aria-hidden="true">♡</span>
           <span class="bear-kiss-heart" aria-hidden="true">♥</span>
@@ -3569,6 +3570,7 @@ function renderProfileSettings() {
     button.classList.toggle('is-selected', selected);
     button.setAttribute('aria-pressed', String(selected));
   });
+  syncBearViewerRole();
 }
 async function saveProfileSettings() {
   if (!me?.id) return;
@@ -4688,6 +4690,7 @@ document.addEventListener('visibilitychange', () => {
 
 function startRealtime() {
   if (!sb || !me) return;
+  startBearRealtime();
   closeRealtime();
   const realtimeGeneration = presenceClientGeneration;
   presenceStatus = 'connecting';
@@ -5037,11 +5040,12 @@ function closeRealtime() {
   remoteTypingUsers.forEach(entry => clearTimeout(entry.timer));
   remoteTypingUsers.clear();
   syncNotesTypingIndicator();
-  [presenceChannel, notesActivityChannel, notesTypingChannel, notificationChannel, memoryChannel, profileChannel, noteReadCursorChannel].forEach(channel => {
+  [presenceChannel, notesActivityChannel, notesTypingChannel, notificationChannel, memoryChannel, profileChannel, noteReadCursorChannel, bearRealtimeChannel].forEach(channel => {
     if (channel && sb) sb.removeChannel(channel);
   });
 
-  presenceChannel = notesActivityChannel = notesTypingChannel = notificationChannel = memoryChannel = profileChannel = noteReadCursorChannel = null;
+  presenceChannel = notesActivityChannel = notesTypingChannel = notificationChannel = memoryChannel = profileChannel = noteReadCursorChannel = bearRealtimeChannel = null;
+  bearRealtimeTopic = '';
   notesActivityChannelReady = false;
   pendingNotesPageTransitions = [];
   clearTimeout(seenStatusRefreshTimer);
@@ -5936,29 +5940,79 @@ function playBearSound(kind) {
   if (localStorage.getItem(bearSoundStorageKey) === 'off') return;
   const AudioCtor = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtor) return;
+  const soundPatterns = {
+    hug:   { notes: [196, 294, 392], wave: 'sine', interval: .085, duration: .2, volume: .042 },
+    kiss:  { notes: [784, 988, 1175], wave: 'sine', interval: .065, duration: .15, volume: .035 },
+    dance: { notes: [523, 659, 784, 1047], wave: 'triangle', interval: .105, duration: .19, volume: .035 },
+    pet:   { notes: [740, 659, 784, 698], wave: 'sine', interval: .09, duration: .16, volume: .028 },
+    feed:  { notes: [392, 494, 587, 784], wave: 'triangle', interval: .095, duration: .17, volume: .032 },
+    hands: { notes: [494, 622], wave: 'sine', interval: .09, duration: .18, volume: .03 },
+    sleep: { notes: [440, 330], wave: 'sine', interval: .13, duration: .24, volume: .022 }
+  };
+  const pattern = soundPatterns[kind] || soundPatterns.pet;
   try {
     const context = new AudioCtor();
-    const notes = kind === 'kiss' ? [660, 880] : kind === 'dance' ? [523, 659, 784] : kind === 'sleep' ? [440, 330] : [523, 659];
-    notes.forEach((frequency, index) => {
+    pattern.notes.forEach((frequency, index) => {
       const oscillator = context.createOscillator();
       const gain = context.createGain();
-      const start = context.currentTime + index * 0.075;
-      oscillator.type = 'sine';
+      const start = context.currentTime + index * pattern.interval;
+      oscillator.type = pattern.wave;
       oscillator.frequency.setValueAtTime(frequency, start);
-      gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(0.045, start + 0.025);
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.18);
+      if (kind === 'hug') oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.12, start + .08);
+      gain.gain.setValueAtTime(.0001, start);
+      gain.gain.exponentialRampToValueAtTime(pattern.volume, start + .025);
+      gain.gain.exponentialRampToValueAtTime(.0001, start + pattern.duration);
       oscillator.connect(gain);
       gain.connect(context.destination);
       oscillator.start(start);
-      oscillator.stop(start + 0.19);
+      oscillator.stop(start + pattern.duration + .01);
     });
-    window.setTimeout(() => context.close().catch(() => {}), 650);
+    window.setTimeout(() => context.close().catch(() => {}), 1200);
   } catch (error) {
     console.debug('Bear sound skipped:', error);
   }
 }
-function triggerBearAction(action) {
+function getBearPartnerId() {
+  const partner = friends.find(friend => friend?.id && String(friend.id) !== String(me?.id));
+  return partner ? String(partner.id) : '';
+}
+function startBearRealtime() {
+  if (!sb || !me?.id) return;
+  const partnerId = getBearPartnerId();
+  if (!partnerId) return;
+  const topic = 'cute-bunny-bear-actions-' + [String(me.id), partnerId].sort().join('-');
+  if (bearRealtimeChannel && bearRealtimeTopic === topic) return;
+  if (bearRealtimeChannel) void sb.removeChannel(bearRealtimeChannel);
+  bearRealtimeTopic = topic;
+  bearRealtimeChannel = sb.channel(topic, { config: { broadcast: { self: false } } })
+    .on('broadcast', { event: 'bear-action' }, ({ payload }) => {
+      if (String(payload?.userId || '') === String(me?.id || '')) return;
+      const action = String(payload?.action || '');
+      if (!['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep'].includes(action)) return;
+      triggerBearAction(action, { remote: true });
+    })
+    .subscribe(status => {
+      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+        console.warn('Bear Hugs realtime channel status:', status);
+      }
+    });
+}
+function publishBearAction(action) {
+  startBearRealtime();
+  if (!bearRealtimeChannel || !bearRealtimeTopic || !me?.id) return;
+  void bearRealtimeChannel.send({
+    type: 'broadcast',
+    event: 'bear-action',
+    payload: { action, userId: String(me.id), gender: me.gender || null, sentAt: Date.now() }
+  }).then(status => {
+    if (status !== 'ok') console.warn('Bear Hugs action was not delivered:', status);
+  }).catch(error => console.warn('Bear Hugs action could not be sent:', error?.message || error));
+}
+function syncBearViewerRole() {
+  const scene = $('#coupleBearGame .couple-bears-scene');
+  if (scene) scene.dataset.viewerGender = me?.gender || '';
+}
+function triggerBearAction(action, options = {}) {
   const scene = $('#coupleBearGame .couple-bears-scene');
   if (!scene) return;
   const messages = {
@@ -5985,6 +6039,7 @@ function triggerBearAction(action) {
   } catch {}
   updateBearLoveMeter();
   playBearSound(action);
+  if (!options.remote) publishBearAction(action);
 }
 document.addEventListener('click', event => {
   const soundToggle = event.target.closest('#bearSoundToggle');
@@ -6196,28 +6251,6 @@ document.addEventListener('keydown', event => {
     event.preventDefault();
     document.querySelector(`[data-chat-edit-save="${CSS.escape(String(id))}"]`)?.click();
   }
-});
-
-// Tiny couple-bear game: each button plays a local, animated interaction.
-document.addEventListener('click', event => {
-  const button = event.target.closest?.('[data-couple-action]');
-  if (!button) return;
-  const game = button.closest('#coupleBearGame');
-  const scene = game?.querySelector('.couple-bears-scene');
-  const status = game?.querySelector('#coupleBearStatus');
-  if (!scene || !status) return;
-  const action = button.dataset.coupleAction;
-  const messages = {
-    hug: 'A warm, squishy bear hug! ♡',
-    kiss: 'A tiny kiss, just for you! 💗',
-    hands: 'Hand in hand, wherever we go. ♡'
-  };
-  if (!messages[action]) return;
-  scene.dataset.action = action;
-  game.querySelectorAll('[data-couple-action]').forEach(item => {
-    item.setAttribute('aria-pressed', String(item === button));
-  });
-  status.textContent = messages[action];
 });
 
 // Streak entry uses capture phase so card clicks cannot be swallowed by another page handler.

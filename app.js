@@ -5965,24 +5965,24 @@ const idle=(b,t)=>{const w=Math.sin(t*1.2+b*1.7);return{x:0,y:0,rot:w*1.2,hr:Mat
 const BITES=[1.4,2.8,4.0];
 const ACT={
 idle:()=>({}),
-flykiss:(t,b)=>{const other=1-actor,phase=t<.72?0:t<1.42?1:2,flutter=Math.sin(t*8);if(b===actor){const mouth=ptH(actor,0,-28),target=ptH(other,0,-34),point=phase===0?mouth:target;return{x:34+Math.sin(t*2)*1.2,rot:2,hr:phase===0?8:phase===1?19:5,hx:phase===1?12:0,eye:1,mouth:.25,blush:.82,ik:phase<2?[point[0],point[1]+(phase===1?flutter*1.6:0)]:null,i1:-28,i2:-12,o1:phase===1?30:18,o2:phase===1?20:10}}return{x:34,y:Math.abs(flutter)*.8,rot:Math.sin(t*5)*.8,hr:t>1.05?-5:0,eye:t>1.05?.12:1,mouth:.48,blush:.98,i1:-24,i2:-10,o1:24,o2:10}},
-slap:(t,b)=>{const other=1-actor,impact=t>.82&&t<1.18,cheek=ptH(other,other===0?-32:32,-34),recoil=t>.86&&t<1.9;if(b===actor){return{x:40,rot:3,hr:t<.55?8:impact?24:8,hx:impact?16:0,eye:1,mouth:.22,blush:.6,ik:t>.32&&t<1.22?[cheek[0],cheek[1]+(impact?Math.sin(t*34)*1.5:0)]:null,i1:-28,i2:-12,o1:impact?34:18,o2:impact?22:10}}const kick=recoil?Math.sin((t-.86)*17):0;return{x:38+kick*5,y:Math.abs(kick)*1.2,rot:recoil?-kick*2.8:0,hr:recoil?-12-kick*3:0,eye:recoil?.12:1,mouth:recoil?.7:.15,blush:recoil?1:.45,i1:-24,i2:-10,o1:24,o2:10}},
-tummy:(t,b)=>{const sw=Math.sin(t*9),rub=t>.45&&t<4.05;if(b===actor){return{x:42+Math.sin(t*2)*1.2,rot:3,hr:rub?22+sw*2:9,hx:rub?20:6,eye:1,mouth:.22,blush:.65,i1:-16,i2:-8,o1:18,o2:8}}return{x:42,y:Math.abs(sw)*1.4,rot:Math.sin(t*9)*1.1,hr:-8+Math.sin(t*9)*2,eye:rub?.18:1,mouth:.42,blush:.95,i1:-24,i2:-10,o1:24,o2:10}},
-hug:(t,b)=>{const o=1-b,sq=t>1.4?Math.sin((t-1.4)*3.2):0,r={x:38+2*sq,y:-2.5*Math.abs(sq),rot:2,hr:12,hx:-18,hy:2*sq,eye:t>.9?.1:1,mouth:.1,blush:.9,o1:30,o2:20};
- if(t<.6)Object.assign(r,{i1:-82,i2:-8,o1:82,o2:8,hr:3,hx:0,x:28,y:-5*Math.abs(Math.sin(t*5))});else r.ik=ptL(o,-6,-58);return r},
+flykiss:(t,b)=>{const other=1-actor,phase=t<.72?0:t<1.42?1:2,flutter=Math.sin(t*8);if(b===actor){const mouth=ptH(actor,0,-28),target=ptH(other,0,-34),point=phase===0?mouth:target;return{x:58+Math.sin(t*2)*1.2,rot:2,hr:phase===0?8:phase===1?19:5,hx:phase===1?12:0,eye:1,mouth:.25,blush:.82,ik:phase<2?[point[0],point[1]+(phase===1?flutter*1.6:0)]:null,i1:-28,i2:-12,o1:phase===1?30:18,o2:phase===1?20:10}}return{x:58,y:Math.abs(flutter)*.8,rot:Math.sin(t*5)*.8,hr:t>1.05?-5:0,eye:t>1.05?.12:1,mouth:.48,blush:.98,i1:-24,i2:-10,o1:24,o2:10}},
+slap:(t,b)=>{const other=1-actor,impact=t>.82&&t<1.18,cheek=ptH(other,other===0?-32:32,-34),recoil=t>.86&&t<1.9;if(b===actor){return{x:68,rot:3,hr:t<.55?8:impact?24:8,hx:impact?16:0,eye:1,mouth:.22,blush:.6,ik:t>.32&&t<1.22?[cheek[0],cheek[1]+(impact?Math.sin(t*34)*1.5:0)]:null,i1:-28,i2:-12,o1:impact?34:18,o2:impact?22:10}}const kick=recoil?Math.sin((t-.86)*17):0;return{x:66+kick*5,y:Math.abs(kick)*1.2,rot:recoil?-kick*2.8:0,hr:recoil?-12-kick*3:0,eye:recoil?.12:1,mouth:recoil?.7:.15,blush:recoil?1:.45,i1:-24,i2:-10,o1:24,o2:10}},
+tummy:(t,b)=>{const sw=Math.sin(t*9),rub=t>.45&&t<4.05;if(b===actor){return{x:75+Math.sin(t*2)*1.2,rot:3,hr:rub?22+sw*2:9,hx:rub?20:6,eye:1,mouth:.22,blush:.65,i1:-16,i2:-8,o1:18,o2:8}}return{x:75,y:Math.abs(sw)*1.4,rot:Math.sin(t*9)*1.1,hr:-8+Math.sin(t*9)*2,eye:rub?.18:1,mouth:.42,blush:.95,i1:-24,i2:-10,o1:24,o2:10}},
+hug:(t,b)=>{const o=1-b,sq=t>1.4?Math.sin((t-1.4)*3.2):0,r={x:64+2*sq,y:-2.5*Math.abs(sq),rot:2,hr:12,hx:-18,hy:2*sq,eye:t>.9?.1:1,mouth:.1,blush:.9,o1:30,o2:20};
+ if(t<.6)Object.assign(r,{i1:-82,i2:-8,o1:82,o2:8,hr:3,hx:0,x:36,y:-5*Math.abs(Math.sin(t*5))});else r.ik=ptL(o,-6,-58);return r},
 kiss:(t,b)=>{const a=actor,o=1-a,go=t>.8&&t<2.6;
- if(b===a)return{x:go?42:34,rot:go?6:0,hr:go?22:5,hx:go?32:0,eye:go?.1:1,mouth:go?.3:.1,pk:go?1:0,blush:.7,ik:t>.4?ptL(o,-14,-66):null,i1:-40,i2:-10};
- const sh=t>1.2&&t<2.9;return{x:34,hr:sh?-4:6,hy:sh?-3:0,eye:t>1.25&&t<3?.1:1,mouth:.12,blush:t>1.2?1:.5,ik:sh?ptH(b,34,-24):null,i1:-40,i2:-10}},
+ if(b===a)return{x:go?68:50,rot:go?6:0,hr:go?22:5,hx:go?32:0,eye:go?.1:1,mouth:go?.3:.1,pk:go?1:0,blush:.7,ik:t>.4?ptL(o,-14,-66):null,i1:-40,i2:-10};
+ const sh=t>1.2&&t<2.9;return{x:50,hr:sh?-4:6,hy:sh?-3:0,eye:t>1.25&&t<3?.1:1,mouth:.12,blush:t>1.2?1:.5,ik:sh?ptH(b,34,-24):null,i1:-40,i2:-10}},
 hands:t=>({x:38,hr:8,eye:1,mouth:.2,blush:.7,ik:[300,G-52+Math.sin(t*2.2)*3.5],i1:-20,y:-1.5*Math.abs(Math.sin(t*2.2))}),
 sleep:(t,b)=>({x:12,y:12,rot:72,hr:-48,hx:20,hy:2,eye:0,eh:0,mouth:0,blush:.45,i1:-32,i2:-12,o1:30,o2:12}),
 dance:(t,b)=>{const ph=t*1.7*Math.PI,hop=Math.abs(Math.sin(ph)),sw=Math.sin(ph/2),sg=b?-1:1;
  return{x:38+12*sw*sg,y:-16*hop,rot:sg*sw*7,hr:sg*Math.sin(ph/2+.8)*10,hy:2*hop,eye:.1,mouth:.35+.4*hop,blush:.9,ik:[300+sw*10,G-98+Math.sin(ph*2)*5],o1:105+35*Math.sin(ph*2+b*Math.PI),o2:10}},
 pet:(t,b)=>{const r=1-actor,sw=Math.sin(t*5);
- return b===actor?{x:38,hr:-5,hx:-8,mouth:.2,blush:.6,ik:(h=>[h[0]+sw*4,h[1]+Math.sin(t*5+1.2)*2.5])(ptH(r,-34,-50))}
- :{x:38,hr:14+sw*2,hx:16,hy:Math.abs(sw)*1.8,eye:.1,blush:1,mouth:.25}},
+ return b===actor?{x:64,hr:-5,hx:-8,mouth:.2,blush:.6,ik:(h=>[h[0]+sw*4,h[1]+Math.sin(t*5+1.2)*2.5])(ptH(r,-34,-50))}
+  :{x:64,hr:14+sw*2,hx:16,hy:Math.abs(sw)*1.8,eye:.1,blush:1,mouth:.25}},
 feed:(t,b)=>{const a=actor,r=1-a,open=(t>1.1&&t<1.7)||(t>2.65&&t<3)||(t>3.85&&t<4.2),chew=(t>1.7&&t<2.65)||(t>3&&t<3.85)||(t>4.2&&t<5.2);
- if(b===a){const k=t<.9?40:open?14:chew?34:t<5.2?34:44,M=ptH(r,0,-22);return{x:38,hr:-6,hx:-16,mouth:.25,blush:.6,ik:[M[0]-S[a]*k,M[1]+2]}}
- return{x:38,hr:open?12:chew?7:4,hx:open?8:chew?3:0,mouth:open?.9:chew?.2+.2*Math.abs(Math.sin(t*14)):t>5.2?.05:0,eye:chew?.12:1,blush:chew||t>5.2?.9:.5}}
+ if(b===a){const k=t<.9?40:open?14:chew?34:t<5.2?34:44,M=ptH(r,0,-22);return{x:64,hr:-6,hx:-16,mouth:.25,blush:.6,ik:[M[0]-S[a]*k,M[1]+2]}}
+ return{x:64,hr:open?12:chew?7:4,hx:open?8:chew?3:0,mouth:open?.9:chew?.2+.2*Math.abs(Math.sin(t*14)):t>5.2?.05:0,eye:chew?.12:1,blush:chew||t>5.2?.9:.5}}
 };
 const END={kiss:3.8,flykiss:3.6,slap:2.8,feed:6.8,tummy:4.6};
 
@@ -6024,7 +6024,7 @@ const burst=(x,y,n=5,sym="♥")=>{for(let i=0;i<n;i++)later(()=>fx(sym,x+(Math.r
 const TXT=(a,by)=>{const o=1-by,n=NAME[by],m=NAME[o];return{hug:`${n} hugs ${m} 🤗`,kiss:`${n} gives ${m} a sweet kiss 💋`,hands:`${n} and ${m} hold paws 🫶`,feed:`${n} shares a strawberry with ${m} 🍓`,sleep:`${n} and ${m} drift off peacefully 💤`,dance:`${n} and ${m} are dancing together 💃`,pet:`${n} gently pets ${m} 🐾`,tummy:`${n} gives ${m} gentle tummy tickles! 🫳`,flykiss:`${n} blows ${m} a flying kiss! 💋`,slap:`${n} gives ${m} a playful little slap! 🖐️`,idle:`${n} and ${m} are relaxing 🌸`}[a]};
 function start(a,by){tm.forEach(clearTimeout);lp.forEach(clearInterval);tm=[];lp=[];$B("fx").innerHTML="";
  cur=a;actor=by;t0=performance.now();rate=a==="dance"?13:a==="sleep"?4.5:7;berryS=1;
- const bears=$B("bears"),backArm=$B("tummyBackArm");if(a==="tummy"){bears.appendChild($B("s"+by));bears.appendChild(backArm);bears.appendChild($B("s"+(1-by)));}else{backArm.setAttribute("opacity","0");const ord=[1-by,by];ord.forEach(i=>bears.appendChild($B("s"+i)));}
+ const bears=$B("bears"),backArm=$B("tummyBackArm");if(a==="tummy"){bears.appendChild($B("s"+by));bears.appendChild(backArm);bears.appendChild($B("s"+(1-by)));}else{backArm.setAttribute("opacity","0");const ord=a==="flykiss"||a==="slap"||a==="feed"||a==="pet"||a==="kiss"?[1-by,by]:[0,1];ord.forEach(i=>bears.appendChild($B("s"+i)));}
  const scene=svg.closest(".couple-bears-scene");if(scene)scene.dataset.action=a;
  const actionSymbols={hug:["♡","♥","✦"],kiss:["💗","♡","✧"],flykiss:["💋","♡","✦"],slap:["✦","💥","✧"],hands:["♡","🫶","✧"],feed:["🍓","♥","✦"],sleep:["☾","z","✧"],dance:["♪","✦","♫"],pet:["🐾","♥","♡"],tummy:["✦","♡","🐾"],idle:["🌸","♡","✧"]}[a]||["♡","✦"];
  if(a!=="idle")for(let i=0;i<5;i++)later(()=>{const x=245+Math.random()*110,y=G-112-Math.random()*48;fx(actionSymbols[i%actionSymbols.length],x,y,i%2?"#f27da8":"#b58be5",20+Math.random()*10)},100+i*300);

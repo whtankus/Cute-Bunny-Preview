@@ -85,44 +85,113 @@ function setStatus(message) {
   const status = $('#coupleBearStatus');
   if (status) status.textContent = message;
 }
+let partnerRequests = [];
+async function loadPartnerRequests() {
+  const user = getMe(), client = getSupabase();
+  if (!user?.id || !client) return;
+  const { data, error } = await client.from('bear_partner_requests')
+    .select('id,sender_id,recipient_id,status,created_at,sender:profiles!bear_partner_requests_sender_id_fkey(id,username,display_name,mascot)')
+    .or('sender_id.eq.' + user.id + ',recipient_id.eq.' + user.id)
+    .order('created_at', { ascending: false }).limit(100);
+  if (error) {
+    console.warn('Bear Partner requests could not load:', error.message || error);
+    setStatus('Please apply the Bear Partner database update before sending invitations. ♡');
+    return;
+  }
+  partnerRequests = data || [];
+}
+function isAcceptedPartner(id) {
+  const uid = String(getMe()?.id || '');
+  return partnerRequests.some(row => row.status === 'accepted' &&
+    ((String(row.sender_id) === uid && String(row.recipient_id) === String(id)) ||
+     (String(row.recipient_id) === uid && String(row.sender_id) === String(id))));
+}
+function requestFor(id) {
+  const uid = String(getMe()?.id || '');
+  return partnerRequests.find(row =>
+    (String(row.sender_id) === uid && String(row.recipient_id) === String(id)) ||
+    (String(row.recipient_id) === uid && String(row.sender_id) === String(id)));
+}
+function renderPickerList() {
+  const modal = $('#bearFriendPicker');
+  if (!modal) return;
+  const uid = String(getMe()?.id || '');
+  const incoming = partnerRequests.filter(row => row.status === 'pending' && String(row.recipient_id) === uid);
+  const candidates = [...new Map([...getFriends(), ...(typeof friendResults !== 'undefined' ? friendResults : [])]
+    .filter(friend => friend?.id && String(friend.id) !== uid).map(friend => [String(friend.id), friend])).values()];
+  const requestsHtml = incoming.length ? '<section class="bear-request-section"><h4>Incoming Bear Partner requests</h4>' + incoming.map(row => {
+    const sender = Array.isArray(row.sender) ? row.sender[0] : row.sender || {};
+    return '<article class="bear-request-row"><span class="bear-friend-avatar">' + esc(sender.mascot || '🐰') + '</span><span class="bear-request-copy"><b>' + esc(sender.display_name || sender.username || 'A friend') + '</b><small>@' + esc(sender.username || '') + ' wants to be your Bear Partner</small></span><button class="bear-request-accept" data-bear-accept="' + esc(row.id) + '">Accept</button><button class="bear-request-decline" data-bear-decline="' + esc(row.id) + '">×</button></article>';
+  }).join('') + '</section>' : '';
+  const peopleHtml = candidates.length ? candidates.map(friend => {
+    const id = String(friend.id), req = requestFor(id);
+    let action = isAcceptedPartner(id)
+      ? '<button class="bear-friend-choice-action is-accepted" data-bear-select="' + esc(id) + '">Choose partner</button>'
+      : req?.status === 'pending' && String(req.sender_id) === uid
+        ? '<span class="bear-request-state">Invitation sent</span>'
+        : req?.status === 'pending'
+          ? '<button class="bear-request-accept" data-bear-accept="' + esc(req.id) + '">Accept</button>'
+          : '<button class="bear-friend-choice-action" data-bear-invite="' + esc(id) + '">Invite ♡</button>';
+    return '<article class="bear-friend-choice"><span class="bear-friend-avatar">' + esc(friend.mascot || '🐰') + '</span><span class="bear-friend-choice-copy"><b>' + esc(friend.display_name || friend.displayName || friend.username || 'Friend') + '</b><small>@' + esc(friend.username || '') + '</small></span>' + action + '</article>';
+  }).join('') : '<div class="bear-no-friends">No friends found yet. Add people from the Friends tab first, then invite them here. ♡</div>';
+  $('.bear-friend-picker-list', modal).innerHTML = requestsHtml + '<section class="bear-request-section"><h4>Choose your Bear Partner</h4>' + peopleHtml + '</section>';
+}
+async function sendPartnerInvite(id) {
+  const user = getMe(), client = getSupabase();
+  if (!user?.id || !client) return;
+  await loadPartnerRequests();
+  const existing = requestFor(id);
+  if (existing?.status === 'accepted') { await chooseFriend(id); return; }
+  if (existing?.status === 'pending') {
+    if (String(existing.recipient_id) === String(user.id)) await answerPartnerInvite(existing.id, true);
+    else setStatus('Your Bear Partner invitation is waiting for a reply. ♡');
+    return;
+  }
+  const { error } = await client.from('bear_partner_requests').insert({ sender_id: user.id, recipient_id: id, status: 'pending' });
+  if (error) { console.warn(error); setStatus('Invitation could not be sent. Check the Bear Partner database update. ♡'); return; }
+  await loadPartnerRequests();
+  renderPickerList();
+  setStatus('Bear Partner invitation sent. ♡');
+}
+async function answerPartnerInvite(id, accept) {
+  const user = getMe(), client = getSupabase();
+  const { data, error } = await client.from('bear_partner_requests')
+    .update({ status: accept ? 'accepted' : 'rejected', responded_at: new Date().toISOString() })
+    .eq('id', id).eq('recipient_id', user.id).eq('status', 'pending')
+    .select('sender_id').maybeSingle();
+  if (error || !data) { setStatus('Could not update that invitation. Please retry. ♡'); return; }
+  await loadPartnerRequests();
+  renderPickerList();
+  if (accept) await chooseFriend(String(data.sender_id));
+}
 function ensurePicker() {
   if ($('#bearFriendPicker')) return;
   const modal = document.createElement('div');
   modal.id = 'bearFriendPicker';
   modal.className = 'bear-friend-picker hidden';
-  modal.innerHTML =
-    '<section class="bear-friend-picker-card" role="dialog" aria-modal="true" aria-labelledby="bearFriendPickerTitle">' +
-    '<button type="button" class="bear-friend-picker-close" aria-label="Close">×</button>' +
-    '<span class="bear-picker-art">🐻 ♡ 🐻</span><small>A LITTLE MOMENT TOGETHER</small>' +
-    '<h3 id="bearFriendPickerTitle">Who should join you?</h3>' +
-    '<p>Choose a friend to connect your two bears. Both of you will see each other’s actions live.</p>' +
-    '<div class="bear-friend-picker-list"></div><p class="bear-picker-footnote">You can change your Bear Hugs partner any time.</p></section>';
+  modal.innerHTML = '<section class="bear-friend-picker-card" role="dialog" aria-modal="true" aria-labelledby="bearFriendPickerTitle"><button type="button" class="bear-friend-picker-close" aria-label="Close">×</button><span class="bear-picker-art">🐻 ♡ 🐻</span><small>A LITTLE MOMENT TOGETHER</small><h3 id="bearFriendPickerTitle">Choose your Bear Partner</h3><p>Invite a friend to connect your bears. Shared actions begin after they accept.</p><div class="bear-friend-picker-list"><div class="bear-no-friends">Loading your friends… ♡</div></div><p class="bear-picker-footnote">Incoming invitations will appear here too. ♡</p></section>';
   document.body.appendChild(modal);
   modal.addEventListener('click', event => {
     if (event.target === modal || event.target.closest('.bear-friend-picker-close')) {
-      pendingAction = null;
-      modal.classList.add('hidden');
-      return;
+      pendingAction = null; modal.classList.add('hidden'); return;
     }
-    const choice = event.target.closest('[data-bear-friend-id]');
-    if (choice) void chooseFriend(choice.dataset.bearFriendId);
+    const invite = event.target.closest('[data-bear-invite]');
+    if (invite) { void sendPartnerInvite(invite.dataset.bearInvite); return; }
+    const accept = event.target.closest('[data-bear-accept]');
+    if (accept) { void answerPartnerInvite(accept.dataset.bearAccept, true); return; }
+    const decline = event.target.closest('[data-bear-decline]');
+    if (decline) { void answerPartnerInvite(decline.dataset.bearDecline, false); return; }
+    const select = event.target.closest('[data-bear-select]');
+    if (select) void chooseFriend(select.dataset.bearSelect);
   });
 }
-function openPicker(action = null) {
+async function openPicker(action = null) {
   if (action) pendingAction = action;
   ensurePicker();
-  const modal = $('#bearFriendPicker');
-  const list = $('.bear-friend-picker-list', modal);
-  const options = getFriends().filter(friend => friend?.id && String(friend.id) !== String(getMe()?.id || ''));
-  list.innerHTML = options.length ? options.map(friend => {
-    const id = String(friend.id);
-    const name = friend.display_name || friend.displayName || friend.username || 'Friend';
-    return '<button type="button" class="bear-friend-choice ' + (id === selectedFriendId ? 'is-selected' : '') +
-      '" data-bear-friend-id="' + esc(id) + '"><span class="bear-friend-avatar">' + esc(friend.mascot || '🐰') +
-      '</span><span><b>' + esc(name) + '</b><small>@' + esc(friend.username || '') +
-      '</small></span><span class="bear-friend-check">' + (id === selectedFriendId ? '✓' : '♡') + '</span></button>';
-  }).join('') : '<div class="bear-no-friends">Your little circle is empty. Add a friend in the Friends tab first. ♡</div>';
-  modal.classList.remove('hidden');
+  $('#bearFriendPicker').classList.remove('hidden');
+  $('.bear-friend-picker-list', $('#bearFriendPicker')).innerHTML = '<div class="bear-no-friends">Loading your friends… ♡</div>';
+  await loadPartnerRequests();
+  renderPickerList();
 }
 function updatePartnerChip() {
   const root = $('#coupleBearGame');
@@ -245,8 +314,14 @@ async function ensurePeerChannel(friendId) {
   return peerPromise;
 }
 async function chooseFriend(id) {
-  const friend = getFriends().find(item => String(item?.id) === String(id));
+  const friend = [...getFriends(), ...(typeof friendResults !== 'undefined' ? friendResults : [])].find(item => String(item?.id) === String(id));
   if (!friend) return;
+  await loadPartnerRequests();
+  if (!isAcceptedPartner(id)) {
+    setStatus('A Bear Partner invitation must be accepted before playing together. ♡');
+    await openPicker();
+    return;
+  }
   selectedFriendId = String(friend.id);
   try { localStorage.setItem(SELECTED_KEY, selectedFriendId); } catch {}
   $('#bearFriendPicker')?.classList.add('hidden');

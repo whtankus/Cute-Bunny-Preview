@@ -5466,7 +5466,7 @@ function notificationGroupLabel(value) {
 
 function notificationKindMeta(notification) {
   const kind = String(notification?.kind || '').toLowerCase();
-  if (kind === 'buddy') return { icon: '♡', label: 'Friend hello' };
+  if (kind === 'buddy') return /bearfriend request/i.test(String(notification?.message || '')) ? { icon: '♡', label: 'Bearfriend request' } : { icon: '♡', label: 'Friend hello' };
   if (kind === 'photo') return { icon: '▧', label: 'Photo' };
   if (kind === 'song') return { icon: '♫', label: 'Music' };
   if (kind === 'note') return { icon: '✎', label: 'Note' };

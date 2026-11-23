@@ -214,7 +214,7 @@ function updatePartnerChip() {
     chip.addEventListener('click', () => openPicker());
   }
   const friend = getSelectedFriend();
-  chip.textContent = friend
+  chip.textContent = friend && isAcceptedPartner(selectedFriendId)
     ? '♡ Playing with ' + (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Change'
     : '♡ Choose your Bear Partner';
 }
@@ -349,7 +349,7 @@ async function sendAction(action) {
   const friend = getSelectedFriend();
   const user = getMe();
   const client = getSupabase();
-  if (!friend || !user?.id || !client) {
+  if (!friend || !user?.id || !client || !isAcceptedPartner(friend.id)) {
     setStatus('Choose a friend before starting your little moment. ♡');
     openPicker();
     return false;
@@ -422,8 +422,8 @@ function flushPendingRemoteAction() {
 }
 function runLocalAction(action) {
   if (!ACTIONS.has(action)) return;
-  if (!getSelectedFriend()) {
-    openPicker();
+  if (!getSelectedFriend() || !isAcceptedPartner(selectedFriendId)) {
+    openPicker(action);
     return;
   }
   if (typeof originalTrigger === 'function') {

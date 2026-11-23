@@ -702,6 +702,7 @@ async function refresh() {
     noteHistoryCursor = initialNotes.length ? String(initialNotes[initialNotes.length - 1].id) : null;
     feedPageHasMore.note = initialNotes.length === FEED_PAGE_SIZE;
     friends = results[2];
+    startBearRealtime();
     syncPresenceUI();
 
     noteSeenLastAck = new Map((results[5] || []).map(cursor => [String(cursor.owner_id), Number(cursor.last_read_message_id) || 0]));

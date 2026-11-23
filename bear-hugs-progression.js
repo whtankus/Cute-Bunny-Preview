@@ -216,7 +216,7 @@ function updateUI() {
     const previousReward = REWARDS[index - 1];
     const progressLabel = unlocked ? (applied ? 'Currently in your scene' : 'Ready to use') : (reward.level - level.level) + ' level' + (reward.level - level.level === 1 ? '' : 's') + ' away';
     return '<article class="bear-reward ' + (unlocked ? 'is-unlocked' : 'is-locked') + (applied ? ' is-applied' : '') + (nextReward?.id === reward.id ? ' is-next' : '') + '">' +
-      '<div class="bear-reward-preview ' + reward.previewClass + '" aria-hidden="true"><span>' + reward.icon + '</span><i>✦</i><small>🐻　♡　🐻</small></div>' +
+      '<div class="bear-reward-preview ' + reward.previewClass + '" aria-hidden="true"><span class="bear-reward-symbol">' + reward.icon + '</span><i>✦</i><small>🐻　♡　🐻</small></div>' +
       '<div class="bear-reward-copy"><span class="bear-reward-kicker">' + reward.rarity + ' · LEVEL ' + reward.level + '</span><b>' + reward.name + '</b><small>' + reward.detail + '</small></div>' +
       '<div class="bear-reward-bottom"><span class="bear-reward-state">' + progressLabel + '</span>' +
       (unlocked ? '<button type="button" class="bear-reward-apply" data-bear-equip="' + reward.id + '" aria-pressed="' + applied + '">' + (applied ? 'Unequip' : 'Use reward') + '</button>' : '<span class="bear-reward-lock">🔒 ' + reward.kind + '</span>') +
@@ -289,158 +289,24 @@ function requestFor(id) {
     (String(row.sender_id) === uid && String(row.recipient_id) === String(id)) ||
     (String(row.recipient_id) === uid && String(row.sender_id) === String(id)));
 }
-function renderPickerList() {
-  const modal = $('#bearFriendPicker');
-  if (!modal) return;
-  const uid = String(getMe()?.id || '');
-  const incoming = partnerRequests.filter(row => row.status === 'pending' && String(row.recipient_id) === uid);
-  const candidates = [...new Map([...getFriends(), ...(typeof friendResults !== 'undefined' ? friendResults : []), ...bearFriendSearchResults]
-    .filter(friend => friend?.id && String(friend.id) !== uid)
-    .map(friend => [String(friend.id), friend])).values()];
-
-  const requestsHtml = incoming.length
-    ? incoming.map(row => {
-        const sender = Array.isArray(row.sender) ? row.sender[0] : row.sender || {};
-        return '<article class="bear-request-row"><span class="bear-friend-avatar">' + esc(sender.mascot || '🐰') + '</span><span class="bear-request-copy"><b>' + esc(sender.display_name || sender.displayName || sender.username || 'A friend') + '</b><small>@' + esc(sender.username || '') + ' wants to be your Bearfriend</small></span><button class="bear-request-accept" data-bear-accept="' + esc(row.id) + '">Accept</button><button class="bear-request-decline" data-bear-decline="' + esc(row.id) + '" aria-label="Decline request">×</button></article>';
-      }).join('')
-    : '<div class="bear-request-empty">No Bearfriend requests yet. New requests will appear here. ♡</div>';
-
-  const peopleHtml = candidates.length ? candidates.map(friend => {
-    const id = String(friend.id), req = requestFor(id);
-    let action = isAcceptedPartner(id)
-      ? '<button class="bear-friend-choice-action is-accepted" data-bear-select="' + esc(id) + '">Choose Bearfriend</button>'
-      : req?.status === 'pending' && String(req.sender_id) === uid
-        ? '<span class="bear-request-state">Request sent</span><button class="bear-request-cancel" data-bear-cancel="' + esc(req.id) + '">Cancel</button>'
-        : req?.status === 'pending'
-          ? '<button class="bear-request-accept" data-bear-accept="' + esc(req.id) + '">Accept</button>'
-          : '<button class="bear-friend-choice-action" data-bear-invite="' + esc(id) + '">Request Bearfriend</button>';
-    return '<article class="bear-friend-choice"><span class="bear-friend-avatar">' + esc(friend.mascot || '🐰') + '</span><span class="bear-friend-choice-copy"><b>' + esc(friend.display_name || friend.displayName || friend.username || 'Friend') + '</b><small>@' + esc(friend.username || '') + '</small></span>' + action + '</article>';
-  }).join('') : '<div class="bear-no-friends">Your friend list is empty. Search for a username above, or add friends from the Friends tab. ♡</div>';
-
-  $('.bear-friend-picker-list', modal).innerHTML =
-    '<section class="bear-request-section"><h4>Requests to be your Bearfriend</h4>' + requestsHtml + '</section>' +
-    '<section class="bear-request-section"><h4>Request a friend to be your Bearfriend</h4>' + peopleHtml + '</section>';
-}
-
-async function sendPartnerInvite(id) {
-  const user = getMe(), client = getSupabase();
-  if (!user?.id || !client) return;
-  await loadPartnerRequests();
-  const existing = requestFor(id);
-  if (existing?.status === 'accepted') { await chooseFriend(id); return; }
-  if (existing?.status === 'pending') {
-    if (String(existing.recipient_id) === String(user.id)) await answerPartnerInvite(existing.id, true);
-    else setStatus('Your Bearfriend request is waiting for a reply. ♡');
-    return;
-  }
-  const { error } = await client.from('bear_partner_requests').insert({ sender_id: user.id, recipient_id: id, status: 'pending' });
-  if (error) { console.warn('Bearfriend request failed:', error.message || error); setStatus('Your Bearfriend request could not be sent. Please try again. ♡'); return; }
-  await loadPartnerRequests();
-  renderPickerList();
-  setStatus('Bearfriend request sent. ♡');
-}
-async function cancelPartnerRequest(id) {
-  const user = getMe(), client = getSupabase();
-  if (!user?.id || !client) return;
-  const { data, error } = await client.from('bear_partner_requests')
-    .delete().eq('id', id).eq('sender_id', user.id).eq('status', 'pending')
-    .select('id').maybeSingle();
-  if (error || !data) {
-    console.warn('Bearfriend request cancellation failed:', error?.message || error);
-    setStatus('That request could not be cancelled. Please refresh and try again. ♡');
-    return;
-  }
-  await loadPartnerRequests();
-  renderPickerList();
-  setStatus('Bearfriend request cancelled. ♡');
-}
-async function answerPartnerInvite(id, accept) {
-  const user = getMe(), client = getSupabase();
-  const { data, error } = await client.from('bear_partner_requests')
-    .update({ status: accept ? 'accepted' : 'rejected', responded_at: new Date().toISOString() })
-    .eq('id', id).eq('recipient_id', user.id).eq('status', 'pending')
-    .select('sender_id').maybeSingle();
-  if (error || !data) { console.warn('Bearfriend response failed:', error?.message || 'No matching pending request'); setStatus('Could not update that Bearfriend request. Please retry. ♡'); return; }
-  await loadPartnerRequests();
-  renderPickerList();
-  if (accept) await chooseFriend(String(data.sender_id));
-}
-function ensurePicker() {
-  if ($('#bearFriendPicker')) return;
-  const modal = document.createElement('div');
-  modal.id = 'bearFriendPicker';
-  modal.className = 'bear-friend-picker hidden';
-  modal.innerHTML = '<section class="bear-friend-picker-card" role="dialog" aria-modal="true" aria-labelledby="bearFriendPickerTitle"><button type="button" class="bear-friend-picker-close" aria-label="Close">×</button><span class="bear-picker-art">🐻 ♡ 🐻</span><small>YOUR LITTLE BEARFRIEND SPACE</small><h3 id="bearFriendPickerTitle">Become Bearfriends?</h3><p>Accept a request from a friend, or send one to someone you love. Your bears play together after both of you accept.</p><form class="bear-friend-search" id="bearFriendSearchForm"><input id="bearFriendSearchInput" type="search" maxlength="24" autocomplete="off" spellcheck="false" placeholder="Find a friend by username…" aria-label="Find a friend by username"><button type="submit">Find</button></form><div class="bear-friend-picker-list"><div class="bear-no-friends">Loading your requests and friends… ♡</div></div><p class="bear-picker-footnote">You can change your Bearfriend later. ♡</p></section>';
-  document.body.appendChild(modal);
-  modal.addEventListener('click', event => {
-    if (event.target === modal || event.target.closest('.bear-friend-picker-close')) {
-      pendingAction = null; modal.classList.add('hidden'); return;
-    }
-    const invite = event.target.closest('[data-bear-invite]');
-    if (invite) { void sendPartnerInvite(invite.dataset.bearInvite); return; }
-    const accept = event.target.closest('[data-bear-accept]');
-    if (accept) { void answerPartnerInvite(accept.dataset.bearAccept, true); return; }
-    const decline = event.target.closest('[data-bear-decline]');
-    if (decline) { void answerPartnerInvite(decline.dataset.bearDecline, false); return; }
-    const cancel = event.target.closest('[data-bear-cancel]');
-    if (cancel) { void cancelPartnerRequest(cancel.dataset.bearCancel); return; }
-    const select = event.target.closest('[data-bear-select]');
-    if (select) void chooseFriend(select.dataset.bearSelect);
-  });
-  modal.addEventListener('submit', event => {
-    if (!event.target.matches('#bearFriendSearchForm')) return;
-    event.preventDefault();
-    void searchBearFriends();
-  });
-}
-async function searchBearFriends() {
-  const input = $('#bearFriendSearchInput');
-  const query = String(input?.value || '').trim();
-  if (!query) { setStatus('Type a username to find your friend. ♡'); return; }
-  if (!/^[a-zA-Z0-9_]{1,24}$/.test(query)) { setStatus('Usernames use letters, numbers, and underscores. ♡'); return; }
-  if (typeof api !== 'function') { setStatus('Friend search is not available right now. ♡'); return; }
-  const sequence = ++bearFriendSearchSequence;
-  const list = $('.bear-friend-picker-list', $('#bearFriendPicker'));
-  if (list) list.innerHTML = '<div class="bear-no-friends">Finding your friend… ♡</div>';
-  try {
-    const results = await api('/users?q=' + encodeURIComponent(query));
-    if (sequence !== bearFriendSearchSequence) return;
-    bearFriendSearchResults = Array.isArray(results) ? results : [];
-    renderPickerList();
-    if (!bearFriendSearchResults.length) setStatus('No matching friend found. Check the username and try again. ♡');
-  } catch (error) {
-    console.warn('Bearfriend friend search failed:', error?.message || error);
-    if (list) list.innerHTML = '<div class="bear-no-friends">Could not search right now. Please try again. ♡</div>';
-  }
-}
-async function openPicker(action = null) {
+function openPicker(action = null) {
   if (action) pendingAction = action;
-  ensurePicker();
-  const modal = $('#bearFriendPicker');
-  modal.classList.remove('hidden');
-  $('.bear-friend-picker-list', modal).innerHTML = '<div class="bear-no-friends">Loading your requests and friends… ♡</div>';
-  const needsFriendRefresh = !getFriends().length && !(typeof friendResults !== 'undefined' && friendResults.length) && typeof refresh === 'function';
-  if (needsFriendRefresh) {
-    try { await refresh(); } catch (error) { console.warn('Friends could not refresh for Bearfriend picker:', error?.message || error); }
-  }
-  await loadPartnerRequests();
-  renderPickerList();
+  setStatus('Reconnecting your saved Bearfriend pairing… ♡');
 }
 function updatePartnerChip() {
   const root = $('#coupleBearGame');
   if (!root) return;
   let chip = $('.bear-partner-chip', root);
   if (!chip) {
-    chip = document.createElement('button');
-    chip.type = 'button';
+    chip = document.createElement('div');
     chip.className = 'bear-partner-chip';
+    chip.setAttribute('aria-live', 'polite');
     root.insertBefore(chip, $('.couple-bears-scene', root));
-    chip.addEventListener('click', () => openPicker());
   }
   const friend = getSelectedFriend();
   chip.textContent = friend && isAcceptedPartner(selectedFriendId)
-    ? '♡ Bearfriends with ' + (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Change'
-    : '♡ Choose a Bearfriend';
+    ? '♡ Bearfriends with ' + (friend.display_name || friend.displayName || friend.username || 'Friend')
+    : '♡ Restoring your Bearfriend connection…';
 }
 function updateConnectionStatus() {
   if (!getSelectedFriend()) return;
@@ -556,7 +422,6 @@ async function chooseFriend(id) {
     return;
   }
   saveSelectedFriend(String(friend.id));
-  $('#bearFriendPicker')?.classList.add('hidden');
   updatePartnerChip();
   setStatus('Connecting your two little bears… ♡');
   const results = await Promise.all([ensureOwnChannel(), ensurePeerChannel(selectedFriendId)]);
@@ -574,8 +439,7 @@ async function sendAction(action, partnerId = selectedFriendId) {
   const user = getMe();
   const client = getSupabase();
   if (!friend || !user?.id || !client || !isAcceptedPartner(partnerId)) {
-    setStatus('Choose a friend before starting your little moment. ♡');
-    openPicker();
+    setStatus('Your saved Bearfriend connection is unavailable right now. ♡');
     return false;
   }
   const connected = await ensurePeerChannel(partnerId);
@@ -647,7 +511,8 @@ function flushPendingRemoteAction() {
 async function runLocalAction(action) {
   if (!ACTIONS.has(action) || actionInFlight) return;
   if (!selectedFriendId || !getSelectedFriend() || !isAcceptedPartner(selectedFriendId)) {
-    openPicker(action);
+    setStatus('Reconnecting your saved Bearfriend pairing… ♡');
+    void loadPartnerRequests();
     return;
   }
   if (typeof originalTrigger === 'function') {
@@ -701,7 +566,6 @@ function ensureRequestChannel() {
         restoreSelectedFriend();
         updatePartnerChip();
         updateUI();
-        if (!$('#bearFriendPicker')?.classList.contains('hidden')) renderPickerList();
       }, 180);
     })
     .subscribe(status => {
@@ -747,7 +611,7 @@ function closeBearHugsRealtime() {
 function install() {
   if (window.__cuteBunnyBearHugsFixed) return;
   window.__cuteBunnyBearHugsFixed = true;
-  ensurePicker();
+  $('#bearFriendPicker')?.remove();
 
   // Delegate from document because the app replaces #content on every render.
   document.addEventListener('click', event => {
@@ -761,7 +625,8 @@ function install() {
     event.stopImmediatePropagation();
     const action = actionButton ? actionButton.dataset.coupleAction : 'pet';
     if (!selectedFriendId || !getSelectedFriend() || !isAcceptedPartner(selectedFriendId)) {
-      void openPicker(action);
+      setStatus('Reconnecting your saved Bearfriend pairing… ♡');
+      void loadPartnerRequests();
       return;
     }
     runLocalAction(action);
@@ -785,8 +650,6 @@ function install() {
       updatePartnerChip();
       updateUI();
       flushPendingRemoteAction();
-      // The Bearfriend chooser is intentionally opened by the first bear interaction,
-      // not by an automatic page-load popup. This keeps the experience predictable.
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });

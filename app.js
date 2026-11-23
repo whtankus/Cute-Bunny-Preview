@@ -3202,7 +3202,6 @@ function render(options = {}) {
             <div class="bear-love-meter-copy"><span>Little love meter</span><b id="bearLoveCount">0 hugs of happiness</b></div>
             <div class="bear-love-track"><span id="bearLoveFill"></span></div>
           </div>
-          <button type="button" class="bear-sound-toggle" id="bearSoundToggle" aria-pressed="true" aria-label="Turn bear sounds off" title="Turn bear sounds off">♫ Sound on</button>
         </div>
       </section>
     `;
@@ -6149,7 +6148,7 @@ function triggerBearAction(action, options = {}) {
     button.setAttribute('aria-pressed', String(button.dataset.coupleAction === action));
   });
   try {
-    const next = readBearLoveCount() + 1;
+    const next = readBearLoveCount() + 2;
     localStorage.setItem(bearLoveStorageKey, String(next));
   } catch {}
   updateBearLoveMeter();

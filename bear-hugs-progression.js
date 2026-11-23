@@ -712,7 +712,20 @@ function startBearHugsRealtime() {
   ensureRequestChannel();
   ensureProgressChannel();
   void ensureOwnChannel();
-  if (selectedFriendId && getSelectedFriend()) void ensurePeerChannel(selectedFriendId);
+  const userId = String(getMe()?.id || '');
+  if (userId && !partnerRequests.some(row => String(row.sender_id) === userId || String(row.recipient_id) === userId)) {
+    void loadPartnerRequests().then(loaded => {
+      if (!loaded) return;
+      restoreSelectedFriend();
+      if (selectedFriendId && getSelectedFriend()) void ensurePeerChannel(selectedFriendId);
+    });
+  } else if (selectedFriendId && getSelectedFriend()) {
+    void ensurePeerChannel(selectedFriendId);
+  } else if (userId) {
+    void loadPartnerRequests().then(loaded => {
+      if (loaded) restoreSelectedFriend();
+    });
+  }
 }
 function closeBearHugsRealtime() {
   closeChannel(requestChannel);

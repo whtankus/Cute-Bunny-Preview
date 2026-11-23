@@ -5873,10 +5873,16 @@ function readBearLoveCount() {
 }
 function updateBearLoveMeter() {
   const count = readBearLoveCount();
+  const level = count < 100 ? { level: 1, previous: 0, next: 100 }
+    : count < 150 ? { level: 2, previous: 100, next: 150 }
+    : count < 200 ? { level: 3, previous: 150, next: 200 }
+    : count < 350 ? { level: 4, previous: 200, next: 350 }
+    : (() => { const current = 5 + Math.floor((count - 350) / 300); const previous = 350 + (current - 5) * 300; return { level: current, previous, next: previous + 300 }; })();
+  const progress = Math.max(0, Math.min(100, ((count - level.previous) / (level.next - level.previous)) * 100));
   const label = $('#bearLoveCount');
   const fill = $('#bearLoveFill');
-  if (label) label.textContent = count + (count === 1 ? ' happy moment' : ' happy moments');
-  if (fill) fill.style.width = Math.min(100, (count % 20) * 5 || (count ? 5 : 0)) + '%';
+  if (label) label.textContent = 'Level ' + level.level + ' · ' + count + ' love points';
+  if (fill) fill.style.width = progress + '%';
   const soundButton = $('#bearSoundToggle');
   if (soundButton) {
     const enabled = localStorage.getItem(bearSoundStorageKey) !== 'off';

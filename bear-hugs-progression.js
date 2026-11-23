@@ -391,7 +391,7 @@ function receiveAction(payload) {
   if (String(payload.toUserId || '') !== String(user.id)) return;
   if (String(payload.userId || '') === String(user.id)) return;
   const senderIsFriend = getFriends().some(friend => String(friend?.id) === String(payload.userId));
-  if (!senderIsFriend || !ACTIONS.has(String(payload.action || ''))) return;
+  if (!senderIsFriend || !isAcceptedPartner(payload.userId) || !ACTIONS.has(String(payload.action || ''))) return;
   // The recipient automatically pairs with the friend who initiated the shared action.
   selectedFriendId = String(payload.userId);
   try { localStorage.setItem(SELECTED_KEY, selectedFriendId); } catch {}
@@ -501,6 +501,14 @@ function install() {
   startBearHugsRealtime();
   updatePartnerChip();
   updateUI();
+  void loadPartnerRequests();
+  const introKey = 'cuteBunnyBearPartnerIntro:' + String(getMe()?.id || 'guest');
+  if (!selectedFriendId && !localStorage.getItem(introKey)) {
+    localStorage.setItem(introKey, 'shown');
+    window.setTimeout(() => {
+      if ($('#coupleBearGame') && !selectedFriendId) void openPicker();
+    }, 350);
+  }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
 else install();

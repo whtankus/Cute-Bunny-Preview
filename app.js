@@ -4810,17 +4810,6 @@ function startRealtime() {
     notificationChannel = sb.channel('cute-bunny-notifications-' + me.id)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: 'recipient_id=eq.' + me.id }, payload => {
         const inserted = payload?.new;
-        const isActiveNotesUpdate = page === 'notes' && String(inserted?.kind || '') === 'note';
-        if (isActiveNotesUpdate) {
-          toast('New note activity ♡');
-          if (inserted?.id) {
-            notificationRows = notificationRows.filter(row => String(row.id) !== String(inserted.id));
-            updateNotificationBadge();
-            void api('/notifications/' + encodeURIComponent(inserted.id), { method: 'DELETE' })
-              .catch(error => console.warn('Active Notes notification could not be dismissed:', error?.message || error));
-          }
-          return;
-        }
         void api('/notifications').then(rows => {
           notificationRows = rows;
           notificationLoaded = true;
@@ -4829,7 +4818,6 @@ function startRealtime() {
           if (added) void showPhoneNotification(added);
           if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();
         }).catch(error => console.warn('Live notification refresh failed:', error?.message || error));
-        toast('A little hello from your friend ♡');
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'notifications', filter: 'recipient_id=eq.' + me.id }, payload => {
         const changed = payload?.new;
@@ -5461,7 +5449,7 @@ async function showPhoneNotification(notification) {
 }
 
 function updateNotificationBadge() {
-  const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at && !(page === 'notes' && n.kind === 'note')).length;
+  const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at && !(page === 'notes' && n.kind === 'note' && !/\\bliked your note\\b/i.test(String(n.message || '')))).length;
   badge.textContent = count > 9 ? '9+' : String(count);
   badge.classList.toggle('hidden', count === 0);
 }
@@ -5512,7 +5500,7 @@ function renderNotifications() {
   const soundToggle = $('#notifySounds');
   if (soundToggle) soundToggle.checked = localStorage.getItem('cuteBunnyAppSounds') !== 'off';
   const previousScrollTop = list.scrollTop;
-  const visibleRows = notificationRows.filter(notification => !(page === 'notes' && notification.kind === 'note'));
+  const visibleRows = notificationRows.filter(notification => !(page === 'notes' && notification.kind === 'note' && !/\\bliked your note\\b/i.test(String(notification.message || ''))));
   const groups = new Map();
   visibleRows.forEach(notification => {
     const label = notificationGroupLabel(notification.created_at);

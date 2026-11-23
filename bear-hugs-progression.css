@@ -105,3 +105,11 @@
 .bear-friend-choice-action{padding:9px 12px}
 .bear-request-state{white-space:nowrap}
 @media(max-width:420px){.bear-friend-choice{gap:8px;padding:9px}.bear-friend-choice-action,.bear-request-accept{padding:8px 9px;font-size:.64rem}.bear-friend-picker-card{padding:24px 15px 16px}}
+
+/* Request management and live-state affordances. */
+.bear-request-cancel{border:1px solid #e8c8d7;border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.72);color:#a66b88;font-size:.66rem;font-weight:850;white-space:nowrap}
+.bear-request-cancel:hover{background:#fff0f5;border-color:#d99bb7}
+.bear-request-row,.bear-friend-choice{min-width:0}
+.bear-request-copy,.bear-friend-choice-copy{min-width:0;overflow-wrap:anywhere}
+.bear-request-state{padding:6px 8px;border-radius:999px;background:rgba(214,164,190,.15);color:#a66b88;font-size:.66rem;font-weight:850}
+@media(max-width:380px){.bear-request-row{flex-wrap:wrap}.bear-request-copy{flex:1 1 55%}.bear-request-cancel{margin-left:auto}}

@@ -14,6 +14,7 @@ const userNow=()=>typeof me!=='undefined'?me:null;
 const supa=()=>typeof sb!=='undefined'?sb:null;
 const points=()=>Math.max(0,Number(localStorage.getItem(LOVE_KEY))||0);
 let chosen=localStorage.getItem(KEY)||'',channel=null,topic='',ready=false,originalTrigger=null;
+const pairChannels=new Map();
 function levelInfo(p){
  let level=1,previous=0,next=100;
  if(p>=100){level=2;previous=100;next=150}
@@ -49,23 +50,45 @@ function openPicker(){
  modal.classList.remove('hidden');
 }
 function selected(){return friendsNow().find(f=>String(f.id)===chosen)}
+function receivePairAction(payload, friendId) {
+ const u=userNow();
+ if(!payload||String(payload.userId)===String(u?.id)||String(payload.userId)!==String(friendId))return;
+ const action=String(payload.action||'');
+ if(!['hug','kiss','hands','dance','pet','feed','sleep','idle'].includes(action))return;
+ const scene=$('#coupleBearGame .couple-bears-scene');if(!scene)return;
+ scene.dataset.action=action;
+ if(typeof bearPoseEngine!=='undefined')bearPoseEngine?.play(action,String(payload.gender||'').toLowerCase()==='female'?1:0);
+ const f=friendsNow().find(x=>String(x.id)===String(friendId));
+ const status=$('#coupleBearStatus');
+ if(status)status.textContent=(f?.display_name||f?.displayName||f?.username||'Your friend')+' chose '+(action==='hands'?'to hold paws':action)+'. ♡';
+ document.querySelectorAll('#coupleBearGame [data-couple-action]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.coupleAction===action)));
+}
 async function connect(){
- const f=selected(),u=userNow(),s=supa();if(!f||!u?.id||!s)return;
- const ids=[String(u.id),String(f.id)].sort(),next='cute-bunny-bear-pair-'+ids.join('-');
- if(topic===next&&channel)return;
- if(channel){try{await s.removeChannel(channel)}catch{}}
- topic=next;ready=false;
- channel=s.channel(topic,{config:{broadcast:{self:false,ack:true}}})
- .on('broadcast',{event:'bear-action'},({payload})=>{
-  if(!payload||String(payload.userId)===String(u.id)||String(payload.pairKey||'')!==ids.join(':'))return;
-  const action=String(payload.action||'');if(!['hug','kiss','hands','dance','pet','feed','sleep','idle'].includes(action))return;
-  const scene=$('#coupleBearGame .couple-bears-scene');if(!scene)return;
-  scene.dataset.action=action;
-  if(typeof bearPoseEngine!=='undefined')bearPoseEngine?.play(action,String(payload.gender||'').toLowerCase()==='female'?1:0);
-  const status=$('#coupleBearStatus');if(status)status.textContent=(payload.displayName||'Your friend')+' chose '+(action==='hands'?'to hold paws':action)+'. ♡';
-  document.querySelectorAll('#coupleBearGame [data-couple-action]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.coupleAction===action)));
- })
- .subscribe(status=>{ready=status==='SUBSCRIBED';if(['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status))ready=false});
+ const f=selected(),u=userNow(),s=supa();if(!u?.id||!s)return;
+ const all=friendsNow().filter(x=>x?.id&&String(x.id)!==String(u.id));
+ const tasks=[];
+ for(const friend of all){
+  const ids=[String(u.id),String(friend.id)].sort(),key=ids.join(':'),next='cute-bunny-bear-pair-'+ids.join('-');
+  let entry=pairChannels.get(next);
+  if(!entry){
+   const ch=s.channel(next,{config:{broadcast:{self:false,ack:true}}})
+    .on('broadcast',{event:'bear-action'},({payload})=>receivePairAction(payload,friend.id));
+   entry={channel:ch,ready:false,promise:null};
+   entry.promise=new Promise(resolve=>{
+    ch.subscribe(status=>{
+     if(status==='SUBSCRIBED'){entry.ready=true;resolve(true)}
+     else if(['CHANNEL_ERROR','TIMED_OUT','CLOSED'].includes(status)){entry.ready=false;resolve(false)}
+    });
+    setTimeout(()=>resolve(entry.ready),4500);
+   });
+   pairChannels.set(next,entry);
+  }
+  if(f&&String(friend.id)===String(f.id)){topic=next;channel=entry.channel;ready=entry.ready;tasks.push(entry.promise.then(ok=>{ready=ok;return ok}))}
+ }
+ if(!f){channel=null;topic='';ready=false;return}
+ if(!pairChannels.has(topic)){channel=null;ready=false;return}
+ const ok=await Promise.race([Promise.all(tasks).then(v=>v[0]===true),new Promise(resolve=>setTimeout(()=>resolve(false),4500))]);
+ ready=ok;return ok;
 }
 async function chooseFriend(id){
  const f=friendsNow().find(x=>String(x.id)===String(id));if(!f)return;

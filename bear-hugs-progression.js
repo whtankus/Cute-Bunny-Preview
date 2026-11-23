@@ -79,7 +79,7 @@ function updateUI() {
     '<article class="bear-reward ' + (level.level >= reward.level ? 'is-unlocked' : 'is-locked') + '">' +
     '<span class="bear-reward-icon">' + reward.icon + '</span><span class="bear-reward-copy"><b>' + reward.name +
     '</b><small>' + reward.detail + '</small></span><span class="bear-reward-status">' +
-    (level.level >= reward.level ? 'Unlocked' : reward.coming ? 'Coming soon' : 'Locked') + '</span></article>'
+    (reward.coming ? 'Coming soon' : level.level >= reward.level ? 'Unlocked' : 'Locked') + '</span></article>'
   ).join('');
   const scene = $('.couple-bears-scene', root);
   if (scene) {

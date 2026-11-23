@@ -491,8 +491,7 @@ function receiveAction(payload) {
   const senderIsFriend = getFriends().some(friend => String(friend?.id) === String(payload.userId)) || !!partnerProfileFromRows(payload.userId);
   if (!senderIsFriend || !isAcceptedPartner(payload.userId) || !ACTIONS.has(String(payload.action || ''))) return;
   // The recipient automatically pairs with the friend who initiated the shared action.
-  selectedFriendId = String(payload.userId);
-  try { localStorage.setItem(SELECTED_KEY, selectedFriendId); } catch {}
+  saveSelectedFriend(String(payload.userId));
   updatePartnerChip();
   void ensurePeerChannel(selectedFriendId);
   applyRemoteAction(String(payload.action), payload);
@@ -512,7 +511,8 @@ function flushPendingRemoteAction() {
 async function runLocalAction(action) {
   if (!ACTIONS.has(action) || actionInFlight) return;
   if (!selectedFriendId || !getSelectedFriend() || !isAcceptedPartner(selectedFriendId)) {
-    openPicker(action);
+    setStatus('Reconnecting your saved Bearfriend pairing… ♡');
+    void loadPartnerRequests();
     return;
   }
   if (typeof originalTrigger === 'function') {

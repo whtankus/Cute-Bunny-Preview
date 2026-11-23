@@ -97,12 +97,12 @@ function install(){
   e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
   if(!selected()){openPicker();return}
   if(originalTrigger)originalTrigger(b.dataset.coupleAction);
+  updateUI();
   void send(b.dataset.coupleAction);
  },true);
  if(chosen&&!selected())chosen='';
  if(chosen)void connect();
  partnerChip();updateUI();root.dataset.bearProgressReady='true';
- const observer=new MutationObserver(updateUI);observer.observe(root,{childList:true,subtree:true,characterData:true});
  window.addEventListener('storage',e=>{if(e.key===LOVE_KEY)updateUI()});
 }
 function boot(){install()}

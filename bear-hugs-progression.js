@@ -167,7 +167,7 @@ async function sendPartnerInvite(id) {
   if (existing?.status === 'accepted') { await chooseFriend(id); return; }
   if (existing?.status === 'pending') {
     if (String(existing.recipient_id) === String(user.id)) await answerPartnerInvite(existing.id, true);
-    else setStatus('Your Bear Partner invitation is waiting for a reply. ♡');
+    else setStatus('Your Bearfriend request is waiting for a reply. ♡');
     return;
   }
   const { error } = await client.from('bear_partner_requests').insert({ sender_id: user.id, recipient_id: id, status: 'pending' });
@@ -371,7 +371,7 @@ async function chooseFriend(id) {
   if (!friend) return;
   await loadPartnerRequests();
   if (!isAcceptedPartner(id)) {
-    setStatus('A Bear Partner invitation must be accepted before playing together. ♡');
+    setStatus('A Bearfriend request must be accepted before playing together. ♡');
     await openPicker();
     return;
   }

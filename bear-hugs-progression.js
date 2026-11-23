@@ -54,33 +54,24 @@ function getLevel(points) {
 function updateUI() {
   const root = $('#coupleBearGame');
   if (!root) return;
-  const points = getPoints();
-  const level = getLevel(points);
+  const points = getPoints(), level = getLevel(points);
   const percent = Math.max(0, Math.min(100, ((points - level.previous) / (level.next - level.previous)) * 100));
-  const meter = $('.bear-love-meter', root);
-  if (meter) {
-    meter.innerHTML =
-      '<div class="bear-level-heading"><span class="bear-level-heart">♡</span>' +
-      '<span><small>YOUR LITTLE LOVE JOURNEY</small><b>Level ' + level.level + '</b></span>' +
-      '<strong>' + points + ' <small>love points</small></strong></div>' +
-      '<div class="bear-level-track" role="progressbar" aria-label="Progress to next Bear Hugs level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '">' +
-      '<span style="width:' + percent + '%"></span></div>' +
-      '<p class="bear-level-next">' + (level.next - points) + ' points to level ' + (level.level + 1) + '</p>';
+  let panel = $('#bearProgressionPanel', root);
+  if (!panel) {
+    panel = document.createElement('section');
+    panel.id = 'bearProgressionPanel';
+    panel.className = 'bear-progression-panel';
+    const footer = $('.couple-bear-footer', root);
+    if (footer) footer.insertAdjacentElement('afterend', panel);
+    else root.appendChild(panel);
   }
-  let rewards = $('.bear-rewards', root);
-  if (!rewards) {
-    rewards = document.createElement('section');
-    rewards.className = 'bear-rewards';
-    rewards.innerHTML = '<div class="bear-rewards-heading"><span>🎁</span><div><b>Little level rewards</b><small>Collect sweet things as your love grows</small></div></div><div class="bear-rewards-list"></div>';
-    root.appendChild(rewards);
-  }
-  const rewardList = $('.bear-rewards-list', rewards);
-  if (rewardList) rewardList.innerHTML = REWARDS.map(reward =>
-    '<article class="bear-reward ' + (level.level >= reward.level ? 'is-unlocked' : 'is-locked') + '">' +
-    '<span class="bear-reward-icon">' + reward.icon + '</span><span class="bear-reward-copy"><b>' + reward.name +
-    '</b><small>' + reward.detail + '</small></span><span class="bear-reward-status">' +
-    (reward.coming ? 'Coming soon' : level.level >= reward.level ? 'Unlocked' : 'Locked') + '</span></article>'
-  ).join('');
+  panel.innerHTML =
+    '<div class="bear-level-heading"><span class="bear-level-heart">♡</span><span><small>YOUR LITTLE LOVE JOURNEY</small><b>Level ' + level.level + '</b></span><strong>' + points + ' <small>love points</small></strong></div>' +
+    '<div class="bear-level-track" role="progressbar" aria-label="Progress to next Bear Hugs level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '"><span style="width:' + percent + '%"></span></div>' +
+    '<p class="bear-level-next">' + (level.next - points) + ' points to level ' + (level.level + 1) + '</p>' +
+    '<section class="bear-rewards"><div class="bear-rewards-heading"><span>🎁</span><div><b>Little level rewards</b><small>Collect sweet things as your love grows</small></div></div><div class="bear-rewards-list">' +
+    REWARDS.map(reward => '<article class="bear-reward ' + (!reward.coming && level.level >= reward.level ? 'is-unlocked' : 'is-locked') + '"><span class="bear-reward-icon">' + reward.icon + '</span><span class="bear-reward-copy"><b>' + reward.name + '</b><small>' + reward.detail + '</small></span><span class="bear-reward-status">' + (reward.coming ? 'Coming soon' : level.level >= reward.level ? 'Unlocked' : 'Locked') + '</span></article>').join('') +
+    '</div></section>';
   const scene = $('.couple-bears-scene', root);
   if (scene) {
     scene.classList.toggle('bear-forest-unlocked', level.level >= 2);

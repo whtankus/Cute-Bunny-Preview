@@ -7,7 +7,7 @@ const APP_ASSETS = [
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=12",
+  "./app.js?v=13",
   "./bear-hugs-progression.css?v=20261123-6",
   "./bear-hugs-progression.js?v=20261123-13",
   "./manifest.webmanifest",

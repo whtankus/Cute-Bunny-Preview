@@ -5449,7 +5449,7 @@ async function showPhoneNotification(notification) {
 }
 
 function updateNotificationBadge() {
-  const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at && !(page === 'notes' && n.kind === 'note' && !/\\bliked your note\\b/i.test(String(n.message || '')))).length;
+  const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at && !(page === 'notes' && n.kind === 'note' && !/\bliked your note\b/i.test(String(n.message || '')))).length;
   badge.textContent = count > 9 ? '9+' : String(count);
   badge.classList.toggle('hidden', count === 0);
 }
@@ -5500,7 +5500,7 @@ function renderNotifications() {
   const soundToggle = $('#notifySounds');
   if (soundToggle) soundToggle.checked = localStorage.getItem('cuteBunnyAppSounds') !== 'off';
   const previousScrollTop = list.scrollTop;
-  const visibleRows = notificationRows.filter(notification => !(page === 'notes' && notification.kind === 'note' && !/\\bliked your note\\b/i.test(String(notification.message || ''))));
+  const visibleRows = notificationRows.filter(notification => !(page === 'notes' && notification.kind === 'note' && !/\bliked your note\b/i.test(String(notification.message || ''))));
   const groups = new Map();
   visibleRows.forEach(notification => {
     const label = notificationGroupLabel(notification.created_at);

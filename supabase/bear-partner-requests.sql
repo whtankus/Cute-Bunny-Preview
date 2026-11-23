@@ -26,4 +26,5 @@ create policy "Recipient responds to Bear Partner requests" on public.bear_partn
   for update to authenticated
   using (recipient_id = (select auth.uid()) and status = 'pending')
   with check (recipient_id = (select auth.uid()) and status in ('accepted','rejected'));
-grant select, insert, update on public.bear_partner_requests to authenticated;
+grant select, insert on public.bear_partner_requests to authenticated;
+grant update (status, responded_at) on public.bear_partner_requests to authenticated;

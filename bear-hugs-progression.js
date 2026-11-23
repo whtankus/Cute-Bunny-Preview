@@ -109,6 +109,14 @@ async function send(action){
  const payload={action,userId:String(u.id),pairKey:ids.join(':'),gender:u.gender||null,displayName:u.display_name||u.displayName||u.username||'Your friend',sentAt:Date.now()};
  const result=await channel.send({type:'broadcast',event:'bear-action',payload});if(result!=='ok')console.warn('Bear Hugs action delivery:',result);
 }
+const originalCloseRealtime=window.closeRealtime;
+if(typeof originalCloseRealtime==='function'){
+ window.closeRealtime=function(){
+  pairChannels.forEach(entry=>{try{if(supa())void supa().removeChannel(entry.channel)}catch{}});
+  pairChannels.clear();channel=null;topic='';ready=false;
+  return originalCloseRealtime.apply(this,arguments);
+ };
+}
 function install(){
  const root=$('#coupleBearGame');if(!root||root.dataset.bearProgressReady==='true')return;
  ensurePicker();
@@ -124,7 +132,7 @@ function install(){
   void send(b.dataset.coupleAction);
  },true);
  if(chosen&&!selected())chosen='';
- if(chosen)void connect();
+ void connect();
  partnerChip();updateUI();root.dataset.bearProgressReady='true';
  window.addEventListener('storage',e=>{if(e.key===LOVE_KEY)updateUI()});
 }

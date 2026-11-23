@@ -3126,6 +3126,7 @@ function achievementGardenMarkup(items) {
 function render(options = {}) {
   const c = $('#content');
   if (!c) return;
+  if (sb && me) startBearRealtime();
 
   if (page === 'notes') {
     renderNotesPage({ followLatest: !!options.followLatest });

@@ -79,3 +79,13 @@ test('Virtual Buddy feature and its 3D module are fully removed', () => {
   assert.doesNotMatch(workflow, /virtual-buddy-3d/);
   assert.ok(!fs.existsSync(path.join(root, 'virtual-buddy-3d.js')));
 });
+
+
+test('streak entry button and thumbnail play boing on pointer and keyboard activation', () => {
+  const app = read('app.js');
+  const start = app.indexOf('// Streak entry uses capture phase');
+  const end = app.indexOf('// Homepage feature cards', start);
+  const handlers = app.slice(start, end);
+  assert.match(handlers, /if \(streakButton\) playCuteSound\('boing'\)/);
+  assert.match(handlers, /playCuteSound\('boing'\);\s*openStreakGarden\(\);/);
+});

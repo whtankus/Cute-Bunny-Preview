@@ -30,6 +30,7 @@ let peerChannel = null;
 let peerTopic = '';
 let peerReady = false;
 let peerPromise = null;
+let peerGeneration = 0;
 let pendingRemoteAction = null;
 let pendingAction = null;
 
@@ -140,7 +141,7 @@ function updatePartnerChip() {
     chip.type = 'button';
     chip.className = 'bear-partner-chip';
     root.insertBefore(chip, $('.couple-bears-scene', root));
-    chip.addEventListener('click', openPicker);
+    chip.addEventListener('click', () => openPicker());
   }
   const friend = getSelectedFriend();
   chip.textContent = friend
@@ -207,24 +208,29 @@ async function ensurePeerChannel(friendId) {
   if (peerChannel && peerTopic === topic && peerReady) return true;
   if (peerChannel && peerTopic === topic && peerPromise) return peerPromise;
   if (peerTopic !== topic) {
+    peerGeneration++;
     closeChannel(peerChannel);
     peerChannel = null;
     peerTopic = topic;
     peerReady = false;
+    peerPromise = null;
   }
   if (!peerChannel) peerChannel = client.channel(topic, { config: { broadcast: { self: false, ack: true } } });
   if (peerReady) return true;
+  const generation = peerGeneration;
   peerPromise = new Promise(resolve => {
     let settled = false;
     const finish = value => {
       if (settled) return;
       settled = true;
-      peerPromise = null;
-      if (!value) {
-        closeChannel(peerChannel);
-        peerChannel = null;
-        peerTopic = '';
-        peerReady = false;
+      if (generation === peerGeneration) {
+        peerPromise = null;
+        if (!value) {
+          closeChannel(peerChannel);
+          peerChannel = null;
+          peerTopic = '';
+          peerReady = false;
+        }
       }
       resolve(value);
     };
@@ -356,6 +362,7 @@ function closeBearHugsRealtime() {
   ownTopic = peerTopic = '';
   ownReady = peerReady = false;
   ownPromise = peerPromise = null;
+  peerGeneration++;
 }
 
 function install() {

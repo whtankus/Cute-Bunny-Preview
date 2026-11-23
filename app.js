@@ -6089,6 +6089,28 @@ document.addEventListener('keydown', event => {
   }
 });
 
+// Tiny couple-bear game: each button plays a local, animated interaction.
+document.addEventListener('click', event => {
+  const button = event.target.closest?.('[data-couple-action]');
+  if (!button) return;
+  const game = button.closest('#coupleBearGame');
+  const scene = game?.querySelector('.couple-bears-scene');
+  const status = game?.querySelector('#coupleBearStatus');
+  if (!scene || !status) return;
+  const action = button.dataset.coupleAction;
+  const messages = {
+    hug: 'A warm, squishy bear hug! ♡',
+    kiss: 'A tiny kiss, just for you! 💗',
+    hands: 'Hand in hand, wherever we go. ♡'
+  };
+  if (!messages[action]) return;
+  scene.dataset.action = action;
+  game.querySelectorAll('[data-couple-action]').forEach(item => {
+    item.setAttribute('aria-pressed', String(item === button));
+  });
+  status.textContent = messages[action];
+});
+
 // Streak entry uses capture phase so card clicks cannot be swallowed by another page handler.
 document.addEventListener('click', event => {
   let target = event.target;

@@ -174,7 +174,7 @@ async function sendPartnerInvite(id) {
   if (error) { console.warn('Bearfriend request failed:', error.message || error); setStatus('Your Bearfriend request could not be sent. Please try again. ♡'); return; }
   await loadPartnerRequests();
   renderPickerList();
-  setStatus('Bear Partner invitation sent. ♡');
+  setStatus('Bearfriend request sent. ♡');
 }
 async function answerPartnerInvite(id, accept) {
   const user = getMe(), client = getSupabase();
@@ -198,12 +198,6 @@ function ensurePicker() {
     if (event.target === modal || event.target.closest('.bear-friend-picker-close')) {
       pendingAction = null; modal.classList.add('hidden'); return;
     }
-    const searchForm = event.target.closest('#bearFriendSearchForm');
-    if (searchForm) {
-      event.preventDefault();
-      void searchBearFriends();
-      return;
-    }
     const invite = event.target.closest('[data-bear-invite]');
     if (invite) { void sendPartnerInvite(invite.dataset.bearInvite); return; }
     const accept = event.target.closest('[data-bear-accept]');
@@ -212,6 +206,11 @@ function ensurePicker() {
     if (decline) { void answerPartnerInvite(decline.dataset.bearDecline, false); return; }
     const select = event.target.closest('[data-bear-select]');
     if (select) void chooseFriend(select.dataset.bearSelect);
+  });
+  modal.addEventListener('submit', event => {
+    if (!event.target.matches('#bearFriendSearchForm')) return;
+    event.preventDefault();
+    void searchBearFriends();
   });
 }
 async function searchBearFriends() {

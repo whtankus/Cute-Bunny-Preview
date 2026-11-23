@@ -5936,7 +5936,7 @@ ${i?`<g transform="translate(40 -88) rotate(20)"><path d="M0 0L-13-8 -13 8Z M0 0
 <ellipse id="bl${i}l" cx="-39" cy="-27" rx="10" ry="6" fill="#ff8fb0" opacity=".5"/><ellipse id="bl${i}r" cx="39" cy="-27" rx="10" ry="6" fill="#ff8fb0" opacity=".5"/>
 <ellipse cy="-26" rx="15" ry="10.5" fill="${c.muz}"/><ellipse cy="-30" rx="5" ry="3.4" fill="#4a3433"/><circle cx="-1.3" cy="-31" r="1" fill="#fff" opacity=".7"/>
 <path id="mo${i}" transform="translate(0 -22)" fill="#b2606d" stroke="#4a3433" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-${eye("l")}${eye("r")}<g id="rewardHat${i}" class="bear-reward-hat" visibility="hidden" transform="translate(0 -82)"><path d="M-29 2Q-27-23 0-25Q27-23 29 2Z" fill="#e94f78" stroke="#a93659" stroke-width="2.5"/><path d="M-28 1Q0 8 29 1" fill="none" stroke="#ffe0e8" stroke-width="5" stroke-linecap="round"/><path d="M-18-12Q0-20 18-12" fill="none" stroke="#ffb2c6" stroke-width="2.5" stroke-linecap="round"/><g fill="#fff3c9"><circle cx="-10" cy="-11" r="2"/><circle cx="3" cy="-17" r="2"/><circle cx="13" cy="-8" r="1.8"/></g><path d="M0-25L-7-32 -3-25 0-34 3-25 7-32Z" fill="#74b96d" stroke="#4d9255" stroke-width="1.2"/></g></g></g>`}
+${eye("l")}${eye("r")}<g id="rewardHat${i}" class="bear-reward-hat" visibility="hidden" transform="translate(0 -82)"><path d="M-29 2Q-27-23 0-25Q27-23 29 2Z" fill="#e94f78" stroke="#a93659" stroke-width="2.5"/><path d="M-28 1Q0 8 29 1" fill="none" stroke="#ffe0e8" stroke-width="5" stroke-linecap="round"/><path d="M-18-12Q0-20 18-12" fill="none" stroke="#ffb2c6" stroke-width="2.5" stroke-linecap="round"/><g fill="#fff3c9"><circle cx="-10" cy="-11" r="2"/><circle cx="3" cy="-17" r="2"/><circle cx="13" cy="-8" r="1.8"/></g></g></g></g>`}
 svg.innerHTML=`<defs><radialGradient id="gl" cx=".5" cy=".4"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
 <ellipse cx="300" cy="150" rx="280" ry="150" fill="url(#gl)"/>
 <path d="M0 270Q110 215 230 262T440 250T600 240V380H0Z" fill="#f6d6e4" opacity=".75"/><path d="M0 300Q140 255 300 290T600 280V380H0Z" fill="#eadcf7" opacity=".8"/>
@@ -5979,7 +5979,7 @@ dance:(t,b)=>{const ph=t*1.7*Math.PI,hop=Math.abs(Math.sin(ph)),sw=Math.sin(ph/2
  return{x:38+12*sw*sg,y:-16*hop,rot:sg*sw*7,hr:sg*Math.sin(ph/2+.8)*10,hy:2*hop,eye:.1,mouth:.35+.4*hop,blush:.9,ik:[300+sw*10,G-98+Math.sin(ph*2)*5],o1:105+35*Math.sin(ph*2+b*Math.PI),o2:10}},
 pet:(t,b)=>{const r=1-actor,sw=Math.sin(t*5);
  return b===actor?{x:64,hr:-5,hx:-8,mouth:.2,blush:.6,ik:(h=>[h[0]+sw*4,h[1]+Math.sin(t*5+1.2)*2.5])(ptH(r,-34,-50))}
-  :{x:64,hr:14+sw*2,hx:16,hy:Math.abs(sw)*1.8,eye:.1,blush:1,mouth:.25}},
+ :{x:64,hr:14+sw*2,hx:16,hy:Math.abs(sw)*1.8,eye:.1,blush:1,mouth:.25}},
 feed:(t,b)=>{const a=actor,r=1-a,open=(t>1.1&&t<1.7)||(t>2.65&&t<3)||(t>3.85&&t<4.2),chew=(t>1.7&&t<2.65)||(t>3&&t<3.85)||(t>4.2&&t<5.2);
  if(b===a){const k=t<.9?40:open?14:chew?34:t<5.2?34:44,M=ptH(r,0,-22);return{x:64,hr:-6,hx:-16,mouth:.25,blush:.6,ik:[M[0]-S[a]*k,M[1]+2]}}
  return{x:64,hr:open?12:chew?7:4,hx:open?8:chew?3:0,mouth:open?.9:chew?.2+.2*Math.abs(Math.sin(t*14)):t>5.2?.05:0,eye:chew?.12:1,blush:chew||t>5.2?.9:.5}}

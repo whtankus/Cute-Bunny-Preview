@@ -5963,7 +5963,7 @@ const idle=(b,t)=>{const w=Math.sin(t*1.2+b*1.7);return{x:0,y:0,rot:w*1.2,hr:Mat
 const BITES=[1.4,2.8,4.0];
 const ACT={
 idle:()=>({}),
-tummy:(t,b)=>{const other=1-actor,sw=Math.sin(t*9),rub=t>.55&&t<3.9;if(b===actor){const belly=ptL(other,0,-46);return{x:58+Math.sin(t*2)*1.5,rot:3,hr:rub?18:8,hx:rub?18:6,eye:1,mouth:.22,blush:.65,ik:rub?[belly[0],belly[1]+sw*2.5]:null,i1:-28,i2:-12,o1:rub?28:18,o2:rub?18:10}}return{x:58,y:Math.abs(sw)*1.1,rot:Math.sin(t*9)*1.1,hr:-8+Math.sin(t*9)*2,eye:rub?.18:1,mouth:.42,blush:.95,i1:-24,i2:-10,o1:24,o2:10}},
+tummy:(t,b)=>{const other=1-actor,sw=Math.sin(t*9),rub=t>.45&&t<4.05;if(b===actor){const backSide=ptL(other,-22+sw*2.2,-46);return{x:75+Math.sin(t*2)*1.2,rot:3,hr:rub?22+sw*2:9,hx:rub?20:6,eye:1,mouth:.22,blush:.65,ik:rub?[backSide[0],backSide[1]+Math.cos(t*9)*1.8]:null,i1:-28,i2:-12,o1:rub?28:18,o2:rub?18:10}}return{x:75,y:Math.abs(sw)*1.4,rot:Math.sin(t*9)*1.1,hr:-8+Math.sin(t*9)*2,eye:rub?.18:1,mouth:.42,blush:.95,i1:-24,i2:-10,o1:24,o2:10}},
 hug:(t,b)=>{const o=1-b,sq=t>1.4?Math.sin((t-1.4)*3.2):0,r={x:64+2*sq,y:-2.5*Math.abs(sq),rot:2,hr:12,hx:-18,hy:2*sq,eye:t>.9?.1:1,mouth:.1,blush:.9,o1:30,o2:20};
  if(t<.6)Object.assign(r,{i1:-82,i2:-8,o1:82,o2:8,hr:3,hx:0,x:36,y:-5*Math.abs(Math.sin(t*5))});else r.ik=ptL(o,-6,-58);return r},
 kiss:(t,b)=>{const a=actor,o=1-a,go=t>.8&&t<2.6;
@@ -6019,7 +6019,7 @@ const burst=(x,y,n=5,sym="♥")=>{for(let i=0;i<n;i++)later(()=>fx(sym,x+(Math.r
 const TXT=(a,by)=>{const o=1-by,n=NAME[by],m=NAME[o];return{hug:`${n} hugs ${m} 🤗`,kiss:`${n} gives ${m} a sweet kiss 💋`,hands:`${n} and ${m} hold paws 🫶`,feed:`${n} shares a strawberry with ${m} 🍓`,sleep:`${n} and ${m} drift off peacefully 💤`,dance:`${n} and ${m} are dancing together 💃`,pet:`${n} gently pets ${m} 🐾`,tummy:`${n} gives ${m} gentle tummy tickles! 🫳`,idle:`${n} and ${m} are relaxing 🌸`}[a]};
 function start(a,by){tm.forEach(clearTimeout);lp.forEach(clearInterval);tm=[];lp=[];$B("fx").innerHTML="";
  cur=a;actor=by;t0=performance.now();rate=a==="dance"?13:a==="sleep"?4.5:7;berryS=1;
- const ord=a==="feed"||a==="pet"||a==="kiss"?[1-by,by]:[0,1];ord.forEach(i=>$B("bears").appendChild($B("s"+i)));
+ const ord=a==="tummy"?[by,1-by]:a==="feed"||a==="pet"||a==="kiss"?[1-by,by]:[0,1];ord.forEach(i=>$B("bears").appendChild($B("s"+i)));
  const scene=svg.closest(".couple-bears-scene");if(scene)scene.dataset.action=a;
  if(a==="hug"){tone(262,1.4,.04);tone(330,1.4,.035,"sine",.06);tone(392,1.5,.03,"sine",.12);later(()=>{tone(196,1,.06,"triangle");tone(523,.9,.02,"sine",.1);burst(300,G-170,5)},1250)}
  if(a==="kiss"){later(()=>{kiss();burst(300,G-170,6)},1350);later(()=>{nz(.03,.1,2500);tone(900,.06,.05,"sine",0,500)},2600)}
@@ -6028,7 +6028,7 @@ function start(a,by){tm.forEach(clearTimeout);lp.forEach(clearInterval);tm=[];lp
  if(a==="sleep"){loop(n=>{breath();LULL[n%4].forEach((f,k)=>f&&box(f,k*.8));if(n%2===0)later(()=>fx("z",300+(Math.random()-.5)*60,G-100,"#9b86d6",20+Math.random()*10),500)},3400)}
  if(a==="dance"){loop(n=>{beat(n);if(n%4===0)fx("♪",300+(Math.random()-.5)*120,G-170,"#b08be0",22)},294)}
  if(a==="pet"){tone(300,.5,.03,"triangle");loop(n=>{pat(n);if(n%2==0){const h=ptH(1-by,0,-80);fx("♥",h[0],h[1]-20,"#f4789f",16)}},628)}
-  if(a==="tummy"){tone(660,.18,.035,"sine",0,820);tone(784,.2,.03,"sine",.22,988);loop(n=>{pat(n);if(n%2===0){const h=ptL(1-by,(Math.random()-.5)*22,-48);fx(n%4===0?"♡":"✦",h[0],h[1]-8,"#f28db5",14+Math.random()*5)}},420)}
+  if(a==="tummy"){tone(660,.18,.035,"sine",0,820);tone(784,.2,.03,"sine",.22,988);loop(n=>{pat(n);if(n%2===0){const h=ptL(1-by,-22+(Math.random()-.5)*16,-46);fx(n%4===0?"♡":"✦",h[0],h[1]-8,"#f28db5",14+Math.random()*5)}},420)}
  if(a==="idle"){tone(392,.7,.025,"sine",0,330)}
  if(END[a])later(()=>{if(cur===a)start("idle",by)},END[a]*1000)}
 

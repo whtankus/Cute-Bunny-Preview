@@ -490,6 +490,13 @@ function install() {
       updatePartnerChip();
       updateUI();
       flushPendingRemoteAction();
+      const introKey = 'cuteBunnyBearPartnerIntro:' + String(getMe()?.id || 'guest');
+      if (!selectedFriendId && !localStorage.getItem(introKey)) {
+        localStorage.setItem(introKey, 'shown');
+        window.setTimeout(() => {
+          if ($('#coupleBearGame') && !selectedFriendId) void openPicker();
+        }, 350);
+      }
     }
   });
   observer.observe(document.body, { childList: true, subtree: true });
@@ -523,13 +530,6 @@ function install() {
       startBearHugsRealtime();
     }
   });
-  const introKey = 'cuteBunnyBearPartnerIntro:' + String(getMe()?.id || 'guest');
-  if (!selectedFriendId && !localStorage.getItem(introKey)) {
-    localStorage.setItem(introKey, 'shown');
-    window.setTimeout(() => {
-      if ($('#coupleBearGame') && !selectedFriendId) void openPicker();
-    }, 350);
-  }
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
 else install();

@@ -200,17 +200,3 @@
 #coupleBearGame .couple-bears-scene.bear-reward-sunset:after{content:"🌲　✦　🌲";position:absolute;inset:auto 0 8%;text-align:center;font-size:1rem;opacity:.78;pointer-events:none}
 @media(max-width:520px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}#coupleBearGame .bear-reward{grid-template-columns:66px minmax(0,1fr)}}
 @media(prefers-reduced-motion:no-preference){#coupleBearGame .bear-reward.is-unlocked:hover{transform:translateY(-2px)}}
-
-/* Wearable reward items are attached to each bear's head in the SVG scene. */
-#coupleBearGame .bear-reward-hat{pointer-events:none;filter:drop-shadow(0 2px 2px rgba(105,48,68,.2))}
-#coupleBearGame .bear-reward-hat[visibility="hidden"]{display:none}
-
-/* Richer reward medallions: preserve the existing four rewards and their artwork. */
-#coupleBearGame .bear-reward-preview{isolation:isolate;border:1px solid rgba(255,255,255,.72);box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 5px 13px rgba(83,55,83,.13)}
-#coupleBearGame .bear-reward-preview:before{content:"";position:absolute;inset:5px;border:1px solid rgba(255,255,255,.48);border-radius:11px;pointer-events:none}
-#coupleBearGame .bear-reward-preview:after{content:"";position:absolute;width:32px;height:32px;right:-10px;top:-11px;border-radius:50%;background:rgba(255,255,255,.22);filter:blur(1px);pointer-events:none}
-#coupleBearGame .bear-reward-symbol{position:relative;z-index:1;display:grid;place-items:center;width:43px;height:43px;border:1px solid rgba(255,255,255,.68);border-radius:15px;background:linear-gradient(145deg,rgba(255,255,255,.78),rgba(255,255,255,.16));font-size:1.85rem;line-height:1;filter:drop-shadow(0 3px 2px rgba(66,45,63,.2));text-shadow:0 2px 3px rgba(66,45,63,.14)}
-#coupleBearGame .bear-reward-preview>i{z-index:2;top:4px;right:5px;text-shadow:0 1px 3px rgba(0,0,0,.28)}
-#coupleBearGame .bear-reward-preview>small{z-index:2;padding:1px 5px;border-radius:99px;background:rgba(255,255,255,.58);color:#805d75;font-size:.53rem}
-#coupleBearGame .bear-next-reward-art{border:1px solid rgba(255,255,255,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 4px 12px rgba(83,55,83,.12)}
-#coupleBearGame .bear-partner-chip{pointer-events:none;cursor:default}

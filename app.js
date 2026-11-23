@@ -5936,7 +5936,7 @@ ${i?`<g transform="translate(40 -88) rotate(20)"><path d="M0 0L-13-8 -13 8Z M0 0
 <ellipse id="bl${i}l" cx="-39" cy="-27" rx="10" ry="6" fill="#ff8fb0" opacity=".5"/><ellipse id="bl${i}r" cx="39" cy="-27" rx="10" ry="6" fill="#ff8fb0" opacity=".5"/>
 <ellipse cy="-26" rx="15" ry="10.5" fill="${c.muz}"/><ellipse cy="-30" rx="5" ry="3.4" fill="#4a3433"/><circle cx="-1.3" cy="-31" r="1" fill="#fff" opacity=".7"/>
 <path id="mo${i}" transform="translate(0 -22)" fill="#b2606d" stroke="#4a3433" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-${eye("l")}${eye("r")}<g id="rewardHat${i}" class="bear-reward-hat" visibility="hidden" transform="translate(0 -82)"><path d="M-29 2Q-27-23 0-25Q27-23 29 2Z" fill="#e94f78" stroke="#a93659" stroke-width="2.5"/><path d="M-28 1Q0 8 29 1" fill="none" stroke="#ffe0e8" stroke-width="5" stroke-linecap="round"/><path d="M-18-12Q0-20 18-12" fill="none" stroke="#ffb2c6" stroke-width="2.5" stroke-linecap="round"/><g fill="#fff3c9"><circle cx="-10" cy="-11" r="2"/><circle cx="3" cy="-17" r="2"/><circle cx="13" cy="-8" r="1.8"/></g></g></g></g>`}
+${eye("l")}${eye("r")}</g></g></g>`}
 svg.innerHTML=`<defs><radialGradient id="gl" cx=".5" cy=".4"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
 <ellipse cx="300" cy="150" rx="280" ry="150" fill="url(#gl)"/>
 <path d="M0 270Q110 215 230 262T440 250T600 240V380H0Z" fill="#f6d6e4" opacity=".75"/><path d="M0 300Q140 255 300 290T600 280V380H0Z" fill="#eadcf7" opacity=".8"/>

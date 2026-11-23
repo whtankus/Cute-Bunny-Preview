@@ -280,3 +280,6 @@
   #coupleBearGame .bear-care-track>span,
   #coupleBearGame #bearPoseSvg .bear-visual-accessory{transition:none}
 }
+
+/* Avoid applying the previous whole-scene honey filter twice. */
+#coupleBearGame .couple-bears-scene.bear-reward-honey #bearPoseSvg #bears{filter:none!important}

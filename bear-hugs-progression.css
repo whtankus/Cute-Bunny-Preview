@@ -302,7 +302,7 @@
 }
 
 
-/* Compact Bear Hugs Care Points and action controls. */
+/* Compact Care Points strip; preserve the original full-size action buttons. */
 #coupleBearGame .bear-care-strip{
   width:min(100%,520px);
   margin:0 auto 9px;
@@ -327,32 +327,12 @@
 #coupleBearGame .bear-care-foot{
   margin-top:4px;font-size:.6rem;line-height:1.2;gap:6px;
 }
-#content #coupleBearGame .couple-bear-actions{
-  gap:6px;
-  margin-top:5px;
-}
-#content #coupleBearGame .bear-action-button{
-  min-height:35px;
-  gap:5px;
-  padding:6px 10px;
-  border-radius:14px;
-  font-size:.7rem;
-  box-shadow:0 2px 0 color-mix(in srgb,var(--cb-accent) 11%,transparent);
-}
-#content #coupleBearGame .bear-action-button>span{font-size:.92rem}
-#content #coupleBearGame .bear-action-button:active{transform:translateY(1px) scale(.97)}
 @media(max-width:420px){
   #coupleBearGame .bear-care-strip{width:100%;padding:7px 9px 6px;border-radius:13px}
   #coupleBearGame .bear-care-mark{flex-basis:26px;width:26px;height:26px}
   #coupleBearGame .bear-care-total b{font-size:.86rem}
   #coupleBearGame .bear-care-foot{font-size:.56rem}
-  #content #coupleBearGame .couple-bear-actions{gap:5px}
-  #content #coupleBearGame .bear-action-button{
-    min-height:33px;padding:5px 8px;border-radius:12px;font-size:.66rem;
-  }
-  #content #coupleBearGame .bear-action-button>span{font-size:.86rem}
 }
-
 
 /* Restore the Bear Hugs composition: bears first, actions second, progress beneath actions. */
 #coupleBearGame .bear-partner-chip:after{content:none!important;display:none!important}
@@ -367,28 +347,10 @@
   border-radius:17px;
 }
 #coupleBearGame .bear-progression-panel{margin-top:12px}
-#content #coupleBearGame .couple-bear-actions{
-  gap:10px;
-  margin-top:10px;
-}
-#content #coupleBearGame .bear-action-button{
-  min-height:44px;
-  gap:7px;
-  padding:10px 14px;
-  border-radius:16px;
-  font-size:.78rem;
-  box-shadow:0 3px 0 color-mix(in srgb,var(--cb-accent) 11%,transparent);
-}
-#content #coupleBearGame .bear-action-button>span{font-size:1.05rem}
 @media(max-width:420px){
   #coupleBearGame .bear-care-strip{padding:11px 12px 9px}
   #coupleBearGame .bear-care-track{height:8px}
-  #content #coupleBearGame .couple-bear-actions{gap:8px}
-  #content #coupleBearGame .bear-action-button{
-    min-height:42px;padding:9px 12px;border-radius:15px;font-size:.74rem;
   }
-  #content #coupleBearGame .bear-action-button>span{font-size:1rem}
-}
 
 /* Tighter Bearfriend picker rhythm without compressing the actual controls. */
 .bear-friend-picker-card{padding:22px 18px 16px}

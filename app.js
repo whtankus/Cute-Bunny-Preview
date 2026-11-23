@@ -3169,6 +3169,81 @@ function render(options = {}) {
         <article class="tile"><button type="button" class="tile-art photo-art happy-thing-art happy-photo-thumbnail" data-happy-go="gallery" aria-label="Open Photo Garden"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><ellipse cx="110" cy="112" rx="63" ry="8" fill="#8fae8b" opacity=".17"/><rect x="68" y="20" width="84" height="91" rx="13" fill="#fffaf4" stroke="#c4d5b8" stroke-width="2.5" transform="rotate(-5 110 65)"/><rect x="79" y="29" width="84" height="91" rx="13" fill="#fffdf8" stroke="#b9cda9" stroke-width="2.5" transform="rotate(5 120 74)"/><rect x="88" y="38" width="68" height="69" rx="8" fill="#e8f0df"/><circle cx="122" cy="65" r="12" fill="#f2c6d1"/><circle cx="122" cy="51" r="7" fill="#e8a7ba"/><circle cx="136" cy="65" r="7" fill="#e8a7ba"/><circle cx="122" cy="79" r="7" fill="#e8a7ba"/><circle cx="108" cy="65" r="7" fill="#e8a7ba"/><circle cx="122" cy="65" r="5" fill="#e4be73"/><path d="M93 96q15-25 29-7t28-2" fill="none" stroke="#8da77e" stroke-width="3" stroke-linecap="round"/></svg></button><h3>Photo Garden</h3><p>${pics.length} shared photos</p><button class="primary" data-go="gallery">Open photos →</button></article>
         <article class="tile"><button type="button" class="tile-art music-art happy-thing-art happy-music-thumbnail" data-happy-go="music" aria-label="Open Cozy Playlist"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><defs><linearGradient id="music-deck" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4eafa"/><stop offset="1" stop-color="#cdb9e2"/></linearGradient><linearGradient id="music-vinyl" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#806d9d"/><stop offset=".55" stop-color="#544968"/><stop offset="1" stop-color="#9882ae"/></linearGradient></defs><ellipse cx="111" cy="113" rx="68" ry="8" fill="#8e79a9" opacity=".17"/><g class="music-artwork"><g transform="rotate(-5 111 75)"><rect x="43" y="40" width="136" height="66" rx="13" fill="url(#music-deck)" stroke="#a58cbd" stroke-width="2.5"/><rect x="51" y="48" width="120" height="50" rx="9" fill="#f9f3fb" opacity=".8"/><circle cx="105" cy="73" r="35" fill="url(#music-vinyl)" stroke="#76618f" stroke-width="2"/><circle cx="105" cy="73" r="27" fill="none" stroke="#c9b8d8" stroke-width="1.2" opacity=".48"/><circle cx="105" cy="73" r="20" fill="none" stroke="#c9b8d8" stroke-width="1.2" opacity=".42"/><circle cx="105" cy="73" r="12" fill="#f0c7d5" stroke="#b986a5" stroke-width="1.5"/><path d="M105 66c-4-5-10-1-7 4 1 3 7 7 7 7s6-4 7-7c3-5-3-9-7-4Z" fill="#b86f91"/><circle cx="105" cy="73" r="2.2" fill="#fff5f7"/><path d="M145 55 160 55 160 83Q160 91 152 91Q144 91 144 84Q144 77 153 77Q156 77 158 79V61H145Z" fill="#b79acb"/><path d="M60 58h13M60 64h8" stroke="#d4bfdc" stroke-width="2" stroke-linecap="round"/></g><path d="M52 29q-9 11 0 22m118-25q9 11 0 22" fill="none" stroke="#b29ac8" stroke-width="3" stroke-linecap="round"/><path d="M185 32c-5-7-14-2-11 5 2 4 11 10 11 10s9-6 11-10c3-7-6-12-11-5Z" fill="#d9b2df"/><path d="m38 81 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#d9b36e"/></g></svg></button><h3>Cozy Playlist</h3><p>${songs.length} shared songs</p><button class="primary" data-go="music">Open music →</button></article>
       </div>
+
+      <section class="couple-bear-game" id="coupleBearGame" aria-labelledby="coupleBearTitle">
+        <div class="couple-bear-heading">
+          <span class="couple-bear-sparkle" aria-hidden="true">✦</span>
+          <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bear Hugs</h3><p>Choose how our little bears show their love.</p></div>
+          <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
+        </div>
+        <div class="couple-bears-scene" data-action="idle" aria-label="A white bear and a brown bear">
+          <span class="bear-scene-cloud cloud-one" aria-hidden="true">☁</span>
+          <span class="bear-scene-cloud cloud-two" aria-hidden="true">☁</span>
+          <span class="bear-floating-heart" aria-hidden="true">♥</span>
+          <div class="couple-bear white-bear" aria-label="White bear">
+            <svg viewBox="0 0 180 190" role="img" aria-label="Cute white cartoon bear">
+              <ellipse class="bear-shadow" cx="90" cy="177" rx="48" ry="8"/>
+              <ellipse class="bear-body" cx="90" cy="132" rx="43" ry="48"/>
+              <ellipse class="bear-belly" cx="90" cy="139" rx="25" ry="31"/>
+              <ellipse class="bear-ear" cx="53" cy="40" rx="19" ry="21"/>
+              <ellipse class="bear-ear-inner" cx="53" cy="40" rx="10" ry="12"/>
+              <ellipse class="bear-ear" cx="127" cy="40" rx="19" ry="21"/>
+              <ellipse class="bear-ear-inner" cx="127" cy="40" rx="10" ry="12"/>
+              <circle class="bear-head" cx="90" cy="78" r="49"/>
+              <ellipse class="bear-muzzle" cx="90" cy="94" rx="22" ry="16"/>
+              <ellipse class="bear-eye" cx="73" cy="76" rx="3.6" ry="4.8"/>
+              <ellipse class="bear-eye" cx="107" cy="76" rx="3.6" ry="4.8"/>
+              <ellipse class="bear-nose" cx="90" cy="89" rx="5.5" ry="4"/>
+              <path class="bear-mouth" d="M90 93v5m0 0q-6 7-11 0m11 0q6 7 11 0"/>
+              <ellipse class="bear-blush" cx="61" cy="94" rx="8" ry="4.5"/>
+              <ellipse class="bear-blush" cx="119" cy="94" rx="8" ry="4.5"/>
+              <ellipse class="bear-arm bear-arm-outer" cx="48" cy="130" rx="14" ry="28" transform="rotate(24 48 130)"/>
+              <ellipse class="bear-arm bear-arm-inner" cx="128" cy="127" rx="14" ry="27" transform="rotate(-25 128 127)"/>
+              <ellipse class="bear-foot" cx="67" cy="169" rx="19" ry="10"/>
+              <ellipse class="bear-foot" cx="113" cy="169" rx="19" ry="10"/>
+              <ellipse class="bear-paw-pad" cx="67" cy="169" rx="7" ry="4"/>
+              <ellipse class="bear-paw-pad" cx="113" cy="169" rx="7" ry="4"/>
+              <path class="bear-shine" d="M66 53q8-13 20-13"/>
+            </svg>
+            <span class="bear-name">Snowy</span>
+          </div>
+          <div class="couple-bear brown-bear" aria-label="Brown bear">
+            <svg viewBox="0 0 180 190" role="img" aria-label="Cute caramel brown cartoon bear">
+              <ellipse class="bear-shadow" cx="90" cy="177" rx="48" ry="8"/>
+              <ellipse class="bear-body" cx="90" cy="132" rx="43" ry="48"/>
+              <ellipse class="bear-belly" cx="90" cy="139" rx="25" ry="31"/>
+              <ellipse class="bear-ear" cx="53" cy="40" rx="19" ry="21"/>
+              <ellipse class="bear-ear-inner" cx="53" cy="40" rx="10" ry="12"/>
+              <ellipse class="bear-ear" cx="127" cy="40" rx="19" ry="21"/>
+              <ellipse class="bear-ear-inner" cx="127" cy="40" rx="10" ry="12"/>
+              <circle class="bear-head" cx="90" cy="78" r="49"/>
+              <ellipse class="bear-muzzle" cx="90" cy="94" rx="22" ry="16"/>
+              <ellipse class="bear-eye" cx="73" cy="76" rx="3.6" ry="4.8"/>
+              <ellipse class="bear-eye" cx="107" cy="76" rx="3.6" ry="4.8"/>
+              <ellipse class="bear-nose" cx="90" cy="89" rx="5.5" ry="4"/>
+              <path class="bear-mouth" d="M90 93v5m0 0q-6 7-11 0m11 0q6 7 11 0"/>
+              <ellipse class="bear-blush" cx="61" cy="94" rx="8" ry="4.5"/>
+              <ellipse class="bear-blush" cx="119" cy="94" rx="8" ry="4.5"/>
+              <ellipse class="bear-arm bear-arm-inner" cx="52" cy="127" rx="14" ry="27" transform="rotate(25 52 127)"/>
+              <ellipse class="bear-arm bear-arm-outer" cx="132" cy="130" rx="14" ry="28" transform="rotate(-24 132 130)"/>
+              <ellipse class="bear-foot" cx="67" cy="169" rx="19" ry="10"/>
+              <ellipse class="bear-foot" cx="113" cy="169" rx="19" ry="10"/>
+              <ellipse class="bear-paw-pad" cx="67" cy="169" rx="7" ry="4"/>
+              <ellipse class="bear-paw-pad" cx="113" cy="169" rx="7" ry="4"/>
+              <path class="bear-shine" d="M66 53q8-13 20-13"/>
+            </svg>
+            <span class="bear-name">Cocoa</span>
+          </div>
+          <span class="bear-hand-link" aria-hidden="true">♡</span>
+          <span class="bear-kiss-heart" aria-hidden="true">♥</span>
+        </div>
+        <p class="couple-bear-status" id="coupleBearStatus" aria-live="polite">Two little bears, one big love.</p>
+        <div class="couple-bear-actions" role="group" aria-label="Choose a bear action">
+          <button type="button" class="bear-action-button" data-couple-action="hug" aria-pressed="false"><span aria-hidden="true">🫂</span><b>Hug</b></button>
+          <button type="button" class="bear-action-button" data-couple-action="kiss" aria-pressed="false"><span aria-hidden="true">💋</span><b>Kiss</b></button>
+          <button type="button" class="bear-action-button" data-couple-action="hands" aria-pressed="false"><span aria-hidden="true">🤝</span><b>Hold hands</b></button>
+        </div>
+      </section>
     `;
   } else if (page === 'gallery') {
     c.innerHTML = `

@@ -5865,7 +5865,7 @@ document.addEventListener('change', e => {
   updateStreakGoalProgress();
 });
 
-// Bear Hugs mini-game: all actions stay local to this browser and never write to Supabase.
+// Bear Hugs mini-game: action animations sync live with the selected friend; the affection meter stays local.
 const bearLoveStorageKey = 'cuteBunnyBearLove:v1';
 const bearSoundStorageKey = 'cuteBunnyBearSounds:v1';
 function readBearLoveCount() {
@@ -6169,7 +6169,7 @@ document.addEventListener('click', event => {
   triggerBearAction(actionButton.dataset.coupleAction);
 });
 document.addEventListener('click', event => {
-  const bear = event.target.closest('#coupleBearGame .couple-bear');
+  const bear = event.target.closest('#coupleBearGame .couple-bear, #coupleBearGame #bearPoseSvg');
   if (!bear) return;
   triggerBearAction('pet');
 });

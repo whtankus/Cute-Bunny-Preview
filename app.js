@@ -7598,7 +7598,7 @@ sharedAudioElement?.addEventListener('playing', () => {
 // Restore the original PR #115 global boing feedback for every enabled button.
 document.addEventListener('click', event => {
   const button = event.target.closest?.('button, [role="button"]');
-  if (!button || button.closest('#nav, nav') || button.disabled) return;
+  if (!button || button.closest('#nav, nav, #coupleBearGame') || button.disabled) return;
   playCuteSound('boing');
 });
 

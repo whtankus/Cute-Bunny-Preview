@@ -300,3 +300,55 @@
  .bear-current-partner{flex-wrap:wrap}
  .bear-current-partner .bear-partner-remove{margin-left:50px}
 }
+
+
+/* Compact Bear Hugs Care Points and action controls. */
+#coupleBearGame .bear-care-strip{
+  width:min(100%,520px);
+  margin:0 auto 9px;
+  padding:8px 11px 7px;
+  border-radius:14px;
+  box-shadow:0 3px 10px rgba(115,78,103,.045);
+}
+#coupleBearGame .bear-care-strip-head{gap:8px}
+#coupleBearGame .bear-care-total{gap:7px}
+#coupleBearGame .bear-care-mark{
+  flex-basis:28px;width:28px;height:28px;
+  border-radius:9px;font-size:1rem;
+}
+#coupleBearGame .bear-care-total small,
+#coupleBearGame .bear-care-level small{font-size:.5rem;letter-spacing:.08em}
+#coupleBearGame .bear-care-total b{font-size:.9rem}
+#coupleBearGame .bear-care-level{
+  gap:0;padding:3px 8px;border-radius:9px;
+}
+#coupleBearGame .bear-care-level b{font-size:.75rem}
+#coupleBearGame .bear-care-track{height:6px;margin-top:6px}
+#coupleBearGame .bear-care-foot{
+  margin-top:4px;font-size:.6rem;line-height:1.2;gap:6px;
+}
+#content #coupleBearGame .couple-bear-actions{
+  gap:6px;
+  margin-top:5px;
+}
+#content #coupleBearGame .bear-action-button{
+  min-height:35px;
+  gap:5px;
+  padding:6px 10px;
+  border-radius:14px;
+  font-size:.7rem;
+  box-shadow:0 2px 0 color-mix(in srgb,var(--cb-accent) 11%,transparent);
+}
+#content #coupleBearGame .bear-action-button>span{font-size:.92rem}
+#content #coupleBearGame .bear-action-button:active{transform:translateY(1px) scale(.97)}
+@media(max-width:420px){
+  #coupleBearGame .bear-care-strip{width:100%;padding:7px 9px 6px;border-radius:13px}
+  #coupleBearGame .bear-care-mark{flex-basis:26px;width:26px;height:26px}
+  #coupleBearGame .bear-care-total b{font-size:.86rem}
+  #coupleBearGame .bear-care-foot{font-size:.56rem}
+  #content #coupleBearGame .couple-bear-actions{gap:5px}
+  #content #coupleBearGame .bear-action-button{
+    min-height:33px;padding:5px 8px;border-radius:12px;font-size:.66rem;
+  }
+  #content #coupleBearGame .bear-action-button>span{font-size:.86rem}
+}

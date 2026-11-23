@@ -1,0 +1,46 @@
+.bear-friend-picker{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:18px;background:rgba(55,38,54,.38);backdrop-filter:blur(9px)}
+.bear-friend-picker.hidden{display:none}
+.bear-friend-picker-card{position:relative;width:min(100%,420px);max-height:min(82vh,650px);overflow:auto;padding:26px 20px 18px;border:1px solid rgba(222,178,199,.7);border-radius:26px;background:linear-gradient(145deg,#fffaf7,#fff0f5 58%,#f5efff);box-shadow:0 22px 70px rgba(80,48,72,.24);text-align:center;color:#76566b}
+.bear-friend-picker-close{position:absolute;top:12px;right:14px;width:34px;height:34px;border:0;border-radius:50%;background:#f7e7ef;color:#946d83;font-size:23px}
+.bear-picker-art{display:block;margin:2px 0 10px;font-size:2.1rem}
+.bear-friend-picker-card>small{font-size:.62rem;font-weight:900;letter-spacing:.15em;color:#bd819e}
+.bear-friend-picker-card h3{margin:7px 0;color:#76566b;font-size:1.35rem}
+.bear-friend-picker-card>p{margin:0 auto 16px;max-width:330px;color:#967d8d;font-size:.82rem;line-height:1.5}
+.bear-friend-picker-list{display:grid;gap:8px;text-align:left}
+.bear-friend-choice{display:flex;align-items:center;gap:11px;width:100%;padding:10px 12px;border:1px solid #f0dce6;border-radius:16px;background:rgba(255,255,255,.78);color:#76566b;text-align:left}
+.bear-friend-choice.is-selected{border-color:#d69bb8;background:#fff0f6}
+.bear-friend-avatar{display:grid;place-items:center;flex:0 0 40px;height:40px;border-radius:50%;background:#f7e5ed;font-size:1.35rem}
+.bear-friend-choice>span:nth-child(2){display:grid;gap:2px;min-width:0;flex:1}
+.bear-friend-choice b{font-size:.86rem}.bear-friend-choice small{color:#a58c9b;font-size:.7rem}
+.bear-friend-check{color:#c17e9e;font-size:1.1rem}
+.bear-no-friends{padding:18px;border-radius:16px;background:#fff8fa;color:#967d8d;text-align:center;font-size:.82rem}
+.bear-picker-footnote{margin:14px 0 0!important;font-size:.7rem!important}
+#coupleBearGame .bear-partner-chip{display:block;margin:14px auto 4px;padding:8px 14px;border:1px solid #eccbd9;border-radius:999px;background:rgba(255,255,255,.7);color:#a16f89;font-size:.76rem;font-weight:800}
+#coupleBearGame .bear-level-heading{display:flex;align-items:center;gap:10px;margin:0 0 10px;color:var(--cb-text)}
+#coupleBearGame .bear-level-heart{font-size:1.8rem;color:#d783a6}
+#coupleBearGame .bear-level-heading>span:nth-child(2){display:grid;gap:2px;flex:1}
+#coupleBearGame .bear-level-heading>span:nth-child(2)>small{font-size:.58rem;letter-spacing:.12em;color:var(--cb-text-soft);font-weight:900}
+#coupleBearGame .bear-level-heading>span:nth-child(2)>b{font-size:1.02rem}
+#coupleBearGame .bear-level-heading>strong{font-size:1rem;text-align:right}
+#coupleBearGame .bear-level-heading>strong small{display:block;font-size:.62rem;color:var(--cb-text-soft);font-weight:700}
+#coupleBearGame .bear-level-track{height:10px;overflow:hidden;border-radius:99px;background:rgba(198,154,177,.2)}
+#coupleBearGame .bear-level-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#eaa8c2,#b99bdc);transition:width .35s ease}
+#coupleBearGame .bear-level-next{margin:7px 0 0;color:var(--cb-text-soft);font-size:.68rem;text-align:right}
+#coupleBearGame .bear-rewards{margin-top:15px;padding-top:14px;border-top:1px solid var(--cb-border)}
+#coupleBearGame .bear-rewards-heading{display:flex;align-items:center;gap:10px;margin-bottom:10px;color:var(--cb-text)}
+#coupleBearGame .bear-rewards-heading>span{font-size:1.4rem}
+#coupleBearGame .bear-rewards-heading>div{display:grid;gap:2px}
+#coupleBearGame .bear-rewards-heading b{font-size:.88rem}
+#coupleBearGame .bear-rewards-heading small{font-size:.68rem;color:var(--cb-text-soft)}
+#coupleBearGame .bear-rewards-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#coupleBearGame .bear-reward{display:flex;align-items:center;gap:8px;min-width:0;padding:9px;border:1px solid var(--cb-border);border-radius:14px;background:rgba(255,255,255,.45)}
+#coupleBearGame .bear-reward-icon{font-size:1.3rem}
+#coupleBearGame .bear-reward-copy{display:grid;gap:2px;min-width:0;flex:1}
+#coupleBearGame .bear-reward-copy b{font-size:.7rem;line-height:1.2}
+#coupleBearGame .bear-reward-copy small{font-size:.6rem;color:var(--cb-text-soft);line-height:1.3}
+#coupleBearGame .bear-reward-status{font-size:.56rem;font-weight:900;color:var(--cb-text-soft)}
+#coupleBearGame .bear-reward.is-unlocked{border-color:#e6c2d4;background:rgba(255,239,246,.65)}
+#coupleBearGame .bear-reward.is-unlocked .bear-reward-status{color:#a86d8c}
+#coupleBearGame .couple-bears-scene.bear-forest-unlocked{background:linear-gradient(180deg,#e3f0df,#c4dfc6 60%,#a8caa8)!important}
+#coupleBearGame .couple-bears-scene.bear-caps-unlocked:after{content:"🧢";position:absolute;top:18%;left:50%;font-size:1.1rem;transform:translateX(-50%);filter:drop-shadow(0 2px 2px rgba(70,50,60,.12));pointer-events:none}
+@media(max-width:520px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}}

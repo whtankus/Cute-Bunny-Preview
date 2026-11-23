@@ -152,9 +152,9 @@
 #coupleBearGame .bear-reward.is-applied .bear-reward-apply{background:var(--cb-accent);color:#fff}
 #coupleBearGame .couple-bears-scene.bear-reward-sunset{background:linear-gradient(165deg,#ffd8bd 0%,#f4c4cf 48%,#b7d3ad 100%)!important}
 #coupleBearGame .couple-bears-scene.bear-reward-starry{background:radial-gradient(circle at 18% 20%,#fff4c4 0 1px,transparent 2px),radial-gradient(circle at 78% 26%,#fff 0 1px,transparent 2px),radial-gradient(circle at 55% 12%,#fff 0 1px,transparent 2px),linear-gradient(155deg,#28264f,#554477 55%,#9a719c)!important;box-shadow:inset 0 0 34px rgba(220,196,255,.22)}
-#coupleBearGame .couple-bears-scene.bear-reward-strawberry:before{content:"🍓      🍓";position:absolute;top:14%;left:0;width:100%;text-align:center;font-size:1.1rem;letter-spacing:1.1rem;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(80,40,50,.2))}
+#coupleBearGame .couple-bears-scene.bear-reward-strawberry:before{content:"🧢　　🧢";position:absolute;z-index:4;top:27%;left:0;width:100%;text-align:center;font-size:clamp(1.25rem,4vw,1.8rem);letter-spacing:1.5rem;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(80,40,50,.24))}
 #coupleBearGame .couple-bears-scene.bear-reward-honey #bearPoseSvg #bears{filter:sepia(.34) saturate(1.4) hue-rotate(350deg)}
-#coupleBearGame .couple-bears-scene.bear-reward-starry:after{content:"👑       👑";position:absolute;top:15%;left:0;width:100%;text-align:center;font-size:1.1rem;pointer-events:none}
+#coupleBearGame .couple-bears-scene.bear-reward-starry:after{content:"👑　　👑";position:absolute;z-index:4;top:26%;left:0;width:100%;text-align:center;font-size:clamp(1.2rem,3.8vw,1.65rem);pointer-events:none;filter:drop-shadow(0 2px 3px rgba(35,25,65,.3))}
 @media(max-width:420px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}}
 
 
@@ -200,3 +200,10 @@
 #coupleBearGame .couple-bears-scene.bear-reward-sunset:after{content:"🌲　✦　🌲";position:absolute;inset:auto 0 8%;text-align:center;font-size:1rem;opacity:.78;pointer-events:none}
 @media(max-width:520px){#coupleBearGame .bear-rewards-list{grid-template-columns:1fr}#coupleBearGame .bear-reward{grid-template-columns:66px minmax(0,1fr)}}
 @media(prefers-reduced-motion:no-preference){#coupleBearGame .bear-reward.is-unlocked:hover{transform:translateY(-2px)}}
+
+
+/* Bearfriend identity chip sits directly beneath the animated scene. */
+#coupleBearGame .bear-partner-chip{position:relative;z-index:5;display:block;width:max-content;max-width:calc(100% - 24px);margin:9px auto 12px;padding:9px 16px;border:1px solid #eccbd9;border-radius:999px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,239,246,.9));color:#9c6683;font-size:.76rem;font-weight:850;box-shadow:0 4px 12px rgba(140,90,120,.08)}
+#coupleBearGame .bear-partner-chip:focus-visible{outline:3px solid rgba(189,111,145,.28);outline-offset:2px}
+/* Cosmetic rewards are layered over the scene; the SVG pose engine and FX stay untouched. */
+#coupleBearGame .couple-bears-scene.bear-reward-strawberry:before,#coupleBearGame .couple-bears-scene.bear-reward-starry:after{line-height:1;white-space:pre}

@@ -5917,7 +5917,7 @@ function createBearPoseEngine(svg) {
   const $B = id => svg.querySelector('#' + id);
   const R=Math.PI/180,G=318,CX=[200,400],S=[1,-1],L1=24,L2=20,NAME=["Daddy","Mommy"];
   const COL=[{fur:"#9b6a47",st:"#6e4529",bel:"#c99a74",muz:"#e9cfb3",ear:"#d79a86",bow:"#8d7bd0"},
-  {fur:"#fffaf3",st:"#dcc5b4",bel:"#fffdf9",muz:"#f6e6dc",ear:"#f7c3d1",bow:"#ef8fb1"}];
+  {fur:"#fffaf3",st:"#bfa18d",bel:"#fffdf9",muz:"#f6e6dc",ear:"#f7c3d1",bow:"#ef8fb1"}];
   const ACTS=[["hug","🤗","Hug"],["kiss","💋","Kiss"],["flykiss","😘","Flying Kiss"],["slap","🖐️","Playful Slap"],["hands","🫶","Hold Hands"],["feed","🍓","Feed"],["sleep","💤","Sleep"],["dance","💃","Dance"],["pet","🐾","Pet"],["tummy","🫳","Scratch Tummy"],["idle","🌸","Relax"]];
   const reduceMotion=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches??false;
   let active=true,rafId=0,snd=localStorage.getItem(bearSoundStorageKey)!=="off";
@@ -5925,7 +5925,7 @@ function createBearPoseEngine(svg) {
 const arm=n=>`<path id="${n}${i}o" fill="none" stroke="${c.st}" stroke-width="24.5" stroke-linecap="round" stroke-linejoin="round"/><circle id="${n}${i}co" r="14.2" fill="${c.st}"/><path id="${n}${i}f" fill="none" stroke="${c.fur}" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/><g id="${n}${i}p"><circle r="12" fill="${c.fur}"/><ellipse cx="-3.5" cy="-3.5" rx="4.5" ry="3" fill="#fff" opacity=".25"/></g>`;
 const eye=k=>`<g id="e${i}${k}"><ellipse id="ee${i}${k}" rx="4.4" ry="5.4" fill="#3d2f2d"/><circle cx="1.4" cy="-1.8" r="1.7" fill="#fff"/><path id="ea${i}${k}" fill="none" stroke="#3d2f2d" stroke-width="2.4" stroke-linecap="round" opacity="0"/></g>`;
 return `<ellipse id="sh${i}" cy="${G+8}" rx="48" ry="8" fill="#9a6a86" opacity=".16"/>
-<g id="s${i}"><g id="p${i}"><g id="bd${i}">
+<g id="s${i}" class="${i?"bear-character-white":"bear-character-brown"}"><g id="p${i}"><g id="bd${i}">
 <g id="lg${i}l"><ellipse cx="-22" cy="-13" rx="19" ry="14" fill="${c.fur}" ${st}/><ellipse cx="-22" cy="-10" rx="9.5" ry="6.5" fill="${c.ear}" opacity=".85"/></g>
 <g id="lg${i}r"><ellipse cx="22" cy="-13" rx="19" ry="14" fill="${c.fur}" ${st}/><ellipse cx="22" cy="-10" rx="9.5" ry="6.5" fill="${c.ear}" opacity=".85"/></g>
 <ellipse cy="-50" rx="38" ry="40" fill="${c.fur}" ${st}/><ellipse cy="-46" rx="24" ry="28" fill="${c.bel}"/></g>
@@ -6064,8 +6064,8 @@ function frame(now){if(!active||!svg.isConnected)return;const dt=Math.min(.05,(n
  const sh=$B("sh"+b);sh.setAttribute("cx",CX[b]+S[b]*p.x);sh.setAttribute("rx",48-p.y*.7);sh.setAttribute("opacity",.16*(1-sleepF)*(1+p.y/60))}
  const backArm=$B("tummyBackArm");if(cur==="tummy"){const side=actor===0?1:-1,target=1-actor,startX=CX[actor]+S[actor]*(P[actor].x+28),startY=G+P[actor].y-76,endX=startX+side*42,endY=startY+8+Math.sin(t*9)*3.2,controlX=(startX+endX)/2,controlY=startY+5+Math.sin(t*4)*2;const path=`M${startX} ${startY} Q${controlX} ${controlY} ${endX} ${endY}`;const c=COL[actor];$B("tummyBackArmOutline").setAttribute("d",path);$B("tummyBackArmFill").setAttribute("d",path);$B("tummyBackArmOutline").setAttribute("stroke",c.st);$B("tummyBackArmFill").setAttribute("stroke",c.fur);$B("tummyBackPaw").setAttribute("transform",`translate(${endX} ${endY}) rotate(${side*8+Math.sin(t*9)*7})`);backArm.setAttribute("opacity",t>.35&&t<4.25?"1":"0")}else backArm.setAttribute("opacity","0");
  $B("pil").setAttribute("opacity",sleepF);$B("blk").setAttribute("opacity",sleepF);
- const bs=$B("berry");if(cur==="feed"&&t<5.3){const f=fk(28,P[actor].i1,P[actor].i2),h=f[2],rad=f[3]*R,wp=ptL(actor,h[0]-Math.sin(rad)*8,h[1]+Math.cos(rad)*8),sc=t<1.7?1:t<3?.66:t<4.2?.36:0;
-  berryS+=(sc-berryS)*(1-Math.exp(-dt*14));bs.setAttribute("transform",`translate(${wp[0]} ${wp[1]}) scale(${berryS*.9}) rotate(${-S[actor]*20})`);bs.setAttribute("opacity",berryS>.05?1:0)}else bs.setAttribute("opacity",0);
+ const bs=$B("berry");if(cur==="feed"&&t<5.3){const f=fk(28,P[actor].i1,P[actor].i2),h=f[2],rad=f[3]*R,wp=ptL(actor,h[0],h[1]-16),sc=t<1.7?1.15:t<3?.82:t<4.2?.48:0;
+  berryS+=(sc-berryS)*(1-Math.exp(-dt*14));bs.setAttribute("transform",`translate(${wp[0]} ${wp[1]}) scale(${berryS*1.1}) rotate(${-S[actor]*20})`);bs.setAttribute("opacity",berryS>.05?1:0)}else bs.setAttribute("opacity",0);
  rafId=requestAnimationFrame(frame)}
 rafId=requestAnimationFrame(frame);
   function setSound(enabled) {

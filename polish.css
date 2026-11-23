@@ -5077,3 +5077,39 @@ body[data-mode="dark"] #content .bear-name{background:rgba(54,43,58,.9);color:#e
 #content .couple-bears-scene[data-action="sleep"] .bear-arm-inner{transform:rotate(18deg)}
 @media(max-width:420px){#content .couple-bear-footer{gap:7px}#content .bear-sound-toggle{padding:7px 9px}}
 @media(prefers-reduced-motion:reduce){#content .couple-bears-scene[data-action] .couple-bear,#content .couple-bears-scene[data-action]::after{animation:none!important}}
+
+
+/* Bear Hugs refinement: closer poses, aligned paws and viewer-specific sides. */
+#content .couple-bears-scene{gap:0;padding-inline:8px}
+#content .couple-bear{flex:0 1 200px;width:47%;max-width:200px;margin-inline:-12px}
+#content .couple-bear svg{max-height:190px}
+#content .bear-arm-inner{transform-box:fill-box;transform-origin:50% 50%}
+#content .couple-bears-scene[data-action="hug"] .white-bear .bear-arm-inner{transform:rotate(68deg) translate(2px,-4px)}
+#content .couple-bears-scene[data-action="hug"] .brown-bear .bear-arm-inner{transform:rotate(-68deg) translate(-2px,-4px)}
+#content .couple-bears-scene[data-action="hands"] .white-bear .bear-arm-inner{transform:rotate(82deg) translate(7px,-5px)}
+#content .couple-bears-scene[data-action="hands"] .brown-bear .bear-arm-inner{transform:rotate(-82deg) translate(-7px,-5px)}
+#content .couple-bears-scene[data-action="hands"] .bear-hand-link{top:62%;font-size:1.75rem;text-shadow:0 2px 8px rgba(215,140,169,.25)}
+#content .couple-bears-scene[data-viewer-gender="male"] .brown-bear{order:-1}
+#content .couple-bears-scene[data-viewer-gender="male"] .white-bear{order:1}
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="hug"] .brown-bear,
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="kiss"] .brown-bear,
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="hands"] .brown-bear{transform:translateX(24px) rotate(-4deg)}
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="hug"] .white-bear,
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="kiss"] .white-bear,
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="hands"] .white-bear{transform:translateX(-24px) rotate(4deg)}
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="dance"] .brown-bear{transform:rotate(-9deg) translateY(-5px)}
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="dance"] .white-bear{transform:rotate(9deg) translateY(-5px)}
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="hug"] .brown-bear .bear-arm-inner,
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="hands"] .brown-bear .bear-arm-inner{transform:rotate(-82deg) translate(-7px,-5px)}
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="hug"] .white-bear .bear-arm-inner,
+#content .couple-bears-scene[data-viewer-gender="male"][data-action="hands"] .white-bear .bear-arm-inner{transform:rotate(82deg) translate(7px,-5px)}
+#content .couple-bear-game .bear-name{white-space:nowrap}
+@media(max-width:420px){
+  #content .couple-bears-scene{padding-inline:2px}
+  #content .couple-bear{width:49%;flex-basis:49%;margin-inline:-10px}
+  #content .couple-bear svg{max-height:168px}
+  #content .couple-bears-scene[data-action="hug"] .white-bear{transform:translateX(18px) rotate(-5deg)}
+  #content .couple-bears-scene[data-action="hug"] .brown-bear{transform:translateX(-18px) rotate(5deg)}
+  #content .couple-bears-scene[data-viewer-gender="male"][data-action="hug"] .brown-bear{transform:translateX(18px) rotate(-4deg)}
+  #content .couple-bears-scene[data-viewer-gender="male"][data-action="hug"] .white-bear{transform:translateX(-18px) rotate(4deg)}
+}

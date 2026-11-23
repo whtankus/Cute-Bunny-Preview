@@ -3,12 +3,13 @@
 
 const SELECTED_KEY = 'cuteBunnyBearSelectedFriend:v1';
 const LOVE_KEY = 'cuteBunnyBearLove:v1';
+const EQUIPPED_KEY_PREFIX = 'cuteBunnyBearEquippedRewards:v1:';
 const ACTIONS = new Set(['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep', 'idle']);
 const REWARDS = [
-  { level: 2, name: 'Sunset Meadow', icon: '🌅', kind: 'Background', detail: 'A warm new home for your bears' },
-  { level: 4, name: 'Strawberry Hat', icon: '🍓', kind: 'Accessory', detail: 'A sweet little cap for your bears' },
-  { level: 6, name: 'Honey Bear', icon: '🍯', kind: 'Bear skin', detail: 'A golden honey-inspired bear look' },
-  { level: 8, name: 'Starry Night Legendary Set', icon: '🌌', kind: 'Legendary set', detail: 'Starry background, tiny crown and Galaxy Bear' }
+  { id: 'sunset-meadow', level: 2, slot: 'background', previewClass: 'preview-sunset', name: 'Sunset Meadow', icon: '🌅', kind: 'Background', detail: 'A warm peach-and-sage garden' },
+  { id: 'strawberry-hat', level: 4, slot: 'accessory', previewClass: 'preview-strawberry', name: 'Strawberry Hat', icon: '🍓', kind: 'Accessory', detail: 'Tiny strawberry hats for both bears' },
+  { id: 'honey-bear', level: 6, slot: 'skin', previewClass: 'preview-honey', name: 'Honey Bear', icon: '🍯', kind: 'Bear skin', detail: 'A warm honey-gold bear finish' },
+  { id: 'starry-set', level: 8, slot: 'background', previewClass: 'preview-starry', name: 'Starry Night Set', icon: '🌌', kind: 'Legendary set', detail: 'A moonlit sky with little crowns' }
 ];
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -21,6 +22,9 @@ const getSupabase = () => typeof sb !== 'undefined' ? sb : null;
 
 let selectedFriendId = localStorage.getItem(SELECTED_KEY) || '';
 let sharedPoints = 0;
+let lastSharedAction = '';
+let equippedRewardIds = [];
+let actionInFlight = false;
 let sharedProgressPairKey = '';
 let sharedProgressInitialized = false;
 let progressChannel = null;
@@ -74,7 +78,7 @@ async function loadSharedProgress() {
     sharedProgressInitialized = false;
   }
   const { data, error } = await client.from('bear_partner_progress')
-    .select('love_points')
+    .select('love_points,last_action')
     .eq('partner_low', low)
     .eq('partner_high', high)
     .maybeSingle();
@@ -85,24 +89,29 @@ async function loadSharedProgress() {
   }
   const previousPoints = sharedPoints;
   sharedPoints = Math.max(0, Number(data?.love_points) || 0);
+  lastSharedAction = String(data?.last_action || '');
+  loadEquippedRewards(pairKey);
   if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
   sharedProgressInitialized = true;
   updateUI();
 }
 async function recordSharedAction(action, partnerId = selectedFriendId) {
   const user = getMe(), client = getSupabase();
-  if (!user?.id || !partnerId || !client || !isAcceptedPartner(partnerId)) return;
-  const { data, error } = await client.rpc('record_bear_hug_action', { p_partner_id: partnerId });
+  if (!user?.id || !partnerId || !client || !isAcceptedPartner(partnerId)) return false;
+  const { data, error } = await client.rpc('record_bear_hug_action', { p_partner_id: partnerId, p_action: action });
   if (error) {
     console.warn('Shared Bear Hugs points could not be saved:', error.message || error);
-    setStatus('Your bear moment was sent, but its Love Meter points could not be saved. ♡');
-    return;
+    const repeated = /different action|already used|repeat/i.test(String(error.message || ''));
+    setStatus(repeated ? 'Choose a different bear action before repeating that one. ♡' : 'Your bear moment was sent, but its Love Meter points could not be saved. ♡');
+    return false;
   }
   const previousPoints = sharedPoints;
   sharedPoints = Math.max(0, Number(data) || 0);
+  lastSharedAction = action;
   if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
   sharedProgressInitialized = true;
   updateUI();
+  return true;
 }
 function getLevel(points) {
   if (points < 100) return { level: 1, previous: 0, next: 100 };
@@ -112,6 +121,28 @@ function getLevel(points) {
   const level = 5 + Math.floor((points - 350) / 300);
   const previous = 350 + (level - 5) * 300;
   return { level, previous, next: previous + 300 };
+}
+function loadEquippedRewards(pairKey = sharedProgressPairKey) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(EQUIPPED_KEY_PREFIX + pairKey) || '[]');
+    equippedRewardIds = Array.isArray(saved) ? saved.filter(id => REWARDS.some(reward => reward.id === id)) : [];
+  } catch { equippedRewardIds = []; }
+}
+function saveEquippedRewards() {
+  if (!sharedProgressPairKey) return;
+  try { localStorage.setItem(EQUIPPED_KEY_PREFIX + sharedProgressPairKey, JSON.stringify(equippedRewardIds)); } catch {}
+}
+function equipReward(id) {
+  const reward = REWARDS.find(item => item.id === id);
+  if (!reward || getLevel(getPoints()).level < reward.level) return;
+  const active = equippedRewardIds.includes(id);
+  if (active) equippedRewardIds = equippedRewardIds.filter(item => item !== id);
+  else {
+    if (reward.slot === 'background') equippedRewardIds = equippedRewardIds.filter(item => !REWARDS.some(other => other.id === item && other.slot === 'background'));
+    equippedRewardIds = [...equippedRewardIds, id];
+  }
+  saveEquippedRewards();
+  updateUI();
 }
 function updateUI() {
   const root = $('#coupleBearGame');
@@ -127,20 +158,35 @@ function updateUI() {
     if (footer) footer.insertAdjacentElement('afterend', panel);
     else root.appendChild(panel);
   }
+  if (!panel.dataset.rewardHandler) {
+    panel.dataset.rewardHandler = 'true';
+    panel.addEventListener('click', event => {
+      const button = event.target.closest('[data-bear-equip]');
+      if (button) equipReward(button.dataset.bearEquip);
+    });
+  }
   panel.innerHTML =
     '<div class="bear-meter-topline"><span>♡ LITTLE LOVE METER</span><strong>LEVEL ' + level.level + '</strong></div>' +
     '<div class="bear-level-heading"><span class="bear-level-heart">♡</span><span><small>YOUR LOVE IS GROWING</small><b>' + points + ' love points</b></span><strong>' + Math.round(percent) + '%<small>to next level</small></strong></div>' +
     '<div class="bear-level-track" role="progressbar" aria-label="Progress to next Bear Hugs level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '"><span style="width:' + percent + '%"></span></div>' +
     '<p class="bear-level-next">' + points + ' / ' + level.next + ' points · ' + (level.next - points) + ' to Level ' + (level.level + 1) + '</p>' +
-    '<section class="bear-rewards"><div class="bear-rewards-heading"><span>🎁</span><div><b>Little level rewards</b><small>Collect sweet things as your love grows</small></div></div><div class="bear-rewards-list">' +
-    REWARDS.map(reward => '<article class="bear-reward ' + (level.level >= reward.level ? 'is-unlocked' : 'is-locked') + '"><span class="bear-reward-icon">' + reward.icon + '</span><span class="bear-reward-copy"><b>' + reward.name + '</b><small>' + reward.kind + ' · ' + reward.detail + '</small></span><span class="bear-reward-status">' + (level.level >= reward.level ? 'Unlocked' : 'Unlocks at Lv. ' + reward.level) + '</span></article>').join('') +
+    '<section class="bear-rewards"><div class="bear-rewards-heading"><span>🎁</span><div><b>Little level rewards</b><small>Unlock, preview and apply your keepsakes</small></div></div><div class="bear-rewards-list">' +
+    REWARDS.map(reward => {
+      const unlocked = level.level >= reward.level;
+      const applied = equippedRewardIds.includes(reward.id);
+      return '<article class="bear-reward ' + (unlocked ? 'is-unlocked' : 'is-locked') + (applied ? ' is-applied' : '') + '">' +
+        '<div class="bear-reward-preview ' + reward.previewClass + '"><span>' + reward.icon + '</span><small>🐻 ♡ 🐻</small></div>' +
+        '<span class="bear-reward-copy"><b>' + reward.name + '</b><small>' + reward.kind + ' · ' + reward.detail + '</small></span>' +
+        (unlocked ? '<button type="button" class="bear-reward-apply" data-bear-equip="' + reward.id + '" aria-pressed="' + applied + '">' + (applied ? 'Applied ✓' : 'Apply') + '</button>' : '<span class="bear-reward-status">Lv. ' + reward.level + '</span>') +
+        '</article>';
+    }).join('') +
     '</div></section>';
   const scene = $('.couple-bears-scene', root);
   if (scene) {
-    scene.classList.toggle('bear-forest-unlocked', level.level >= 2);
-    scene.classList.toggle('bear-caps-unlocked', level.level >= 4);
-    scene.classList.toggle('bear-honey-unlocked', level.level >= 6);
-    scene.classList.toggle('bear-legendary-unlocked', level.level >= 8);
+    scene.classList.toggle('bear-reward-sunset', equippedRewardIds.includes('sunset-meadow'));
+    scene.classList.toggle('bear-reward-strawberry', equippedRewardIds.includes('strawberry-hat'));
+    scene.classList.toggle('bear-reward-honey', equippedRewardIds.includes('honey-bear'));
+    scene.classList.toggle('bear-reward-starry', equippedRewardIds.includes('starry-set'));
   }
 }
 function partnerProfileFromRows(id) {
@@ -545,13 +591,18 @@ function flushPendingRemoteAction() {
     ' chose ' + (pending.action === 'hands' ? 'to hold paws' : pending.action) + '. ♡');
   updateUI();
 }
-function runLocalAction(action) {
-  if (!ACTIONS.has(action)) return;
+async function runLocalAction(action) {
+  if (!ACTIONS.has(action) || actionInFlight) return;
   if (!selectedFriendId || !getSelectedFriend() || !isAcceptedPartner(selectedFriendId)) {
     openPicker(action);
     return;
   }
+  if (action === lastSharedAction) {
+    setStatus('Choose a different bear action before repeating that one. ♡');
+    return;
+  }
   if (typeof originalTrigger === 'function') {
+    actionInFlight = true;
     originalTrigger(action, { remote: true, gender: getMe()?.gender });
     updateUI();
   } else {
@@ -559,9 +610,12 @@ function runLocalAction(action) {
     return;
   }
   const partnerId = selectedFriendId;
-  void sendAction(action, partnerId).then(delivered => {
-    if (delivered) void recordSharedAction(action, partnerId);
-  });
+  try {
+    const delivered = await sendAction(action, partnerId);
+    if (delivered) await recordSharedAction(action, partnerId);
+  } finally {
+    actionInFlight = false;
+  }
 }
 function ensureProgressChannel() {
   const client = getSupabase(), user = getMe();

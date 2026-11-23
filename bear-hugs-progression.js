@@ -216,7 +216,7 @@ function updatePartnerChip() {
   const friend = getSelectedFriend();
   chip.textContent = friend
     ? '♡ Playing with ' + (friend.display_name || friend.displayName || friend.username || 'Friend') + ' · Change'
-    : '♡ Choose a friend to play together';
+    : '♡ Choose your Bear Partner';
 }
 function updateConnectionStatus() {
   if (!getSelectedFriend()) return;
@@ -501,16 +501,28 @@ function install() {
       updatePartnerChip();
     }
   });
-  window.addEventListener('focus', startBearHugsRealtime);
+  window.addEventListener('focus', () => {
+    void loadPartnerRequests().then(() => {
+      if (selectedFriendId && isAcceptedPartner(selectedFriendId)) startBearHugsRealtime();
+    });
+    startBearHugsRealtime();
+  });
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) startBearHugsRealtime();
   });
 
-  if (selectedFriendId && !getSelectedFriend()) selectedFriendId = '';
   startBearHugsRealtime();
   updatePartnerChip();
   updateUI();
-  void loadPartnerRequests();
+  void loadPartnerRequests().then(() => {
+    if (selectedFriendId && !isAcceptedPartner(selectedFriendId)) {
+      selectedFriendId = '';
+      try { localStorage.removeItem(SELECTED_KEY); } catch {}
+    } else if (selectedFriendId) {
+      updatePartnerChip();
+      startBearHugsRealtime();
+    }
+  });
   const introKey = 'cuteBunnyBearPartnerIntro:' + String(getMe()?.id || 'guest');
   if (!selectedFriendId && !localStorage.getItem(introKey)) {
     localStorage.setItem(introKey, 'shown');

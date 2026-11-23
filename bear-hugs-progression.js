@@ -25,6 +25,7 @@ let originalCloseRealtime = typeof window.closeRealtime === 'function' ? window.
 let ownChannel = null;
 let ownTopic = '';
 let ownReady = false;
+let ownPromise = null;
 let peerChannel = null;
 let peerTopic = '';
 let peerReady = false;
@@ -161,12 +162,26 @@ function ensureOwnChannel() {
   const user = getMe();
   if (!client || !user?.id) return Promise.resolve(false);
   const topic = 'cute-bunny-bear-actions-' + String(user.id);
-  if (ownChannel && ownTopic === topic) return Promise.resolve(ownReady);
+  if (ownChannel && ownTopic === topic && ownReady) return Promise.resolve(true);
+  if (ownChannel && ownTopic === topic && ownPromise) return ownPromise;
   closeChannel(ownChannel);
   ownChannel = null;
   ownTopic = topic;
   ownReady = false;
-  return new Promise(resolve => {
+  ownPromise = new Promise(resolve => {
+    let settled = false;
+    const finish = value => {
+      if (settled) return;
+      settled = true;
+      ownPromise = null;
+      if (!value) {
+        closeChannel(ownChannel);
+        ownChannel = null;
+        ownTopic = '';
+        ownReady = false;
+      }
+      resolve(value);
+    };
     const channel = client.channel(topic, { config: { broadcast: { self: false, ack: true } } })
       .on('broadcast', { event: 'bear-action' }, ({ payload }) => receiveAction(payload));
     ownChannel = channel;
@@ -174,15 +189,16 @@ function ensureOwnChannel() {
       ownReady = status === 'SUBSCRIBED';
       if (ownReady) {
         updateConnectionStatus();
-        resolve(true);
+        finish(true);
       } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
         ownReady = false;
-        resolve(false);
+        finish(false);
         console.warn('Bear Hugs receive channel status:', status);
       }
     });
-    setTimeout(() => resolve(ownReady), 6000);
+    setTimeout(() => finish(ownReady), 6000);
   });
+  return ownPromise;
 }
 async function ensurePeerChannel(friendId) {
   const client = getSupabase();
@@ -204,6 +220,12 @@ async function ensurePeerChannel(friendId) {
       if (settled) return;
       settled = true;
       peerPromise = null;
+      if (!value) {
+        closeChannel(peerChannel);
+        peerChannel = null;
+        peerTopic = '';
+        peerReady = false;
+      }
       resolve(value);
     };
     peerChannel.subscribe(status => {
@@ -333,6 +355,7 @@ function closeBearHugsRealtime() {
   ownChannel = peerChannel = null;
   ownTopic = peerTopic = '';
   ownReady = peerReady = false;
+  ownPromise = peerPromise = null;
 }
 
 function install() {

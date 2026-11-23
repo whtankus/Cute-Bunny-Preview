@@ -121,7 +121,7 @@ function install(){
  const root=$('#coupleBearGame');if(!root||root.dataset.bearProgressReady==='true')return;
  ensurePicker();
  if(!originalTrigger&&typeof window.triggerBearAction==='function')originalTrigger=window.triggerBearAction;
- if(typeof window.startBearRealtime==='function')window.startBearRealtime=()=>{};
+ if(typeof window.startBearRealtime==='function')window.startBearRealtime=()=>{void connect()};
  if(typeof window.publishBearAction==='function')window.publishBearAction=()=>{};
  root.addEventListener('click',e=>{
   const b=e.target.closest('[data-couple-action]');if(!b)return;
@@ -136,7 +136,7 @@ function install(){
  partnerChip();updateUI();root.dataset.bearProgressReady='true';
  window.addEventListener('storage',e=>{if(e.key===LOVE_KEY)updateUI()});
 }
-function boot(){install()}
+function boot(){install();if(!$('#coupleBearGame')){const observer=new MutationObserver(()=>{if($('#coupleBearGame')){install();observer.disconnect()}});observer.observe(document.body,{childList:true,subtree:true})}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 document.addEventListener('click',e=>{if(e.target.closest('[data-page="home"]'))setTimeout(install,100)});
 window.addEventListener('focus',()=>{if(chosen)void connect()});

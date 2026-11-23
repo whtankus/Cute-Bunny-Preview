@@ -6026,8 +6026,6 @@ function start(a,by){tm.forEach(clearTimeout);lp.forEach(clearInterval);tm=[];lp
  cur=a;actor=by;t0=performance.now();rate=a==="dance"?13:a==="sleep"?4.5:7;berryS=1;
  const bears=$B("bears"),backArm=$B("tummyBackArm");if(a==="tummy"){bears.appendChild($B("s"+by));bears.appendChild(backArm);bears.appendChild($B("s"+(1-by)));}else{backArm.setAttribute("opacity","0");const ord=a==="flykiss"||a==="slap"||a==="feed"||a==="pet"||a==="kiss"?[1-by,by]:[0,1];ord.forEach(i=>bears.appendChild($B("s"+i)));}
  const scene=svg.closest(".couple-bears-scene");if(scene)scene.dataset.action=a;
- const actionSymbols={hug:["♡","♥","✦"],kiss:["💗","♡","✧"],flykiss:["💋","♡","✦"],slap:["✦","💥","✧"],hands:["♡","🫶","✧"],feed:["🍓","♥","✦"],sleep:["☾","z","✧"],dance:["♪","✦","♫"],pet:["🐾","♥","♡"],tummy:["✦","♡","🐾"],idle:["🌸","♡","✧"]}[a]||["♡","✦"];
- if(a!=="idle")for(let i=0;i<5;i++)later(()=>{const x=245+Math.random()*110,y=G-112-Math.random()*48;fx(actionSymbols[i%actionSymbols.length],x,y,i%2?"#f27da8":"#b58be5",20+Math.random()*10)},100+i*300);
  if(a==="hug"){tone(262,1.4,.04);tone(330,1.4,.035,"sine",.06);tone(392,1.5,.03,"sine",.12);later(()=>{tone(196,1,.06,"triangle");tone(523,.9,.02,"sine",.1);burst(300,G-170,5)},1250)}
  if(a==="kiss"){later(()=>{kiss();burst(300,G-170,6)},1350);later(()=>{nz(.03,.1,2500);tone(900,.06,.05,"sine",0,500)},2600)}
  if(a==="flykiss"){later(()=>{tone(740,.16,.04,"sine",0,980);tone(988,.22,.035,"sine",.12,1318);const from=ptH(by,0,-28),to=ptH(1-by,0,-34);flyFx("♡",from[0],from[1],to[0],to[1],"#ed79a5",27);later(()=>flyFx("💋",from[0],from[1]-4,to[0],to[1]-12,"#e98bad",20),180)},850)}
@@ -6046,7 +6044,7 @@ const blink=[{n:1.5,u:0},{n:3,u:0}];let last=performance.now();
 const setT=(id,v)=>$B(id).setAttribute("transform",v);
 function drawArm(b,n,s,a1,a2){const f=fk(s,a1,a2),d=`M${f[0][0]} ${f[0][1]}Q${f[1][0]} ${f[1][1]} ${f[2][0]} ${f[2][1]}`,id=n+0+b;
  $B(id+"o").setAttribute("d",d);$B(id+"f").setAttribute("d",d);$B(id+"co").setAttribute("cx",f[2][0]);$B(id+"co").setAttribute("cy",f[2][1]);setT(id+"p",`translate(${f[2][0]} ${f[2][1]}) rotate(${f[3]})`);return f}
-function frame(now){if(!active||!svg.isConnected)return;const layer=$B("bears");for(const id of ["s0","s1","tummyBackArm"]){const node=$B(id);if(node&&node.parentNode!==layer)layer.appendChild(node)}const dt=Math.min(.05,(now-last)/1e3);last=now;const t=(now-t0)/1e3,ts=now/1e3,k=1-Math.exp(-dt*rate);
+function frame(now){if(!active||!svg.isConnected)return;const dt=Math.min(.05,(now-last)/1e3);last=now;const t=(now-t0)/1e3,ts=now/1e3,k=1-Math.exp(-dt*rate);
  sleepF+=((cur==="sleep"?1:0)-sleepF)*(1-Math.exp(-dt*2.5));
  const tg=[0,1].map(b=>{const o=Object.assign(idle(b,ts),ACT[cur](t,b));if(o.ik){const[a1,a2]=ik(...toL(b,o.ik[0],o.ik[1]));o.i1=a1;o.i2=a2}return o});
  for(let b=0;b<2;b++){const p=P[b],g=tg[b];for(const key of K){if(EXP[key])p[key]+=(g[key]-p[key])*(1-Math.exp(-dt*(key==="eye"?16:9)));else{const arm=key[0]==="i"||key[0]==="o",w=(arm?1.25:1)*rate*1.15,z=arm?.72:.78,vv=V[b];vv[key]=(vv[key]||0)+((g[key]-p[key])*w*w-2*z*w*(vv[key]||0))*dt;p[key]+=vv[key]*dt}}
@@ -6066,7 +6064,8 @@ function frame(now){if(!active||!svg.isConnected)return;const layer=$B("bears");
  const sh=$B("sh"+b);sh.setAttribute("cx",CX[b]+S[b]*p.x);sh.setAttribute("rx",48-p.y*.7);sh.setAttribute("opacity",.16*(1-sleepF)*(1+p.y/60))}
  const backArm=$B("tummyBackArm");if(cur==="tummy"){const side=actor===0?1:-1,target=1-actor,startX=CX[actor]+S[actor]*(P[actor].x+28),startY=G+P[actor].y-76,endX=startX+side*42,endY=startY+8+Math.sin(t*9)*3.2,controlX=(startX+endX)/2,controlY=startY+5+Math.sin(t*4)*2;const path=`M${startX} ${startY} Q${controlX} ${controlY} ${endX} ${endY}`;const c=COL[actor];$B("tummyBackArmOutline").setAttribute("d",path);$B("tummyBackArmFill").setAttribute("d",path);$B("tummyBackArmOutline").setAttribute("stroke",c.st);$B("tummyBackArmFill").setAttribute("stroke",c.fur);$B("tummyBackPaw").setAttribute("transform",`translate(${endX} ${endY}) rotate(${side*8+Math.sin(t*9)*7})`);backArm.setAttribute("opacity",t>.35&&t<4.25?"1":"0")}else backArm.setAttribute("opacity","0");
  $B("pil").setAttribute("opacity",sleepF);$B("blk").setAttribute("opacity",sleepF);
- const bs=$B("berry");if(cur==="feed"&&t<5.9){const phase=(t%1.55)/1.55,progress=Math.min(1,phase/0.72),fromX=CX[actor]+S[actor]*42,toX=CX[1-actor]-S[1-actor]*42,x=fromX+(toX-fromX)*progress,y=G-108-Math.sin(progress*Math.PI)*18,scale=1.28*(1-.22*phase);berryS+=(scale-berryS)*(1-Math.exp(-dt*18));bs.setAttribute("transform",`translate(${x} ${y}) scale(${berryS}) rotate(${-S[actor]*18})`);bs.setAttribute("opacity","1")}else{berryS+=(0-berryS)*(1-Math.exp(-dt*18));bs.setAttribute("opacity",berryS>.04?"1":"0")}
+ const bs=$B("berry");if(cur==="feed"&&t<5.3){const f=fk(28,P[actor].i1,P[actor].i2),h=f[2],rad=f[3]*R,wp=ptL(actor,h[0]-Math.sin(rad)*8,h[1]+Math.cos(rad)*8),sc=t<1.7?1:t<3?.66:t<4.2?.36:0;
+  berryS+=(sc-berryS)*(1-Math.exp(-dt*14));bs.setAttribute("transform",`translate(${wp[0]} ${wp[1]}) scale(${berryS*.9}) rotate(${-S[actor]*20})`);bs.setAttribute("opacity",berryS>.05?1:0)}else bs.setAttribute("opacity",0)
  rafId=requestAnimationFrame(frame)}
 rafId=requestAnimationFrame(frame);
   function setSound(enabled) {

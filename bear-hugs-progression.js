@@ -99,7 +99,7 @@ async function loadPartnerRequests() {
   const user = getMe(), client = getSupabase();
   if (!user?.id || !client) return;
   const { data, error } = await client.from('bear_partner_requests')
-    .select('id,sender_id,recipient_id,status,created_at,sender:profiles!bear_partner_requests_sender_id_fkey(id,username,display_name,mascot)')
+    .select('id,sender_id,recipient_id,status,created_at,sender:profiles!bear_partner_requests_sender_id_fkey(id,username,display_name,mascot),recipient:profiles!bear_partner_requests_recipient_id_fkey(id,username,display_name,mascot)')
     .or('sender_id.eq.' + user.id + ',recipient_id.eq.' + user.id)
     .order('created_at', { ascending: false }).limit(100);
   if (error) {

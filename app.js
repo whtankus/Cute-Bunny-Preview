@@ -41,7 +41,7 @@ let notificationListSeenObserver = null, notificationRowViewTimers = new Map();
 let notificationViewedIds = new Set();
 let navRefreshInFlight = false, appExitStep = 0;
 let presenceChannel = null, notificationChannel = null, memoryChannel = null, profileChannel = null, noteReadCursorChannel = null;
-let bearRealtimeChannel = null, bearRealtimeTopic = '';
+let bearRealtimeChannel = null, bearRealtimePartnerChannel = null, bearRealtimeTopic = '', bearRealtimePartnerTopic = '';
 let seenStatusRefreshTimer = null, seenStatusRefreshInFlight = false, seenStatusRefreshQueued = false;
 let typingHeartbeatTimer = null, typingStopTimer = null, typingActive = false, typingLastSentAt = 0;
 let notesTypingChannelReady = false, notesTypingQueuedState = null;
@@ -4692,8 +4692,8 @@ document.addEventListener('visibilitychange', () => {
 
 function startRealtime() {
   if (!sb || !me) return;
-  startBearRealtime();
   closeRealtime();
+  startBearRealtime();
   const realtimeGeneration = presenceClientGeneration;
   presenceStatus = 'connecting';
   try {
@@ -5042,12 +5042,12 @@ function closeRealtime() {
   remoteTypingUsers.forEach(entry => clearTimeout(entry.timer));
   remoteTypingUsers.clear();
   syncNotesTypingIndicator();
-  [presenceChannel, notesActivityChannel, notesTypingChannel, notificationChannel, memoryChannel, profileChannel, noteReadCursorChannel, bearRealtimeChannel].forEach(channel => {
+  [presenceChannel, notesActivityChannel, notesTypingChannel, notificationChannel, memoryChannel, profileChannel, noteReadCursorChannel, bearRealtimeChannel, bearRealtimePartnerChannel].forEach(channel => {
     if (channel && sb) sb.removeChannel(channel);
   });
 
-  presenceChannel = notesActivityChannel = notesTypingChannel = notificationChannel = memoryChannel = profileChannel = noteReadCursorChannel = bearRealtimeChannel = null;
-  bearRealtimeTopic = '';
+  presenceChannel = notesActivityChannel = notesTypingChannel = notificationChannel = memoryChannel = profileChannel = noteReadCursorChannel = bearRealtimeChannel = bearRealtimePartnerChannel = null;
+  bearRealtimeTopic = bearRealtimePartnerTopic = '';
   notesActivityChannelReady = false;
   pendingNotesPageTransitions = [];
   clearTimeout(seenStatusRefreshTimer);
@@ -5980,29 +5980,44 @@ function getBearPartnerId() {
 }
 function startBearRealtime() {
   if (!sb || !me?.id) return;
+  const ownTopic = 'cute-bunny-bear-actions-' + String(me.id);
+  if (!bearRealtimeChannel || bearRealtimeTopic !== ownTopic) {
+    if (bearRealtimeChannel) void sb.removeChannel(bearRealtimeChannel);
+    bearRealtimeTopic = ownTopic;
+    bearRealtimeChannel = sb.channel(ownTopic, { config: { broadcast: { self: false } } })
+      .on('broadcast', { event: 'bear-action' }, ({ payload }) => {
+        if (String(payload?.userId || '') === String(me?.id || '')) return;
+        const action = String(payload?.action || '');
+        if (!['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep'].includes(action)) return;
+        triggerBearAction(action, { remote: true });
+      })
+      .subscribe(status => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          console.warn('Bear Hugs receive channel status:', status);
+        }
+      });
+  }
   const partnerId = getBearPartnerId();
-  if (!partnerId) return;
-  const topic = 'cute-bunny-bear-actions-' + [String(me.id), partnerId].sort().join('-');
-  if (bearRealtimeChannel && bearRealtimeTopic === topic) return;
-  if (bearRealtimeChannel) void sb.removeChannel(bearRealtimeChannel);
-  bearRealtimeTopic = topic;
-  bearRealtimeChannel = sb.channel(topic, { config: { broadcast: { self: false } } })
-    .on('broadcast', { event: 'bear-action' }, ({ payload }) => {
-      if (String(payload?.userId || '') === String(me?.id || '')) return;
-      const action = String(payload?.action || '');
-      if (!['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep'].includes(action)) return;
-      triggerBearAction(action, { remote: true });
-    })
-    .subscribe(status => {
-      if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-        console.warn('Bear Hugs realtime channel status:', status);
-      }
-    });
+  const partnerTopic = partnerId ? 'cute-bunny-bear-actions-' + partnerId : '';
+  if (partnerTopic && bearRealtimePartnerTopic !== partnerTopic) {
+    if (bearRealtimePartnerChannel) void sb.removeChannel(bearRealtimePartnerChannel);
+    bearRealtimePartnerTopic = partnerTopic;
+    bearRealtimePartnerChannel = sb.channel(partnerTopic, { config: { broadcast: { self: false } } })
+      .subscribe(status => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          console.warn('Bear Hugs send channel status:', status);
+        }
+      });
+  } else if (!partnerTopic && bearRealtimePartnerChannel) {
+    void sb.removeChannel(bearRealtimePartnerChannel);
+    bearRealtimePartnerChannel = null;
+    bearRealtimePartnerTopic = '';
+  }
 }
 function publishBearAction(action) {
   startBearRealtime();
-  if (!bearRealtimeChannel || !bearRealtimeTopic || !me?.id) return;
-  void bearRealtimeChannel.send({
+  if (!bearRealtimePartnerChannel || !bearRealtimePartnerTopic || !me?.id) return;
+  void bearRealtimePartnerChannel.send({
     type: 'broadcast',
     event: 'bear-action',
     payload: { action, userId: String(me.id), gender: me.gender || null, sentAt: Date.now() }

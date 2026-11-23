@@ -4,7 +4,7 @@
 const SELECTED_KEY = 'cuteBunnyBearSelectedFriend:v1';
 const LOVE_KEY = 'cuteBunnyBearLove:v1';
 const EQUIPPED_KEY_PREFIX = 'cuteBunnyBearEquippedRewards:v1:';
-const ACTIONS = new Set(['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep', 'idle']);
+const ACTIONS = new Set(['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep', 'tummy', 'idle']);
 const REWARDS = [
   { id: 'sunset-meadow', level: 2, slot: 'background', previewClass: 'preview-sunset', name: 'Sunset Meadow', icon: '🌅', kind: 'Background', detail: 'A warm peach-and-sage garden' },
   { id: 'strawberry-hat', level: 4, slot: 'accessory', previewClass: 'preview-strawberry', name: 'Strawberry Hat', icon: '🍓', kind: 'Accessory', detail: 'Tiny strawberry hats for both bears' },

@@ -401,8 +401,12 @@ function install() {
     };
   }
 
+  let observedGameRoot = $('#coupleBearGame');
   const observer = new MutationObserver(() => {
-    if ($('#coupleBearGame')) {
+    const currentRoot = $('#coupleBearGame');
+    if (currentRoot === observedGameRoot) return;
+    observedGameRoot = currentRoot;
+    if (currentRoot) {
       updatePartnerChip();
       updateUI();
       flushPendingRemoteAction();

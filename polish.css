@@ -5161,3 +5161,25 @@ body[data-mode="dark"] #content .bear-name{background:rgba(54,43,58,.9);color:#e
 @media(prefers-reduced-motion:reduce){
   #content .couple-bears-scene[data-action="feed"] .couple-bear{animation:none!important}
 }
+
+
+/* Full interactive Bear Hugs experience link. */
+#content .bear-full-experience-link{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:fit-content;max-width:100%;margin:14px auto 2px;padding:10px 16px;
+  border:1px solid color-mix(in srgb,var(--cb-accent) 24%,var(--cb-border));
+  border-radius:999px;color:var(--cb-accent-strong);
+  background:color-mix(in srgb,var(--cb-surface) 88%,#f7dce8);
+  font-size:.78rem;font-weight:900;text-decoration:none;
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+}
+#content .bear-full-experience-link:hover{
+  transform:translateY(-2px);
+  box-shadow:0 7px 18px rgba(155,111,139,.13);
+}
+#content .bear-full-experience-link:focus-visible{
+  outline:3px solid var(--cb-accent);outline-offset:3px;
+}
+@media(prefers-reduced-motion:reduce){
+  #content .bear-full-experience-link{transition:none}
+}

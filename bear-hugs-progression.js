@@ -78,8 +78,17 @@ function updateUI() {
     scene.classList.toggle('bear-caps-unlocked', level.level >= 5);
   }
 }
+function partnerProfileFromRows(id) {
+  for (const row of partnerRequests) {
+    const sender = Array.isArray(row.sender) ? row.sender[0] : row.sender;
+    const recipient = Array.isArray(row.recipient) ? row.recipient[0] : row.recipient;
+    if (String(row.sender_id) === String(id) && sender) return sender;
+    if (String(row.recipient_id) === String(id) && recipient) return recipient;
+  }
+  return null;
+}
 function getSelectedFriend() {
-  return getFriends().find(friend => String(friend?.id) === selectedFriendId);
+  return getFriends().find(friend => String(friend?.id) === selectedFriendId) || partnerProfileFromRows(selectedFriendId);
 }
 function setStatus(message) {
   const status = $('#coupleBearStatus');
@@ -314,7 +323,7 @@ async function ensurePeerChannel(friendId) {
   return peerPromise;
 }
 async function chooseFriend(id) {
-  const friend = [...getFriends(), ...(typeof friendResults !== 'undefined' ? friendResults : [])].find(item => String(item?.id) === String(id));
+  const friend = [...getFriends(), ...(typeof friendResults !== 'undefined' ? friendResults : []), partnerProfileFromRows(id)].find(item => item && String(item?.id) === String(id));
   if (!friend) return;
   await loadPartnerRequests();
   if (!isAcceptedPartner(id)) {
@@ -390,7 +399,7 @@ function receiveAction(payload) {
   if (!payload || !user?.id) return;
   if (String(payload.toUserId || '') !== String(user.id)) return;
   if (String(payload.userId || '') === String(user.id)) return;
-  const senderIsFriend = getFriends().some(friend => String(friend?.id) === String(payload.userId));
+  const senderIsFriend = getFriends().some(friend => String(friend?.id) === String(payload.userId)) || !!partnerProfileFromRows(payload.userId);
   if (!senderIsFriend || !isAcceptedPartner(payload.userId) || !ACTIONS.has(String(payload.action || ''))) return;
   // The recipient automatically pairs with the friend who initiated the shared action.
   selectedFriendId = String(payload.userId);

@@ -66,8 +66,8 @@ async function loadSharedProgress() {
   sharedPoints = Math.max(0, Number(data?.love_points) || 0);
   updateUI();
 }
-async function recordSharedAction(action) {
-  const user = getMe(), client = getSupabase(), partnerId = selectedFriendId;
+async function recordSharedAction(action, partnerId = selectedFriendId) {
+  const user = getMe(), client = getSupabase();
   if (!user?.id || !partnerId || !client || !isAcceptedPartner(partnerId)) return;
   const { data, error } = await client.rpc('record_bear_hug_action', { p_partner_id: partnerId });
   if (error) {
@@ -443,16 +443,16 @@ async function chooseFriend(id) {
     runLocalAction(action);
   }
 }
-async function sendAction(action) {
-  const friend = getSelectedFriend();
+async function sendAction(action, partnerId = selectedFriendId) {
+  const friend = getFriends().find(item => String(item?.id) === String(partnerId)) || partnerProfileFromRows(partnerId);
   const user = getMe();
   const client = getSupabase();
-  if (!friend || !user?.id || !client || !isAcceptedPartner(friend.id)) {
+  if (!friend || !user?.id || !client || !isAcceptedPartner(partnerId)) {
     setStatus('Choose a friend before starting your little moment. ♡');
     openPicker();
     return false;
   }
-  const connected = await ensurePeerChannel(friend.id);
+  const connected = await ensurePeerChannel(partnerId);
   if (!connected || !peerChannel) {
     setStatus('Your bears are trying to reconnect. Please try that action again in a moment. ♡');
     return false;
@@ -460,7 +460,7 @@ async function sendAction(action) {
   const payload = {
     action,
     userId: String(user.id),
-    toUserId: String(friend.id),
+    toUserId: String(partnerId),
     gender: user.gender || null,
     sentAt: Date.now()
   };
@@ -532,8 +532,9 @@ function runLocalAction(action) {
     setStatus('The bear animation is still loading. Please try again in a moment. ♡');
     return;
   }
-  void sendAction(action).then(delivered => {
-    if (delivered) void recordSharedAction(action);
+  const partnerId = selectedFriendId;
+  void sendAction(action, partnerId).then(delivered => {
+    if (delivered) void recordSharedAction(action, partnerId);
   });
 }
 function ensureProgressChannel() {

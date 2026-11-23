@@ -28,7 +28,9 @@ let ownReady = false;
 let peerChannel = null;
 let peerTopic = '';
 let peerReady = false;
+let peerPromise = null;
 let pendingRemoteAction = null;
+let pendingAction = null;
 
 function getPoints() {
   try { return Math.max(0, Number(localStorage.getItem(LOVE_KEY)) || 0); }
@@ -112,7 +114,8 @@ function ensurePicker() {
     if (choice) void chooseFriend(choice.dataset.bearFriendId);
   });
 }
-function openPicker() {
+function openPicker(action = null) {
+  if (action) pendingAction = action;
   ensurePicker();
   const modal = $('#bearFriendPicker');
   const list = $('.bear-friend-picker-list', modal);
@@ -186,6 +189,7 @@ async function ensurePeerChannel(friendId) {
   if (!client || !friendId) return false;
   const topic = 'cute-bunny-bear-actions-' + String(friendId);
   if (peerChannel && peerTopic === topic && peerReady) return true;
+  if (peerChannel && peerTopic === topic && peerPromise) return peerPromise;
   if (peerTopic !== topic) {
     closeChannel(peerChannel);
     peerChannel = null;
@@ -194,11 +198,12 @@ async function ensurePeerChannel(friendId) {
   }
   if (!peerChannel) peerChannel = client.channel(topic, { config: { broadcast: { self: false, ack: true } } });
   if (peerReady) return true;
-  return new Promise(resolve => {
+  peerPromise = new Promise(resolve => {
     let settled = false;
     const finish = value => {
       if (settled) return;
       settled = true;
+      peerPromise = null;
       resolve(value);
     };
     peerChannel.subscribe(status => {
@@ -214,6 +219,7 @@ async function ensurePeerChannel(friendId) {
     });
     setTimeout(() => finish(peerReady), 6000);
   });
+  return peerPromise;
 }
 async function chooseFriend(id) {
   const friend = getFriends().find(item => String(item?.id) === String(id));
@@ -226,6 +232,11 @@ async function chooseFriend(id) {
   const results = await Promise.all([ensureOwnChannel(), ensurePeerChannel(selectedFriendId)]);
   if (results.every(Boolean)) updateConnectionStatus();
   else setStatus('Your partner is selected, but the live connection is still reconnecting. Try an action again shortly. ♡');
+  if (pendingAction) {
+    const action = pendingAction;
+    pendingAction = null;
+    runLocalAction(action);
+  }
 }
 async function sendAction(action) {
   const friend = getSelectedFriend();
@@ -341,7 +352,7 @@ function install() {
     event.stopImmediatePropagation();
     const action = actionButton ? actionButton.dataset.coupleAction : 'pet';
     if (!getSelectedFriend()) {
-      openPicker();
+      openPicker(actionButton ? actionButton.dataset.coupleAction : 'pet');
       return;
     }
     runLocalAction(action);

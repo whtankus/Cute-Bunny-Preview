@@ -326,6 +326,11 @@ function receiveAction(payload) {
   if (String(payload.userId || '') === String(user.id)) return;
   const senderIsFriend = getFriends().some(friend => String(friend?.id) === String(payload.userId));
   if (!senderIsFriend || !ACTIONS.has(String(payload.action || ''))) return;
+  // The recipient automatically pairs with the friend who initiated the shared action.
+  selectedFriendId = String(payload.userId);
+  try { localStorage.setItem(SELECTED_KEY, selectedFriendId); } catch {}
+  updatePartnerChip();
+  void ensurePeerChannel(selectedFriendId);
   applyRemoteAction(String(payload.action), payload);
 }
 function flushPendingRemoteAction() {

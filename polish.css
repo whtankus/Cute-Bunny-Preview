@@ -5042,3 +5042,38 @@ body[data-mode="dark"] #content .chat-composer #chatReplyingTo{
 }
 body[data-mode="dark"] #content .couple-bears-scene{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(221,176,204,.08))}
 body[data-mode="dark"] #content .bear-name{background:rgba(54,43,58,.9);color:#ead5e1}
+
+
+/* Bear Hugs expansion: expressive poses, tiny reactions and a local affection meter. */
+#content .couple-bear-footer{display:flex;align-items:center;gap:12px;margin-top:14px}
+#content .bear-love-meter{flex:1;min-width:0}
+#content .bear-love-meter-copy{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px;color:var(--cb-text-soft);font-size:.68rem;font-weight:800}
+#content .bear-love-meter-copy b{color:var(--cb-accent-strong);font-size:.66rem}
+#content .bear-love-track{height:7px;overflow:hidden;border-radius:99px;background:color-mix(in srgb,var(--cb-accent) 12%,transparent)}
+#content .bear-love-track span{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#e9a6c1,#b99ad9);transition:width .35s ease}
+#content .bear-sound-toggle{flex:0 0 auto;padding:8px 11px;border:1px solid var(--cb-border);border-radius:999px;background:var(--cb-surface);color:var(--cb-text-soft);font:inherit;font-size:.68rem;font-weight:850;cursor:pointer}
+#content .bear-sound-toggle[aria-pressed="false"]{opacity:.65}
+#content .couple-bears-scene[data-action="dance"] .couple-bear{animation:bearDance .42s ease-in-out 3}
+#content .couple-bears-scene[data-action="dance"] .white-bear{transform:rotate(-9deg) translateY(-5px)}
+#content .couple-bears-scene[data-action="dance"] .brown-bear{transform:rotate(9deg) translateY(-5px)}
+#content .couple-bears-scene[data-action="pet"] .couple-bear{animation:bearPet .55s ease-in-out 2}
+#content .couple-bears-scene[data-action="pet"] .bear-blush{opacity:1;transform:scale(1.35)}
+#content .couple-bears-scene[data-action="feed"] .couple-bear{animation:bearNibble .32s ease-in-out 4}
+#content .couple-bears-scene[data-action="feed"]::after{content:"🍓  🍓";position:absolute;z-index:5;left:50%;top:48%;transform:translate(-50%,-50%);font-size:1.25rem;animation:bearTreat .9s ease-out both;pointer-events:none}
+#content .couple-bears-scene[data-action="sleep"]{background:linear-gradient(180deg,rgba(184,166,216,.13),rgba(255,255,255,.22))}
+#content .couple-bears-scene[data-action="sleep"] .couple-bear{transform:translateY(9px) scale(.94)}
+#content .couple-bears-scene[data-action="sleep"] .bear-head{transform:translateY(4px)}
+#content .couple-bears-scene[data-action="sleep"] .bear-eye{opacity:0}
+#content .couple-bears-scene[data-action="sleep"] .bear-mouth{d:path("M80 97q10 5 20 0")}
+#content .couple-bears-scene[data-action="sleep"]::after{content:"z  z  Z";position:absolute;z-index:5;left:50%;top:18%;color:#9d8bb8;font-size:1.15rem;font-weight:900;letter-spacing:5px;animation:bearZzz 1.5s ease-in-out infinite;pointer-events:none}
+#content .couple-bears-scene[data-action="sleep"] .bear-floating-heart{opacity:.8}
+@keyframes bearDance{0%,100%{translate:0 0}50%{translate:0 -8px}}
+@keyframes bearPet{0%,100%{translate:0 0}40%{translate:0 -6px}70%{translate:0 1px}}
+@keyframes bearNibble{0%,100%{rotate:0}25%{rotate:-3deg}75%{rotate:3deg}}
+@keyframes bearTreat{0%{opacity:0;top:58%;scale:.6}35%{opacity:1}100%{opacity:0;top:25%;scale:1.2}}
+@keyframes bearZzz{0%,100%{opacity:.55;translate:0 4px}50%{opacity:1;translate:5px -7px}}
+#content .couple-bears-scene[data-action="hug"] .bear-blush,
+#content .couple-bears-scene[data-action="kiss"] .bear-blush{opacity:1}
+#content .couple-bears-scene[data-action="sleep"] .bear-arm-inner{transform:rotate(18deg)}
+@media(max-width:420px){#content .couple-bear-footer{gap:7px}#content .bear-sound-toggle{padding:7px 9px}}
+@media(prefers-reduced-motion:reduce){#content .couple-bears-scene[data-action] .couple-bear,#content .couple-bears-scene[data-action]::after{animation:none!important}}

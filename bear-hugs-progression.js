@@ -886,10 +886,10 @@ async function runLocalAction(action) {
   try {
     const delivered = await sendAction(action, partnerId, actionId);
     if (delivered) {
-      const recorded = await recordSharedAction(action, partnerId, actionId);
-      if (recorded) {
-        window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', { detail: { action } }));
-      }
+      await recordSharedAction(action, partnerId, actionId);
+      // The realtime acknowledgement confirms the action reached the friend.
+      // Daily missions should still count if the separate points RPC is offline.
+      window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', { detail: { action } }));
     }
   } finally {
     actionInFlight = false;

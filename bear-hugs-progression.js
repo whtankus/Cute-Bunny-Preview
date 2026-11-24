@@ -531,6 +531,8 @@ async function removeBearfriend() {
   }
   partnerRequests = partnerRequests.filter(row => String(row.id) !== String(request.id));
   selectedFriendId = '';
+  lastBearActivityAt = Date.now();
+  bearsAreAsleep = false;
   try { localStorage.removeItem(SELECTED_KEY); } catch {}
   peerGeneration++;
   closeChannel(peerChannel);
@@ -798,6 +800,8 @@ async function chooseFriend(id) {
     return;
   }
   selectedFriendId = String(friend.id);
+  lastBearActivityAt = Date.now();
+  bearsAreAsleep = false;
   try { localStorage.setItem(SELECTED_KEY, selectedFriendId); } catch {}
   $('#bearFriendPicker')?.classList.add('hidden');
   updatePartnerChip();

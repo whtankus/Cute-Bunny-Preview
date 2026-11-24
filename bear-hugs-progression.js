@@ -67,6 +67,7 @@ async function loadSharedProgress() {
   if (!user?.id || !selectedFriendId || !client || !isAcceptedPartner(selectedFriendId)) {
     sharedPoints = 0;
     lastSharedAction = '';
+    equippedRewardIds = [];
     sharedProgressPairKey = '';
     sharedProgressInitialized = false;
     updateUI();

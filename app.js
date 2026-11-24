@@ -1025,7 +1025,7 @@ function readStreakHeartMilestones() {
 }
 function saveStreakHeartMilestones(count) {
   const earned = readStreakHeartMilestones();
-  [10, 100, 250, 500, 750, 1000].forEach(value => { if (count >= value) earned.add(value); });
+  [10, 100, 250, 500, 750, 1000, 1500, 2000].forEach(value => { if (count >= value) earned.add(value); });
   try { localStorage.setItem(streakStorageKey('heart-milestones'), JSON.stringify([...earned].sort((a,b) => a-b))); } catch {}
 }
 function readStreakDailyQuests(dateKey) {
@@ -1834,7 +1834,7 @@ function readStreakMilestones() {
 }
 function saveStreakMilestones(count) {
   const earned = readStreakMilestones();
-  [3, 7, 14, 30, 50, 100, 180, 365].forEach(value => { if (count >= value) earned.add(value); });
+  [3, 7, 14, 30, 50, 100].forEach(value => { if (count >= value) earned.add(value); });
   try { localStorage.setItem(streakStorageKey('milestones'), JSON.stringify([...earned].sort((a,b) => a-b))); } catch {}
 }
 function resetStreakPetalGame() {
@@ -2098,14 +2098,12 @@ function renderStreakPage() {
     count >= 7 ? 'Your garden is blooming' : count ? 'Your garden is growing' : 'Your first bloom is waiting';
 
   const milestones = [
-    {days:3, icon:'🌱', name:'Tiny sprout'},
-    {days:7, icon:'🌼', name:'First flower'},
-    {days:14, icon:'🌷', name:'Little garden'},
-    {days:30, icon:'🌸', name:'Growing plant'},
-    {days:50, icon:'💐', name:'Golden bouquet'},
-    {days:100, icon:'🌟', name:'Blooming garden'},
-    {days:180, icon:'🏵️', name:'Magical garden'},
-    {days:365, icon:'💮', name:'Eternal garden'}
+    {days:3, name:'Tiny sprout'},
+    {days:7, name:'First flower'},
+    {days:14, name:'Little garden'},
+    {days:30, name:'Growing plant'},
+    {days:50, name:'Golden bouquet'},
+    {days:100, name:'Everlasting lotus'}
   ];
   const earned = readStreakMilestones();
   const next = milestones.find(item => count < item.days) || null;
@@ -2123,7 +2121,9 @@ function renderStreakPage() {
     {hearts:250, name:'Blushing Bouquet', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M22 30 36 55 50 30" fill="#d9e7ce" stroke="#91aa82" stroke-width="2"/><path d="M36 53V29M36 43 24 34M36 40l12-10" stroke="#91aa82" stroke-width="2.5" stroke-linecap="round"/><g fill="#f4c5d5" stroke="#c98da8" stroke-width="1.5"><circle cx="23" cy="20" r="7"/><circle cx="36" cy="13" r="7"/><circle cx="49" cy="20" r="7"/></g><g fill="#e6a1b9"><circle cx="23" cy="20" r="2.5"/><circle cx="36" cy="13" r="2.5"/><circle cx="49" cy="20" r="2.5"/></g><path d="m22 45 14 10 14-10" fill="none" stroke="#c98da8" stroke-width="3" stroke-linecap="round"/></svg>'},
     {hearts:500, name:'Golden Treasure', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m36 8 7 8 12-1-2 12 8 9-10 7-3 12-12-4-12 4-3-12-10-7 8-9-2-12 12 1Z" fill="#f7e8b8" stroke="#c7a45f" stroke-width="2"/><path d="m36 19 12 11-12 17-12-17Z" fill="#e8a4ba" stroke="#bd7895" stroke-width="2"/><path d="m24 30 12 4 12-4M36 34v13" fill="none" stroke="#fff4e7" stroke-width="2"/><circle cx="36" cy="28" r="3" fill="#fff5d9"/></svg>'},
     {hearts:750, name:'Love Guardian', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="m13 27 6-14 12 8 5-12 5 12 12-8 6 14-9 24H22Z" fill="#e9dff4" stroke="#a58bb8" stroke-width="2" stroke-linejoin="round"/><path d="M25 31c0-7 10-8 11 0 2-8 12-7 12 0-1 7-12 15-12 15S26 38 25 31Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.4"/><circle cx="19" cy="17" r="2" fill="#d7b56e"/><circle cx="53" cy="17" r="2" fill="#d7b56e"/><path d="M18 48q-5 5-1 9m37-9q5 5 1 9" fill="none" stroke="#a58bb8" stroke-width="2" stroke-linecap="round"/></svg>'},
-    {hearts:1000, name:'Everlasting Love', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><circle cx="36" cy="32" r="25" fill="#fff0e7" stroke="#d5a2b5" stroke-width="2"/><circle cx="36" cy="32" r="20" fill="none" stroke="#e6c1ce" stroke-width="1.5" stroke-dasharray="2 3"/><path d="M24 29c0-9 12-10 12 0 1-10 13-9 13 0-1 9-13 18-13 18S25 38 24 29Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.5"/><path d="m16 12 3 4 5 1-5 2-3 5-2-5-5-2 5-1Zm40-2 2 4 4 2-4 1-2 4-2-4-4-1 4-2Z" fill="#d6b66f"/><path d="M15 39q-5-5-7 0m49 0q5-5 7 0" fill="none" stroke="#91aa82" stroke-width="2" stroke-linecap="round"/></svg>'}
+    {hearts:1000, name:'Everlasting Love', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><circle cx="36" cy="32" r="25" fill="#fff0e7" stroke="#d5a2b5" stroke-width="2"/><circle cx="36" cy="32" r="20" fill="none" stroke="#e6c1ce" stroke-width="1.5" stroke-dasharray="2 3"/><path d="M24 29c0-9 12-10 12 0 1-10 13-9 13 0-1 9-13 18-13 18S25 38 24 29Z" fill="#d77e9e" stroke="#bd7895" stroke-width="1.5"/><path d="m16 12 3 4 5 1-5 2-3 5-2-5-5-2 5-1Zm40-2 2 4 4 2-4 1-2 4-2-4-4-1 4-2Z" fill="#d6b66f"/><path d="M15 39q-5-5-7 0m49 0q5-5 7 0" fill="none" stroke="#91aa82" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {hearts:1500, name:'Everlasting Rose', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M36 55V39" stroke="#789a79" stroke-width="3" stroke-linecap="round"/><path d="M35 49q-12-12-19-5 7 11 19 7m2-5q11-12 19-5-6 11-19 7" fill="#b8d2a9" stroke="#789a79" stroke-width="1.5"/><g fill="#df789c" stroke="#a94e73" stroke-width="1.8"><path d="M36 8c-8-7-18 1-12 10-10 4-6 17 5 16 0 10 14 12 16 1 10 2 15-10 6-16 6-10-5-18-15-11z"/><path d="M25 22q2-11 12-7 10-3 12 7-2 12-13 13-11-2-11-13z" fill="#f4b5ca"/></g><path d="M29 22q4-7 11-2-2 7-7 8" fill="none" stroke="#fff1f5" stroke-width="2" stroke-linecap="round"/></svg>'},
+    {hearts:2000, name:'Heart of the Garden', art:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M36 54V39" stroke="#789a79" stroke-width="3" stroke-linecap="round"/><path d="M35 49q-11-10-17-4 6 9 17 6m2-2q10-10 17-4-5 9-17 6" fill="#b8d2a9" stroke="#789a79" stroke-width="1.4"/><g fill="#d8c5ed" stroke="#9277ae" stroke-width="1.8"><path d="M36 6c-6-5-13 1-10 8-9 1-10 12-2 16-1 9 11 12 13 3 3 9 15 6 13-3 8-5 6-15-3-16-2-9-9-12-11-8z"/></g><path d="m18 15 4-9 10 7 4-11 5 11 10-7 3 10" fill="#edca79" stroke="#a98548" stroke-width="1.7" stroke-linejoin="round"/><circle cx="36" cy="25" r="8" fill="#fff0c8" stroke="#c49a55" stroke-width="1.8"/><path d="M31 26c0-5 5-5 5 0 1-5 6-5 6 0-1 4-6 7-6 7s-5-3-5-7z" fill="#d8799d"/></svg>'}
   ];
   const earnedHearts = readStreakHeartMilestones();
   const heartBadges = heartMilestones.map(item => {
@@ -2226,7 +2226,7 @@ function renderStreakPage() {
     '" aria-label="Remove ' + esc(goal.label) + '">×</button></div>'
   ).join('') || '<div class="streak-empty-goals">Your journal is ready for a little promise. ♡</div>';
 
-  const milestoneIllustrations = STREAK_MILESTONE_ILLUSTRATIONS;
+  const milestoneIllustrations = STREAK_MILESTONE_ILLUSTRATIONS.slice(0, 6);
   const badges = milestones.map((item, index) => {
     const unlocked = count >= item.days;
     const daysLeft = Math.max(0, item.days - count);

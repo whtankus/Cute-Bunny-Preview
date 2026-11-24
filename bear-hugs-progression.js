@@ -140,25 +140,32 @@ function loadEquippedRewards(pairKey = sharedProgressPairKey) {
     equippedRewardIds = Array.isArray(saved) ? saved.filter(id => REWARDS.some(reward => reward.id === id)) : [];
   } catch { equippedRewardIds = []; }
 }
-async function saveEquippedRewards() {
+let equipmentSaveInFlight = false;
+async function saveEquippedRewards(partnerId, pairKey, rewardIds) {
   const client = getSupabase();
-  if (!sharedProgressPairKey || !selectedFriendId || !client || !isAcceptedPartner(selectedFriendId)) return false;
+  if (!pairKey || !partnerId || !client || !isAcceptedPartner(partnerId)) return false;
   const { data, error } = await client.rpc('set_bear_hug_equipment', {
-    p_partner_id: selectedFriendId,
-    p_reward_ids: equippedRewardIds
+    p_partner_id: partnerId,
+    p_reward_ids: rewardIds
   });
+  // A response for a previous partner must never overwrite the active partner's UI.
+  if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== String(partnerId)) return false;
   if (error) {
     console.warn('Shared Bear Hugs equipment could not be saved:', error.message || error);
     setStatus('Your reward could not sync to your Bearfriend. Please try again. ♡');
     return false;
   }
-  equippedRewardIds = Array.isArray(data) ? data : equippedRewardIds;
+  equippedRewardIds = Array.isArray(data) ? data : rewardIds;
   updateUI();
   return true;
 }
 async function equipReward(id) {
+  if (equipmentSaveInFlight) return;
   const reward = REWARDS.find(item => item.id === id);
   if (!reward || getLevel(getPoints()).level < reward.level) return;
+  const partnerId = String(selectedFriendId || '');
+  const pairKey = sharedProgressPairKey;
+  if (!partnerId || !pairKey || !isAcceptedPartner(partnerId)) return;
   const previous = [...equippedRewardIds];
   const active = equippedRewardIds.includes(id);
   if (active) equippedRewardIds = equippedRewardIds.filter(item => item !== id);
@@ -170,10 +177,17 @@ async function equipReward(id) {
     }
     equippedRewardIds = [...equippedRewardIds, id];
   }
+  const requestedRewards = [...equippedRewardIds];
+  equipmentSaveInFlight = true;
   updateUI();
-  if (!await saveEquippedRewards()) {
-    equippedRewardIds = previous;
-    updateUI();
+  try {
+    const saved = await saveEquippedRewards(partnerId, pairKey, requestedRewards);
+    if (!saved && sharedProgressPairKey === pairKey && String(selectedFriendId) === partnerId) {
+      equippedRewardIds = previous;
+      updateUI();
+    }
+  } finally {
+    equipmentSaveInFlight = false;
   }
 }
 

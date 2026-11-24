@@ -2616,6 +2616,7 @@ function go(p, options = {}) {
 
   page = p;
   updateNotificationBadge();
+  if (p !== 'notes') void markNavNotificationsSeen(p);
   $('#crumb').textContent = ({ home: 'Home', gallery: 'Photos', music: 'Music', notes: 'Notes', friends: 'Friends', streak: 'Streak Garden' })[p];
   document.querySelectorAll('#nav button[data-page]').forEach(b => {
     const isCurrentPage = b.dataset.page === p;
@@ -4845,6 +4846,7 @@ function startRealtime() {
           notificationRows = rows;
           notificationLoaded = true;
           updateNotificationBadge();
+          if (['gallery', 'music', 'friends'].includes(page)) void markNavNotificationsSeen(page);
           const added = rows.find(row => String(row.id) === String(inserted?.id));
           if (added) void showPhoneNotification(added);
           if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();
@@ -5483,6 +5485,38 @@ function updateNotificationBadge() {
   const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at && !(page === 'notes' && n.kind === 'note' && !/\bliked your note\b/i.test(String(n.message || '')))).length;
   badge.textContent = count > 9 ? '9+' : String(count);
   badge.classList.toggle('hidden', count === 0);
+  updateNavNewDots();
+}
+
+function updateNavNewDots() {
+  const pageKinds = { gallery: ['photo'], music: ['song'], notes: ['note'], friends: ['buddy'] };
+  const pageLabels = { gallery: 'Photos', music: 'Music', notes: 'Notes', friends: 'Friends' };
+  document.querySelectorAll('#nav button[data-page]').forEach(button => {
+    const targetPage = button.dataset.page;
+    const kinds = pageKinds[targetPage] || [];
+    const hasNew = notificationRows.some(row => !row.read_at && kinds.includes(String(row.kind || '').toLowerCase()));
+    button.querySelector('.nav-new-dot')?.classList.toggle('is-visible', hasNew);
+    if (hasNew) button.setAttribute('aria-label', (pageLabels[targetPage] || targetPage) + ', new activity');
+    else button.removeAttribute('aria-label');
+  });
+}
+
+async function markNavNotificationsSeen(targetPage) {
+  const pageKinds = { gallery: ['photo'], music: ['song'], friends: ['buddy'] };
+  const kinds = pageKinds[targetPage];
+  if (!kinds?.length || !me) return;
+  const rows = notificationRows.filter(row => !row.read_at && kinds.includes(String(row.kind || '').toLowerCase()));
+  if (!rows.length) return;
+  const readAt = new Date().toISOString();
+  rows.forEach(row => { row.read_at = readAt; });
+  updateNotificationBadge();
+  try {
+    await api('/notifications/read', { method: 'PUT', body: JSON.stringify({ ids: rows.map(row => String(row.id)) }) });
+  } catch (error) {
+    rows.forEach(row => { if (row.read_at === readAt) row.read_at = null; });
+    updateNotificationBadge();
+    console.warn('Navigation activity could not be marked as seen:', error?.message || error);
+  }
 }
 
 function notificationGroupLabel(value) {

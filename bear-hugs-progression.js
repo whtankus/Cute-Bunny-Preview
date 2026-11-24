@@ -42,6 +42,7 @@ let peerReady = false;
 let peerPromise = null;
 let peerGeneration = 0;
 let pendingRemoteActions = [];
+let pendingActionAcks = new Map();
 let pendingAction = null;
 let bearFriendSearchResults = [];
 let bearFriendSearchSequence = 0;
@@ -595,7 +596,14 @@ function ensureOwnChannel() {
       resolve(value);
     };
     const channel = client.channel(topic, { config: { broadcast: { self: false, ack: true } } })
-      .on('broadcast', { event: 'bear-action' }, ({ payload }) => receiveAction(payload));
+      .on('broadcast', { event: 'bear-action' }, ({ payload }) => receiveAction(payload))
+      .on('broadcast', { event: 'bear-action-ack' }, ({ payload }) => {
+        const pending = pendingActionAcks.get(String(payload?.actionId || ''));
+        if (!pending || String(payload?.fromUserId || '') !== pending.partnerId) return;
+        clearTimeout(pending.timer);
+        pendingActionAcks.delete(String(payload.actionId));
+        pending.resolve(true);
+      });
     ownChannel = channel;
     channel.subscribe(status => {
       if (channel !== ownChannel) return;
@@ -703,20 +711,40 @@ async function sendAction(action, partnerId = selectedFriendId) {
   }
   const payload = {
     action,
+    actionId: createBearActionId(),
     userId: String(user.id),
     toUserId: String(partnerId),
     gender: user.gender || null,
     sentAt: Date.now()
   };
+  let resolveAcknowledgement;
+  const acknowledgement = new Promise(resolve => { resolveAcknowledgement = resolve; });
+  const ackTimer = setTimeout(() => {
+    pendingActionAcks.delete(payload.actionId);
+    resolveAcknowledgement(false);
+  }, 3500);
+  pendingActionAcks.set(payload.actionId, { partnerId: String(partnerId), resolve: resolveAcknowledgement, timer: ackTimer });
   try {
     const result = await peerChannel.send({ type: 'broadcast', event: 'bear-action', payload });
     if (result !== 'ok') {
+      clearTimeout(ackTimer);
+      pendingActionAcks.delete(payload.actionId);
+      resolveAcknowledgement(false);
       console.warn('Bear Hugs action was not delivered:', result);
       setStatus('That little moment could not reach your friend. Please try again. ♡');
       return false;
     }
+    const acknowledged = await acknowledgement;
+    if (acknowledged) {
+      setStatus('Your Bearfriend received the little moment. ♡');
+    } else {
+      setStatus('Your little moment was sent, but your Bearfriend has not confirmed receiving it yet. ♡');
+    }
     return true;
   } catch (error) {
+    clearTimeout(ackTimer);
+    pendingActionAcks.delete(payload.actionId);
+    resolveAcknowledgement(false);
     console.warn('Bear Hugs action send failed:', error?.message || error);
     setStatus('That little moment could not reach your friend. Please try again. ♡');
     return false;
@@ -751,6 +779,28 @@ function receiveAction(payload) {
   updatePartnerChip();
   void ensurePeerChannel(selectedFriendId);
   applyRemoteAction(String(payload.action), payload);
+  if (payload.actionId) void sendActionAcknowledgement(payload);
+}
+async function sendActionAcknowledgement(actionPayload) {
+  const senderId = String(actionPayload?.userId || '');
+  const user = getMe();
+  if (!senderId || !user?.id || !actionPayload?.actionId) return;
+  const connected = await ensurePeerChannel(senderId);
+  if (!connected || !peerChannel || peerTopic !== 'cute-bunny-bear-actions-' + senderId) return;
+  try {
+    await peerChannel.send({
+      type: 'broadcast',
+      event: 'bear-action-ack',
+      payload: {
+        actionId: String(actionPayload.actionId),
+        fromUserId: String(user.id),
+        toUserId: senderId,
+        receivedAt: Date.now()
+      }
+    });
+  } catch (error) {
+    console.warn('Bear Hugs acknowledgement could not be sent:', error?.message || error);
+  }
 }
 function flushPendingRemoteAction() {
   if (!pendingRemoteActions.length || !$('#coupleBearGame') || typeof originalTrigger !== 'function') return;

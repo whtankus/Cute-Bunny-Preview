@@ -14775,3 +14775,11 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 /* Give the new tummy-scratch action enough room on narrow screens. */
 #coupleBearGame .couple-bear-actions{grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
 #coupleBearGame [data-couple-action="tummy"] span{display:inline-block;transform:rotate(-18deg)}
+
+
+/* Small glowing indicators for unseen activity in main navigation */
+.app #nav button{position:relative}
+.app #nav .nav-new-dot{position:absolute;top:5px;right:10px;width:8px;height:8px;border-radius:50%;background:#f0445e;box-shadow:0 0 0 2px rgba(253,248,241,.96),0 0 8px 2px rgba(240,68,94,.58);opacity:0;transform:scale(.55);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+.app #nav .nav-new-dot.is-visible{opacity:1;transform:scale(1);animation:nav-new-dot-glow 2s ease-in-out infinite}
+@keyframes nav-new-dot-glow{0%,100%{box-shadow:0 0 0 2px rgba(253,248,241,.96),0 0 6px 1px rgba(240,68,94,.42)}50%{box-shadow:0 0 0 2px rgba(253,248,241,.96),0 0 11px 3px rgba(240,68,94,.72)}}
+@media(prefers-reduced-motion:reduce){.app #nav .nav-new-dot.is-visible{animation:none}}

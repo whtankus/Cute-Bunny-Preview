@@ -265,14 +265,7 @@ function ensureLivingScene(scene) {
     ambience.innerHTML = '<span class="bear-living-petal petal-one">✿</span><span class="bear-living-petal petal-two">✧</span><span class="bear-living-petal petal-three">♡</span><span class="bear-living-glow"></span>';
     scene.appendChild(ambience);
   }
-  let props = scene.querySelector('.bear-living-props');
-  if (!props) {
-    props = document.createElement('div');
-    props.className = 'bear-living-props';
-    props.setAttribute('aria-label', 'Little things for the bears');
-    props.innerHTML = '<button type="button" data-couple-action="feed" aria-label="Offer the bears a strawberry" title="Offer a strawberry">🍓</button><button type="button" data-couple-action="pet" aria-label="Let the bears play with a flower" title="Play with a flower">🌼</button><button type="button" data-couple-action="sleep" aria-label="Give the bears a pillow" title="Give them a pillow">🛏️</button>';
-    scene.appendChild(props);
-  }
+
 }
 function getBearMomentsKey() {
   return 'cuteBunnyBearMoments:v1:' + (sharedProgressPairKey || 'unpaired');

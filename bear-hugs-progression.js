@@ -744,6 +744,7 @@ async function chooseFriend(id) {
   if (results.every(Boolean)) updateConnectionStatus();
   else setStatus('Your partner is selected, but the live connection is still reconnecting. Try an action again shortly. ♡');
   await loadSharedProgress();
+  scheduleBearIdleAction();
   if (pendingAction) {
     const action = pendingAction;
     pendingAction = null;

@@ -100,7 +100,7 @@ async function loadSharedProgress() {
       .maybeSingle();
     data = fallback.data;
     error = fallback.error;
-    if (!error) loadEquippedRewards(pairKey);
+    // The local equipment cache is restored only after the stale-pair guard below.
   }
   // Realtime refreshes and partner switches can overlap. Ignore stale responses
   // rather than allowing an older pair's points or equipment to replace the current pair.
@@ -114,9 +114,11 @@ async function loadSharedProgress() {
   const previousPoints = sharedPoints;
   sharedPoints = Math.max(0, Number(data?.love_points) || 0);
   lastSharedAction = String(data?.last_action || '');
-  equippedRewardIds = Array.isArray(data?.equipped_reward_ids)
-    ? data.equipped_reward_ids.filter(id => REWARDS.some(reward => reward.id === id))
-    : equippedRewardIds.filter(id => REWARDS.some(reward => reward.id === id));
+  if (Array.isArray(data?.equipped_reward_ids)) {
+    equippedRewardIds = data.equipped_reward_ids.filter(id => REWARDS.some(reward => reward.id === id));
+  } else {
+    loadEquippedRewards(pairKey);
+  }
   try { localStorage.setItem(EQUIPPED_KEY_PREFIX + pairKey, JSON.stringify(equippedRewardIds)); } catch {}
   if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
   sharedProgressInitialized = true;

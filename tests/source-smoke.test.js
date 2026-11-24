@@ -73,9 +73,7 @@ test('Bear Hugs adds visual-only idle personality, sleep, props, atmosphere and 
   assert.match(app, /peekaboo:\(t,b\)=>/);
   assert.match(app, /bump:\(t,b\)=>/);
   assert.match(app, /curious=Math\.max/);
-  assert.match(bear, /data-couple-action="feed"/);
-  assert.match(bear, /data-couple-action="pet"/);
-  assert.match(bear, /data-couple-action="sleep"/);
+  assert.doesNotMatch(bear, /bear-living-props|data-couple-action="feed"/);
   assert.match(styles, /bear-time-morning/);
   assert.match(bear, /recordBearMoment/);
   assert.match(bear, /bearsAreAsleep/);

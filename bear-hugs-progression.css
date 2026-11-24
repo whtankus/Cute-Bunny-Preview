@@ -644,3 +644,34 @@
 @media(prefers-reduced-motion:reduce) {
   #coupleBearGame.is-sending .bear-action-button { transition: none; }
 }
+
+/* Living Bear Hugs scene: lightweight ambience and direct object interactions. */
+#coupleBearGame .couple-bears-scene{position:relative;isolation:isolate;overflow:hidden}
+#coupleBearGame #bearPoseSvg{position:relative;z-index:2}
+#coupleBearGame .bear-living-atmosphere{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+#coupleBearGame .bear-living-glow{position:absolute;width:42%;height:60%;left:29%;top:12%;border-radius:50%;background:radial-gradient(ellipse,rgba(255,255,255,.26),transparent 72%);filter:blur(8px)}
+#coupleBearGame .bear-living-petal{position:absolute;bottom:-14%;font-size:clamp(13px,2vw,20px);opacity:0;animation:bearPetalFloat 13s ease-in-out infinite;color:#fff7d9;text-shadow:0 2px 8px rgba(180,110,150,.25)}
+#coupleBearGame .petal-one{left:16%;animation-delay:-2s}
+#coupleBearGame .petal-two{left:72%;animation-delay:-8s;font-size:14px}
+#coupleBearGame .petal-three{left:48%;animation-delay:-5s}
+@keyframes bearPetalFloat{0%{transform:translate3d(0,0,0) rotate(-15deg);opacity:0}15%{opacity:.72}80%{opacity:.55}100%{transform:translate3d(34px,-125%,0) rotate(45deg);opacity:0}}
+#coupleBearGame .bear-time-morning .bear-living-glow{background:radial-gradient(ellipse,rgba(255,238,184,.42),transparent 72%)}
+#coupleBearGame .bear-time-afternoon .bear-living-glow{background:radial-gradient(ellipse,rgba(255,255,255,.32),transparent 72%)}
+#coupleBearGame .bear-time-evening .bear-living-glow{background:radial-gradient(ellipse,rgba(255,177,157,.4),transparent 72%)}
+#coupleBearGame .bear-time-night .bear-living-glow{background:radial-gradient(ellipse,rgba(190,177,255,.38),transparent 72%)}
+#coupleBearGame .bear-time-night{filter:saturate(.92)}
+#coupleBearGame .bear-time-night .bear-living-petal{color:#e9e4ff;text-shadow:0 0 8px rgba(219,207,255,.8)}
+#coupleBearGame .bear-living-props{position:absolute;z-index:4;right:10px;bottom:9px;display:flex;gap:6px;align-items:center}
+#coupleBearGame .bear-living-props button{display:grid;place-items:center;width:34px;height:34px;padding:0;border:1px solid rgba(255,255,255,.8);border-radius:50%;background:rgba(255,250,252,.78);box-shadow:0 3px 10px rgba(92,61,83,.12);font-size:17px;cursor:pointer;backdrop-filter:blur(6px);transition:transform .16s ease,background .16s ease}
+#coupleBearGame .bear-living-props button:active{transform:scale(.9)}
+#coupleBearGame .bear-living-props button:focus-visible{outline:2px solid #c786a8;outline-offset:2px}
+#coupleBearGame .bear-moments{margin-top:13px;padding:12px 13px;border:1px solid var(--cb-border);border-radius:17px;background:color-mix(in srgb,var(--cb-card) 88%,#fff 12%)}
+#coupleBearGame .bear-moments>div:first-child{display:grid;gap:3px}
+#coupleBearGame .bear-moments>div:first-child b{font-size:.82rem;color:var(--cb-text)}
+#coupleBearGame .bear-moments>div:first-child small{font-size:.64rem;color:var(--cb-text-soft)}
+#coupleBearGame .bear-moments>p{margin:9px 0 0;font-size:.7rem;color:var(--cb-text-soft)}
+#coupleBearGame .bear-moments-list{display:grid;gap:6px;margin-top:9px}
+#coupleBearGame .bear-moments-list article{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border-radius:11px;background:rgba(255,255,255,.48);font-size:.7rem;color:var(--cb-text)}
+#coupleBearGame .bear-moments-list button{width:29px;height:29px;border:0;border-radius:50%;background:#fff0f5;color:#bd7898;font-size:1rem;cursor:pointer}
+@media(max-width:420px){#coupleBearGame .bear-living-props{right:7px;bottom:7px;gap:4px}#coupleBearGame .bear-living-props button{width:30px;height:30px;font-size:15px}}
+@media(prefers-reduced-motion:reduce){#coupleBearGame .bear-living-petal{animation:none;opacity:.25;bottom:20%}#coupleBearGame .bear-living-props button{transition:none}}

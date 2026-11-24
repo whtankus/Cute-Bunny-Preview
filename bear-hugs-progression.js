@@ -993,7 +993,7 @@ function closeBearHugsRealtime() {
   peerGeneration++;
 }
 
-function scheduleBearIdleAction(delay = 10000) {
+function scheduleBearIdleAction(delay = 25000) {
   if (bearIdleActionTimer) clearTimeout(bearIdleActionTimer);
   bearIdleActionTimer = null;
   const root = $('#coupleBearGame');
@@ -1017,10 +1017,10 @@ function runAutonomousBearAction() {
   // Autonomous moments are purely visual: do not broadcast them, award points,
   // or count them toward daily missions.
   originalTrigger(action, { remote: true, gender: getMe()?.gender, autonomous: true });
-  scheduleBearIdleAction(10000);
+  scheduleBearIdleAction(25000);
 }
 function noteBearActivity() {
-  scheduleBearIdleAction(10000);
+  scheduleBearIdleAction(25000);
 }
 
 function install() {

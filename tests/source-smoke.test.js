@@ -13,6 +13,21 @@ test('core browser scripts parse without syntax errors', () => {
   }
 });
 
+test('Bear Hugs restores saved partners and keeps reward progression wired', () => {
+  const bear = read('bear-hugs-progression.js');
+  const styles = read('bear-hugs-progression.css');
+  const html = read('index.html');
+  assert.doesNotThrow(() => new vm.Script(bear, { filename: 'bear-hugs-progression.js' }));
+  assert.match(bear, /Checking your saved Bearfriend connection/);
+  assert.match(bear, /await loadPartnerRequests\(\)/);
+  assert.match(bear, /set_bear_hug_equipment/);
+  assert.match(bear, /data-bear-equip/);
+  assert.match(bear, /bear-care-milestone/);
+  assert.match(styles, /bear-reward-apply:disabled/);
+  assert.match(styles, /bear-visual-cap/);
+  assert.match(html, /bear-hugs-level-rewards-20261124-2/);
+});
+
 test('the app shell references local stylesheets that exist', () => {
   const html = read('index.html');
   const stylesheets = [...html.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi)]

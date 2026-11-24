@@ -3099,7 +3099,7 @@ function renderNotesPage(options = {}) {
   });
 }
 
-/* Achievement Garden — milestones are derived from the signed-in user's real app activity. */
+/* Achievement Garden — earned blooms remain in the collection permanently. */
 function achievementGardenMarkup(items) {
   const stats = {
     memories: items.length,
@@ -3110,12 +3110,16 @@ function achievementGardenMarkup(items) {
     hearts: Math.max(0, Number(me?.heartCount) || 0)
   };
   const achievements = [
-    { id:'first-memory', icon:'📖', title:'First Little Memory', detail:'Save your first shared moment', value:stats.memories, goal:1, unit:'memory' },
-    { id:'photo-collector', icon:'🌷', title:'Photo Collector', detail:'Keep five photos in your garden', value:stats.photos, goal:5, unit:'photos' },
-    { id:'love-letter', icon:'💌', title:'Little Correspondent', detail:'Share five notes together', value:stats.notes, goal:5, unit:'notes' },
-    { id:'playlist-curator', icon:'🎶', title:'Playlist Curator', detail:'Add three songs to your playlist', value:stats.songs, goal:3, unit:'songs' },
-    { id:'week-of-wonder', icon:'🌼', title:'Week of Wonder', detail:'Reach a seven-day login streak', value:stats.streak, goal:7, unit:'days' },
-    { id:'heart-keeper', icon:'💗', title:'Heart Keeper', detail:'Collect one hundred hearts on your memories', value:stats.hearts, goal:100, unit:'hearts' }
+    { id:'first-memory', title:'First Little Memory', detail:'Save your first shared moment', value:stats.memories, goal:1, unit:'memory', art:'memory', flower:'Forget-me-not' },
+    { id:'photo-collector', title:'Photo Collector', detail:'Keep five photos in your garden', value:stats.photos, goal:5, unit:'photos', art:'camera', flower:'Daisy' },
+    { id:'love-letter', title:'Little Correspondent', detail:'Share five notes together', value:stats.notes, goal:5, unit:'notes', art:'letter', flower:'Rose' },
+    { id:'playlist-curator', title:'Playlist Curator', detail:'Add three songs to your playlist', value:stats.songs, goal:3, unit:'songs', art:'music', flower:'Bluebell' },
+    { id:'week-of-wonder', title:'Week of Wonder', detail:'Reach a seven-day login streak', value:stats.streak, goal:7, unit:'days', art:'sunrise', flower:'Sunflower' },
+    { id:'heart-keeper', title:'Heart Keeper', detail:'Collect one hundred hearts on your memories', value:stats.hearts, goal:100, unit:'hearts', art:'heart', flower:'Pink Camellia' },
+    { id:'heart-bloom-500', title:'Halfway to a Thousand', detail:'Collect 500 lifetime hearts', value:stats.hearts, goal:500, unit:'hearts', art:'five', flower:'Cosmos' },
+    { id:'heart-bloom-1000', title:'Thousand Heart Garden', detail:'Collect 1,000 lifetime hearts', value:stats.hearts, goal:1000, unit:'hearts', art:'thousand', flower:'Peony' },
+    { id:'heart-bloom-1500', title:'Everlasting Rose', detail:'Collect 1,500 lifetime hearts', value:stats.hearts, goal:1500, unit:'hearts', art:'rose', flower:'Everlasting Rose' },
+    { id:'heart-bloom-2000', title:'Heart of the Garden', detail:'Collect 2,000 lifetime hearts', value:stats.hearts, goal:2000, unit:'hearts', art:'crown', flower:'Crowned Lotus' }
   ];
   const key = 'cuteBunnyAchievements:' + String(me?.id || me?.username || 'guest');
   let saved = {};
@@ -3131,24 +3135,35 @@ function achievementGardenMarkup(items) {
     try { localStorage.setItem(key, JSON.stringify(saved)); } catch {}
   }
   const earnedCount = achievements.filter(item => !!saved[item.id]).length;
-  const remaining = achievements.filter(item => !saved[item.id]);
-  if (!remaining.length) return '';
+  const artwork = {
+    memory: '<path d="M12 7.5 24 4l12 3.5v29L24 40l-12-3.5z" fill="#f7e7cc" stroke="#b78a69" stroke-width="1.6"/><path d="M17 14h14M17 19h14M17 24h9" stroke="#b78a69" stroke-width="1.7" stroke-linecap="round"/><path d="M24 31c-5-3-6-8-2-9 2-.5 3 1 2 2 1-1.5 3-2.5 5-1 3 3-1 6-5 8z" fill="#df8baa"/>',
+    camera: '<rect x="7" y="13" width="34" height="25" rx="6" fill="#e5edf5" stroke="#7995ad" stroke-width="1.7"/><path d="m14 13 3-5h13l4 5" fill="#d5e3ef" stroke="#7995ad" stroke-width="1.7"/><circle cx="24" cy="25" r="8" fill="#fff7e8" stroke="#7995ad" stroke-width="2"/><circle cx="24" cy="25" r="4" fill="#d69fba"/><circle cx="36" cy="18" r="1.8" fill="#d69fba"/>',
+    letter: '<path d="M7 13q0-3 4-3h26q4 0 4 3v23q0 3-4 3H11q-4 0-4-3z" fill="#fff0f2" stroke="#c9859e" stroke-width="1.7"/><path d="m9 14 15 12 15-12" fill="none" stroke="#c9859e" stroke-width="2"/><path d="M24 28c-6-4-7-9-3-10 2-.6 3 1 3 2 1-2 4-3 6-1 3 3-1 7-6 9z" fill="#d97899"/>',
+    music: '<path d="M28 8v23a6 6 0 1 1-4-5.7V14l17-4v17a6 6 0 1 1-4-5.7V8z" fill="#dcd7f4" stroke="#8d80b9" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 16q-5 8 0 16M14 19q-3 5 0 10" fill="none" stroke="#c18daf" stroke-width="2" stroke-linecap="round"/>',
+    sunrise: '<circle cx="24" cy="25" r="15" fill="#ffe6ae" opacity=".7"/><path d="M8 31h32M12 31a12 12 0 0 1 24 0" fill="none" stroke="#d69a59" stroke-width="2.2" stroke-linecap="round"/><path d="M24 7v6M9 14l4 4M39 14l-4 4M5 27h6M37 27h6" stroke="#d69a59" stroke-width="2" stroke-linecap="round"/><path d="m18 29 6-5 6 5" fill="none" stroke="#9da982" stroke-width="2"/>',
+    heart: '<path d="M24 39S7 29 7 18c0-8 10-12 17-3 7-9 17-5 17 3 0 11-17 21-17 21z" fill="#e98eaa" stroke="#bd6688" stroke-width="1.8"/><path d="M15 17q2-5 7-3" fill="none" stroke="#fff3f5" stroke-width="2.4" stroke-linecap="round"/>',
+    five: '<path d="M24 5 29 17 42 18 32 27 35 40 24 33 13 40 16 27 6 18 19 17z" fill="#e9bad0" stroke="#b87d9b" stroke-width="1.8"/><text x="24" y="27" text-anchor="middle" font-size="10" font-weight="900" fill="#86516e">500</text>',
+    thousand: '<path d="M24 5c-11 0-18 9-18 19 0 10 8 18 18 18s18-8 18-18C42 14 35 5 24 5z" fill="#edc6d4" stroke="#b97897" stroke-width="1.8"/><path d="M24 10c-7 0-12 6-12 13 0 7 5 12 12 12s12-5 12-12c0-7-5-13-12-13z" fill="#fff0d2" stroke="#cf9c78"/><text x="24" y="27" text-anchor="middle" font-size="9" font-weight="900" fill="#8b5870">1K</text>',
+    rose: '<path d="M24 42V27" stroke="#789a79" stroke-width="2.5" stroke-linecap="round"/><path d="M23 37q-11-11-16-4 5 8 16 5M25 34q10-12 15-5-4 8-15 7" fill="#b9d2ad" stroke="#789a79" stroke-width="1.2"/><g fill="#d9799a" stroke="#a64d70" stroke-width="1.2"><path d="M24 7c-7-5-14 1-10 8-8 2-6 12 2 12-1 8 10 10 12 3 8 3 14-6 7-11 5-7-3-15-11-11z"/><path d="M17 17q7-9 14 0-1 10-8 10-8-2-6-10z" fill="#f4b5c9"/></g><path d="M21 17q3-5 7-1-1 6-5 6" fill="none" stroke="#a64d70" stroke-width="1.5"/>',
+    crown: '<path d="M24 42V26" stroke="#789a79" stroke-width="2.5"/><path d="M23 36q-9-10-14-4 5 7 14 5" fill="#b9d2ad"/><g fill="#d8c5ed" stroke="#9277ae" stroke-width="1.3"><path d="M24 5c-5-4-10 1-8 6-7 0-8 9-2 12-1 7 9 10 10 4 2 6 12 3 10-4 6-3 5-12-2-12-1-7-6-10-8-6z"/><circle cx="24" cy="20" r="8" fill="#f7e6b2" stroke="#c09a56"/></g><path d="m14 12 2-7 7 6 1-9 4 9 7-6 1 8" fill="#edca79" stroke="#a98548" stroke-width="1.6" stroke-linejoin="round"/>'
+  };
   return `
     <section class="achievement-garden" aria-labelledby="achievementGardenTitle">
       <div class="achievement-garden-heading">
-        <div><small>A FEW LITTLE GOALS</small><h3 id="achievementGardenTitle">Growing together <span aria-hidden="true">✿</span></h3><p>Small moments, lovely milestones.</p></div>
-        <div class="achievement-count"><strong>${earnedCount}/${achievements.length}</strong><span>unlocked</span></div>
+        <div><small>YOUR LITTLE FLOWER COLLECTION</small><h3 id="achievementGardenTitle">Milestones in bloom <span aria-hidden="true">✿</span></h3><p>Every little thing you grow stays in your garden.</p></div>
+        <div class="achievement-count"><strong>${earnedCount}/${achievements.length}</strong><span>blooms earned</span></div>
       </div>
       <div class="achievement-grid">
-        ${remaining.map(item => {
+        ${achievements.map(item => {
+          const earned = !!saved[item.id];
           const progress = Math.min(100, Math.round((item.value / item.goal) * 100));
           const amount = Math.min(item.value, item.goal);
-          const art = item.id === 'first-memory' ? 'note' : item.id === 'photo-collector' ? 'photo' : item.id === 'love-letter' ? 'kissNote' : item.id === 'playlist-curator' ? 'song' : item.id === 'week-of-wonder' ? 'bloom-7' : 'hearts';
-          return `<article class="achievement-card">
-            <div class="achievement-medallion achievement-art" aria-hidden="true">${gardenIllustration(art)}</div>
+          return `<article class="achievement-card ${earned ? 'is-earned' : 'is-growing'}" data-achievement="${item.id}">
+            <div class="achievement-medallion achievement-art achievement-art-${item.art}" aria-hidden="true"><svg viewBox="0 0 48 48" focusable="false">${artwork[item.art]}</svg></div>
             <div class="achievement-copy"><strong>${esc(item.title)}</strong><p>${esc(item.detail)}</p>
               <div class="achievement-progress" role="progressbar" aria-label="${esc(item.title)} progress" aria-valuemin="0" aria-valuemax="${item.goal}" aria-valuenow="${amount}"><span style="width:${progress}%"></span></div>
-              <small>${amount} / ${item.goal} ${esc(item.unit)}</small>
+              <small>${earned ? '✿ Collected · ' + item.goal.toLocaleString() : amount.toLocaleString() + ' / ' + item.goal.toLocaleString()} ${esc(item.unit)}</small>
+              ${earned ? '<span class="achievement-earned-stamp" aria-label="Unlocked">✦</span>' : ''}
             </div>
           </article>`;
         }).join('')}

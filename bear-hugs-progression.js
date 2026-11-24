@@ -25,7 +25,6 @@ let selectedFriendId = localStorage.getItem(SELECTED_KEY) || '';
 let sharedPoints = 0;
 let lastSharedAction = '';
 let equippedRewardIds = [];
-let actionInFlight = false;
 let sharedProgressPairKey = '';
 let sharedProgressInitialized = false;
 let progressChannel = null;
@@ -941,47 +940,40 @@ function flushPendingRemoteAction() {
   if (pendingRemoteActions.length) setTimeout(flushPendingRemoteAction, 1200);
 }
 async function runLocalAction(action) {
-  if (!ACTIONS.has(action) || actionInFlight) return;
+  if (!ACTIONS.has(action)) return;
   noteBearActivity();
   if (!selectedFriendId || !getSelectedFriend() || !isAcceptedPartner(selectedFriendId)) {
     openPicker(action);
     return;
   }
-  if (typeof originalTrigger === 'function') {
-    actionInFlight = true;
-    const gameRoot = $('#coupleBearGame');
-    gameRoot?.classList.add('is-sending');
-    gameRoot?.querySelectorAll('.bear-action-button').forEach(button => {
-      button.disabled = true;
-      button.setAttribute('aria-busy', 'true');
-    });
-    setStatus('Sending a little moment to your Bearfriend… ♡');
-    originalTrigger(action, { remote: true, gender: getMe()?.gender });
-    if (action === 'sleep') bearsAreAsleep = true;
-    updateUI();
-  } else {
+  if (typeof originalTrigger !== 'function') {
     setStatus('The bear animation is still loading. Please try again in a moment. ♡');
     return;
   }
-  const partnerId = selectedFriendId;
+
+  // Play immediately and keep every action button available. Network delivery,
+  // acknowledgement, and Care Point recording happen independently in the
+  // background so a slow connection never blocks the next interaction.
+  const partnerId = String(selectedFriendId);
   const actionId = createBearActionId();
-  try {
-    const delivered = await sendAction(action, partnerId, actionId);
-    if (delivered) {
+  originalTrigger(action, { remote: true, gender: getMe()?.gender });
+  if (action === 'sleep') bearsAreAsleep = true;
+  updateUI();
+  setStatus('A little moment for your Bearfriend… ♡');
+
+  void (async () => {
+    try {
+      const delivered = await sendAction(action, partnerId, actionId);
+      if (!delivered) return;
       await recordSharedAction(action, partnerId, actionId);
-      // The realtime acknowledgement confirms the action reached the friend.
-      // Daily missions should still count if the separate points RPC is offline.
+      // Count only actions confirmed as delivered; action IDs keep retries
+      // and concurrent sends from awarding duplicate quest credit.
       window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', { detail: { action, actionId } }));
+    } catch (error) {
+      console.warn('Bear Hugs action could not be completed:', error?.message || error);
+      setStatus('Your bears enjoyed the moment, but it could not reach your Bearfriend. ♡');
     }
-  } finally {
-    actionInFlight = false;
-    const gameRoot = $('#coupleBearGame');
-    gameRoot?.classList.remove('is-sending');
-    gameRoot?.querySelectorAll('.bear-action-button').forEach(button => {
-      button.disabled = false;
-      button.removeAttribute('aria-busy');
-    });
-  }
+  })();
 }
 function ensureProgressChannel() {
   const client = getSupabase(), user = getMe();
@@ -1068,7 +1060,7 @@ function scheduleBearIdleAction(delay = 25000) {
 function runAutonomousBearAction() {
   const root = $('#coupleBearGame');
   if (!root || document.hidden || !selectedFriendId || !isAcceptedPartner(selectedFriendId) || bearsAreAsleep) return;
-  if (actionInFlight || typeof originalTrigger !== 'function') {
+  if (typeof originalTrigger !== 'function') {
     scheduleBearIdleAction(1500);
     return;
   }

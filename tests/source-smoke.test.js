@@ -90,7 +90,7 @@ test('Bear Hugs plays a random visual-only action after 25 seconds of inactivity
   assert.match(bear, /scheduleBearIdleAction\(25000\)/);
   assert.match(bear, /idleFor >= 120000/);
   assert.match(bear, /originalTrigger\(action, \{ remote: true, gender: getMe\(\)\?\.gender, autonomous: true \}\)/);
-  assert.match(bear, /const choices = \['hug', 'kiss', 'flykiss', 'hands', 'dance', 'pet', 'tummy', 'feed', 'sleep'\]/);
+  assert.match(bear, /const choices = idleFor >= 120000 \\? \\['sleep'\\] : \\['hug', 'kiss', 'flykiss', 'hands', 'dance', 'pet', 'tummy', 'feed', 'peekaboo', 'bump'\\]/);
   assert.match(bear, /event\.target\?\.closest\?\.\('#coupleBearGame'\)/);
   assert.match(bear, /document\.hidden/);
   assert.match(bear, /Autonomous moments are purely visual/);

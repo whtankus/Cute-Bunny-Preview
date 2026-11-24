@@ -85,11 +85,23 @@ async function loadSharedProgress() {
     sharedProgressInitialized = false;
     updateUI();
   }
-  const { data, error } = await client.from('bear_partner_progress')
+  let { data, error } = await client.from('bear_partner_progress')
     .select('love_points,last_action,equipped_reward_ids')
     .eq('partner_low', low)
     .eq('partner_high', high)
     .maybeSingle();
+  // Keep the Love Meter readable on databases where the equipment migration
+  // has not been applied yet. Reward writes still require the shared RPC.
+  if (error && (error.code === '42703' || /equipped_reward_ids.*(does not exist|not found)|column .*equipped_reward_ids/i.test(error.message || ''))) {
+    const fallback = await client.from('bear_partner_progress')
+      .select('love_points,last_action')
+      .eq('partner_low', low)
+      .eq('partner_high', high)
+      .maybeSingle();
+    data = fallback.data;
+    error = fallback.error;
+    if (!error) loadEquippedRewards(pairKey);
+  }
   // Realtime refreshes and partner switches can overlap. Ignore stale responses
   // rather than allowing an older pair's points or equipment to replace the current pair.
   if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== requestedPartnerId ||
@@ -104,7 +116,8 @@ async function loadSharedProgress() {
   lastSharedAction = String(data?.last_action || '');
   equippedRewardIds = Array.isArray(data?.equipped_reward_ids)
     ? data.equipped_reward_ids.filter(id => REWARDS.some(reward => reward.id === id))
-    : [];
+    : equippedRewardIds.filter(id => REWARDS.some(reward => reward.id === id));
+  try { localStorage.setItem(EQUIPPED_KEY_PREFIX + pairKey, JSON.stringify(equippedRewardIds)); } catch {}
   if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
   sharedProgressInitialized = true;
   updateUI();
@@ -158,18 +171,31 @@ let equipmentSaveInFlight = false;
 async function saveEquippedRewards(partnerId, pairKey, rewardIds) {
   const client = getSupabase();
   if (!pairKey || !partnerId || !client || !isAcceptedPartner(partnerId)) return false;
-  const { data, error } = await client.rpc('set_bear_hug_equipment', {
-    p_partner_id: partnerId,
-    p_reward_ids: rewardIds
-  });
+  let result;
+  try {
+    result = await client.rpc('set_bear_hug_equipment', {
+      p_partner_id: partnerId,
+      p_reward_ids: rewardIds
+    });
+  } catch (error) {
+    console.warn('Shared Bear Hugs equipment request failed:', error?.message || error);
+    if (sharedProgressPairKey === pairKey && String(selectedFriendId) === String(partnerId)) {
+      setStatus('Reward syncing is unavailable. Check your connection and Bear Hugs database updates. ♡');
+    }
+    return false;
+  }
+  const { data, error } = result || {};
   // A response for a previous partner must never overwrite the active partner's UI.
   if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== String(partnerId)) return false;
   if (error) {
     console.warn('Shared Bear Hugs equipment could not be saved:', error.message || error);
-    setStatus('Your reward could not sync to your Bearfriend. Please try again. ♡');
+    setStatus(/function .*set_bear_hug_equipment.*(does not exist|not found)|schema cache/i.test(error.message || '')
+      ? 'Reward syncing needs the latest Bear Hugs database migration. ♡'
+      : 'Your reward could not sync to your Bearfriend. Please try again. ♡');
     return false;
   }
-  equippedRewardIds = Array.isArray(data) ? data : rewardIds;
+  equippedRewardIds = Array.isArray(data) ? data.filter(id => REWARDS.some(reward => reward.id === id)) : rewardIds;
+  try { localStorage.setItem(EQUIPPED_KEY_PREFIX + pairKey, JSON.stringify(equippedRewardIds)); } catch {}
   updateUI();
   return true;
 }
@@ -256,7 +282,10 @@ function updateUI() {
       '<span class="bear-care-level"><small>BEAR LEVEL</small><b>' + level.level + '</b></span>' +
     '</div>' +
     '<div class="bear-care-track" role="progressbar" aria-label="Care Points progress to Bear Hugs Level ' + (level.level + 1) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(percent) + '"><span style="width:' + percent + '%"></span></div>' +
-    '<div class="bear-care-foot"><span>' + pointsIntoLevel.toLocaleString() + ' / ' + pointsForLevel.toLocaleString() + ' toward Level ' + (level.level + 1) + '</span><b>' + pointsRemaining.toLocaleString() + ' to go</b></div>';
+    '<div class="bear-care-foot"><span><b class="bear-care-progress-label">' + pointsIntoLevel.toLocaleString() + ' / ' + pointsForLevel.toLocaleString() + '</b> to Level ' + (level.level + 1) + '</span><b>' + pointsRemaining.toLocaleString() + ' points left</b></div>' +
+    '<div class="bear-care-milestone"><span>✧</span>' + (nextReward
+      ? 'Next keepsake: <b>' + esc(nextReward.name) + '</b> at Level ' + nextReward.level
+      : '<b>All five keepsakes unlocked</b> — your bear world is complete') + '</div>';
 
   let panel = $('#bearProgressionPanel', root);
   if (!panel) {
@@ -271,7 +300,15 @@ function updateUI() {
     panel.dataset.rewardHandler = 'true';
     panel.addEventListener('click', event => {
       const button = event.target.closest('[data-bear-equip]');
-      if (button) equipReward(button.dataset.bearEquip);
+      if (!button || button.disabled) return;
+      button.disabled = true;
+      button.setAttribute('aria-busy', 'true');
+      void equipReward(button.dataset.bearEquip).finally(() => {
+        if (button.isConnected) {
+          button.disabled = false;
+          button.removeAttribute('aria-busy');
+        }
+      });
     });
   }
 
@@ -925,11 +962,24 @@ function install() {
     event.stopPropagation();
     event.stopImmediatePropagation();
     const action = actionButton ? actionButton.dataset.coupleAction : 'pet';
-    if (!selectedFriendId || !getSelectedFriend() || !isAcceptedPartner(selectedFriendId)) {
+    void (async () => {
+      // The saved Bearfriend ID is restored synchronously, while the accepted
+      // relationship/profile rows load asynchronously. Wait for that check
+      // before deciding to show the chooser.
+      if (selectedFriendId && !partnerRequestsLoaded) {
+        const loaded = await loadPartnerRequests();
+        if (!loaded) {
+          setStatus('Checking your saved Bearfriend connection. Please try again in a moment. ♡');
+          return;
+        }
+      }
+      if (selectedFriendId && getSelectedFriend() && isAcceptedPartner(selectedFriendId)) {
+        updatePartnerChip();
+        runLocalAction(action);
+        return;
+      }
       void openPicker(action);
-      return;
-    }
-    runLocalAction(action);
+    })();
   }, true);
 
   if (typeof window.startBearRealtime === 'function') window.startBearRealtime = startBearHugsRealtime;

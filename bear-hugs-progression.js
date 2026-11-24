@@ -49,6 +49,8 @@ let bearFriendSearchSequence = 0;
 let requestChannel = null;
 let requestTopic = '';
 let requestRefreshTimer = null;
+let bearIdleActionTimer = null;
+let lastAutonomousBearAction = '';
 
 function getPoints() {
   return Math.max(0, Number(sharedPoints) || 0);
@@ -805,6 +807,7 @@ async function sendAction(action, partnerId = selectedFriendId, actionId = creat
 }
 function applyRemoteAction(action, payload) {
   if (!ACTIONS.has(action)) return;
+  noteBearActivity();
   const root = $('#coupleBearGame');
   if (root && typeof originalTrigger === 'function') {
     originalTrigger(action, { remote: true, gender: payload.gender });
@@ -877,6 +880,7 @@ function flushPendingRemoteAction() {
 }
 async function runLocalAction(action) {
   if (!ACTIONS.has(action) || actionInFlight) return;
+  noteBearActivity();
   if (!selectedFriendId || !getSelectedFriend() || !isAcceptedPartner(selectedFriendId)) {
     openPicker(action);
     return;
@@ -988,6 +992,36 @@ function closeBearHugsRealtime() {
   peerGeneration++;
 }
 
+function scheduleBearIdleAction(delay = 10000) {
+  if (bearIdleActionTimer) clearTimeout(bearIdleActionTimer);
+  bearIdleActionTimer = null;
+  const root = $('#coupleBearGame');
+  if (!root || document.hidden || !selectedFriendId || !isAcceptedPartner(selectedFriendId)) return;
+  bearIdleActionTimer = setTimeout(() => {
+    bearIdleActionTimer = null;
+    runAutonomousBearAction();
+  }, Math.max(1000, delay));
+}
+function runAutonomousBearAction() {
+  const root = $('#coupleBearGame');
+  if (!root || document.hidden || !selectedFriendId || !isAcceptedPartner(selectedFriendId)) return;
+  if (actionInFlight || typeof originalTrigger !== 'function') {
+    scheduleBearIdleAction(1500);
+    return;
+  }
+  const choices = ['hug', 'kiss', 'flykiss', 'hands', 'dance', 'pet', 'tummy', 'feed', 'sleep'];
+  const available = choices.filter(action => action !== lastAutonomousBearAction);
+  const action = available[Math.floor(Math.random() * available.length)] || 'pet';
+  lastAutonomousBearAction = action;
+  // Autonomous moments are purely visual: do not broadcast them, award points,
+  // or count them toward daily missions.
+  originalTrigger(action, { remote: true, gender: getMe()?.gender, autonomous: true });
+  scheduleBearIdleAction(10000);
+}
+function noteBearActivity() {
+  scheduleBearIdleAction(10000);
+}
+
 function install() {
   if (window.__cuteBunnyBearHugsFixed) return;
   window.__cuteBunnyBearHugsFixed = true;
@@ -1042,6 +1076,7 @@ function install() {
       updatePartnerChip();
       updateUI();
       flushPendingRemoteAction();
+      scheduleBearIdleAction();
       // The Bearfriend chooser is intentionally opened by the first bear interaction,
       // not by an automatic page-load popup. This keeps the experience predictable.
     }
@@ -1053,6 +1088,7 @@ function install() {
     if (event.key === SELECTED_KEY) {
       selectedFriendId = localStorage.getItem(SELECTED_KEY) || '';
       updatePartnerChip();
+      scheduleBearIdleAction();
     }
   });
   window.addEventListener('focus', () => {
@@ -1062,7 +1098,18 @@ function install() {
     startBearHugsRealtime();
   });
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) startBearHugsRealtime();
+    if (!document.hidden) {
+      startBearHugsRealtime();
+      scheduleBearIdleAction();
+    } else if (bearIdleActionTimer) {
+      clearTimeout(bearIdleActionTimer);
+      bearIdleActionTimer = null;
+    }
+  });
+  ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(eventName => {
+    document.addEventListener(eventName, event => {
+      if (event.target?.closest?.('#coupleBearGame')) noteBearActivity();
+    }, { capture: true, passive: eventName !== 'keydown' });
   });
 
   startBearHugsRealtime();
@@ -1077,6 +1124,7 @@ function install() {
       updatePartnerChip();
       startBearHugsRealtime();
       void loadSharedProgress();
+      scheduleBearIdleAction();
     }
   });
 }

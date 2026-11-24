@@ -76,7 +76,7 @@ test('Bear Hugs adds visual-only idle personality, sleep, props, atmosphere and 
   assert.match(bear, /data-couple-action="feed"/);
   assert.match(bear, /data-couple-action="pet"/);
   assert.match(bear, /data-couple-action="sleep"/);
-  assert.match(bear, /bear-time-morning/);
+  assert.match(styles, /bear-time-morning/);
   assert.match(bear, /recordBearMoment/);
   assert.match(bear, /bearsAreAsleep/);
   assert.match(styles, /bear-living-atmosphere/);
@@ -90,7 +90,7 @@ test('Bear Hugs plays a random visual-only action after 25 seconds of inactivity
   assert.match(bear, /scheduleBearIdleAction\(25000\)/);
   assert.match(bear, /idleFor >= 120000/);
   assert.match(bear, /originalTrigger\(action, \{ remote: true, gender: getMe\(\)\?\.gender, autonomous: true \}\)/);
-  assert.match(bear, /const choices = idleFor >= 120000 \\? \\['sleep'\\] : \\['hug', 'kiss', 'flykiss', 'hands', 'dance', 'pet', 'tummy', 'feed', 'peekaboo', 'bump'\\]/);
+  assert.match(bear, /const choices = idleFor >= 120000 \? \['sleep'\] : \['hug', 'kiss', 'flykiss', 'hands', 'dance', 'pet', 'tummy', 'feed', 'peekaboo', 'bump'\]/);
   assert.match(bear, /event\.target\?\.closest\?\.\('#coupleBearGame'\)/);
   assert.match(bear, /document\.hidden/);
   assert.match(bear, /Autonomous moments are purely visual/);

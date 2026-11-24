@@ -1,4 +1,4 @@
-const CACHE_NAME = "cute-bunny-shell-v374";
+const CACHE_NAME = "cute-bunny-shell-v375";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -8,8 +8,8 @@ const APP_ASSETS = [
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
   "./app.js?v=19",
-  "./bear-hugs-progression.css?v=bear-hugs-ack-feedback-20261124-1",
-  "./bear-hugs-progression.js?v=bear-hugs-ack-feedback-20261124-1",
+  "./bear-hugs-progression.css?v=bear-hugs-autonomous-idle-20261124-1",
+  "./bear-hugs-progression.js?v=bear-hugs-autonomous-idle-20261124-1",
   "./manifest.webmanifest",
   "./supabase-config.js",
   "./bunny-app-icon-192.png",

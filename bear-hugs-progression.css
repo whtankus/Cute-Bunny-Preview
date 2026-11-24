@@ -598,3 +598,31 @@
   #coupleBearGame .bear-reward-count{flex-basis:48px;width:48px;height:48px;border-radius:14px}
   #coupleBearGame .bear-reward-progress-pips{gap:4px}
 }
+
+
+/* Bear Hugs mood indicator */
+.bear-mood-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 10px auto 0;
+  padding: 7px 12px;
+  border: 1px solid rgba(194, 151, 174, .28);
+  border-radius: 999px;
+  background: rgba(255, 249, 252, .82);
+  color: #805b70;
+  box-shadow: 0 3px 12px rgba(120, 78, 101, .07);
+}
+.bear-mood-pill > span { font-size: 15px; line-height: 1; }
+.bear-mood-pill small { font-size: 9px; font-weight: 800; letter-spacing: .09em; opacity: .7; }
+.bear-mood-pill b { font-size: 11px; font-weight: 750; }
+.bear-mood-pill.bear-mood-happy { background: #fff0f5; color: #a34e70; border-color: #f1c4d5; }
+.bear-mood-pill.bear-mood-calm { background: #f1f7ed; color: #597653; border-color: #d6e5ce; }
+.bear-mood-pill.bear-mood-sleepy { background: #f2effb; color: #766497; border-color: #ded5f1; }
+.bear-mood-pill.bear-mood-surprised { background: #fff6e9; color: #9a7541; border-color: #f1dfbd; }
+@media (max-width: 520px) {
+  .bear-mood-pill { margin-top: 8px; padding: 6px 10px; gap: 6px; }
+  .bear-mood-pill b { font-size: 10px; }
+}

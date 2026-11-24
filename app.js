@@ -3447,9 +3447,12 @@ function showFriendProfile(user) {
     {goal:1500, title:'Everlasting Rose', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M36 42v15" stroke="#789a79" stroke-width="3" stroke-linecap="round"/><path d="M35 52q-12-12-19-5 7 11 19 7m2-5q11-12 19-5-6 11-19 7" fill="#b8d2a9" stroke="#789a79" stroke-width="1.5"/><g fill="#df789c" stroke="#a94e73" stroke-width="1.8"><path d="M36 8c-8-7-18 1-12 10-10 4-6 17 5 16 0 10 14 12 16 1 10 2 15-10 6-16 6-10-5-18-15-11z"/><path d="M25 22q2-11 12-7 10-3 12 7-2 12-13 13-11-2-11-13z" fill="#f4b5ca"/></g><path d="M29 22q4-7 11-2-2 7-7 8" fill="none" stroke="#fff1f5" stroke-width="2" stroke-linecap="round"/><circle cx="35" cy="24" r="2" fill="#f6d68b"/></svg>'},
     {goal:2000, title:'Heart of the Garden', icon:'<svg viewBox="0 0 72 64" aria-hidden="true"><path d="M36 42v14" stroke="#789a79" stroke-width="3" stroke-linecap="round"/><path d="M35 51q-11-10-17-4 6 9 17 6m2-2q10-10 17-4-5 9-17 6" fill="#b8d2a9" stroke="#789a79" stroke-width="1.4"/><g fill="#d8c5ed" stroke="#9277ae" stroke-width="1.8"><path d="M36 6c-6-5-13 1-10 8-9 1-10 12-2 16-1 9 11 12 13 3 3 9 15 6 13-3 8-5 6-15-3-16-2-9-9-12-11-8z"/></g><path d="m18 15 4-9 10 7 4-11 5 11 10-7 3 10" fill="#edca79" stroke="#a98548" stroke-width="1.7" stroke-linejoin="round"/><circle cx="36" cy="25" r="8" fill="#fff0c8" stroke="#c49a55" stroke-width="1.8"/><path d="M31 26c0-5 5-5 5 0 1-5 6-5 6 0-1 4-6 7-6 7s-5-3-5-7z" fill="#d8799d"/></svg>'}
   ];
-    const milestoneBadges = (items,total,unit) => items.filter(item => total >= item.goal).map(item => {
-      const art = unit === 'days' ? STREAK_MILESTONE_ILLUSTRATIONS[items.indexOf(item)] : item.icon;
-      return '<span class="friend-profile-milestone-badge is-unlocked" title="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit)+'" aria-label="'+esc(item.title+' · '+item.goal.toLocaleString()+' '+unit+' · Unlocked')+'">'+(typeof art === 'string' && art.trim().startsWith('<svg') ? '<span class="friend-profile-milestone-svg">'+art+'</span>' : '<span class="friend-profile-milestone-emoji">'+art+'</span>')+'</span>';
+    const milestoneBadges = (items,total,unit) => items.map((item,index) => {
+      const unlocked = total >= item.goal;
+      const art = unit === 'days' ? STREAK_MILESTONE_ILLUSTRATIONS[index] : item.icon;
+      const status = unlocked ? 'Unlocked' : 'Locked';
+      const label = item.title+' · '+item.goal.toLocaleString()+' '+unit+' · '+status;
+      return '<span class="friend-profile-milestone-badge '+(unlocked ? 'is-unlocked' : 'is-locked')+'" title="'+esc(label)+'" aria-label="'+esc(label)+'">'+(typeof art === 'string' && art.trim().startsWith('<svg') ? '<span class="friend-profile-milestone-svg">'+art+'</span>' : '<span class="friend-profile-milestone-emoji">'+art+'</span>')+'</span>';
     }).join('');
     const badgeList = $('#friendProfileBadgeList');
     if (badgeList) badgeList.innerHTML =

@@ -1565,7 +1565,6 @@ const GARDEN_COLLECTIBLES = [
   {id:'moonlit-orchid',name:'Moonlit Orchid',art:gardenIllustration('moonlit-orchid'),cost:500,type:'garden',rarity:'legendary'},
   {id:'crystal-butterfly',name:'Crystal Butterfly',art:gardenIllustration('crystal-butterfly'),cost:500,type:'garden',rarity:'legendary'},
   {id:'sunfire-blossom',name:'Sunfire Blossom',art:gardenIllustration('sunfire-blossom'),cost:500,type:'garden',rarity:'legendary'},
-  {id:'bombon-girl',name:'bombón girl',art:'<img class="bombon-portrait" src="./assets/bombon-girl.jpg?v=20261124-4" alt="bombón girl" width="118" height="118" loading="eager" decoding="async">',cost:0,type:'garden',rarity:'legendary',claimDate:'2027-01-01'},
 ];
 function updateGardenShopItem(id, collection) {
   const normalized = normalizeGardenCollection(collection);
@@ -2264,7 +2263,7 @@ function renderStreakPage() {
     '<small class="sg-petal-note">Your Petal Points sync to your account and stay available across your devices.</small></div>';
   const collection = readGardenCollection();
   const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Find a tiny treasure, from everyday blooms to magical keepsakes</p></div><span class="sg-shop-sparkle" aria-hidden="true">✧</span></div><div class="sg-collectible-grid">' +
-    [...GARDEN_COLLECTIBLES].sort((a, b) => (a.id === 'bombon-girl' ? 1 : b.id === 'bombon-girl' ? -1 : a.cost - b.cost)).map(item => {
+    [...GARDEN_COLLECTIBLES].sort((a, b) => a.cost - b.cost).map(item => {
       const owned = collection.owned.includes(item.id);
       const equippedIds = new Set(Array.isArray(collection.equippedItems) ? collection.equippedItems : [collection.equipped, collection.bunny].filter(id => id && id !== 'none'));
       const equipped = equippedIds.has(item.id);

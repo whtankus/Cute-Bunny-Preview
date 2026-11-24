@@ -28,6 +28,23 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.match(html, /bear-hugs-level-rewards-20261124-2/);
 });
 
+test('Bear Hugs uses one fixed level and a Care Point-based treasure collection', () => {
+  const bear = read('bear-hugs-progression.js');
+  const styles = read('bear-hugs-progression.css');
+  assert.match(bear, /BEAR LEVEL<\\/small><b>1<\\/b>/);
+  assert.doesNotMatch(bear, /reward\\.level|nextReward\\.level/);
+  assert.match(bear, /unlockPoints: 100/);
+  assert.match(bear, /unlockPoints: 350/);
+  assert.match(bear, /unlockPoints: 1250/);
+  assert.match(bear, /unlockPoints: 2150/);
+  assert.match(bear, /unlockPoints: 3050/);
+  assert.match(bear, /bear-reward-progress-pips/);
+  assert.match(bear, /unlockedCount \\+ ' of ' \\+ REWARDS\\.length/);
+  assert.match(styles, /bear-reward-pip\\.is-filled/);
+  assert.match(styles, /bear-reward-count b/);
+});
+
+
 test('the app shell references local stylesheets that exist', () => {
   const html = read('index.html');
   const stylesheets = [...html.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi)]

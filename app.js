@@ -1523,9 +1523,9 @@ const GARDEN_COLLECTIBLES = [
   {id:'celestial-rose',name:'Celestial Rose',art:gardenIllustration('celestial-rose'),cost:350,type:'garden',rarity:'legendary'},
   {id:'divine-lotus',name:'Divine Lotus',art:gardenIllustration('divine-lotus'),cost:350,type:'garden',rarity:'legendary'},
   {id:'dreamwing-halo',name:'Dreamwing Halo',art:gardenIllustration('dreamwing-halo'),cost:400,type:'bunny',rarity:'legendary'},
-  {id:'moonlit-orchid',name:'Moonlit Orchid',art:gardenIllustration('moonlit-orchid'),cost:400,type:'garden',rarity:'legendary'},
-  {id:'crystal-butterfly',name:'Crystal Butterfly',art:gardenIllustration('crystal-butterfly'),cost:400,type:'garden',rarity:'legendary'},
-  {id:'sunfire-blossom',name:'Sunfire Blossom',art:gardenIllustration('sunfire-blossom'),cost:400,type:'garden',rarity:'legendary'},
+  {id:'moonlit-orchid',name:'Moonlit Orchid',art:gardenIllustration('moonlit-orchid'),cost:500,type:'garden',rarity:'legendary'},
+  {id:'crystal-butterfly',name:'Crystal Butterfly',art:gardenIllustration('crystal-butterfly'),cost:500,type:'garden',rarity:'legendary'},
+  {id:'sunfire-blossom',name:'Sunfire Blossom',art:gardenIllustration('sunfire-blossom'),cost:500,type:'garden',rarity:'legendary'},
 ];
 function updateGardenShopItem(id, collection) {
   const normalized = normalizeGardenCollection(collection);

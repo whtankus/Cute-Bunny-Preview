@@ -1,20 +1,21 @@
-const CACHE_NAME = "cute-bunny-shell-v393";
+const CACHE_NAME = "cute-bunny-shell-v394";
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./style.css?v=milestone-shine-20261124",
-  "./polish.css?v=legendary-living-motion-20261124",
+  "./polish.css?v=bombon-goddess-20261124-2",
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=32",
+  "./app.js?v=33",
   "./bear-hugs-progression.css?v=bear-hugs-living-world-20261124-3",
   "./bear-hugs-progression.js?v=bear-hugs-living-world-20261124-3",
   "./manifest.webmanifest",
   "./supabase-config.js",
   "./bunny-app-icon-192.png",
   "./bunny-app-icon-512.png",
-  "./apple-touch-icon.png"
+  "./apple-touch-icon.png",
+  "./assets/bombon-girl.webp?v=20261124-2"
 ];
 
 const SHELL_FILES = new Set([

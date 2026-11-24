@@ -2154,7 +2154,8 @@ function renderStreakPage() {
     }).join('') + '</div></section>';
   const dailyQuestMarkup = '<div class="sg-daily-quest-list">' +
     dailyQuestItems.map(item => {
-      const action = item.kind === 'photo' ? 'gallery' : item.kind === 'song' ? 'music' :
+      const action = item.kind === 'bear-action' ? 'bear-hugs' :
+        item.kind === 'photo' ? 'gallery' : item.kind === 'song' ? 'music' :
         (item.kind === 'note' || item.kind === 'kiss-note') ? 'notes' :
         item.kind === 'heart' ? 'gallery' : 'streak';
       return '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '" data-daily-quest-action="' + action + '" role="button" tabindex="0" aria-label="' + esc(item.title + '. ' + item.description + (item.done ? ' Completed.' : ' Open quest activity.')) + '">' +
@@ -6913,6 +6914,12 @@ document.addEventListener('click', async e => {
       }
     } else if (destination === 'streak') {
       openStreakGarden();
+    } else if (destination === 'bear-hugs') {
+      go('home');
+      requestAnimationFrame(() => {
+        const bearGame = $('#coupleBearGame');
+        bearGame?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      });
     }
     return;
   }

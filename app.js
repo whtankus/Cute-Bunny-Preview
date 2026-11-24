@@ -5980,7 +5980,7 @@ const tt=Math.atan2(-(sx+dx-best.ex),sy+dy-best.ey);let a2=(tt-best.a)/R;a2=((a2
 const fk=(s,a1,a2)=>{const t1=a1*R,t2=(a1+a2)*R,ex=s-L1*Math.sin(t1),ey=-76+L1*Math.cos(t1);return[[s,-76],[ex,ey],[ex-L2*Math.sin(t2),ey+L2*Math.cos(t2)],t2/R]};
 
 const V=[{},{}],EXP={eye:1,eh:1,mouth:1,pk:1,blush:1};let cur="idle",actor=0,role=0,t0=performance.now(),sleepF=0,berryS=1,rate=7;
-const idle=(b,t)=>{const w=Math.sin(t*1.2+b*1.7);return{x:0,y:0,rot:w*1.2,hr:Math.sin(t*.8+b*2.3)*3+2,hx:0,hy:0,eye:1,eh:1,mouth:0,pk:0,blush:.3,i1:-12+w*2,i2:-6,o1:12-w*2,o2:6}};
+const idle=(b,t)=>{const w=Math.sin(t*1.2+b*1.7),curious=Math.max(0,Math.sin(t*.19+b*2.4)),stretch=Math.max(0,Math.sin(t*.075+b*3.1));return{x:Math.sin(t*.32+b*1.8)*1.4,y:-stretch*1.2,rot:w*1.35+curious*(b?-.8:.8),hr:Math.sin(t*.8+b*2.3)*3.2+2+curious*(b?-2.2:2.2),hx:0,hy:0,eye:1,eh:1,mouth:0,pk:0,blush:.3,i1:-12+w*2-stretch*3,i2:-6,o1:12-w*2+stretch*3,o2:6}};
 const BITES=[1.4,2.8,4.0];
 const ACT={
 idle:()=>({}),
@@ -6001,9 +6001,10 @@ pet:(t,b)=>{const r=1-actor,sw=Math.sin(t*5);
  :{x:64,hr:14+sw*2,hx:16,hy:Math.abs(sw)*1.8,eye:.1,blush:1,mouth:.25}},
 feed:(t,b)=>{const a=actor,r=1-a,open=(t>1.1&&t<1.7)||(t>2.65&&t<3)||(t>3.85&&t<4.2),chew=(t>1.7&&t<2.65)||(t>3&&t<3.85)||(t>4.2&&t<5.2);
  if(b===a){const k=t<.9?40:open?14:chew?34:t<5.2?34:44,M=ptH(r,0,-22);return{x:64,hr:-6,hx:-16,mouth:.25,blush:.6,ik:[M[0]-S[a]*k,M[1]+2]}}
- return{x:64,hr:open?12:chew?7:4,hx:open?8:chew?3:0,mouth:open?.9:chew?.2+.2*Math.abs(Math.sin(t*14)):t>5.2?.05:0,eye:chew?.12:1,blush:chew||t>5.2?.9:.5}}
-};
-const END={kiss:3.8,flykiss:3.6,slap:2.8,feed:6.8,tummy:4.6};
+ return{x:64,hr:open?12:chew?7:4,hx:open?8:chew?3:0,mouth:open?.9:chew?.2+.2*Math.abs(Math.sin(t*14)):t>5.2?.05:0,eye:chew?.12:1,blush:chew||t>5.2?.9:.5}},
+peekaboo:(t,b)=>{const reveal=t<.8?0:t<1.25?1:Math.max(0,1-(t-1.25)*.45);if(b===actor)return{x:42,y:-2,rot:-2,hr:10+reveal*7,eye:t<1.1?0:1,mouth:.18+reveal*.28,blush:.75,o1:58-reveal*20,o2:20,i1:-34,i2:-12};return{x:38,y:-Math.max(0,Math.sin(t*3))*2,hr:-5,eye:t<.8?.12:1,mouth:.22,blush:.85}},
+bump:(t,b)=>{const hit=t>.72&&t<1.05,pulse=hit?Math.sin((t-.72)*Math.PI/.33):0;return{x:42+(hit?pulse*3:0),y:hit?-Math.abs(pulse)*3:0,rot:b===actor?2+pulse*3:-2-pulse*3,hr:b===actor?8-pulse*5:-8+pulse*5,eye:hit?.2:1,mouth:.22,blush:.8}}\n};
+const END={kiss:3.8,flykiss:3.6,slap:2.8,feed:6.8,tummy:4.6,peekaboo:3.1,bump:2.4};
 
 
   /* ---------- audio ---------- */
@@ -6174,7 +6175,9 @@ function triggerBearAction(action, options = {}) {
     pet: 'A gentle head pat. They love it! 🐾',
     feed: 'Strawberries for two. Yum, yum! 🍓',
     sleep: 'Shhh… the little bears are dreaming together. 🌙',
-    idle: 'Our little bears are relaxing together. 🌸'
+    idle: 'Our little bears are relaxing together. 🌸',
+    peekaboo: 'Peekaboo! A little surprise for each other. ♡',
+    bump: 'A tiny, gentle bear head bump. ♡'
   };
   scene.dataset.action = action;
   bearPoseEngine?.play(action, bearActorIndex(options.gender || me?.gender));

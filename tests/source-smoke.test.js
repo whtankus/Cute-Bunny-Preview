@@ -198,7 +198,8 @@ test('Bear Hugs action buttons stay responsive while actions send independently'
 test('Achievement Garden keeps earned heart flowers and includes 1,500 and 2,000 heart milestones', () => {
   const app = read('app.js');
   const css = read('style.css');
-  const garden = app.slice(app.indexOf('/* Achievement Garden'), app.indexOf('\\nfunction render(', app.indexOf('/* Achievement Garden')));
+  const gardenStart = app.indexOf('/* Achievement Garden');
+  const garden = app.slice(gardenStart, app.indexOf('\nfunction render(', gardenStart));
   assert.match(garden, /heart-bloom-1500/);
   assert.match(garden, /heart-bloom-2000/);
   assert.match(garden, /milestones\\.map\\(item =>/);

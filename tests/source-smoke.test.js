@@ -25,7 +25,7 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.match(bear, /bear-care-milestone/);
   assert.match(styles, /bear-reward-apply:disabled/);
   assert.match(styles, /bear-visual-cap/);
-  assert.ok(html.includes('bear-hugs-living-world-20261124-2'));
+  assert.ok(html.includes('bear-hugs-living-world-20261124-3'));
 });
 
 test('Bear Hugs uses one fixed level and Care Point-based treasure collection', () => {
@@ -56,7 +56,7 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(app, /destination === 'bear-hugs'/);
   assert.match(bear, /new CustomEvent\('cute-bunny:bear-action'/);
   assert.match(bear, /actionId: String\(payload\.actionId \|\| ''\)/);
-  assert.match(bear, /if \(delivered\)/);
+  assert.match(bear, /if \(!delivered\) return;/);
   assert.match(bear, /return acknowledged/);
   assert.match(bear, /lastSharedAction = action/);
   assert.match(bear, /Play immediately and keep every action button available/);
@@ -195,3 +195,15 @@ test('Bear Hugs action buttons stay responsive while actions send independently'
   assert.match(handler, /await recordSharedAction\(action, partnerId, actionId\)/);
   assert.doesNotMatch(handler, /actionInFlight|\.disabled = true|querySelectorAll\('\.bear-action-button'\)/);
 });
+test('Achievement Garden keeps earned heart flowers and includes 1,500 and 2,000 heart milestones', () => {
+  const app = read('app.js');
+  const css = read('style.css');
+  const garden = app.slice(app.indexOf('/* Achievement Garden'), app.indexOf('\\nfunction render(', app.indexOf('/* Achievement Garden')));
+  assert.match(garden, /heart-bloom-1500/);
+  assert.match(garden, /heart-bloom-2000/);
+  assert.match(garden, /milestones\\.map\\(item =>/);
+  assert.doesNotMatch(garden, /if \\(!remaining\\.length\\) return/);
+  assert.match(garden, /achievement-art-crown/);
+  assert.match(css, /achievement-card\\.is-earned/);
+});
+

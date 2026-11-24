@@ -114,7 +114,7 @@ async function loadSharedProgress() {
     return;
   }
   const previousPoints = sharedPoints;
-  sharedPoints = Math.max(0, Number(data?.love_points) || 0);
+  sharedPoints = Math.max(sharedPoints, Number(data?.love_points) || 0);
   lastSharedAction = String(data?.last_action || '');
   if (Array.isArray(data?.equipped_reward_ids)) {
     equippedRewardIds = data.equipped_reward_ids.filter(id => REWARDS.some(reward => reward.id === id));
@@ -149,7 +149,7 @@ async function recordSharedAction(action, partnerId = selectedFriendId, actionId
   }
   if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== String(partnerId)) return true;
   const previousPoints = sharedPoints;
-  sharedPoints = Math.max(0, Number(data) || 0);
+  sharedPoints = Math.max(sharedPoints, Number(data) || 0);
   lastSharedAction = action;
   if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
   sharedProgressInitialized = true;

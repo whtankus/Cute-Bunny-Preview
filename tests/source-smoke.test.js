@@ -50,6 +50,8 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(app, /kind === 'bear-action'/);
   assert.match(app, /bearHugQuests/);
   assert.match(app, /cute-bunny:bear-action/);
+  assert.match(app, /item\.kind === 'bear-action' \? 'bear-hugs'/);
+  assert.match(app, /destination === 'bear-hugs'/);
   assert.match(bear, /new CustomEvent\('cute-bunny:bear-action'/);
   assert.match(bear, /if \(delivered\)/);
   assert.match(bear, /BEAR MOOD/);

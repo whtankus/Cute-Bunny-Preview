@@ -76,7 +76,10 @@ begin
        or v_existing.action <> p_action then
       raise exception 'Action ID was already used for a different action';
     end if;
-    return v_existing.points_after;
+    select love_points into v_points
+    from public.bear_partner_progress
+    where partner_low = v_low and partner_high = v_high;
+    return coalesce(v_points, v_existing.points_after);
   end if;
 
   insert into public.bear_partner_progress

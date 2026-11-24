@@ -1403,7 +1403,7 @@ function gardenIllustration(kind) {
 </defs>
 <circle cx="32" cy="31" r="31" fill="url(#moHalo)"/>
 <path d="M48 7A22 22 0 1 0 56 39 19 19 0 1 1 48 7Z" fill="url(#moMoon)" stroke="#d5a5df" stroke-width="1" filter="url(#moGlow)"/>
-<g fill="url(#moPetal)" stroke="#9163c3" stroke-width="1.1" filter="url(#moGlow)">
+<g class="mo-orchid-petals" fill="url(#moPetal)" stroke="#9163c3" stroke-width="1.1" filter="url(#moGlow)">
 <path d="M31 37C14 31 13 17 22 15c7-2 10 10 9 22Z"/>
 <path d="M31 37C14 31 13 17 22 15c7-2 10 10 9 22Z" transform="rotate(60 32 34)"/>
 <path d="M31 37C14 31 13 17 22 15c7-2 10 10 9 22Z" transform="rotate(120 32 34)"/>
@@ -1426,10 +1426,14 @@ function gardenIllustration(kind) {
 <circle cx="32" cy="31" r="31" fill="url(#cbHalo)"/>
 <circle cx="32" cy="31" r="26" fill="none" stroke="#fff" stroke-width=".8" stroke-dasharray="1 3" opacity=".8"/>
 <g filter="url(#cbGlow)" stroke="#8ccbd9" stroke-width="1.1" stroke-linejoin="round">
+<g class="cb-left-wings">
 <path d="M29 29C22 5 6 4 5 18c-1 12 10 23 25 23-5-8-7-16-8-23 4 3 6 7 7 11Z" fill="url(#cbA)"/>
 <path d="M28 37C12 27 4 40 13 51c6 7 15 4 19-7-5-1-7-3-4-7Z" fill="url(#cbB)"/>
+</g>
+<g class="cb-right-wings">
 <path d="M35 29C42 5 58 4 59 18c1 12-10 23-25 23 5-8 7-16 8-23-4 3-6 7-7 11Z" fill="url(#cbB)"/>
 <path d="M36 37c16-10 24 3 15 14-6 7-15 4-19-7 5-1 7-3 4-7Z" fill="url(#cbA)"/>
+</g>
 </g>
 <g fill="none" stroke="#fff" stroke-width="1.25" stroke-linecap="round"><path d="M29 33 10 14m19 25L13 45m22-12 19-19M36 39l16 6M29 34 17 23m18 11 12-11"/><path d="M29 28 18 13m17 15 11-15" opacity=".7"/></g>
 <g fill="none" stroke="#fff" stroke-width=".8"><path d="M9 20q8-10 17 5m-12 9q8-5 14 4m27-18q-8-10-17 5m12 9q-8-5-14 4" opacity=".9"/></g>
@@ -1445,10 +1449,10 @@ function gardenIllustration(kind) {
 <filter id="sfGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4.5" result="b"/><feFlood flood-color="#ffad53" flood-opacity="1"/><feComposite in2="b" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
 <circle cx="32" cy="30" r="31" fill="url(#sfHalo)"/>
-<g filter="url(#sfGlow)" stroke="#d88743" stroke-width=".9">
+<g class="sf-sun-rotor" filter="url(#sfGlow)" stroke="#d88743" stroke-width=".9">
 <path d="M32 3 37 17 49 8 45 23 61 25 47 34 57 47 41 43 39 60 31 46 21 59 22 43 6 47 17 34 3 25 19 23 15 8 27 17Z" fill="url(#sfFlame)" opacity=".95"/>
-<circle cx="32" cy="30" r="17" fill="url(#sfGold)" stroke="#fff0b0" stroke-width="1.5"/>
 </g>
+<g filter="url(#sfGlow)"><circle cx="32" cy="30" r="17" fill="url(#sfGold)" stroke="#fff0b0" stroke-width="1.5"/></g>
 <g fill="none" stroke="#fff9d8" stroke-width="1.2" opacity=".9"><path d="M32 8v8m0 28v9M10 30h8m28 0h8M16 14l6 6m20 20 6 6m0-32-6 6M22 40l-6 6"/><circle cx="32" cy="30" r="12" stroke-dasharray="2 2"/></g>
 <path d="M32 18c-8 9-7 18 0 25 7-7 8-16 0-25Z" fill="#fff6cf" stroke="#e5a34e" stroke-width="1.1"/>
 <path d="M32 24c-4 6-3 11 0 15 3-4 4-9 0-15Z" fill="#ffb55f"/>

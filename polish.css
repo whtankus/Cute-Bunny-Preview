@@ -5315,10 +5315,10 @@ body[data-mode="dark"] #content .bear-name{background:rgba(54,43,58,.9);color:#e
 }
 .cb-left-wings,.cb-right-wings{
   transform-box:view-box;
-  transform-origin:32px 32px;
   animation:cb-butterfly-flap 1.35s ease-in-out infinite alternate;
 }
-.cb-right-wings{animation-delay:-.675s}
+.cb-left-wings{transform-origin:29px 33px}
+.cb-right-wings{transform-origin:35px 33px}
 .sf-sun-rotor{
   transform-box:view-box;
   transform-origin:32px 30px;

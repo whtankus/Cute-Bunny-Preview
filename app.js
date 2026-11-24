@@ -1033,6 +1033,7 @@ function readStreakDailyQuests(dateKey) {
     const saved = JSON.parse(localStorage.getItem(streakStorageKey('daily-quests:' + dateKey)) || '{}');
     return {
       hearts: Array.isArray(saved.hearts) ? [...new Set(saved.hearts.map(String))] : [],
+      bearActions: Array.isArray(saved.bearActions) ? saved.bearActions.slice(-99).map(String).filter(action => ['hug','kiss','flykiss','hands','dance','pet','feed','sleep','tummy','idle'].includes(action)) : [],
       photo: saved.photo === true,
       photoCount: Math.max(saved.photo === true ? 1 : 0, Number(saved.photoCount) || 0),
       kissNote: saved.kissNote === true,
@@ -1044,7 +1045,7 @@ function readStreakDailyQuests(dateKey) {
       login: saved.login === true,
       badge: saved.badge === true
     };
-  } catch { return {hearts:[], photo:false, photoCount:0, kissNote:false, kissNotes:0, note:0, noteTexts:[], song:false, songCount:0, login:false, badge:false}; }
+  } catch { return {hearts:[], bearActions:[], photo:false, photoCount:0, kissNote:false, kissNotes:0, note:0, noteTexts:[], song:false, songCount:0, login:false, badge:false}; }
 }
 function writeStreakDailyQuests(dateKey, state) {
   try { localStorage.setItem(streakStorageKey('daily-quests:' + dateKey), JSON.stringify(state)); } catch {}
@@ -1126,13 +1127,23 @@ function getDailyQuestRotation(dateKey) {
   const elapsedDays = Number.isFinite(startDate.getTime()) && Number.isFinite(currentDate.getTime())
     ? Math.max(0, Math.floor((currentDate - startDate) / 86400000)) : 0;
   const dayIndex = elapsedDays % 20;
-  const entries = [chatQuests[dayIndex], photoQuests[dayIndex], communityQuests[dayIndex]];
+  // Bear Hugs missions rotate into the community slot on five days of each
+  // 20-day cycle, keeping the daily set at three quests.
+  const bearHugQuests = {
+    2: ['A warm bear hug','Give your Bearfriend two hugs.','bear-action','heart','hug',2],
+    6: ['A kiss for your Bearfriend','Share two kisses with your Bearfriend.','bear-action','heart','kiss',2],
+    10: ['A little bear cuddle','Pet your Bearfriend three times.','bear-action','heart','pet',3],
+    14: ['Dance together','Share two dances with your Bearfriend.','bear-action','heart','dance',2],
+    18: ['Three caring moments','Share any three Bear Hugs actions together.','bear-action','heart',null,3]
+  };
+  const entries = [chatQuests[dayIndex], photoQuests[dayIndex], bearHugQuests[dayIndex] || communityQuests[dayIndex]];
 
   return entries.map((entry, slot) => {
     const [title, description, kind, art, match, target = 1] = entry;
     const id = 'day-' + (dayIndex + 1) + '-quest-' + (slot + 1);
     const progress = state => {
       if (kind === 'heart') return Math.min(target, state.hearts.length);
+      if (kind === 'bear-action') return Math.min(target, state.bearActions.filter(action => !match || action === match).length);
       if (kind === 'photo') return Math.min(target, state.photoCount);
       if (kind === 'song') return Math.min(target, state.songCount);
       if (kind === 'kiss-note') return Math.min(target, state.kissNotes);
@@ -1585,6 +1596,7 @@ function recordStreakDailyQuest(kind, value = '') {
   const dateKey = streakDateInTimeZone(timezone);
   const state = readStreakDailyQuests(dateKey);
   if (kind === 'heart' && value && !state.hearts.includes(String(value))) state.hearts.push(String(value));
+  if (kind === 'bear-action' && ['hug','kiss','flykiss','hands','dance','pet','feed','sleep','tummy','idle'].includes(String(value))) state.bearActions.push(String(value));
   if (kind === 'photo') { state.photo = true; state.photoCount = Math.min(99,state.photoCount + 1); }
   if (kind === 'kiss-note') { state.kissNote = true; state.kissNotes = Math.min(99,state.kissNotes + 1); if (value) state.noteTexts.push(String(value)); }
   if (kind === 'note') { state.note = Math.min(99,state.note + 1); if (value) state.noteTexts.push(String(value)); }
@@ -1601,6 +1613,10 @@ function recordStreakDailyQuest(kind, value = '') {
   if (newlyCompleted) toast('Daily Bloom earned! You completed today’s three quests ♡');
   if (page === 'streak') renderStreakPage();
 }
+window.addEventListener('cute-bunny:bear-action', event => {
+  const action = String(event?.detail?.action || '');
+  if (action) recordStreakDailyQuest('bear-action', action);
+});
 function streakDateKey(date) {
   return date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0') + '-' + String(date.getUTCDate()).padStart(2, '0');
 }

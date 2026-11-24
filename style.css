@@ -14863,3 +14863,15 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
   .app #nav button .nav-new-dot.is-visible{animation:none}
   .app #nav button{transition:none}
 }
+
+
+/* Achievement Garden: make the two new heart-tier blooms unmistakable. */
+.achievement-art-rose svg{filter:drop-shadow(0 2px 2px rgba(155,65,99,.18))}
+.achievement-art-rose svg path:first-child{stroke-width:2.8}
+.achievement-art-rose svg g{filter:drop-shadow(0 1px 2px rgba(151,67,96,.2))}
+.achievement-art-crown svg{filter:drop-shadow(0 2px 3px rgba(126,91,159,.2))}
+.achievement-art-crown svg g{filter:drop-shadow(0 1px 2px rgba(126,91,159,.2))}
+.achievement-card[data-achievement="heart-bloom-1500"] .achievement-medallion{background:linear-gradient(145deg,#ffe5e9,#f5b8c9 58%,#f7e4d4);border-color:#e6a2b7}
+.achievement-card[data-achievement="heart-bloom-2000"] .achievement-medallion{background:linear-gradient(145deg,#f0e5ff,#d9c5ef 58%,#fff0ce);border-color:#c6a9df}
+.achievement-card.is-growing[data-achievement^="heart-bloom-"] .achievement-medallion{opacity:.86;filter:saturate(.9)}
+.achievement-card.is-earned[data-achievement^="heart-bloom-"] .achievement-medallion{box-shadow:0 0 0 2px rgba(255,255,255,.75),0 4px 13px rgba(186,105,142,.22)}

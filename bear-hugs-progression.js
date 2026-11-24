@@ -151,10 +151,6 @@ async function recordSharedAction(action, partnerId = selectedFriendId, actionId
   updateUI();
   return true;
 }
-function getLevel() {
-  // Bear Hugs has one shared level. Care Points unlock keepsakes directly.
-  return { level: 1, previous: 0, next: REWARDS[0].unlockPoints };
-}
 function getNextReward(points) {
   return REWARDS.find(reward => points < reward.unlockPoints) || null;
 }

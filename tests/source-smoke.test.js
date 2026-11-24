@@ -25,7 +25,7 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.match(bear, /bear-care-milestone/);
   assert.match(styles, /bear-reward-apply:disabled/);
   assert.match(styles, /bear-visual-cap/);
-  assert.ok(html.includes('bear-hugs-autonomous-idle-20261124-1'));
+  assert.ok(html.includes('bear-hugs-living-world-20261124-1'));
 });
 
 test('Bear Hugs uses one fixed level and Care Point-based treasure collection', () => {
@@ -66,11 +66,29 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(styles, /is-sending/);
 });
 
+test('Bear Hugs adds visual-only idle personality, sleep, props, atmosphere and memories safely', () => {
+  const bear = read('bear-hugs-progression.js');
+  const app = read('app.js');
+  const styles = read('bear-hugs-progression.css');
+  assert.match(app, /peekaboo:\(t,b\)=>/);
+  assert.match(app, /bump:\(t,b\)=>/);
+  assert.match(app, /curious=Math\.max/);
+  assert.match(bear, /data-couple-action="feed"/);
+  assert.match(bear, /data-couple-action="pet"/);
+  assert.match(bear, /data-couple-action="sleep"/);
+  assert.match(bear, /bear-time-morning/);
+  assert.match(bear, /recordBearMoment/);
+  assert.match(bear, /bearsAreAsleep/);
+  assert.match(styles, /bear-living-atmosphere/);
+  assert.match(styles, /bear-moments-list/);
+});
+
 test('Bear Hugs plays a random visual-only action after 25 seconds of inactivity', () => {
   const bear = read('bear-hugs-progression.js');
   assert.match(bear, /function scheduleBearIdleAction\(delay = 25000\)/);
   assert.match(bear, /function runAutonomousBearAction\(\)/);
   assert.match(bear, /scheduleBearIdleAction\(25000\)/);
+  assert.match(bear, /idleFor >= 120000/);
   assert.match(bear, /originalTrigger\(action, \{ remote: true, gender: getMe\(\)\?\.gender, autonomous: true \}\)/);
   assert.match(bear, /const choices = \['hug', 'kiss', 'flykiss', 'hands', 'dance', 'pet', 'tummy', 'feed', 'sleep'\]/);
   assert.match(bear, /event\.target\?\.closest\?\.\('#coupleBearGame'\)/);

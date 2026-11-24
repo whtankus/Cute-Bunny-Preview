@@ -1565,6 +1565,7 @@ const GARDEN_COLLECTIBLES = [
   {id:'moonlit-orchid',name:'Moonlit Orchid',art:gardenIllustration('moonlit-orchid'),cost:500,type:'garden',rarity:'legendary'},
   {id:'crystal-butterfly',name:'Crystal Butterfly',art:gardenIllustration('crystal-butterfly'),cost:500,type:'garden',rarity:'legendary'},
   {id:'sunfire-blossom',name:'Sunfire Blossom',art:gardenIllustration('sunfire-blossom'),cost:500,type:'garden',rarity:'legendary'},
+  {id:'bombon-girl',name:'bombón girl',art:'<img src="./assets/bombon-girl.webp" alt="bombón girl" loading="lazy" decoding="async">',cost:0,type:'garden',rarity:'goddess',claimDate:'2027-01-01'},
 ];
 function updateGardenShopItem(id, collection) {
   const normalized = normalizeGardenCollection(collection);
@@ -1575,9 +1576,10 @@ function updateGardenShopItem(id, collection) {
     const owned = normalized.owned.includes(item.id);
     const equipped = normalized.equippedItems.includes(item.id);
     card.classList.toggle('is-equipped', equipped);
-    button.textContent = equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect';
-    button.disabled = !owned && petalRewardBalance() < item.cost;
-    button.setAttribute('aria-label', equipped ? 'Unequip ' + item.name : owned ? 'Equip ' + item.name : 'Collect ' + item.name + ' for ' + item.cost + ' Petal Points');
+    const claimLocked = item.claimDate && new Date().toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'}) < item.claimDate;
+    button.textContent = equipped ? 'Equipped ✓' : owned ? 'Equip' : claimLocked ? 'Claim on 1st Jan' : item.claimDate ? 'Claim free ♡' : item.cost + ' petals · Collect';
+    button.disabled = !owned && (claimLocked || (!item.claimDate && petalRewardBalance() < item.cost));
+    button.setAttribute('aria-label', equipped ? 'Unequip ' + item.name : owned ? 'Equip ' + item.name : claimLocked ? 'Claim ' + item.name + ' on 1 January 2027' : item.claimDate ? 'Claim ' + item.name + ' for free' : 'Collect ' + item.name + ' for ' + item.cost + ' Petal Points');
   });
 }
 function updateGardenPetalBalance() {
@@ -1654,7 +1656,7 @@ async function buyGardenCollectible(id) {
       button.removeAttribute('aria-busy');
       const item = GARDEN_COLLECTIBLES.find(entry => entry.id === button.dataset.buyCollectible);
       const owned = readGardenCollection().owned.includes(button.dataset.buyCollectible);
-      if (item) button.disabled = !owned && petalRewardBalance() < item.cost;
+      if (item) button.disabled = !owned && (item.claimDate ? new Date().toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'}) < item.claimDate : petalRewardBalance() < item.cost);
     });
     updateGardenPetalBalance();
   }
@@ -2266,8 +2268,10 @@ function renderStreakPage() {
       const owned = collection.owned.includes(item.id);
       const equippedIds = new Set(Array.isArray(collection.equippedItems) ? collection.equippedItems : [collection.equipped, collection.bunny].filter(id => id && id !== 'none'));
       const equipped = equippedIds.has(item.id);
-      const affordable = petalRewardBalance(petalRewards) >= item.cost;
-      return '<article class="sg-collectible-card item-' + item.id + ' rarity-' + item.rarity + (equipped ? ' is-equipped' : '') + '" data-rarity="' + item.rarity + '"><span class="sg-collectible-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><b>' + item.name + '</b><small>' + (item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)) + ' · ' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
+      const claimLocked = item.claimDate && new Date().toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'}) < item.claimDate;
+      const affordable = item.claimDate ? !claimLocked : petalRewardBalance(petalRewards) >= item.cost;
+      const priceLabel = claimLocked ? 'Claim on 1st Jan' : item.claimDate ? 'Free claim ♡' : item.cost + ' petals · Collect';
+      return '<article class="sg-collectible-card item-' + item.id + ' rarity-' + item.rarity + (equipped ? ' is-equipped' : '') + '" data-rarity="' + item.rarity + '"><span class="sg-collectible-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><b>' + item.name + '</b><small>' + (item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)) + ' · ' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : priceLabel) + '</button></article>';
     }).join('') + '</div></section>';
   const weeklyProgress = getWeeklyBloomProgress(todayKey);
   const weeklyTiers = [{days:3,points:30,title:'Little Bloom',art:gardenIllustration('bloom-3')},{days:5,points:50,title:'Garden Glow',art:gardenIllustration('bloom-5')},{days:7,points:100,title:'Full Bloom',art:gardenIllustration('bloom-7')}];

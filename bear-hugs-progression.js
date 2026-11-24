@@ -72,19 +72,26 @@ async function loadSharedProgress() {
     updateUI();
     return;
   }
-  const [low, high] = [String(user.id), String(selectedFriendId)].sort();
+  const requestedPartnerId = String(selectedFriendId);
+  const [low, high] = [String(user.id), requestedPartnerId].sort();
   const pairKey = low + ':' + high;
   if (pairKey !== sharedProgressPairKey) {
     sharedProgressPairKey = pairKey;
     sharedPoints = 0;
     lastSharedAction = '';
+    equippedRewardIds = [];
     sharedProgressInitialized = false;
+    updateUI();
   }
   const { data, error } = await client.from('bear_partner_progress')
     .select('love_points,last_action,equipped_reward_ids')
     .eq('partner_low', low)
     .eq('partner_high', high)
     .maybeSingle();
+  // Realtime refreshes and partner switches can overlap. Ignore stale responses
+  // rather than allowing an older pair's points or equipment to replace the current pair.
+  if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== requestedPartnerId ||
+      String(getMe()?.id || '') !== String(user.id)) return;
   if (error) {
     console.warn('Shared Bear Hugs progress could not load:', error.message || error);
     setStatus('Your shared Love Meter could not load. Please try again. ♡');

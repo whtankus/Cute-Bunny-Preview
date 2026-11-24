@@ -5370,46 +5370,30 @@ body[data-mode="dark"] .streak-garden-page .sg-quest-keyword-hint>span{color:#e4
 body[data-mode="dark"] .streak-garden-page .sg-quest-keyword-hint>b{color:#f8e6f1}
 
 
-/* Bombón Girl — Goddess collectible: delicate blush, lavender and pearl-white magic. */
-#content .sg-collectible-card.item-bombon-girl{
-  position:relative;isolation:isolate;overflow:hidden;
-  border:1px solid rgba(255,255,255,.98);
-  background:
-    radial-gradient(ellipse at 12% 8%,rgba(255,255,255,.96),transparent 27%),
-    radial-gradient(ellipse at 88% 14%,rgba(255,213,239,.94),transparent 38%),
-    radial-gradient(ellipse at 50% 100%,rgba(205,179,255,.42),transparent 55%),
-    linear-gradient(145deg,#fff9fd 0%,#ffe8f4 43%,#f1e7ff 100%);
-  box-shadow:0 0 0 1px rgba(232,157,205,.62),0 0 25px rgba(255,172,220,.58),0 0 52px rgba(194,147,238,.4),0 12px 34px rgba(137,79,125,.18),inset 0 1px 0 #fff;
-  animation:bombon-goddess-pulse 4s ease-in-out infinite;
-}
-#content .sg-collectible-card.item-bombon-girl::before{
-  content:"";position:absolute;inset:-65% -45%;z-index:2;pointer-events:none;
-  background:linear-gradient(112deg,transparent 39%,rgba(255,255,255,.82) 49%,rgba(255,255,255,.12) 54%,transparent 63%);
-  transform:translateX(-75%) rotate(12deg);animation:bombon-goddess-shine 5.4s ease-in-out infinite;
-}
+/* Bombón Girl — Legendary portrait, sized to match the other legendary garden icons. */
 #content .sg-collectible-card.item-bombon-girl .sg-collectible-art{
-  position:relative;width:118px;height:118px;min-width:118px;min-height:118px;flex:0 0 118px;
-  margin:0 auto 10px;border-radius:31px;overflow:visible;z-index:1;
-  border:2px solid rgba(255,255,255,.99);
-  background:radial-gradient(circle,rgba(255,255,255,.99),rgba(255,218,241,.8) 58%,rgba(197,151,236,.42));
-  box-shadow:0 0 0 2px rgba(236,176,216,.5),0 0 24px rgba(255,157,211,.7),0 0 48px rgba(185,147,234,.5),inset 0 0 20px #fff;
+  box-sizing:border-box!important;display:grid!important;place-items:center!important;
+  position:relative!important;width:118px!important;height:118px!important;min-width:118px!important;min-height:118px!important;
+  max-width:118px!important;max-height:118px!important;aspect-ratio:1/1!important;
+  flex:0 0 118px!important;margin:0 auto 10px!important;padding:0!important;
+  overflow:hidden!important;border-radius:28px!important;
+  border:2px solid rgba(255,255,255,.98)!important;
+  background:radial-gradient(circle at 50% 40%,#fff 0%,#ffe5f2 64%,#e9d9ff 100%)!important;
+  box-shadow:0 0 0 2px rgba(236,176,216,.48),0 0 20px rgba(255,157,211,.62),0 0 34px rgba(185,147,234,.38),inset 0 0 12px #fff!important;
   animation:bombon-art-float 4s ease-in-out infinite;
 }
-#content .sg-collectible-card.item-bombon-girl .sg-collectible-art img{
-  display:block;width:100%;height:100%;object-fit:cover;object-position:center 43%;
-  border-radius:27px;filter:saturate(1.08) drop-shadow(0 4px 10px rgba(144,87,139,.25));
-}
-#content .sg-collectible-card.item-bombon-girl .sg-collectible-art::before{
-  content:"♡  ✦";position:absolute;left:-13px;top:-13px;z-index:3;
-  color:#fff;font-size:12px;letter-spacing:7px;line-height:1;
-  text-shadow:0 0 5px rgba(255,255,255,.95),0 0 11px #d99bcf;
-  pointer-events:none;animation:bombon-white-sparkle 3.1s ease-in-out infinite;
+#content .sg-collectible-card.item-bombon-girl .sg-collectible-art img.bombon-portrait{
+  display:block!important;visibility:visible!important;opacity:1!important;
+  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
+  max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center 43%!important;
+  border:0!important;border-radius:25px!important;padding:0!important;margin:0!important;
+  font-size:0!important;color:transparent!important;
 }
 #content .sg-collectible-card.item-bombon-girl .sg-collectible-art::after{
-  content:"✧  ♡  ·  ✦";position:absolute;right:-16px;bottom:-12px;z-index:3;
-  color:#fff;font-size:11px;letter-spacing:5px;line-height:1;
-  text-shadow:0 0 5px rgba(255,255,255,.98),0 0 12px #d99bcf;
-  pointer-events:none;animation:bombon-white-sparkle 3.7s ease-in-out infinite reverse;
+  content:"♡  ✦  ·  ✧";position:absolute;right:7px;bottom:6px;z-index:3;
+  color:#fff;font-size:11px;letter-spacing:4px;line-height:1;
+  text-shadow:0 0 5px rgba(255,255,255,.98),0 0 12px #d99bcf;pointer-events:none;
+  animation:bombon-white-sparkle 3.2s ease-in-out infinite;
 }
 #content .sg-collectible-card.item-bombon-girl>b{color:#914a80;text-shadow:0 0 12px rgba(255,255,255,.98)}
 #content .sg-collectible-card.item-bombon-girl>small{color:#a56a9a;font-weight:800}
@@ -5417,26 +5401,14 @@ body[data-mode="dark"] .streak-garden-page .sg-quest-keyword-hint>b{color:#f8e6f
   background:linear-gradient(180deg,#fff,#f7d9ee 60%,#edc9e9);color:#874b79;
   border:1px solid rgba(213,137,190,.7);box-shadow:0 3px 0 rgba(190,125,172,.58),0 0 16px rgba(255,173,220,.42);
 }
-#content .sg-collectible-card.item-bombon-girl.is-equipped{
-  box-shadow:0 0 0 2px rgba(237,171,220,.9),0 0 34px rgba(255,139,207,.78),0 0 65px rgba(185,147,234,.55),0 12px 34px rgba(137,79,125,.2);
-}
-.friend-profile-collection-item.garden-rarity-goddess .friend-profile-collection-art{
+.friend-profile-collection-item.garden-rarity-legendary .friend-profile-collection-art{
+  width:48px;height:48px;overflow:hidden;border-radius:14px;
   border:1px solid rgba(255,255,255,.98);
-  box-shadow:0 0 0 1px rgba(232,157,205,.56),0 0 18px rgba(255,139,207,.62),0 0 34px rgba(185,147,234,.42);
-  animation:bombon-art-float 4s ease-in-out infinite;
+  box-shadow:0 0 0 1px rgba(232,157,205,.56),0 0 15px rgba(255,139,207,.5),0 0 24px rgba(185,147,234,.3);
 }
-.friend-profile-collection-item.garden-rarity-goddess .friend-profile-collection-art img{
-  display:block;width:100%;height:100%;object-fit:cover;object-position:center 43%;border-radius:inherit;
+.friend-profile-collection-item.garden-rarity-legendary .friend-profile-collection-art img.bombon-portrait{
+  display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 43%!important;border-radius:inherit!important;font-size:0!important;
 }
-@keyframes bombon-goddess-pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.065)}}
-@keyframes bombon-goddess-shine{0%,48%{transform:translateX(-75%) rotate(12deg);opacity:0}65%{opacity:.95}100%{transform:translateX(75%) rotate(12deg);opacity:0}}
-@keyframes bombon-art-float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-4px) scale(1.025)}}
-@keyframes bombon-white-sparkle{0%,100%{opacity:.45;transform:scale(.92) rotate(-5deg)}50%{opacity:1;transform:scale(1.08) rotate(5deg)}}
-@media(prefers-reduced-motion:reduce){
- #content .sg-collectible-card.item-bombon-girl,
- #content .sg-collectible-card.item-bombon-girl::before,
- #content .sg-collectible-card.item-bombon-girl .sg-collectible-art,
- #content .sg-collectible-card.item-bombon-girl .sg-collectible-art::before,
- #content .sg-collectible-card.item-bombon-girl .sg-collectible-art::after,
- .friend-profile-collection-item.garden-rarity-goddess .friend-profile-collection-art{animation:none!important}
-}
+@keyframes bombon-art-float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.018)}}
+@keyframes bombon-white-sparkle{0%,100%{opacity:.48;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){#content .sg-collectible-card.item-bombon-girl .sg-collectible-art{animation:none!important}}

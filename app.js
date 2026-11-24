@@ -1565,7 +1565,7 @@ const GARDEN_COLLECTIBLES = [
   {id:'moonlit-orchid',name:'Moonlit Orchid',art:gardenIllustration('moonlit-orchid'),cost:500,type:'garden',rarity:'legendary'},
   {id:'crystal-butterfly',name:'Crystal Butterfly',art:gardenIllustration('crystal-butterfly'),cost:500,type:'garden',rarity:'legendary'},
   {id:'sunfire-blossom',name:'Sunfire Blossom',art:gardenIllustration('sunfire-blossom'),cost:500,type:'garden',rarity:'legendary'},
-  {id:'bombon-girl',name:'bombón girl',art:'<img src="./assets/bombon-girl.webp?v=20261124-3" alt="bombón girl" loading="eager" decoding="async">',cost:0,type:'garden',rarity:'legendary',claimDate:'2027-01-01'},
+  {id:'bombon-girl',name:'bombón girl',art:'<img class="bombon-portrait" src="./assets/bombon-girl.jpg?v=20261124-4" alt="bombón girl" width="118" height="118" loading="eager" decoding="async">',cost:0,type:'garden',rarity:'legendary',claimDate:'2027-01-01'},
 ];
 function updateGardenShopItem(id, collection) {
   const normalized = normalizeGardenCollection(collection);

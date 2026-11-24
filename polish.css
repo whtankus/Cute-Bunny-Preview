@@ -1785,7 +1785,7 @@ body[data-mode="dark"] .auth-card.profile-card .profile-settings-actions {backgr
   padding:19px!important;
   overflow:visible!important;
   border:1px solid #efd8e4!important;
-  border-radius:25px!important;
+  border-radius:14px!important;
   background:
     radial-gradient(circle at 100% 0%,rgba(239,222,250,.56),transparent 34%),
     linear-gradient(150deg,#fffdfd 0%,#fff5f8 62%,#fbf7ff 100%)!important;
@@ -5373,10 +5373,10 @@ body[data-mode="dark"] .streak-garden-page .sg-quest-keyword-hint>b{color:#f8e6f
 /* Bombón Girl — Legendary portrait, sized to match the other legendary garden icons. */
 #content .sg-collectible-card.item-bombon-girl .sg-collectible-art{
   box-sizing:border-box!important;display:grid!important;place-items:center!important;
-  position:relative!important;width:118px!important;height:118px!important;min-width:118px!important;min-height:118px!important;
-  max-width:118px!important;max-height:118px!important;aspect-ratio:1/1!important;
-  flex:0 0 118px!important;margin:0 auto 10px!important;padding:0!important;
-  overflow:hidden!important;border-radius:28px!important;
+  position:relative!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;
+  max-width:48px!important;max-height:48px!important;aspect-ratio:1/1!important;
+  flex:0 0 48px!important;margin:0 auto 10px!important;padding:0!important;
+  overflow:hidden!important;border-radius:16px!important;
   border:2px solid rgba(255,255,255,.98)!important;
   background:radial-gradient(circle at 50% 40%,#fff 0%,#ffe5f2 64%,#e9d9ff 100%)!important;
   box-shadow:0 0 0 2px rgba(236,176,216,.48),0 0 20px rgba(255,157,211,.62),0 0 34px rgba(185,147,234,.38),inset 0 0 12px #fff!important;

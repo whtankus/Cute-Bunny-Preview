@@ -1,14 +1,14 @@
-const CACHE_NAME = "cute-bunny-shell-v397";
+const CACHE_NAME = "cute-bunny-shell-v398";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./assets/bombon-girl.jpg?v=20261124-4",
+  "./assets/bombon-girl.jpg?v=20261124-5",
   "./style.css?v=milestone-shine-20261124",
   "./polish.css?v=bombon-legendary-20261124-4",
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=37",
+  "./app.js?v=38",
   "./bear-hugs-progression.css?v=bear-hugs-living-world-20261124-3",
   "./bear-hugs-progression.js?v=bear-hugs-living-world-20261124-3",
   "./manifest.webmanifest",

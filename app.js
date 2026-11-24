@@ -6003,7 +6003,8 @@ feed:(t,b)=>{const a=actor,r=1-a,open=(t>1.1&&t<1.7)||(t>2.65&&t<3)||(t>3.85&&t<
  if(b===a){const k=t<.9?40:open?14:chew?34:t<5.2?34:44,M=ptH(r,0,-22);return{x:64,hr:-6,hx:-16,mouth:.25,blush:.6,ik:[M[0]-S[a]*k,M[1]+2]}}
  return{x:64,hr:open?12:chew?7:4,hx:open?8:chew?3:0,mouth:open?.9:chew?.2+.2*Math.abs(Math.sin(t*14)):t>5.2?.05:0,eye:chew?.12:1,blush:chew||t>5.2?.9:.5}},
 peekaboo:(t,b)=>{const reveal=t<.8?0:t<1.25?1:Math.max(0,1-(t-1.25)*.45);if(b===actor)return{x:42,y:-2,rot:-2,hr:10+reveal*7,eye:t<1.1?0:1,mouth:.18+reveal*.28,blush:.75,o1:58-reveal*20,o2:20,i1:-34,i2:-12};return{x:38,y:-Math.max(0,Math.sin(t*3))*2,hr:-5,eye:t<.8?.12:1,mouth:.22,blush:.85}},
-bump:(t,b)=>{const hit=t>.72&&t<1.05,pulse=hit?Math.sin((t-.72)*Math.PI/.33):0;return{x:42+(hit?pulse*3:0),y:hit?-Math.abs(pulse)*3:0,rot:b===actor?2+pulse*3:-2-pulse*3,hr:b===actor?8-pulse*5:-8+pulse*5,eye:hit?.2:1,mouth:.22,blush:.8}}\n};
+bump:(t,b)=>{const hit=t>.72&&t<1.05,pulse=hit?Math.sin((t-.72)*Math.PI/.33):0;return{x:42+(hit?pulse*3:0),y:hit?-Math.abs(pulse)*3:0,rot:b===actor?2+pulse*3:-2-pulse*3,hr:b===actor?8-pulse*5:-8+pulse*5,eye:hit?.2:1,mouth:.22,blush:.8}}
+};
 const END={kiss:3.8,flykiss:3.6,slap:2.8,feed:6.8,tummy:4.6,peekaboo:3.1,bump:2.4};
 
 

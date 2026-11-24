@@ -41,7 +41,7 @@ let peerTopic = '';
 let peerReady = false;
 let peerPromise = null;
 let peerGeneration = 0;
-let pendingRemoteAction = null;
+let pendingRemoteActions = [];
 let pendingAction = null;
 let bearFriendSearchResults = [];
 let bearFriendSearchSequence = 0;
@@ -681,7 +681,8 @@ function applyRemoteAction(action, payload) {
   } else {
     // The sender records shared points once through the database RPC.
     // Never award a second copy on the receiving browser.
-    pendingRemoteAction = { action, payload };
+    if (pendingRemoteActions.length >= 20) pendingRemoteActions.shift();
+    pendingRemoteActions.push({ action, payload });
   }
 }
 function receiveAction(payload) {
@@ -699,16 +700,16 @@ function receiveAction(payload) {
   applyRemoteAction(String(payload.action), payload);
 }
 function flushPendingRemoteAction() {
-  if (!pendingRemoteAction || !$('#coupleBearGame') || typeof originalTrigger !== 'function') return;
-  const pending = pendingRemoteAction;
-  pendingRemoteAction = null;
+  if (!pendingRemoteActions.length || !$('#coupleBearGame') || typeof originalTrigger !== 'function') return;
+  const pending = pendingRemoteActions.shift();
   const scene = $('.couple-bears-scene');
   if (scene) scene.dataset.action = pending.action;
-  if (typeof bearPoseEngine !== 'undefined') bearPoseEngine?.play(pending.action, String(pending.payload.gender || '').toLowerCase() === 'female' ? 1 : 0);
+  originalTrigger(pending.action, { remote: true, gender: pending.payload.gender, queued: true });
   const sender = getFriends().find(friend => String(friend?.id) === String(pending.payload.userId));
   setStatus((sender?.display_name || sender?.displayName || sender?.username || 'Your friend') +
     ' chose ' + (pending.action === 'hands' ? 'to hold paws' : pending.action) + '. ♡');
   updateUI();
+  if (pendingRemoteActions.length) setTimeout(flushPendingRemoteAction, 1200);
 }
 async function runLocalAction(action) {
   if (!ACTIONS.has(action) || actionInFlight) return;

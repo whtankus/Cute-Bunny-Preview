@@ -695,7 +695,7 @@ async function chooseFriend(id) {
     runLocalAction(action);
   }
 }
-async function sendAction(action, partnerId = selectedFriendId) {
+async function sendAction(action, partnerId = selectedFriendId, actionId = createBearActionId()) {
   const friend = getFriends().find(item => String(item?.id) === String(partnerId)) || partnerProfileFromRows(partnerId);
   const user = getMe();
   const client = getSupabase();
@@ -711,7 +711,7 @@ async function sendAction(action, partnerId = selectedFriendId) {
   }
   const payload = {
     action,
-    actionId: createBearActionId(),
+    actionId,
     userId: String(user.id),
     toUserId: String(partnerId),
     gender: user.gender || null,
@@ -831,7 +831,7 @@ async function runLocalAction(action) {
   const partnerId = selectedFriendId;
   const actionId = createBearActionId();
   try {
-    const delivered = await sendAction(action, partnerId);
+    const delivered = await sendAction(action, partnerId, actionId);
     if (delivered) await recordSharedAction(action, partnerId, actionId);
   } finally {
     actionInFlight = false;

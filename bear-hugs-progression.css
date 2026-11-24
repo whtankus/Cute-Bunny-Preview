@@ -626,3 +626,21 @@
   .bear-mood-pill { margin-top: 8px; padding: 6px 10px; gap: 6px; }
   .bear-mood-pill b { font-size: 10px; }
 }
+
+
+/* Clear feedback while a shared bear action awaits the partner acknowledgement. */
+#coupleBearGame.is-sending .bear-action-button {
+  cursor: wait;
+  opacity: .62;
+  transform: none;
+}
+#coupleBearGame .bear-action-button:disabled {
+  cursor: wait;
+  pointer-events: none;
+}
+#coupleBearGame .bear-action-button[aria-busy="true"] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--cb-accent) 35%, transparent);
+}
+@media(prefers-reduced-motion:reduce) {
+  #coupleBearGame.is-sending .bear-action-button { transition: none; }
+}

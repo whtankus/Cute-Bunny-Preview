@@ -66,6 +66,18 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(styles, /is-sending/);
 });
 
+test('Bear Hugs plays a random visual-only action after ten seconds of inactivity', () => {
+  const bear = read('bear-hugs-progression.js');
+  assert.match(bear, /function scheduleBearIdleAction\(delay = 10000\)/);
+  assert.match(bear, /function runAutonomousBearAction\(\)/);
+  assert.match(bear, /scheduleBearIdleAction\(10000\)/);
+  assert.match(bear, /originalTrigger\(action, \{ remote: true, gender: getMe\(\)\?\.gender, autonomous: true \}\)/);
+  assert.match(bear, /const choices = \['hug', 'kiss', 'flykiss', 'hands', 'dance', 'pet', 'tummy', 'feed', 'sleep'\]/);
+  assert.match(bear, /event\.target\?\.closest\?\.\('#coupleBearGame'\)/);
+  assert.match(bear, /document\.hidden/);
+  assert.match(bear, /Autonomous moments are purely visual/);
+});
+
 test('the app shell references local stylesheets that exist', () => {
   const html = read('index.html');
   const stylesheets = [...html.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi)]

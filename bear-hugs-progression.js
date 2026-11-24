@@ -793,7 +793,7 @@ async function sendAction(action, partnerId = selectedFriendId, actionId = creat
     } else {
       setStatus('Your little moment was sent, but your Bearfriend has not confirmed receiving it yet. ♡');
     }
-    return true;
+    return acknowledged;
   } catch (error) {
     clearTimeout(ackTimer);
     pendingActionAcks.delete(payload.actionId);
@@ -808,6 +808,7 @@ function applyRemoteAction(action, payload) {
   const root = $('#coupleBearGame');
   if (root && typeof originalTrigger === 'function') {
     originalTrigger(action, { remote: true, gender: payload.gender });
+    lastSharedAction = action;
     window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', {
       detail: { action, actionId: String(payload.actionId || '') }
     }));
@@ -864,6 +865,7 @@ function flushPendingRemoteAction() {
   const scene = $('.couple-bears-scene');
   if (scene) scene.dataset.action = pending.action;
   originalTrigger(pending.action, { remote: true, gender: pending.payload.gender, queued: true });
+  lastSharedAction = pending.action;
   window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', {
     detail: { action: pending.action, actionId: String(pending.payload.actionId || '') }
   }));
@@ -881,6 +883,13 @@ async function runLocalAction(action) {
   }
   if (typeof originalTrigger === 'function') {
     actionInFlight = true;
+    const gameRoot = $('#coupleBearGame');
+    gameRoot?.classList.add('is-sending');
+    gameRoot?.querySelectorAll('.bear-action-button').forEach(button => {
+      button.disabled = true;
+      button.setAttribute('aria-busy', 'true');
+    });
+    setStatus('Sending a little moment to your Bearfriend… ♡');
     originalTrigger(action, { remote: true, gender: getMe()?.gender });
     updateUI();
   } else {
@@ -899,6 +908,12 @@ async function runLocalAction(action) {
     }
   } finally {
     actionInFlight = false;
+    const gameRoot = $('#coupleBearGame');
+    gameRoot?.classList.remove('is-sending');
+    gameRoot?.querySelectorAll('.bear-action-button').forEach(button => {
+      button.disabled = false;
+      button.removeAttribute('aria-busy');
+    });
   }
 }
 function ensureProgressChannel() {

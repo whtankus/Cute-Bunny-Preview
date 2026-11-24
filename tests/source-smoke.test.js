@@ -42,6 +42,20 @@ test('Bear Hugs uses one fixed level and Care Point-based treasure collection', 
   assert.match(styles, /bear-reward-count b/);
 });
 
+test('Bear Hugs daily missions track only successfully delivered actions', () => {
+  const app = read('app.js');
+  const bear = read('bear-hugs-progression.js');
+  const styles = read('bear-hugs-progression.css');
+  assert.match(app, /bearActions: Array\.isArray\(saved\.bearActions\)/);
+  assert.match(app, /kind === 'bear-action'/);
+  assert.match(app, /bearHugQuests/);
+  assert.match(app, /cute-bunny:bear-action/);
+  assert.match(bear, /new CustomEvent\('cute-bunny:bear-action'/);
+  assert.match(bear, /if \(recorded\)/);
+  assert.match(bear, /BEAR MOOD/);
+  assert.match(styles, /bear-mood-pill/);
+});
+
 test('the app shell references local stylesheets that exist', () => {
   const html = read('index.html');
   const stylesheets = [...html.matchAll(/<link\b[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi)]

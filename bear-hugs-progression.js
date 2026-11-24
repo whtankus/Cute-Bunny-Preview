@@ -262,6 +262,18 @@ function updateUI() {
     ? Math.max(0, Math.min(100, ((points - progressStart) / progressSpan) * 100))
     : 100;
   const scene = $('.couple-bears-scene', root);
+  const mood = ({
+    hug: ['Loved & happy', '♡', 'bear-mood-happy'],
+    kiss: ['Blushing', '♥', 'bear-mood-happy'],
+    flykiss: ['Feeling adored', '✧', 'bear-mood-happy'],
+    hands: ['Close & connected', '⌁', 'bear-mood-calm'],
+    dance: ['Playful & cheerful', '♫', 'bear-mood-happy'],
+    pet: ['Safe & cuddly', '♡', 'bear-mood-calm'],
+    feed: ['Full & content', '✿', 'bear-mood-calm'],
+    sleep: ['Sleepy & peaceful', '☾', 'bear-mood-sleepy'],
+    tummy: ['Extra cozy', '♡', 'bear-mood-calm'],
+    slap: ['A little startled', '!', 'bear-mood-surprised']
+  })[lastSharedAction] || ['Calm & cuddly', '♡', 'bear-mood-calm'];
 
   let careStrip = $('#bearCarePointsStrip', root);
   if (!careStrip) {
@@ -283,7 +295,8 @@ function updateUI() {
     '<div class="bear-care-foot"><span><b class="bear-care-progress-label">' + points.toLocaleString() + ' Care Points</b></span><b>' + (nextReward ? pointsToNext.toLocaleString() + ' to next treasure' : 'All treasures collected') + '</b></div>' +
     '<div class="bear-care-milestone"><span>✧</span>' + (nextReward
       ? 'Next keepsake: <b>' + esc(nextReward.name) + '</b> · ' + nextReward.unlockPoints.toLocaleString() + ' Care Points'
-      : '<b>Every keepsake is unlocked!</b> Your little bear world is complete') + '</div>';
+      : '<b>Every keepsake is unlocked!</b> Your little bear world is complete') + '</div>' +
+    '<div class="bear-mood-pill ' + mood[2] + '" aria-live="polite"><span aria-hidden="true">' + mood[1] + '</span><small>BEAR MOOD</small><b>' + mood[0] + '</b></div>';
 
   let panel = $('#bearProgressionPanel', root);
   if (!panel) {
@@ -872,7 +885,12 @@ async function runLocalAction(action) {
   const actionId = createBearActionId();
   try {
     const delivered = await sendAction(action, partnerId, actionId);
-    if (delivered) await recordSharedAction(action, partnerId, actionId);
+    if (delivered) {
+      const recorded = await recordSharedAction(action, partnerId, actionId);
+      if (recorded) {
+        window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', { detail: { action } }));
+      }
+    }
   } finally {
     actionInFlight = false;
   }

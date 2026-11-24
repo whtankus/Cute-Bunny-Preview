@@ -808,6 +808,9 @@ function applyRemoteAction(action, payload) {
   const root = $('#coupleBearGame');
   if (root && typeof originalTrigger === 'function') {
     originalTrigger(action, { remote: true, gender: payload.gender });
+    window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', {
+      detail: { action, actionId: String(payload.actionId || '') }
+    }));
     updateUI();
     const sender = getFriends().find(friend => String(friend?.id) === String(payload.userId));
     setStatus((sender?.display_name || sender?.displayName || sender?.username || 'Your friend') +
@@ -861,6 +864,9 @@ function flushPendingRemoteAction() {
   const scene = $('.couple-bears-scene');
   if (scene) scene.dataset.action = pending.action;
   originalTrigger(pending.action, { remote: true, gender: pending.payload.gender, queued: true });
+  window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', {
+    detail: { action: pending.action, actionId: String(pending.payload.actionId || '') }
+  }));
   const sender = getFriends().find(friend => String(friend?.id) === String(pending.payload.userId));
   setStatus((sender?.display_name || sender?.displayName || sender?.username || 'Your friend') +
     ' chose ' + (pending.action === 'hands' ? 'to hold paws' : pending.action) + '. ♡');
@@ -889,7 +895,7 @@ async function runLocalAction(action) {
       await recordSharedAction(action, partnerId, actionId);
       // The realtime acknowledgement confirms the action reached the friend.
       // Daily missions should still count if the separate points RPC is offline.
-      window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', { detail: { action } }));
+      window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', { detail: { action, actionId } }));
     }
   } finally {
     actionInFlight = false;

@@ -59,11 +59,10 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(bear, /if \(delivered\)/);
   assert.match(bear, /return acknowledged/);
   assert.match(bear, /lastSharedAction = action/);
-  assert.match(bear, /is-sending/);
+  assert.match(bear, /Play immediately and keep every action button available/);
+  assert.doesNotMatch(bear.slice(bear.indexOf('async function runLocalAction'), bear.indexOf('function ensureProgressChannel')), /actionInFlight|\.disabled = true|is-sending/);
   assert.match(bear, /BEAR MOOD/);
   assert.match(styles, /bear-mood-pill/);
-  assert.match(styles, /bear-action-button:disabled/);
-  assert.match(styles, /is-sending/);
 });
 
 test('Bear Hugs adds visual-only idle personality, sleep, props, atmosphere and memories safely', () => {
@@ -184,4 +183,15 @@ test('main navigation shows glowing new-activity dots for unread content notific
   }
   assert.match(css, /nav-new-dot\.is-visible/);
   assert.match(css, /nav-new-dot-glow/);
+});
+
+
+test('Bear Hugs action buttons stay responsive while actions send independently', () => {
+  const bear = read('bear-hugs-progression.js');
+  const handler = bear.slice(bear.indexOf('async function runLocalAction'), bear.indexOf('function ensureProgressChannel'));
+  assert.match(handler, /originalTrigger\(action/);
+  assert.match(handler, /void \(async \(\) =>/);
+  assert.match(handler, /await sendAction\(action, partnerId, actionId\)/);
+  assert.match(handler, /await recordSharedAction\(action, partnerId, actionId\)/);
+  assert.doesNotMatch(handler, /actionInFlight|\.disabled = true|querySelectorAll\('\.bear-action-button'\)/);
 });

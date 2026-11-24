@@ -1034,6 +1034,7 @@ function readStreakDailyQuests(dateKey) {
     return {
       hearts: Array.isArray(saved.hearts) ? [...new Set(saved.hearts.map(String))] : [],
       bearActions: Array.isArray(saved.bearActions) ? saved.bearActions.slice(-99).map(String).filter(action => ['hug','kiss','flykiss','hands','dance','pet','feed','sleep','tummy','idle'].includes(action)) : [],
+      bearActionIds: Array.isArray(saved.bearActionIds) ? saved.bearActionIds.slice(-120).map(String) : [],
       photo: saved.photo === true,
       photoCount: Math.max(saved.photo === true ? 1 : 0, Number(saved.photoCount) || 0),
       kissNote: saved.kissNote === true,
@@ -1045,7 +1046,7 @@ function readStreakDailyQuests(dateKey) {
       login: saved.login === true,
       badge: saved.badge === true
     };
-  } catch { return {hearts:[], bearActions:[], photo:false, photoCount:0, kissNote:false, kissNotes:0, note:0, noteTexts:[], song:false, songCount:0, login:false, badge:false}; }
+  } catch { return {hearts:[], bearActions:[], bearActionIds:[], photo:false, photoCount:0, kissNote:false, kissNotes:0, note:0, noteTexts:[], song:false, songCount:0, login:false, badge:false}; }
 }
 function writeStreakDailyQuests(dateKey, state) {
   try { localStorage.setItem(streakStorageKey('daily-quests:' + dateKey), JSON.stringify(state)); } catch {}
@@ -1596,7 +1597,17 @@ function recordStreakDailyQuest(kind, value = '') {
   const dateKey = streakDateInTimeZone(timezone);
   const state = readStreakDailyQuests(dateKey);
   if (kind === 'heart' && value && !state.hearts.includes(String(value))) state.hearts.push(String(value));
-  if (kind === 'bear-action' && ['hug','kiss','flykiss','hands','dance','pet','feed','sleep','tummy','idle'].includes(String(value))) state.bearActions.push(String(value));
+  if (kind === 'bear-action') {
+    const action = typeof value === 'object' ? String(value.action || '') : String(value || '');
+    const actionId = typeof value === 'object' ? String(value.actionId || '') : '';
+    if (['hug','kiss','flykiss','hands','dance','pet','feed','sleep','tummy','idle'].includes(action) &&
+        (!actionId || !state.bearActionIds.includes(actionId))) {
+      state.bearActions.push(action);
+      if (actionId) state.bearActionIds.push(actionId);
+      state.bearActions = state.bearActions.slice(-99);
+      state.bearActionIds = state.bearActionIds.slice(-120);
+    }
+  }
   if (kind === 'photo') { state.photo = true; state.photoCount = Math.min(99,state.photoCount + 1); }
   if (kind === 'kiss-note') { state.kissNote = true; state.kissNotes = Math.min(99,state.kissNotes + 1); if (value) state.noteTexts.push(String(value)); }
   if (kind === 'note') { state.note = Math.min(99,state.note + 1); if (value) state.noteTexts.push(String(value)); }
@@ -1615,7 +1626,10 @@ function recordStreakDailyQuest(kind, value = '') {
 }
 window.addEventListener('cute-bunny:bear-action', event => {
   const action = String(event?.detail?.action || '');
-  if (action) recordStreakDailyQuest('bear-action', action);
+  if (action) recordStreakDailyQuest('bear-action', {
+    action,
+    actionId: String(event?.detail?.actionId || '')
+  });
 });
 function streakDateKey(date) {
   return date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0') + '-' + String(date.getUTCDate()).padStart(2, '0');

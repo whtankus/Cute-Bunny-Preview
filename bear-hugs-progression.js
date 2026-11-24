@@ -81,7 +81,7 @@ async function loadSharedProgress() {
     sharedProgressInitialized = false;
   }
   const { data, error } = await client.from('bear_partner_progress')
-    .select('love_points,last_action')
+    .select('love_points,last_action,equipped_reward_ids')
     .eq('partner_low', low)
     .eq('partner_high', high)
     .maybeSingle();
@@ -93,7 +93,9 @@ async function loadSharedProgress() {
   const previousPoints = sharedPoints;
   sharedPoints = Math.max(0, Number(data?.love_points) || 0);
   lastSharedAction = String(data?.last_action || '');
-  loadEquippedRewards(pairKey);
+  equippedRewardIds = Array.isArray(data?.equipped_reward_ids)
+    ? data.equipped_reward_ids.filter(id => REWARDS.some(reward => reward.id === id))
+    : [];
   if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
   sharedProgressInitialized = true;
   updateUI();
@@ -130,13 +132,26 @@ function loadEquippedRewards(pairKey = sharedProgressPairKey) {
     equippedRewardIds = Array.isArray(saved) ? saved.filter(id => REWARDS.some(reward => reward.id === id)) : [];
   } catch { equippedRewardIds = []; }
 }
-function saveEquippedRewards() {
-  if (!sharedProgressPairKey) return;
-  try { localStorage.setItem(EQUIPPED_KEY_PREFIX + sharedProgressPairKey, JSON.stringify(equippedRewardIds)); } catch {}
+async function saveEquippedRewards() {
+  const client = getSupabase();
+  if (!sharedProgressPairKey || !selectedFriendId || !client || !isAcceptedPartner(selectedFriendId)) return false;
+  const { data, error } = await client.rpc('set_bear_hug_equipment', {
+    p_partner_id: selectedFriendId,
+    p_reward_ids: equippedRewardIds
+  });
+  if (error) {
+    console.warn('Shared Bear Hugs equipment could not be saved:', error.message || error);
+    setStatus('Your reward could not sync to your Bearfriend. Please try again. ♡');
+    return false;
+  }
+  equippedRewardIds = Array.isArray(data) ? data : equippedRewardIds;
+  updateUI();
+  return true;
 }
-function equipReward(id) {
+async function equipReward(id) {
   const reward = REWARDS.find(item => item.id === id);
   if (!reward || getLevel(getPoints()).level < reward.level) return;
+  const previous = [...equippedRewardIds];
   const active = equippedRewardIds.includes(id);
   if (active) equippedRewardIds = equippedRewardIds.filter(item => item !== id);
   else {
@@ -147,8 +162,11 @@ function equipReward(id) {
     }
     equippedRewardIds = [...equippedRewardIds, id];
   }
-  saveEquippedRewards();
   updateUI();
+  if (!await saveEquippedRewards()) {
+    equippedRewardIds = previous;
+    updateUI();
+  }
 }
 
 function ensureBearAccessoryLayers() {

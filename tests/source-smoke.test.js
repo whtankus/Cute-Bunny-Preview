@@ -62,6 +62,8 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(bear, /is-sending/);
   assert.match(bear, /BEAR MOOD/);
   assert.match(styles, /bear-mood-pill/);
+  assert.match(styles, /bear-action-button:disabled/);
+  assert.match(styles, /is-sending/);
 });
 
 test('the app shell references local stylesheets that exist', () => {

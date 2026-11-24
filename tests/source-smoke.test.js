@@ -170,3 +170,18 @@ test('streak entry button and thumbnail play boing on pointer and keyboard activ
   assert.match(handlers, /if \(streakButton\) playCuteSound\('boing'\)/);
   assert.match(handlers, /playCuteSound\('boing'\);\s*openStreakGarden\(\);/);
 });
+
+
+test('main navigation shows glowing new-activity dots for unread content notifications', () => {
+  const app = read('app.js');
+  const html = read('index.html');
+  const css = read('style.css');
+  assert.match(app, /function updateNavNewDots\(\)/);
+  assert.match(app, /gallery: \['photo'\], music: \['song'\], notes: \['note'\], friends: \['buddy'\]/);
+  assert.match(app, /function markNavNotificationsSeen\(targetPage\)/);
+  for (const page of ['home', 'gallery', 'notes', 'music', 'friends']) {
+    assert.ok(html.includes('data-page="' + page + '"') && html.includes('class="nav-new-dot"'));
+  }
+  assert.match(css, /nav-new-dot\.is-visible/);
+  assert.match(css, /nav-new-dot-glow/);
+});

@@ -51,7 +51,7 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(app, /bearHugQuests/);
   assert.match(app, /cute-bunny:bear-action/);
   assert.match(bear, /new CustomEvent\('cute-bunny:bear-action'/);
-  assert.match(bear, /if \(recorded\)/);
+  assert.match(bear, /if \(delivered\)/);
   assert.match(bear, /BEAR MOOD/);
   assert.match(styles, /bear-mood-pill/);
 });

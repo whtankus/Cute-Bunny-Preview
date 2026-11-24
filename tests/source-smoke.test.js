@@ -63,8 +63,8 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(bear, /lastSharedAction = action/);
   assert.match(bear, /Play immediately and keep every action button available/);
   assert.doesNotMatch(bear.slice(bear.indexOf('async function runLocalAction'), bear.indexOf('function ensureProgressChannel')), /actionInFlight|\.disabled = true|is-sending/);
-  assert.match(bear, /BEAR MOOD/);
-  assert.match(styles, /bear-mood-pill/);
+  assert.doesNotMatch(bear, /BEAR MOOD|bear-mood-pill/);
+  assert.doesNotMatch(styles, /bear-mood-pill/);
 });
 
 test('Bear Hugs adds visual-only idle personality, sleep, props, atmosphere and memories safely', () => {

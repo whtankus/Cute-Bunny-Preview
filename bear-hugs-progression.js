@@ -108,15 +108,28 @@ async function loadSharedProgress() {
   sharedProgressInitialized = true;
   updateUI();
 }
-async function recordSharedAction(action, partnerId = selectedFriendId) {
+function createBearActionId() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, char => {
+    const random = Math.floor(Math.random() * 16);
+    return (char === 'x' ? random : (random & 3) | 8).toString(16);
+  });
+}
+async function recordSharedAction(action, partnerId = selectedFriendId, actionId = createBearActionId()) {
   const user = getMe(), client = getSupabase();
   if (!user?.id || !partnerId || !client || !isAcceptedPartner(partnerId)) return false;
-  const { data, error } = await client.rpc('record_bear_hug_action', { p_partner_id: partnerId, p_action: action });
+  const pairKey = [String(user.id), String(partnerId)].sort().join(':');
+  const { data, error } = await client.rpc('record_bear_hug_action', {
+    p_partner_id: partnerId,
+    p_action: action,
+    p_action_id: actionId
+  });
   if (error) {
     console.warn('Shared Bear Hugs points could not be saved:', error.message || error);
     setStatus('Your bear moment was sent, but its Love Meter points could not be saved. ♡');
     return false;
   }
+  if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== String(partnerId)) return true;
   const previousPoints = sharedPoints;
   sharedPoints = Math.max(0, Number(data) || 0);
   lastSharedAction = action;
@@ -766,9 +779,10 @@ async function runLocalAction(action) {
     return;
   }
   const partnerId = selectedFriendId;
+  const actionId = createBearActionId();
   try {
     const delivered = await sendAction(action, partnerId);
-    if (delivered) await recordSharedAction(action, partnerId);
+    if (delivered) await recordSharedAction(action, partnerId, actionId);
   } finally {
     actionInFlight = false;
   }

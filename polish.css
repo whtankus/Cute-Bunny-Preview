@@ -5303,3 +5303,40 @@ body[data-mode="dark"] #content .bear-name{background:rgba(54,43,58,.9);color:#e
  #content .sg-collectible-card.item-crystal-butterfly .sg-collectible-art svg,
  #content .sg-collectible-card.item-sunfire-blossom .sg-collectible-art svg{animation:none}
 }
+
+
+/* Living motion for the three legendary garden treasures.
+   These SVG classes live inside the catalogue art, so the same animations
+   render in the shop and in both own/friend profile collections. */
+.mo-orchid-petals{
+  transform-box:view-box;
+  transform-origin:32px 34px;
+  animation:mo-orchid-turn 18s linear infinite;
+}
+.cb-left-wings,.cb-right-wings{
+  transform-box:view-box;
+  transform-origin:32px 32px;
+  animation:cb-butterfly-flap 1.35s ease-in-out infinite alternate;
+}
+.cb-right-wings{animation-delay:-.675s}
+.sf-sun-rotor{
+  transform-box:view-box;
+  transform-origin:32px 30px;
+  animation:sf-sun-turn 24s linear infinite;
+}
+@keyframes mo-orchid-turn{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@keyframes cb-butterfly-flap{
+  0%{transform:scaleX(1) rotate(0deg);filter:brightness(1)}
+  48%{transform:scaleX(.28) rotate(7deg);filter:brightness(1.28)}
+  100%{transform:scaleX(1) rotate(0deg);filter:brightness(1.08)}
+}
+@keyframes sf-sun-turn{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .mo-orchid-petals,.cb-left-wings,.cb-right-wings,.sf-sun-rotor{animation:none!important}
+}

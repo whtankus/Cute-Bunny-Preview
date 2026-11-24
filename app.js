@@ -2130,7 +2130,8 @@ function renderStreakPage() {
     const unlocked = heartCount >= item.hearts;
     const percentage = unlocked ? 100 : Math.min(100, heartCount / item.hearts * 100);
     const status = unlocked ? 'Heart unlocked' : (item.hearts - heartCount) + ' hearts to go';
-    return '<article class="streak-milestone sg-milestone' + (unlocked ? ' is-earned' : ' is-locked') + '">' +
+    const specialClass = item.hearts === 1000 ? ' sg-special-heart sg-special-heart-1000' : item.hearts === 1500 ? ' sg-special-heart sg-special-heart-1500' : item.hearts === 2000 ? ' sg-special-heart sg-special-heart-2000' : '';
+    return '<article class="streak-milestone sg-milestone' + specialClass + (unlocked ? ' is-earned' : ' is-locked') + '">' +
       '<span class="sg-milestone-art sg-heart-milestone-art">' + item.art + '</span>' +
       '<span class="sg-milestone-copy"><small class="sg-milestone-day">' + item.hearts + ' HEARTS</small><b>' + item.name +
       '</b><em>' + status + '</em></span>' +
@@ -2232,7 +2233,8 @@ function renderStreakPage() {
     const daysLeft = Math.max(0, item.days - count);
     const milestoneProgress = unlocked ? 100 : Math.min(100, Math.max(0, count / item.days * 100));
     const status = unlocked ? 'Bloom unlocked' : daysLeft === 1 ? '1 day to go' : daysLeft + ' days to go';
-    return '<article class="streak-milestone sg-milestone' + (unlocked ? ' is-earned' : ' is-locked') +
+    const specialClass = item.days === 50 ? ' sg-special-bloom sg-special-bloom-50' : item.days === 100 ? ' sg-special-bloom sg-special-bloom-100' : '';
+    return '<article class="streak-milestone sg-milestone' + specialClass + (unlocked ? ' is-earned' : ' is-locked') +
       '" aria-label="' + item.name + ', ' + item.days + ' days, ' + status + '">' +
       '<span class="sg-milestone-art">' + milestoneIllustrations[index] + '</span>' +
       '<span class="sg-milestone-copy"><small class="sg-milestone-day">' + item.days + '-DAY BLOOM</small><b>' + item.name +

@@ -6491,7 +6491,7 @@ document.addEventListener('pointerdown', e => {
   photoPressState.timer = setTimeout(() => {
     if (!photoPressState.image?.isConnected || photoPressState.pointerId !== e.pointerId) return;
     photoPressState.suppressClick = true;
-    const id = photoPressState.image.closest('.feed-item')?.dataset.memory;
+    const id = photoPressState.image.closest('.feed-item, .chat-message')?.dataset.memory;
     if (id) void openPhotoLightbox(id);
     clearTimeout(photoPressState.suppressTimer);
     photoPressState.suppressTimer = setTimeout(() => {
@@ -7443,7 +7443,7 @@ document.addEventListener('click', async e => {
       clearTimeout(photoPressState.suppressTimer);
       return;
     }
-    const id = photo.closest('.feed-item')?.dataset.memory;
+    const id = photo.closest('.feed-item, .chat-message')?.dataset.memory;
     if (!id) return;
     // A double-tap is reserved for liking; only a single tap opens the photo.
     if (performance.now() < suppressPhotoClickUntil) return;
@@ -7464,7 +7464,7 @@ document.addEventListener('click', async e => {
   if (e.target.closest('#photoLightboxDelete')) {
     const id = $('#photoLightbox').dataset.memoryId;
     const item = feed.find(m => String(m.id) === String(id));
-    if (!item || item.kind !== 'photo' || item.isPending || String(item.author?.id || item.owner_id || '') !== String(me?.id || '')) return;
+    if (!item || !(item.kind === 'photo' || (item.kind === 'note' && (item.storagePath || item.storage_path))) || item.isPending || String(item.author?.id || item.owner_id || '') !== String(me?.id || '')) return;
     const confirmGate = $('#photoDeleteConfirmGate');
     confirmGate.dataset.memoryId = String(id);
     confirmGate.classList.remove('hidden');

@@ -539,7 +539,7 @@ test('Notes retries a committed message with the same ID and ignores duplicate t
 
   await page.waitForFunction(() =>
     document.querySelector('#chatThread')?.textContent.includes('A message with a safely retried delivery ♡') &&
-    window.__cuteBunnyTestState.calls.some(call => call.rpc === 'send_note_message')
+    window.__cuteBunnyTestState.calls.filter(call => call.rpc === 'send_note_message').length === 2
   );
   const result = await page.evaluate(() => {
     const state = window.__cuteBunnyTestState;

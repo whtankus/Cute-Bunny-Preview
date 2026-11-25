@@ -11,7 +11,20 @@ const REWARDS = [
   { id: 'honey-bear', unlockPoints: 1250, slot: 'skin', previewClass: 'preview-honey', name: 'Honey Butter Bears', icon: '🍯', kind: 'Bear appearance', detail: 'A gentle golden fur tint that keeps every original movement and expression', rarity: 'Epic' },
   { id: 'starry-set', unlockPoints: 2150, slot: 'background', previewClass: 'preview-starry', name: 'Moonlit Cloud Garden', icon: '🌙', kind: 'Scene background', detail: 'A quiet lavender night garden with soft moonlight and tiny stars', rarity: 'Legendary' },
   { id: 'starlight-crowns', unlockPoints: 3050, slot: 'headwear', previewClass: 'preview-crowns', name: 'Little Starlight Crowns', icon: '👑', kind: 'Wearable headwear', detail: 'Matching gold crowns that follow the bears as they hug, dance and play', rarity: 'Legendary' }
+
 ];
+
+function rewardIconSvg(reward) {
+  const icons = {
+    'sunset-meadow': '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M32 52V27" fill="none" stroke="#477c5c" stroke-width="3.5" stroke-linecap="round"/><path d="M31 39C17 40 13 30 15 22c10 0 18 5 16 17Z" fill="#8dbb83" stroke="#477c5c" stroke-width="2"/><path d="M33 33c1-12 10-17 19-15 1 10-7 18-19 18Z" fill="#b5d69a" stroke="#477c5c" stroke-width="2"/><circle cx="32" cy="17" r="6" fill="#f3d78c" stroke="#b48a4d" stroke-width="1.8"/></svg>',
+    'strawberry-hat': '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M12 37c1-14 10-23 20-23s19 9 20 23H12Z" fill="#ef9eb4" stroke="#a85d79" stroke-width="2.5" stroke-linejoin="round"/><path d="M9 36c11 5 35 5 46 0v7c-12 7-34 7-46 0Z" fill="#f7c6d4" stroke="#a85d79" stroke-width="2.5" stroke-linejoin="round"/><path d="m26 15 3-5 3 5 5-2-2 7H26Z" fill="#78a66e"/><circle cx="32" cy="15" r="4" fill="#e75c78"/></svg>',
+    'honey-bear': '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="17" cy="20" r="10" fill="#e8bd76" stroke="#a87943" stroke-width="2.5"/><circle cx="47" cy="20" r="10" fill="#e8bd76" stroke="#a87943" stroke-width="2.5"/><circle cx="32" cy="34" r="23" fill="#f0d29a" stroke="#a87943" stroke-width="2.5"/><circle cx="24" cy="32" r="2.5" fill="#55413a"/><circle cx="40" cy="32" r="2.5" fill="#55413a"/><ellipse cx="32" cy="41" rx="8" ry="6" fill="#fff0d6"/><path d="M29 39q3-3 6 0m-3 2q-3 4-6 1m6-1q3 4 6 1" fill="none" stroke="#8b5d50" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    'starry-set': '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M39 9c-13 3-20 17-16 29 4 12 17 18 29 12-6 10-20 14-31 8C7 51 3 35 10 22 16 10 29 5 39 9Z" fill="#f4e7ad" stroke="#b59b61" stroke-width="2"/><path d="m46 12 2.4 5.2 5.6.6-4.2 3.7 1.2 5.5-5-2.9-4.9 2.9 1.1-5.5-4.1-3.7 5.6-.6Z" fill="#fff2bd"/><circle cx="17" cy="14" r="2.5" fill="#fff"/><circle cx="52" cy="43" r="2" fill="#fff"/></svg>',
+    'starlight-crowns': '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="m9 22 13 11 10-20 10 20 13-11-5 29H14Z" fill="#f1ce78" stroke="#9f793c" stroke-width="2.6" stroke-linejoin="round"/><path d="M14 43h36v8H14Z" fill="#ffe7a6" stroke="#9f793c" stroke-width="2"/><circle cx="22" cy="35" r="3" fill="#fff5d4"/><circle cx="32" cy="25" r="3" fill="#fff5d4"/><circle cx="42" cy="35" r="3" fill="#fff5d4"/></svg>'
+  };
+  const fallback = '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="19" fill="#ead8ef" stroke="#a88bb4" stroke-width="2.5"/><path d="M32 20v24M20 32h24" stroke="#8c709b" stroke-width="3" stroke-linecap="round"/></svg>';
+  return '<span class="bear-reward-icon-art">' + (icons[reward?.id] || fallback) + '</span>';
+}
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -203,7 +216,14 @@ async function equipReward(id) {
   if (!reward || getPoints() < reward.unlockPoints) return;
   const partnerId = String(selectedFriendId || '');
   const pairKey = sharedProgressPairKey;
-  if (!partnerId || !pairKey || !isAcceptedPartner(partnerId)) return;
+  if (!partnerId || !isAcceptedPartner(partnerId)) {
+    setStatus('Choose an accepted Bearfriend before using shared rewards. ♡');
+    return;
+  }
+  if (!pairKey) {
+    setStatus('Your shared Bearfriend progress is still loading. Please try again in a moment. ♡');
+    return;
+  }
   const previous = [...equippedRewardIds];
   const active = equippedRewardIds.includes(id);
   if (active) equippedRewardIds = equippedRewardIds.filter(item => item !== id);
@@ -357,6 +377,7 @@ function updateUI() {
       if (!button || button.disabled) return;
       button.disabled = true;
       button.setAttribute('aria-busy', 'true');
+      ensureBearAccessoryLayers();
       void equipReward(button.dataset.bearEquip).finally(() => {
         if (button.isConnected) {
           button.disabled = false;
@@ -373,7 +394,7 @@ function updateUI() {
       ? (applied ? 'Currently in your bear world' : 'Unlocked · ready to use')
       : (reward.unlockPoints - points).toLocaleString() + ' Care Points to unlock';
     return '<article class="bear-reward ' + (unlocked ? 'is-unlocked' : 'is-locked') + (applied ? ' is-applied' : '') + (nextReward?.id === reward.id ? ' is-next' : '') + '">' +
-      '<div class="bear-reward-preview ' + reward.previewClass + '" aria-hidden="true"><span>' + reward.icon + '</span><i>✦</i><small>🐻　✿　🐻</small></div>' +
+      '<div class="bear-reward-preview ' + reward.previewClass + '" aria-hidden="true">' + rewardIconSvg(reward) + '</div>' +
       '<div class="bear-reward-copy"><span class="bear-reward-kicker">' + reward.rarity + ' · TREASURE ' + (index + 1) + '</span><b>' + reward.name + '</b><small>' + reward.detail + '</small></div>' +
       '<div class="bear-reward-bottom"><span class="bear-reward-state">' + progressLabel + '</span>' +
       (unlocked ? '<button type="button" class="bear-reward-apply" data-bear-equip="' + reward.id + '" aria-pressed="' + applied + '">' + (applied ? 'Unequip' : 'Use reward') + '</button>' : '<span class="bear-reward-lock">🔒 ' + reward.unlockPoints.toLocaleString() + ' Care Points</span>') +
@@ -381,8 +402,8 @@ function updateUI() {
   }).join('');
 
   const rewardSummary = nextReward
-    ? '<div class="bear-next-reward"><div class="bear-next-reward-art ' + nextReward.previewClass + '">' + nextReward.icon + '</div><div><small>NEXT LITTLE TREASURE</small><b>' + nextReward.name + '</b><span>' + pointsToNext.toLocaleString() + ' more Care Points to unlock · keep sharing little moments</span></div></div>'
-    : '<div class="bear-next-reward bear-all-unlocked"><div class="bear-next-reward-art preview-starry">✧</div><div><small>YOUR WORLD IS COMPLETE</small><b>Every treasure is yours!</b><span>Keep collecting sweet moments together.</span></div></div>';
+    ? '<div class="bear-next-reward"><div class="bear-next-reward-art ' + nextReward.previewClass + '">' + rewardIconSvg(nextReward) + '</div><div><small>NEXT LITTLE TREASURE</small><b>' + nextReward.name + '</b><span>' + pointsToNext.toLocaleString() + ' more Care Points to unlock · keep sharing little moments</span></div></div>'
+    : '<div class="bear-next-reward bear-all-unlocked"><div class="bear-next-reward-art preview-starry">' + rewardIconSvg(REWARDS.find(reward => reward.id === 'starry-set')) + '</div><div><small>YOUR WORLD IS COMPLETE</small><b>Every treasure is yours!</b><span>Keep collecting sweet moments together.</span></div></div>';
 
   const progressPips = REWARDS.map(reward =>
     '<span class="bear-reward-pip ' + (points >= reward.unlockPoints ? 'is-filled' : '') + '" aria-hidden="true"></span>'

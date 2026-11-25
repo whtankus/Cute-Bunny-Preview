@@ -151,7 +151,7 @@ test('Notes can send a photo with or without a caption and show it in Photos', a
   const saved = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.file_name === 'notes-share.png'));
   assert.equal(saved.kind, 'note', 'photo messages remain part of the Notes conversation');
   assert.equal(saved.text, 'A tiny shared moment');
-  assert.match(saved.storage_path, /^user-ankush-test\//);
+  assert.ok(saved.storage_path.startsWith('user-ankush-test/'));
   await page.locator('#nav button[data-page="gallery"]').click();
   await page.locator('.photo-garden-grid .feed-photo[data-media="' + saved.id + '"]').waitFor({ state: 'visible' });
 

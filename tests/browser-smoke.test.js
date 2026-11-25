@@ -386,3 +386,50 @@ test('friend presence sweep covers online, offline, Notes entry, and Notes exit 
   await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
   assert.equal(await page.locator('#cb-presence-sweep').evaluate(node => getComputedStyle(node).visibility), 'visible');
 });
+
+test('PWA installs its complete shell and reloads offline', async () => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    serviceWorkers: 'allow'
+  });
+  contexts.add(context);
+  const page = await context.newPage();
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', route => route.abort());
+  await page.route('https://fonts.googleapis.com/**', route => route.abort());
+  await page.route('https://fonts.gstatic.com/**', route => route.abort());
+
+  try {
+    await page.goto(baseUrl, { waitUntil: 'load' });
+    await page.evaluate(async () => {
+      const registration = await navigator.serviceWorker.ready;
+      if (!registration.active) throw new Error('Service worker did not activate');
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+
+    const cached = await page.evaluate(async () => {
+      const names = await caches.keys();
+      const shell = names.find(name => name === 'cute-bunny-shell-v400');
+      if (!shell) return { names, shell: false, assets: [] };
+      const cache = await caches.open(shell);
+      const requests = await cache.keys();
+      return {
+        names,
+        shell: true,
+        assets: requests.map(request => new URL(request.url).pathname.split('/').pop())
+      };
+    });
+    assert.equal(cached.shell, true, 'the current app shell cache should be installed');
+    for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'header-statusbar-blend.css', 'bear-hugs-progression.js', 'bear-hugs-progression.css']) {
+      assert.ok(cached.assets.includes(asset), 'offline cache should include ' + asset);
+    }
+
+    await context.setOffline(true);
+    await page.reload({ waitUntil: 'domcontentloaded', timeout: 15000 });
+    await page.locator('#welcome').waitFor({ state: 'visible', timeout: 10000 });
+    assert.equal(await page.evaluate(() => Boolean(navigator.serviceWorker.controller)), true);
+  } finally {
+    await context.close();
+    contexts.delete(context);
+  }
+});

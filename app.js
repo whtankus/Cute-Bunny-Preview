@@ -7484,6 +7484,12 @@ document.addEventListener('click', async e => {
     if (!id) return;
     // A double-tap is reserved for liking; only a single tap opens the photo.
     if (performance.now() < suppressPhotoClickUntil) return;
+    if (photo.closest('.chat-message')) {
+      clearTimeout(photoPressState.clickTimer);
+      photoPressState.pendingPhotoId = null;
+      void openPhotoLightbox(String(id));
+      return;
+    }
     clearTimeout(photoPressState.clickTimer);
     photoPressState.pendingPhotoId = String(id);
     photoPressState.clickTimer = setTimeout(() => {

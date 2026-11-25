@@ -1,8 +1,8 @@
-const CACHE_NAME = "cute-bunny-shell-v407";
+const CACHE_NAME = "cute-bunny-shell-v408";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=notes-photo-grid-final-20261125",
+  "./style.css?v=notes-photo-controls-inside-pill-20261125s-photo-grid-final-20261125",
   "./polish.css?v=bearfriend-rewards-polish-20261125",
   "./ui-color-system.css?v=20261125-1",
   "./header-statusbar-blend.css?v=20261120-1",

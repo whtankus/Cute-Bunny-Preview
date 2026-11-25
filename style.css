@@ -15501,3 +15501,126 @@ body[data-mode="dark"] #content .chat-page .chat-composer #chatInput {
     min-height:34px!important;
   }
 }
+
+
+/* Notes mobile dock: identical right-side control slot in every viewport state. */
+body.notes-page-active #content .chat-page .chat-composer {
+  display:block!important;
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  width:min(680px,calc(100vw - 30px))!important;
+  max-width:calc(100vw - 30px)!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  transform:translateX(-50%)!important;
+  z-index:60!important;
+}
+body.notes-page-active #content .chat-page .chat-composer #chatInput {
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  min-height:54px!important;
+  padding:12px 58px 12px 18px!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-photo-attach,
+body.notes-page-active #content .chat-page .chat-composer #chatSend {
+  position:absolute!important;
+  top:50%!important;
+  right:8px!important;
+  bottom:auto!important;
+  left:auto!important;
+  z-index:8!important;
+  display:grid!important;
+  place-items:center!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  margin:0!important;
+  padding:0!important;
+  transform:translateY(-50%)!important;
+  border-radius:50%!important;
+}
+body.notes-page-active #content .chat-page .chat-composer #chatSend[hidden] {
+  display:none!important;
+}
+body.notes-page-active #content .chat-page .chat-composer:has(#chatSend:not([hidden])) .chat-photo-attach {
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+body.notes-page-active #content .chat-page .chat-composer:has(#chatSend[hidden]) .chat-photo-attach {
+  display:grid!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+body.notes-page-active #content .chat-page #chatPhotoPreview {
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:calc(var(--notes-nav-height,68px) + 76px)!important;
+  z-index:61!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  gap:8px!important;
+  width:min(680px,calc(100vw - 30px))!important;
+  max-width:calc(100vw - 30px)!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:4px 4px 8px!important;
+  border:0!important;
+  background:transparent!important;
+  transform:translateX(-50%)!important;
+  pointer-events:auto!important;
+}
+body.notes-page-active #content .chat-page #chatPhotoPreview[hidden] {
+  display:none!important;
+}
+body.notes-page-active.notes-keyboard-open #content .chat-page #chatPhotoPreview {
+  bottom:calc(var(--notes-keyboard-inset,0px) + 76px)!important;
+}
+body.notes-page-active #content .chat-page .chat-photo-thumb {
+  position:relative!important;
+  display:inline-flex!important;
+  flex:0 0 auto!important;
+  overflow:visible!important;
+}
+body.notes-page-active #content .chat-page .chat-photo-thumb img {
+  display:block!important;
+  width:58px!important;
+  height:58px!important;
+  object-fit:cover!important;
+  border-radius:10px!important;
+}
+body.notes-page-active #content .chat-page .chat-photo-thumb button {
+  position:absolute!important;
+  top:-7px!important;
+  right:-7px!important;
+  left:auto!important;
+  z-index:9!important;
+}
+@media(max-width:480px) {
+  body.notes-page-active #content .chat-page .chat-composer #chatInput {
+    padding-left:18px!important;
+    padding-right:54px!important;
+  }
+  body.notes-page-active #content .chat-page .chat-composer .chat-photo-attach,
+  body.notes-page-active #content .chat-page .chat-composer #chatSend {
+    right:7px!important;
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    min-height:34px!important;
+  }
+  body.notes-page-active #content .chat-page #chatPhotoPreview {
+    bottom:calc(var(--notes-nav-height,68px) + 76px)!important;
+  }
+  body.notes-page-active.notes-keyboard-open #content .chat-page #chatPhotoPreview {
+    bottom:calc(var(--notes-keyboard-inset,0px) + 76px)!important;
+  }
+}

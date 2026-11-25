@@ -144,8 +144,8 @@ test('offline shell keeps navigation fallback and notification handling', () => 
 
 test('GitHub Pages copies and validates all local app assets', () => {
   const workflow = read('.github/workflows/deploy-pages.yml');
-  assert.match(workflow, /cp .*header-statusbar-blend\\.css/);
-  assert.match(workflow, /cp .*bear-hugs-progression\\.js/);
+  assert.match(workflow, /cp .*header-statusbar-blend\.css/);
+  assert.match(workflow, /cp .*bear-hugs-progression\.js/);
   assert.match(workflow, /Verify published app assets/);
   assert.match(workflow, /GitHub Pages artifact is missing referenced asset/);
 });
@@ -270,7 +270,7 @@ test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep 
   assert.match(styles, /bear-reward-icon-art svg/);
   assert.match(styles, /@media\(max-width:520px\)/);
   for (const badge of ['moonlit-orchid', 'crystal-butterfly', 'sunfire-blossom']) {
-    assert.match(polish, new RegExp('item-' + badge + ' \\.sg-collectible-art'));
+    assert.match(polish, new RegExp('item-' + badge + ' \.sg-collectible-art'));
   }
   assert.match(polish, /width:50px;height:50px/);
 });

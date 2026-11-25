@@ -15135,3 +15135,7 @@ body[data-mode="dark"] #content .chat-page:not(.notes-keyboard-open) .chat-compo
 .chat-message-photo-wrap.is-photo-group .chat-message-photo:first-child:nth-last-child(3){grid-row:span 2;height:343px}
 .chat-message-photo-wrap.is-photo-group .chat-message-photo{animation:none!important;transition:none!important;border:0!important}
 .chat-message-photo-wrap.is-photo-group .chat-message-photo.is-loading{background:#f5edf1}
+
+/* The attach control yields to the send control once a draft exists. */
+#content .chat-page .chat-composer.has-message .chat-photo-attach{display:none!important;visibility:hidden!important}
+.chat-message-photo{border:0!important;animation:none!important;transition:none!important}

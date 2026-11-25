@@ -140,7 +140,7 @@ test('offline shell keeps navigation fallback and notification handling', () => 
   assert.match(sw, /self\.addEventListener\(["']fetch["']/);
   assert.match(sw, /cache\.match\(["']\.\/index\.html["']\)/);
   assert.match(sw, /self\.addEventListener\(["']notificationclick["']/);
-  assert.match(sw, /cute-bunny-shell-v403/);
+  assert.match(sw, /cute-bunny-shell-v404/);
   assert.match(sw, /polish\.css\?v=bearfriend-rewards-polish-20261125/);
   assert.match(sw, /bear-hugs-progression\.js\?v=bearfriend-reward-fix-20261125/);
   assert.match(sw, /header-statusbar-blend\.css/);
@@ -295,4 +295,12 @@ test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep 
     assert.match(polish, new RegExp('item-' + badge + ' \.sg-collectible-art'));
   }
   assert.match(polish, /width:50px;height:50px/);
+});
+
+
+test('Notes supports up to three grouped photos with compact previews and 21-day retention schema', () => {
+ const app=read('app.js'), css=read('style.css'), html=read('index.html'), schema=read('supabase/schema.sql');
+ assert.match(app,/pendingChatPhotoFiles/); assert.match(app,/photo_group_id/); assert.match(app,/Choose up to three photos/);
+ assert.match(app,/multiple hidden/); assert.match(css,/chat-message-photo-wrap\.is-photo-group/);
+ assert.match(html,/app\.js\?v=41/); assert.match(schema,/photo_group_id/);
 });

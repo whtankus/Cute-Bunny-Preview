@@ -15124,3 +15124,14 @@ body[data-mode="dark"] #content .chat-page:not(.notes-keyboard-open) .chat-compo
     animation:none!important;
   }
 }
+
+/* Grouped Notes photos mirror the clean Photos feed presentation. */
+.chat-photo-preview{flex-wrap:wrap;gap:7px;padding:5px 8px;border:0;background:transparent}
+.chat-photo-thumb{position:relative;display:inline-flex;flex:0 0 auto}
+.chat-photo-thumb img{width:42px;height:42px;object-fit:cover;border-radius:8px}
+.chat-photo-thumb button{position:absolute;top:-6px;right:-6px;width:19px;height:19px;background:#fff;color:#754b63;border:1px solid #e7d4df;font-size:14px;line-height:1}
+.chat-message-photo-wrap.is-photo-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;max-width:min(100%,360px);border-radius:0;overflow:hidden}
+.chat-message-photo-wrap.is-photo-group .chat-message-photo{height:170px;max-height:170px;border-radius:0;object-fit:cover}
+.chat-message-photo-wrap.is-photo-group .chat-message-photo:first-child:nth-last-child(3){grid-row:span 2;height:343px}
+.chat-message-photo-wrap.is-photo-group .chat-message-photo{animation:none!important;transition:none!important;border:0!important}
+.chat-message-photo-wrap.is-photo-group .chat-message-photo.is-loading{background:#f5edf1}

@@ -282,17 +282,19 @@ test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep 
 test('Petal Points grants require server-verified quest evidence', () => {
   const migration = read('supabase/migrations/202611250001_verify_petal_reward_activity.sql');
   const app = read('app.js');
-  assert.match(migration, /create or replace function private\\.daily_quest_slot_complete/);
-  assert.match(migration, /create or replace function public\\.grant_petal_points/);
-  assert.match(migration, /private\\.daily_quest_slot_complete\\(uid, reward_day, reward_slot\\)/);
-  assert.match(migration, /The daily chest can only be claimed for today/);
-  assert.match(migration, /Weekly reward must belong to the current week/);
-  assert.match(migration, /Not enough verified daily quest sets/);
-  assert.match(migration, /bear_hug_action_receipts/);
-  assert.match(migration, /public\\.memory_likes/);
-  assert.match(migration, /public\\.memories/);
-  assert.match(migration, /on conflict \\(user_id, grant_key\\) do nothing/);
-  assert.match(migration, /revoke all on function public\\.grant_petal_points/);
-  assert.match(app, /error\\.code==='P0001'/);
-  assert.match(app, /unverified Petal Points claim was discarded/);
+  for (const required of [
+    'create or replace function private.daily_quest_slot_complete',
+    'create or replace function public.grant_petal_points',
+    'private.daily_quest_slot_complete(uid, reward_day, reward_slot)',
+    'The daily chest can only be claimed for today',
+    'Weekly reward must belong to the current week',
+    'Not enough verified daily quest sets',
+    'bear_hug_action_receipts',
+    'public.memory_likes',
+    'public.memories',
+    'on conflict (user_id, grant_key) do nothing',
+    'revoke all on function public.grant_petal_points'
+  ]) assert.ok(migration.includes(required), 'migration missing: ' + required);
+  assert.ok(app.includes("error.code==='P0001'"));
+  assert.ok(app.includes('unverified Petal Points claim was discarded'));
 });

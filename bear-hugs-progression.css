@@ -633,14 +633,6 @@
 #coupleBearGame .bear-time-night .bear-living-glow{background:radial-gradient(ellipse,rgba(190,177,255,.38),transparent 72%)}
 #coupleBearGame .bear-time-night{filter:saturate(.92)}
 #coupleBearGame .bear-time-night .bear-living-petal{color:#e9e4ff;text-shadow:0 0 8px rgba(219,207,255,.8)}
-#coupleBearGame .bear-moments{margin-top:13px;padding:12px 13px;border:1px solid var(--cb-border);border-radius:17px;background:color-mix(in srgb,var(--cb-card) 88%,#fff 12%)}
-#coupleBearGame .bear-moments>div:first-child{display:grid;gap:3px}
-#coupleBearGame .bear-moments>div:first-child b{font-size:.82rem;color:var(--cb-text)}
-#coupleBearGame .bear-moments>div:first-child small{font-size:.64rem;color:var(--cb-text-soft)}
-#coupleBearGame .bear-moments>p{margin:9px 0 0;font-size:.7rem;color:var(--cb-text-soft)}
-#coupleBearGame .bear-moments-list{display:grid;gap:6px;margin-top:9px}
-#coupleBearGame .bear-moments-list article{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border-radius:11px;background:rgba(255,255,255,.48);font-size:.7rem;color:var(--cb-text)}
-#coupleBearGame .bear-moments-list button{width:29px;height:29px;border:0;border-radius:50%;background:#fff0f5;color:#bd7898;font-size:1rem;cursor:pointer}
 @media(prefers-reduced-motion:reduce){#coupleBearGame .bear-living-petal{animation:none;opacity:.25;bottom:20%}}
 
 

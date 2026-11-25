@@ -3212,6 +3212,7 @@ function renderNotesPage(options = {}) {
         ${olderControl}${messagesHtml || emptyMarkup}
         <div id="chatTypingIndicator" class="chat-typing-indicator" aria-live="polite" aria-atomic="true" hidden></div>
       </div>
+      <div id="chatPhotoPreview" class="chat-photo-preview" hidden></div>
       <form id="chatComposer" class="chat-composer" autocomplete="off">
         <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
@@ -3220,7 +3221,6 @@ function renderNotesPage(options = {}) {
         <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
         <button type="button" class="chat-photo-attach" id="chatPhotoAttach" aria-label="Attach a photo" title="Choose a photo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9.5" r="1.7" fill="currentColor"/><path d="m5.5 17 5-5 3.2 3 2.4-2.2 2.5 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </form>
-      <div id="chatPhotoPreview" class="chat-photo-preview" hidden></div>
     </section>
   `;
 
@@ -4366,7 +4366,7 @@ async function sendChatMessage() {
         await Promise.all(uploaded.map(item => api('/memories/' + item.id, { method: 'DELETE' }).catch(() => {})));
         throw uploadError;
       }
-      saved = { ...uploaded[0], photo_group_id: groupId, groupedPhotos: uploaded.map((item, index) => ({ ...item, previewUrl: photoUrls[index] })) };
+      saved = { ...uploaded[0], photo_group_id: groupId, groupedPhotos: uploaded.map(item => ({ ...item })) };
     } else {
       const result = await sb.from('memories').insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
         .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at').single();
@@ -4386,7 +4386,7 @@ async function sendChatMessage() {
   } catch (error) {
     feed = feed.filter(m => String(m.id) !== tempId);
     if (replyId) replyingToMessageId = replyId;
-    if (photoFiles.length) { pendingChatPhotoFiles = photoFiles; pendingChatPhotoUrls = photoFiles.map(file => URL.createObjectURL(file)); syncChatPhotoPreview(); }
+    if (photoFiles.length) { photoUrls.forEach(url => URL.revokeObjectURL(url)); pendingChatPhotoFiles = photoFiles; pendingChatPhotoUrls = photoFiles.map(file => URL.createObjectURL(file)); syncChatPhotoPreview(); }
     renderNotesPage({ followLatest: true });
     if (keepKeyboardOpen) refocusComposer(true);
     else syncNotesKeyboardLayout();

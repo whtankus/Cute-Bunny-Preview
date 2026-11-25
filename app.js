@@ -4276,29 +4276,63 @@ async function downloadMemoryById(id, button) {
   }
 }
 
-async function sendChatMessage() {
+function createNoteClientMessageId() {
+  if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  const bytes = new Uint8Array(16);
+  window.crypto.getRandomValues(bytes);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = [...bytes].map(value => value.toString(16).padStart(2, '0')).join('');
+  return hex.slice(0, 8) + '-' + hex.slice(8, 12) + '-' + hex.slice(12, 16) + '-' +
+    hex.slice(16, 20) + '-' + hex.slice(20);
+}
+
+function isRetryableNoteSendError(error) {
+  const status = Number(error?.status || error?.statusCode || 0);
+  const message = String(error?.message || error?.details || error || '');
+  return status === 0 || status === 408 || status === 425 || status === 429 || status >= 500 ||
+    /fetch|network|timeout|temporar|connection|gateway|econn|aborted/i.test(message);
+}
+
+let noteSendInFlight = false;
+
+async function sendChatMessage(retryMessage = null) {
+  if (noteSendInFlight) return;
   const field = $('#chatInput');
-  const text = field?.value.trim();
+  const text = retryMessage ? String(retryMessage.text || '').trim() : field?.value.trim();
   if (!text) return;
-  const replyId = replyingToMessageId;
-  const tempId = 'local-note-' + Date.now();
-  const createdAt = new Date().toISOString();
-  const optimistic = {
+  const replyId = retryMessage ? (retryMessage.reply_to_id ? String(retryMessage.reply_to_id) : null) : replyingToMessageId;
+  const existingFailed = retryMessage || feed.find(item =>
+    item?.isFailed && item.kind === 'note' && item.text === text &&
+    String(item.reply_to_id || '') === String(replyId || '')
+  );
+  const clientMessageId = existingFailed?.clientMessageId || createNoteClientMessageId();
+  const tempId = 'local-note-' + clientMessageId;
+  const createdAt = existingFailed?.createdAt || new Date().toISOString();
+  const optimistic = existingFailed || {
     id: tempId,
+    clientMessageId,
     kind: 'note',
     text,
     reply_to_id: replyId ? Number(replyId) : null,
     createdAt,
     created_at: createdAt,
     isPending: true,
+    isFailed: false,
     author: { ...me, id: me?.id, displayName: me?.displayName || me?.username, mascot: me?.mascot || '🐰' }
   };
 
+  noteSendInFlight = true;
+  optimistic.isPending = true;
+  optimistic.isFailed = false;
+  optimistic.clientMessageId = clientMessageId;
+  if (!feed.includes(optimistic)) feed = [optimistic, ...feed];
+  if (field && (!retryMessage || field.value.trim() === text)) {
+    field.value = '';
+    field.style.height = '';
+    field.style.overflowY = 'hidden';
+  }
   stopNotesTyping();
-  field.value = '';
-  field.style.height = '';
-  field.style.overflowY = 'hidden';
-  feed = [optimistic, ...feed];
   hideMessageActions();
   renderNotesPage({ followLatest: true });
 
@@ -4313,27 +4347,52 @@ async function sendChatMessage() {
   refocusComposer();
 
   try {
-    const { data: saved, error: sendError } = await sb.from('memories')
-      .insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
-      .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at')
-      .single();
-    if (sendError) throw sendError;
+    let saved = null;
+    let lastError = null;
+    const retryDelays = [350, 1000];
+    for (let attempt = 0; attempt <= retryDelays.length; attempt++) {
+      try {
+        const { data, error } = await sb.rpc('send_note_message', {
+          p_client_message_id: clientMessageId,
+          p_text: text,
+          p_reply_to_id: replyId ? Number(replyId) : null
+        });
+        if (error) throw error;
+        saved = data?.message || data;
+        if (!saved?.id) throw new Error('The message was sent, but its receipt could not be confirmed.');
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        if (!isRetryableNoteSendError(error) || attempt >= retryDelays.length) break;
+        await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+      }
+    }
+    if (lastError) throw lastError;
+
     recordStreakNoteQuest(text);
     void loadKindnessEventStatus();
-    if (replyingToMessageId === replyId) replyingToMessageId = null;
-    const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
-    feed = feed.map(m => String(m.id) === tempId ? record : m);
+    if (String(replyingToMessageId || '') === String(replyId || '')) replyingToMessageId = null;
+    const record = {
+      ...saved,
+      clientMessageId,
+      createdAt: saved.created_at,
+      author: optimistic.author
+    };
+    feed = feed.map(item => String(item.id) === tempId || item === optimistic ? record : item);
     renderNotesPage({ followLatest: true });
     refocusComposer();
   } catch (error) {
-    feed = feed.filter(m => String(m.id) !== tempId);
-    if (replyId) replyingToMessageId = replyId;
+    optimistic.isPending = false;
+    optimistic.isFailed = true;
     renderNotesPage({ followLatest: true });
     refocusComposer(true);
-    toast(error.message);
+    toast('Message not confirmed. It is safe to retry without sending it twice. ♡');
+    console.warn('Notes message send could not be confirmed:', error?.message || error);
+  } finally {
+    noteSendInFlight = false;
   }
 }
-
 function openNoteComposer() {
   const myLatestNote = feed.find(m => m.kind === 'note' && String(m.author?.id || m.owner_id) === String(me?.id));
   const input = $('#igNoteInput');

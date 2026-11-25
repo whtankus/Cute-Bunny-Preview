@@ -7,6 +7,20 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
+test('Notes sends use stable idempotency keys and retain failed messages for retry', () => {
+  const app = read('app.js');
+  const migration = read('supabase/migrations/20261125091500_idempotent_note_message_sends.sql');
+  assert.match(app, /sb\.rpc\('send_note_message'/);
+  assert.match(app, /p_client_message_id: clientMessageId/);
+  assert.match(app, /const retryDelays = \[350, 1000\]/);
+  assert.match(app, /data-retry-note/);
+  assert.match(app, /let noteSendInFlight = false/);
+  assert.match(migration, /create unique index if not exists memories_owner_client_message_id_uidx/);
+  assert.match(migration, /security invoker/i);
+  assert.match(migration, /revoke all on function public\.send_note_message/);
+  assert.match(migration, /grant execute on function public\.send_note_message\(uuid, text, bigint\) to authenticated/);
+});
+
 test('core browser scripts parse without syntax errors', () => {
   for (const file of ['app.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);

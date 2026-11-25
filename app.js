@@ -728,7 +728,16 @@ async function refresh() {
 
 function mergeFeedRows(rows) {
   const byId = new Map(feed.map(item => [String(item.id), item]));
-  for (const row of rows || []) byId.set(String(row.id), { ...byId.get(String(row.id)), ...row });
+  for (const row of rows || []) {
+    const clientId = String(row?.client_message_id || '');
+    if (clientId) {
+      for (const [key, existing] of byId) {
+        if (String(existing.clientMessageId || existing.client_message_id || '') === clientId &&
+            key !== String(row.id)) byId.delete(key);
+      }
+    }
+    byId.set(String(row.id), { ...byId.get(String(row.id)), ...row });
+  }
   feed = [...byId.values()].sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
 }
 
@@ -4383,7 +4392,15 @@ async function sendChatMessage(retryMessage = null) {
       createdAt: saved.created_at,
       author: optimistic.author
     };
-    feed = feed.map(item => String(item.id) === tempId || item === optimistic ? record : item);
+    const realtimeRecord = feed.find(item =>
+      String(item.id) !== tempId && String(item.client_message_id || '') === clientMessageId
+    );
+    if (realtimeRecord) {
+      Object.assign(realtimeRecord, record);
+      feed = feed.filter(item => String(item.id) !== tempId);
+    } else {
+      feed = feed.map(item => String(item.id) === tempId || item === optimistic ? record : item);
+    }
     renderNotesPage({ followLatest: true });
     refocusComposer();
   } catch (error) {

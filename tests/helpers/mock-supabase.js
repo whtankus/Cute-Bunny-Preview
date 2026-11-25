@@ -25,6 +25,7 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     bearActionCommitThenFail: false,
     noteSendCommitThenFail: false,
     noteSendAlwaysFail: false,
+    noteSendEmitRealtimeBeforeReturn: false,
     tables: {
       profiles: [me, friend],
       follows: [{ follower_id: me.id, followed_id: friend.id, created_at: now }],
@@ -185,6 +186,10 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
             } else if (message.text !== messageText || String(message.reply_to_id || '') !== String(args.p_reply_to_id || '')) {
               return { data: null, error: { message: 'Idempotency key reused with different content', status: 400 } };
             }
+            if (state.noteSendEmitRealtimeBeforeReturn) {
+              state.noteSendEmitRealtimeBeforeReturn = false;
+              state.emitPostgresChanges('memories', message, 'INSERT');
+            }
             if (state.noteSendCommitThenFail) {
               state.noteSendCommitThenFail = false;
               return { data: null, error: { message: 'Network request failed after commit', status: 0 } };
@@ -309,9 +314,9 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
             const handlers = state.channelHandlers?.['cute-bunny-presence'];
             handlers?.get('presence:' + event)?.({});
           };
-          state.emitPostgresChanges = (table, payload = {}) => {
+          state.emitPostgresChanges = (table, payload = {}, eventType = 'UPDATE') => {
             for (const handlers of Object.values(state.channelHandlers || {})) {
-              handlers.get('postgres_changes:' + table)?.({ eventType: 'UPDATE', new: payload });
+              handlers.get('postgres_changes:' + table)?.({ eventType, new: payload });
             }
           };
           return channel;

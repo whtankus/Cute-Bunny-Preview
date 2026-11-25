@@ -62,8 +62,8 @@ function announceSharedLevelUp(previousPoints, nextPoints) {
   const unlocked = REWARDS.filter(reward => previousPoints < reward.unlockPoints && nextPoints >= reward.unlockPoints);
   if (!unlocked.length) return;
   const names = unlocked.map(reward => reward.name).join(', ');
-  if (typeof toast === 'function') toast('New Bear Hugs reward unlocked: ' + names + ' ♡');
-  else setStatus('New Bear Hugs reward unlocked: ' + names + ' ♡');
+  if (typeof toast === 'function') toast('New Bearfriend reward unlocked: ' + names + ' ♡');
+  else setStatus('New Bearfriend reward unlocked: ' + names + ' ♡');
 }
 async function loadSharedProgress() {
   const user = getMe(), client = getSupabase();
@@ -109,7 +109,7 @@ async function loadSharedProgress() {
   if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== requestedPartnerId ||
       String(getMe()?.id || '') !== String(user.id)) return;
   if (error) {
-    console.warn('Shared Bear Hugs progress could not load:', error.message || error);
+    console.warn('Shared Bearfriend progress could not load:', error.message || error);
     setStatus('Your shared Love Meter could not load. Please try again. ♡');
     return;
   }
@@ -143,7 +143,7 @@ async function recordSharedAction(action, partnerId = selectedFriendId, actionId
     p_action_id: actionId
   });
   if (error) {
-    console.warn('Shared Bear Hugs points could not be saved:', error.message || error);
+    console.warn('Shared Bearfriend points could not be saved:', error.message || error);
     setStatus('Your bear moment was sent, but its Love Meter points could not be saved. ♡');
     return false;
   }
@@ -176,9 +176,9 @@ async function saveEquippedRewards(partnerId, pairKey, rewardIds) {
       p_reward_ids: rewardIds
     });
   } catch (error) {
-    console.warn('Shared Bear Hugs equipment request failed:', error?.message || error);
+    console.warn('Shared Bearfriend equipment request failed:', error?.message || error);
     if (sharedProgressPairKey === pairKey && String(selectedFriendId) === String(partnerId)) {
-      setStatus('Reward syncing is unavailable. Check your connection and Bear Hugs database updates. ♡');
+      setStatus('Reward syncing is unavailable. Check your connection and Bearfriend database updates. ♡');
     }
     return false;
   }
@@ -186,9 +186,9 @@ async function saveEquippedRewards(partnerId, pairKey, rewardIds) {
   // A response for a previous partner must never overwrite the active partner's UI.
   if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== String(partnerId)) return false;
   if (error) {
-    console.warn('Shared Bear Hugs equipment could not be saved:', error.message || error);
+    console.warn('Shared Bearfriend equipment could not be saved:', error.message || error);
     setStatus(/function .*set_bear_hug_equipment.*(does not exist|not found)|schema cache/i.test(error.message || '')
-      ? 'Reward syncing needs the latest Bear Hugs database migration. ♡'
+      ? 'Reward syncing needs the latest Bearfriend database migration. ♡'
       : 'Your reward could not sync to your Bearfriend. Please try again. ♡');
     return false;
   }
@@ -301,6 +301,9 @@ function updateUI() {
   const nextReward = getNextReward(points);
   const unlockedCount = REWARDS.filter(reward => points >= reward.unlockPoints).length;
   const pointsToNext = nextReward ? nextReward.unlockPoints - points : 0;
+  const finalRewardPoints = REWARDS[REWARDS.length - 1].unlockPoints;
+  const bearLevel = 1 + REWARDS.filter(reward => points >= reward.unlockPoints).length +
+    (points >= finalRewardPoints ? Math.floor((points - finalRewardPoints) / 1000) : 0);
   const previousReward = nextReward
     ? [...REWARDS].reverse().find(reward => reward.unlockPoints < nextReward.unlockPoints && points >= reward.unlockPoints) || null
     : REWARDS[REWARDS.length - 1];
@@ -315,7 +318,7 @@ function updateUI() {
     careStrip = document.createElement('section');
     careStrip.id = 'bearCarePointsStrip';
     careStrip.className = 'bear-care-strip';
-    careStrip.setAttribute('aria-label', 'Shared Care Points and Bear Hugs Level 1');
+    careStrip.setAttribute('aria-label', 'Shared Care Points and Bearfriend Level');
   }
   const actions = $('.couple-bear-actions', root);
   if (actions) actions.insertAdjacentElement('afterend', careStrip);
@@ -324,7 +327,7 @@ function updateUI() {
   careStrip.innerHTML =
     '<div class="bear-care-strip-head">' +
       '<div class="bear-care-total"><span class="bear-care-mark" aria-hidden="true">✿</span><span><small>SHARED CARE POINTS</small><b>' + points.toLocaleString() + '</b></span></div>' +
-      '<span class="bear-care-level"><small>BEAR LEVEL</small><b>1</b></span>' +
+      '<span class="bear-care-level"><small>BEAR LEVEL</small><b>' + bearLevel + '</b></span>' +
     '</div>' +
     '<div class="bear-care-track" role="progressbar" aria-label="' + (nextReward ? 'Progress to ' + esc(nextReward.name) : 'All keepsakes unlocked') + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(progressPercent) + '"><span style="width:' + progressPercent + '%"></span></div>' +
     '<div class="bear-care-foot"><span><b class="bear-care-progress-label">' + points.toLocaleString() + ' Care Points</b></span><b>' + (nextReward ? pointsToNext.toLocaleString() + ' to next treasure' : 'All treasures collected') + '</b></div>' +
@@ -711,7 +714,7 @@ function ensureOwnChannel() {
       } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
         ownReady = false;
         finish(false);
-        console.warn('Bear Hugs receive channel status:', status);
+        console.warn('Bearfriend receive channel status:', status);
       }
     });
     setTimeout(() => finish(ownReady), 6000);
@@ -761,7 +764,7 @@ async function ensurePeerChannel(friendId) {
       } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
         peerReady = false;
         finish(false);
-        console.warn('Bear Hugs send channel status:', status);
+        console.warn('Bearfriend send channel status:', status);
       }
     });
     setTimeout(() => finish(peerReady), 6000);
@@ -830,20 +833,21 @@ async function sendAction(action, partnerId = selectedFriendId, actionId = creat
       clearTimeout(ackTimer);
       pendingActionAcks.delete(payload.actionId);
       resolveAcknowledgement(false);
-      console.warn('Bear Hugs action was not delivered:', result);
+      console.warn('Bearfriend action was not delivered:', result);
       setStatus('That little moment could not reach your friend. Please try again. ♡');
       return false;
     }
-    const acknowledged = await acknowledgement;
-    if (acknowledged) {
-      setStatus('Your Bearfriend received the little moment. ♡');
-    }
-    return acknowledged;
+    void acknowledgement.then(acknowledged => {
+      if (acknowledged) setStatus('Your Bearfriend received the little moment. ♡');
+    });
+    // A successful broadcast is the delivery event for shared Care Points.
+    // The recipient's UI acknowledgement is optional and must not block progress.
+    return true;
   } catch (error) {
     clearTimeout(ackTimer);
     pendingActionAcks.delete(payload.actionId);
     resolveAcknowledgement(false);
-    console.warn('Bear Hugs action send failed:', error?.message || error);
+    console.warn('Bearfriend action send failed:', error?.message || error);
     setStatus('That little moment could not reach your friend. Please try again. ♡');
     return false;
   }
@@ -903,7 +907,7 @@ async function sendActionAcknowledgement(actionPayload) {
       }
     });
   } catch (error) {
-    console.warn('Bear Hugs acknowledgement could not be sent:', error?.message || error);
+    console.warn('Bearfriend acknowledgement could not be sent:', error?.message || error);
   }
 }
 function flushPendingRemoteAction() {
@@ -954,7 +958,7 @@ async function runLocalAction(action) {
       // and concurrent sends from awarding duplicate quest credit.
       window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', { detail: { action, actionId } }));
     } catch (error) {
-      console.warn('Bear Hugs action could not be completed:', error?.message || error);
+      console.warn('Bearfriend action could not be completed:', error?.message || error);
       setStatus('Your bears enjoyed the moment, but it could not reach your Bearfriend. ♡');
     }
   })();
@@ -971,7 +975,7 @@ function ensureProgressChannel() {
     })
     .subscribe(status => {
       if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
-        console.warn('Shared Bear Hugs progress updates unavailable:', status);
+        console.warn('Shared Bearfriend progress updates unavailable:', status);
       }
     });
   progressTopic = topic;

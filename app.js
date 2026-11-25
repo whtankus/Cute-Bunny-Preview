@@ -3143,6 +3143,11 @@ function renderNotesPage(options = {}) {
             currentTime.dateTime = desiredTime.dateTime;
             currentTime.textContent = desiredTime.textContent;
           }
+          const desiredSendStatus = desiredNode.querySelector('.memory-upload-status');
+          const currentSendStatus = current.querySelector('.memory-upload-status');
+          if (desiredSendStatus && currentSendStatus) currentSendStatus.replaceWith(desiredSendStatus);
+          else if (desiredSendStatus && !currentSendStatus) current.append(desiredSendStatus);
+          else if (!desiredSendStatus && currentSendStatus) currentSendStatus.remove();
           current.classList.toggle('is-uploading', desiredNode.classList.contains('is-uploading'));
           current.classList.toggle('is-loved', desiredNode.classList.contains('is-loved'));
           current.setAttribute('data-like-count', desiredNode.getAttribute('data-like-count') || '0');

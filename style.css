@@ -15149,3 +15149,102 @@ body[data-mode="dark"] #content .chat-page:not(.notes-keyboard-open) .chat-compo
 #content .chat-page .chat-photo-preview[hidden]{display:none}
 #content .chat-page .chat-photo-thumb img{width:58px;height:58px;object-fit:cover;border-radius:9px}
 #content .chat-page .chat-photo-thumb button{top:-5px;right:-5px}
+
+/* Notes photo composer final layout: picker on the right, removable previews above. */
+#content .chat-page .chat-composer {
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:flex-end!important;
+  gap:8px!important;
+}
+#content .chat-page .chat-composer .chat-photo-attach {
+  position:relative!important;
+  inset:auto!important;
+  order:3!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 38px!important;
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  margin:0 0 6px!important;
+  padding:0!important;
+  transform:none!important;
+  border-radius:50%!important;
+}
+#content .chat-page .chat-composer #chatInput {
+  order:1!important;
+  flex:1 1 0!important;
+  min-width:0!important;
+  padding-left:14px!important;
+  padding-right:12px!important;
+}
+#content .chat-page .chat-composer #chatSend {
+  order:2!important;
+  flex:0 0 38px!important;
+}
+#content .chat-page.notes-keyboard-open .chat-composer .chat-photo-attach {
+  display:grid!important;
+  visibility:visible!important;
+}
+#content .chat-page.notes-keyboard-open .chat-composer #chatInput {
+  padding-left:14px!important;
+}
+#content .chat-page .chat-photo-preview {
+  display:flex!important;
+  position:relative!important;
+  flex:0 0 auto!important;
+  align-items:flex-start!important;
+  justify-content:flex-start!important;
+  gap:9px!important;
+  width:100%!important;
+  min-height:0!important;
+  margin:0 0 8px!important;
+  padding:7px 4px 2px!important;
+  overflow:visible!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#content .chat-page .chat-photo-preview[hidden] {display:none!important}
+#content .chat-page .chat-photo-thumb {
+  position:relative!important;
+  display:inline-flex!important;
+  flex:0 0 58px!important;
+  width:58px!important;
+  height:58px!important;
+  overflow:visible!important;
+}
+#content .chat-page .chat-photo-thumb img {
+  display:block!important;
+  width:58px!important;
+  height:58px!important;
+  object-fit:cover!important;
+  border-radius:9px!important;
+}
+#content .chat-page .chat-photo-thumb button {
+  position:absolute!important;
+  z-index:5!important;
+  top:-7px!important;
+  right:-7px!important;
+  left:auto!important;
+  display:grid!important;
+  place-items:center!important;
+  width:22px!important;
+  height:22px!important;
+  min-width:22px!important;
+  padding:0!important;
+  border:2px solid #fff!important;
+  border-radius:50%!important;
+  background:#b85d82!important;
+  color:#fff!important;
+  font-size:16px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  box-shadow:0 2px 7px #4d263d40!important;
+  cursor:pointer!important;
+}
+@media(max-width:480px) {
+  #content .chat-page .chat-composer .chat-photo-attach {margin-bottom:6px!important}
+}

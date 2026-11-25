@@ -4377,7 +4377,7 @@ async function sendChatMessage(retryMessage = null) {
         });
         if (error) throw error;
         saved = data?.message || data;
-        if (!saved?.id) throw new Error('The message was sent, but its receipt could not be confirmed.');
+        if (!saved?.id) { const receiptError = new Error('The message receipt could not be confirmed.'); receiptError.status = 0; throw receiptError; }
         lastError = null;
         break;
       } catch (error) {
@@ -4409,11 +4409,18 @@ async function sendChatMessage(retryMessage = null) {
     renderNotesPage({ followLatest: true });
     refocusComposer();
   } catch (error) {
-    optimistic.isPending = false;
-    optimistic.isFailed = true;
-    renderNotesPage({ followLatest: true });
-    refocusComposer(true);
-    toast('Message not confirmed. It is safe to retry without sending it twice. ♡');
+    if (isRetryableNoteSendError(error)) {
+      optimistic.isPending = false;
+      optimistic.isFailed = true;
+      renderNotesPage({ followLatest: true });
+      refocusComposer(true);
+      toast('Message not confirmed. It is safe to retry without sending it twice. ♡');
+    } else {
+      feed = feed.filter(item => item !== optimistic);
+      renderNotesPage({ followLatest: true });
+      refocusComposer(true);
+      toast(error?.message || 'This message could not be sent. Please check it and try again.');
+    }
     console.warn('Notes message send could not be confirmed:', error?.message || error);
   } finally {
     noteSendInFlight = false;

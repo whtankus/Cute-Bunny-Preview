@@ -313,3 +313,12 @@ test('Notes supports up to three grouped photos with compact previews and 21-day
  assert.match(app,/multiple hidden/); assert.match(css,/chat-message-photo-wrap\.is-photo-group/);
  assert.match(html,/app\.js\?v=43/); assert.match(schema,/photo_group_id/);
 });
+
+
+test('Notes photo dock keeps picker at right, lifts previews with keyboard, and opens shared photos on one tap', () => {
+  assert.match(css, /notes-dock-right-preview-keyboard-20261125/);
+  assert.match(css, /#chatPhotoPreview\[hidden\]/);
+  assert.match(css, /notes-keyboard-open #content \.chat-page #chatPhotoPreview/);
+  assert.match(css, /\.chat-composer:has\(#chatSend\[hidden\]\) \.chat-photo-attach/);
+  assert.match(app, /if \(photo\.closest\('\.chat-message'\)\)\s*\{[\s\S]*?openPhotoLightbox\(String\(id\)\)/);
+});

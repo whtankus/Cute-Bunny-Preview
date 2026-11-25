@@ -126,7 +126,7 @@ begin
     return v_count >= v_target;
   end if;
 
-  if v_day_index in (0, 3, 5, 7, 10, 12, 15, 18) then
+  if v_day_index in (0, 3, 5, 8, 10, 12, 15, 18) then
     v_target := case when v_day_index in (3, 7, 12, 18) then 5 else 3 end;
     select count(distinct l.memory_id) into v_count
     from public.memory_likes l
@@ -135,7 +135,7 @@ begin
     return v_count >= v_target;
   end if;
 
-  if v_day_index in (1, 4, 8, 13, 16, 19) then
+  if v_day_index in (1, 4, 6, 9, 13, 16, 19) then
     select count(*) into v_count
     from public.memories m
     where m.owner_id = p_user_id
@@ -146,7 +146,7 @@ begin
     return v_count >= 1;
   end if;
 
-  if v_day_index in (2, 6, 9, 11, 14, 17) then
+  if v_day_index in (2, 7, 11, 14, 17) then
     return exists (
       select 1 from public.profiles p
       where p.id = p_user_id and p.last_login_date = p_day

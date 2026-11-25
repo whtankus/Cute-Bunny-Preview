@@ -15737,3 +15737,59 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
     max-width:calc(100vw - 16px)!important;
   }
 }
+
+
+/* Photo Garden: preserve each photo's original proportions inside the two-column grid. */
+#content .photo-garden-grid {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-flow:row!important;
+  align-items:start!important;
+  gap:12px!important;
+}
+#content .photo-garden-grid>.feed-item {
+  display:flex!important;
+  flex-direction:column!important;
+  min-width:0!important;
+  margin:0!important;
+}
+#content .photo-garden-grid>.feed-item>.tile {
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+#content .photo-garden-grid .photo-frame {
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  margin:0 0 8px!important;
+  overflow:hidden!important;
+  border-radius:16px!important;
+}
+#content .photo-garden-grid .feed-photo {
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:380px!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  object-fit:contain!important;
+  border-radius:16px!important;
+}
+#content .photo-garden-grid .feed-by {
+  order:2!important;
+  display:flex!important;
+  min-width:0!important;
+  padding:5px 3px 2px!important;
+}
+@media(min-width:620px) {
+  #content .photo-garden-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}

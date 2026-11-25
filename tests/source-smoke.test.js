@@ -140,7 +140,7 @@ test('offline shell keeps navigation fallback and notification handling', () => 
   assert.match(sw, /self\.addEventListener\(["']fetch["']/);
   assert.match(sw, /cache\.match\(["']\.\/index\.html["']\)/);
   assert.match(sw, /self\.addEventListener\(["']notificationclick["']/);
-  assert.match(sw, /cute-bunny-shell-v400/);
+  assert.match(sw, /cute-bunny-shell-v401/);
   assert.match(sw, /polish\.css\?v=bearfriend-rewards-polish-20261125/);
   assert.match(sw, /bear-hugs-progression\.js\?v=bearfriend-reward-fix-20261125/);
   assert.match(sw, /header-statusbar-blend\.css/);
@@ -164,6 +164,19 @@ test('build script copies the app shell and emits generated configuration', () =
   }
   assert.match(build, /SUPABASE_URL/);
   assert.match(build, /SUPABASE_PUBLISHABLE_KEY/);
+});
+
+test('Notes composer supports photo-only and captioned photo messages and includes them in Photos', () => {
+  const app = read('app.js');
+  const css = read('style.css');
+  assert.match(app, /id="chatPhotoAttach"/);
+  assert.match(app, /id="chatPhotoInput"/);
+  assert.match(app, /pendingChatPhotoFile/);
+  assert.match(app, /form\.append\('kind', 'note'\)/);
+  assert.match(app, /m\.kind === 'note' && \(m\.storagePath \|\| m\.storage_path\)/);
+  assert.match(app, /chat-message-photo/);
+  assert.match(app, /photo\.closest\('\.feed-item, \.chat-message'\)/);
+  assert.match(css, /\.chat-photo-preview/);
 });
 
 test('Notes typing uses the same shared Broadcast channel as the working Cute Bunny app', () => {

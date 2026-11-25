@@ -69,11 +69,16 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     eq(key, value) { this.filters.push(row => row[key] === value); return this; }
     neq(key, value) { this.filters.push(row => row[key] !== value); return this; }
     or(expression) {
-      const clauses = String(expression).split(',').map(part => {
-        const match = part.match(/^([a-z_]+)\.eq\.(.+)$/);
-        return match ? row => String(row[match[1]]) === match[2] : () => false;
-      });
-      this.filters.push(row => clauses.some(filter => filter(row)));
+      const value = String(expression);
+      if (value.includes('and(kind.eq.note,storage_path.not.is.null)')) {
+        this.filters.push(row => row.kind === 'photo' || (row.kind === 'note' && !!row.storage_path));
+      } else {
+        const clauses = value.split(',').map(part => {
+          const match = part.match(/^([a-z_]+)\.eq\.(.+)$/);
+          return match ? row => String(row[match[1]]) === match[2] : () => false;
+        });
+        this.filters.push(row => clauses.some(filter => filter(row)));
+      }
       return this;
     }
     lt(key, value) { this.filters.push(row => row[key] < value); return this; }

@@ -2968,8 +2968,9 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
 }
 
 function memoryCard(m, options = {}) {
-  const owner = m.author || {};
-  const name = esc(owner.displayName || owner.display_name || 'Friend');
+  const ownerId = String(m.author?.id || m.owner_id || '');
+  const owner = m.author || [me, ...friends].find(user => String(user?.id || '') === ownerId) || {};
+  const name = esc(owner.displayName || owner.display_name || owner.username || (ownerId && ownerId === String(me?.id || '') ? 'You' : 'Friend'));
   const handle = esc(owner.username || '');
   const pet = esc(owner.mascot || '🐰');
   const isLiked = Number(m.like_count || 0) > 0;
@@ -2994,7 +2995,8 @@ function memoryCard(m, options = {}) {
     body = chatMessageMarkup(m, !isContinuation, isContinuation);
   }
 
-  const authorLine = m.kind === 'note' ? '' : `<div class="feed-by"><span class="sender-pet" aria-label="${pet}">${pet}</span> <b title="${name}">${name}</b> <small>@${handle}</small></div>`;
+  const isPhotoMemory = m.kind === 'photo' || (m.kind === 'note' && (m.storagePath || m.storage_path));
+  const authorLine = m.kind === 'note' && !isPhotoMemory ? '' : `<div class="feed-by"><span class="sender-pet" aria-label="${pet}">${pet}</span> <b title="${name}">${name}</b> ${handle ? `<small>@${handle}</small>` : ''}</div>`;
   const ownerIndicator = mine && m.kind !== 'note' ? `<span class="memory-owner-indicator" aria-hidden="true">Your memory</span>` : '';
   const continuationClass = m.kind === 'note' && options.isContinuation ? ' is-continuation' : '';
   return `<article class="feed-item ${tone}${pending}${uploading}${m.kind === 'note' ? ' home-note-memory' : ''}${continuationClass}" data-kind="${esc(m.kind)}" data-memory="${esc(m.id)}" data-owner="${esc(owner.id || m.owner_id || '')}">${authorLine}${body}${ownerIndicator}</article>`;

@@ -364,7 +364,9 @@ async function api(path, options = {}) {
     let memoriesQuery = sb.from('memories')
       .select('*,author:profiles!memories_owner_id_fkey(id,username,display_name,mascot,theme)')
       .order('created_at', { ascending: false }).order('id', { ascending: false });
-    if (kindMatch) memoriesQuery = memoriesQuery.eq('kind', kindMatch[1]);
+    if (kindMatch) memoriesQuery = kindMatch[1] === 'photo'
+      ? memoriesQuery.or('kind.eq.photo,and(kind.eq.note,storage_path.not.is.null)')
+      : memoriesQuery.eq('kind', kindMatch[1]);
     if (beforeId && kindMatch?.[1] === 'note') {
       // Keyset pagination is stable when new messages arrive; inserting at the
       // newest end cannot shift the next historical page.

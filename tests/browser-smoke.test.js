@@ -404,7 +404,8 @@ test('PWA installs its complete shell and reloads offline', async () => {
       const registration = await navigator.serviceWorker.ready;
       if (!registration.active) throw new Error('Service worker did not activate');
     });
-    await page.reload({ waitUntil: 'domcontentloaded' });
+    // The app reloads itself on the first controllerchange; wait for that
+    // handoff instead of racing it with a second manual reload.
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
 
     const cached = await page.evaluate(async () => {

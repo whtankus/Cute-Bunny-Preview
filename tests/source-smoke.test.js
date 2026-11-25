@@ -9,7 +9,7 @@ const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('Notes sends use stable idempotency keys and retain failed messages for retry', () => {
   const app = read('app.js');
-  const migration = read('supabase/migrations/20261125091500_idempotent_note_message_sends.sql');
+  const migration = read('supabase/migrations/20261125061550_idempotent_note_message_sends.sql');
   assert.match(app, /sb\.rpc\('send_note_message'/);
   assert.match(app, /p_client_message_id: clientMessageId/);
   assert.match(app, /const retryDelays = \[350, 1000\]/);

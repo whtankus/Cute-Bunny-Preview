@@ -49,11 +49,11 @@ test('production build emits a complete app bundle with generated public config'
 
     const html = fs.readFileSync(path.join(output, 'index.html'), 'utf8');
     const localAssets = [
-      ...[...html.matchAll(/<link\\b[^>]*rel=[\"']stylesheet[\"'][^>]*href=[\"']([^\"']+)[\"'][^>]*>/gi)].map(match => match[1]),
-      ...[...html.matchAll(/<script\\b[^>]*src=[\"']([^\"']+)[\"'][^>]*>/gi)].map(match => match[1])
-    ].filter(asset => !/^https?:\\/\\//i.test(asset));
+      ...[...html.matchAll(/<link\b[^>]*rel=[\"']stylesheet[\"'][^>]*href=[\"']([^\"']+)[\"'][^>]*>/gi)].map(match => match[1]),
+      ...[...html.matchAll(/<script\b[^>]*src=[\"']([^\"']+)[\"'][^>]*>/gi)].map(match => match[1])
+    ].filter(asset => !/^https?:\/\//i.test(asset));
     for (const asset of localAssets) {
-      const file = decodeURIComponent(asset.split('?')[0].replace(/^\\.\\//, ''));
+      const file = decodeURIComponent(asset.split('?')[0].replace(/^\.\//, ''));
       assert.ok(fs.existsSync(path.join(output, file)), 'production bundle is missing referenced asset ' + file);
     }
 

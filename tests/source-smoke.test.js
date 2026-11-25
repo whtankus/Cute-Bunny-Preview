@@ -25,7 +25,7 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.match(bear, /bear-care-milestone/);
   assert.match(styles, /bear-reward-apply:disabled/);
   assert.match(styles, /bear-visual-cap/);
-  assert.ok(html.includes('bearfriend-reward-polish-20261125'));
+  assert.ok(html.includes('bearfriend-reward-fix-20261125'));
 });
 
 test('Bearfriend shared Care Points do not wait for recipient acknowledgement and level follows points', () => {
@@ -78,7 +78,7 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.doesNotMatch(styles, /bear-mood-pill/);
 });
 
-test('Bear Hugs adds visual-only idle personality, sleep, props, atmosphere and memories safely', () => {
+test('Bearfriend keeps visual-only idle personality without a removed memories dependency', () => {
   const bear = read('bear-hugs-progression.js');
   const app = read('app.js');
   const styles = read('bear-hugs-progression.css');
@@ -87,10 +87,10 @@ test('Bear Hugs adds visual-only idle personality, sleep, props, atmosphere and 
   assert.match(app, /curious=Math\.max/);
   assert.doesNotMatch(bear, /bear-living-props|data-couple-action="feed"/);
   assert.match(styles, /bear-time-morning/);
-  assert.match(bear, /recordBearMoment/);
+  assert.doesNotMatch(bear, /loadBearMoments|renderBearMoments|recordBearMoment|bearMoments/);
   assert.match(bear, /bearsAreAsleep/);
   assert.match(styles, /bear-living-atmosphere/);
-  assert.match(styles, /bear-moments-list/);
+  assert.doesNotMatch(styles, /bear-moments/);
 });
 
 test('Bear Hugs plays a random visual-only action after 25 seconds of inactivity', () => {

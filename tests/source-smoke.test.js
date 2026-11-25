@@ -28,6 +28,17 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.ok(html.includes('bear-hugs-living-world-20261124-3'));
 });
 
+test('Bearfriend shared Care Points do not wait for recipient acknowledgement and level follows points', () => {
+  const bear = read('bear-hugs-progression.js');
+  assert.match(bear, /return true;[\s\S]*?recipient's UI acknowledgement is optional/);
+  assert.match(bear, /const bearLevel = 1 \+ REWARDS\.filter/);
+});
+
+test('Daily quests do not show the use-in-your-message hint', () => {
+  const app = read('app.js');
+  assert.doesNotMatch(app, /USE IN YOUR MESSAGE|sg-quest-keyword-hint/);
+});
+
 test('Bear Hugs uses one fixed level and Care Point-based treasure collection', () => {
   const bear = read('bear-hugs-progression.js');
   const styles = read('bear-hugs-progression.css');

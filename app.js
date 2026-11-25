@@ -48,7 +48,7 @@ let notesTypingChannelReady = false, notesTypingQueuedState = null;
 const remoteTypingUsers = new Map();
 let activeMessageActionsId = null;
 let replyingToMessageId = null;
-let pendingChatPhotoFile = null, pendingChatPhotoUrl = '';
+let pendingChatPhotoFiles = [], pendingChatPhotoUrls = [];
 const noteDeliveryInFlight = new Set();
 const noteDeliveredLocally = new Set();
 let hiddenNoteIds = new Set();
@@ -551,9 +551,11 @@ async function api(path, options = {}) {
     const { error: ue } = await sb.storage.from('memories').upload(key, file, { contentType: file.type, upsert: false });
     fail(ue);
     const replyToId = kind === 'note' ? Number(form.get('reply_to_id')) || null : null;
+    const photoGroupId = kind === 'note' ? String(form.get('photo_group_id') || '') : '';
     const { data, error } = await sb.from('memories').insert({
       owner_id: session.user.id, kind, text: caption, file_name: file.name, content_type: file.type, storage_path: key,
-      ...(replyToId ? { reply_to_id: replyToId } : {})
+      ...(replyToId ? { reply_to_id: replyToId } : {}),
+      ...(photoGroupId ? { photo_group_id: photoGroupId } : {})
     }).select().single();
     if (error) {
       await sb.storage.from('memories').remove([key]);
@@ -2919,8 +2921,9 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const handle = esc(owner.username || 'friend');
   const pet = esc(owner.mascot || '🐰');
   const messageText = esc(m.text || '');
-  const photoPath = m.storagePath || m.storage_path || '';
-  const messagePhoto = photoPath ? `<div class="chat-message-photo-wrap"><img class="feed-photo chat-message-photo is-loading" loading="lazy" decoding="async" data-media="${esc(id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}"` : ''} alt="Photo shared in Notes" role="button" tabindex="0" aria-label="Open shared photo" draggable="false"></div>` : '';
+  const groupedPhotos = Array.isArray(m.groupedPhotos) ? m.groupedPhotos : (m.photo_group_id ? feed.filter(item => item.photo_group_id === m.photo_group_id) : [m]).filter(item => item.storagePath || item.storage_path);
+  const photoItems = groupedPhotos.length ? groupedPhotos : ((m.storagePath || m.storage_path) ? [m] : []);
+  const messagePhoto = photoItems.length ? `<div class="chat-message-photo-wrap${photoItems.length > 1 ? ' is-photo-group' : ''}">${photoItems.map((photo, index) => `<img class="feed-photo chat-message-photo is-loading" loading="lazy" decoding="async" data-media="${esc(photo.id)}" ${photo.previewUrl ? `src="${esc(photo.previewUrl)}"` : ''} alt="Photo ${index + 1} shared in Notes" role="button" tabindex="0" aria-label="Open shared photo" draggable="false">`).join('')}</div>` : '';
   const createdAt = m.createdAt || m.created_at || '';
   const time = esc(formatNoteClock(createdAt));
   const editedLabel = m.edited_at ? '<small class="chat-edited-label">Edited</small>' : '';
@@ -3037,7 +3040,14 @@ function renderNotesPage(options = {}) {
 
   let previousLabel = '';
   let previousOwnerId = '';
+  const renderedPhotoGroups = new Set();
   const messagesHtml = chatNotes.map(m => {
+    if (m.photo_group_id) {
+      if (renderedPhotoGroups.has(m.photo_group_id)) return '';
+      renderedPhotoGroups.add(m.photo_group_id);
+      const group = chatNotes.filter(item => item.photo_group_id === m.photo_group_id);
+      m = { ...m, groupedPhotos: group };
+    }
     const label = noteDayLabel(m.createdAt || m.created_at);
     const ownerId = String(m.author?.id || m.owner_id || '');
     const isNewDay = label !== previousLabel;
@@ -3205,11 +3215,11 @@ function renderNotesPage(options = {}) {
       <form id="chatComposer" class="chat-composer" autocomplete="off">
         <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
-        <input id="chatPhotoInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+        <input id="chatPhotoInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
         <button type="button" class="chat-photo-attach" id="chatPhotoAttach" aria-label="Attach a photo" title="Choose a photo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9.5" r="1.7" fill="currentColor"/><path d="m5.5 17 5-5 3.2 3 2.4-2.2 2.5 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
         <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
-        <div id="chatPhotoPreview" class="chat-photo-preview" hidden><img id="chatPhotoPreviewImage" alt="Selected photo preview"><span id="chatPhotoPreviewName"></span><button type="button" id="chatPhotoRemove" aria-label="Remove selected photo">×</button></div>
+        <div id="chatPhotoPreview" class="chat-photo-preview" hidden></div>
       </form>
     </section>
   `;
@@ -4293,8 +4303,9 @@ async function downloadMemoryById(id, button) {
 async function sendChatMessage() {
   const field = $('#chatInput');
   const text = field?.value.trim() || '';
-  const photoFile = pendingChatPhotoFile;
-  if (!text && !photoFile) return;
+  const photoFiles = [...pendingChatPhotoFiles];
+  const photoUrls = [...pendingChatPhotoUrls];
+  if (!text && !photoFiles.length) return;
   const replyId = replyingToMessageId;
   const keepKeyboardOpen = document.activeElement === field && document.body.classList.contains('notes-keyboard-open');
   const tempId = 'local-note-' + Date.now();
@@ -4307,16 +4318,17 @@ async function sendChatMessage() {
     createdAt,
     created_at: createdAt,
     isPending: true,
-    previewUrl: photoFile ? pendingChatPhotoUrl : '',
+    previewUrl: photoUrls[0] || '',
+    previewUrls: photoUrls,
     author: { ...me, id: me?.id, displayName: me?.displayName || me?.username, mascot: me?.mascot || '🐰' }
   };
 
   stopNotesTyping();
   field.value = '';
   field.style.height = '';
-  pendingChatPhotoFile = null;
-  if (pendingChatPhotoUrl) URL.revokeObjectURL(pendingChatPhotoUrl);
-  pendingChatPhotoUrl = '';
+  pendingChatPhotoFiles = [];
+  photoUrls.forEach(url => URL.revokeObjectURL(url));
+  pendingChatPhotoUrls = [];
   syncChatPhotoPreview();
   field.style.overflowY = 'hidden';
   feed = [optimistic, ...feed];
@@ -4336,28 +4348,39 @@ async function sendChatMessage() {
 
   try {
     let saved;
-    if (photoFile) {
-      const form = new FormData(); form.append('file', photoFile); form.append('kind', 'note'); form.append('caption', text);
-      if (replyId) form.append('reply_to_id', String(replyId));
-      saved = await api('/media', { method: 'POST', body: form });
+    if (photoFiles.length) {
+      const groupId = crypto.randomUUID(), uploaded = [];
+      try {
+        for (let index = 0; index < photoFiles.length; index++) {
+          const form = new FormData(); form.append('file', photoFiles[index]); form.append('kind', 'note');
+          form.append('caption', index === 0 ? text : ''); form.append('photo_group_id', groupId);
+          if (index === 0 && replyId) form.append('reply_to_id', String(replyId));
+          uploaded.push(await api('/media', { method: 'POST', body: form }));
+        }
+      } catch (uploadError) {
+        await Promise.all(uploaded.map(item => api('/memories/' + item.id, { method: 'DELETE' }).catch(() => {})));
+        throw uploadError;
+      }
+      saved = { ...uploaded[0], photo_group_id: groupId, groupedPhotos: uploaded.map((item, index) => ({ ...item, previewUrl: photoUrls[index] })) };
     } else {
       const result = await sb.from('memories').insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
         .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at').single();
       if (result.error) throw result.error; saved = result.data;
     }
     if (text) recordStreakNoteQuest(text);
-    if (photoFile) recordStreakDailyQuest('photo', photoFile.name);
+    if (photoFiles.length) recordStreakDailyQuest('photo', photoFiles[0].name);
     void loadKindnessEventStatus();
     if (replyingToMessageId === replyId) replyingToMessageId = null;
     const record = { ...saved, createdAt: saved.created_at, storagePath: saved.storage_path || '', fileName: saved.file_name || '', contentType: saved.content_type || '', author: optimistic.author };
-    feed = feed.map(m => String(m.id) === tempId ? record : m);
+    const groupedRecords = saved.groupedPhotos?.map(item => ({ ...item, createdAt: item.created_at, storagePath: item.storage_path || '', fileName: item.file_name || '', contentType: item.content_type || '', author: optimistic.author })) || [record];
+    feed = feed.flatMap(m => String(m.id) === tempId ? groupedRecords : [m]);
     renderNotesPage({ followLatest: true });
     if (keepKeyboardOpen) refocusComposer();
     else syncNotesKeyboardLayout();
   } catch (error) {
     feed = feed.filter(m => String(m.id) !== tempId);
     if (replyId) replyingToMessageId = replyId;
-    if (photoFile) { pendingChatPhotoFile = photoFile; pendingChatPhotoUrl = URL.createObjectURL(photoFile); syncChatPhotoPreview(); }
+    if (photoFiles.length) { pendingChatPhotoFiles = photoFiles; pendingChatPhotoUrls = photoFiles.map(file => URL.createObjectURL(file)); syncChatPhotoPreview(); }
     renderNotesPage({ followLatest: true });
     if (keepKeyboardOpen) refocusComposer(true);
     else syncNotesKeyboardLayout();
@@ -7569,11 +7592,10 @@ document.addEventListener('click', async e => {
 });
 
 function syncChatPhotoPreview() {
-  const preview = $('#chatPhotoPreview'), image = $('#chatPhotoPreviewImage'), name = $('#chatPhotoPreviewName');
-  if (!preview || !image) return;
-  preview.hidden = !pendingChatPhotoFile;
-  if (pendingChatPhotoFile) { image.src = pendingChatPhotoUrl; if (name) name.textContent = pendingChatPhotoFile.name; }
-  else { image.removeAttribute('src'); if (name) name.textContent = ''; }
+  const preview = $('#chatPhotoPreview');
+  if (!preview) return;
+  preview.hidden = !pendingChatPhotoFiles.length;
+  preview.innerHTML = pendingChatPhotoFiles.map((file, index) => `<span class="chat-photo-thumb"><img src="${esc(pendingChatPhotoUrls[index])}" alt="Selected photo ${index + 1}"><button type="button" data-chat-photo-remove="${index}" aria-label="Remove selected photo">×</button></span>`).join('');
   syncChatComposerState();
 }
 
@@ -7581,7 +7603,7 @@ function syncChatComposerState(field = $('#chatInput')) {
   const send = $('#chatSend');
   const composer = $('#chatComposer');
   if (!send || !composer) return;
-  const hasMessage = !!field?.value.trim() || !!pendingChatPhotoFile;
+  const hasMessage = !!field?.value.trim() || pendingChatPhotoFiles.length > 0;
   composer.classList.toggle('has-message', hasMessage);
   send.hidden = !hasMessage;
   send.disabled = !hasMessage;
@@ -7600,15 +7622,18 @@ document.addEventListener('click', event => {
     if (input) { input.value = ''; input.click(); }
     return;
   }
-  if (event.target.closest('#chatPhotoRemove')) { pendingChatPhotoFile = null; if (pendingChatPhotoUrl) URL.revokeObjectURL(pendingChatPhotoUrl); pendingChatPhotoUrl = ''; syncChatPhotoPreview(); return; }
+  const removePhoto = event.target.closest('[data-chat-photo-remove]');
+  if (removePhoto) { const index = Number(removePhoto.dataset.chatPhotoRemove); pendingChatPhotoFiles.splice(index, 1); const url = pendingChatPhotoUrls.splice(index, 1)[0]; if (url) URL.revokeObjectURL(url); syncChatPhotoPreview(); return; }
 });
 document.addEventListener('change', event => {
   if (event.target.id !== 'chatPhotoInput') return;
-  const file = event.target.files?.[0]; event.target.value = ''; if (!file) return;
-  if (file.size > 8 * 1024 * 1024) return toast('Choose a photo under 8 MB.');
-  if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) return toast('Choose a JPG, PNG, WebP, or GIF image.');
-  if (pendingChatPhotoUrl) URL.revokeObjectURL(pendingChatPhotoUrl);
-  pendingChatPhotoFile = file; pendingChatPhotoUrl = URL.createObjectURL(file); syncChatPhotoPreview();
+  const files = [...(event.target.files || [])]; event.target.value = ''; if (!files.length) return;
+  if (pendingChatPhotoFiles.length + files.length > 3) return toast('Choose up to three photos per message.');
+  for (const file of files) {
+    if (file.size > 8 * 1024 * 1024) return toast('Each photo must be under 8 MB.');
+    if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) return toast('Choose JPG, PNG, WebP, or GIF images.');
+  }
+  pendingChatPhotoFiles.push(...files); pendingChatPhotoUrls.push(...files.map(file => URL.createObjectURL(file))); syncChatPhotoPreview();
 });
 
 document.addEventListener('input', event => {

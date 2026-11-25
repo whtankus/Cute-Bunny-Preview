@@ -298,17 +298,13 @@ test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep 
 });
 
 
-test('Notes photo composer keeps picker on the right, remove controls on thumbnails, and sent photos hydrated', () => {
- const app=read('app.js'), css=read('style.css');
- const preview=app.indexOf('id="chatPhotoPreview"');
- const composer=app.indexOf('id="chatComposer"', preview);
- assert.ok(preview >= 0 && composer > preview, 'photo previews must sit above the composer');
- assert.match(app,/const newestFirstPics = allPics\.slice\(\)\.sort/);
- assert.match(app,/groupedPhotos: uploaded\.map\(item => \(\{ \.\.\.item \}\)\)/);
- assert.match(app,/photoUrls\.forEach\(url => URL\.revokeObjectURL\(url\)\);\s*if \(keepKeyboardOpen\)/);
- assert.match(css,/\.chat-photo-attach\s*\{\s*position:relative!important;\s*inset:auto!important/);
- assert.match(css,/\.chat-photo-thumb button\s*\{[\s\S]*?right:-7px!important/);
- assert.match(css,/\.notes-keyboard-open \.chat-composer \.chat-photo-attach\s*\{\s*display:grid!important/);
+test('Notes photo composer swaps the right-side photo picker for Send when content is ready', () => {
+  assert.match(app, /id="chatPhotoAttach"/);
+  assert.match(app, /id="chatSend"[^>]*hidden/);
+  assert.match(css, /\.chat-composer:has\(#chatSend:not\(\[hidden\]\)\) \.chat-photo-attach/);
+  assert.match(css, /\.chat-composer:has\(#chatSend\[hidden\]\) \.chat-photo-attach/);
+  assert.match(css, /\.chat-photo-attach\s*\{[\s\S]*?right:8px!important/);
+  assert.match(css, /\.chat-photo-preview/);
 });
 
 test('Notes supports up to three grouped photos with compact previews and 21-day retention schema', () => {

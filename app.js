@@ -3189,6 +3189,7 @@ function renderNotesPage(options = {}) {
       syncNotesKeyboardLayout();
       syncNotesSeenReceiptVisibility(existingThread);
       observeNoteSeenMessages();
+      hydrateMedia();
     });
     return;
   }
@@ -3221,6 +3222,7 @@ function renderNotesPage(options = {}) {
     }
     syncNotesSeenReceiptVisibility(thread);
     observeNoteSeenMessages();
+    hydrateMedia();
   });
 }
 
@@ -3981,7 +3983,7 @@ function closeAllGates() {
 
 async function openPhotoLightbox(id) {
   const item = feed.find(memory => String(memory.id) === String(id));
-  if (!item || item.kind !== 'photo') return;
+  if (!item || !(item.kind === 'photo' || (item.kind === 'note' && (item.storagePath || item.storage_path)))) return;
   const gate = $('#photoLightbox'), image = $('#photoLightboxImage'), deleteButton = $('#photoLightboxDelete'), saveButton = $('#photoLightboxSave');
   const thumb = [...document.querySelectorAll('.feed-item[data-memory]')].find(node => node.dataset.memory === String(id))?.querySelector('.feed-photo');
   const isOwnPhoto = String(item.author?.id || item.owner_id || '') === String(me?.id || '');

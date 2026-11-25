@@ -50,14 +50,14 @@ test.after(async () => {
   await new Promise(resolve => server?.close(resolve));
 });
 
-async function newTestPage({ authenticated = false, viewport, seedHistory = false } = {}) {
+async function newTestPage({ authenticated = false, viewport, seedHistory = false, bearfriend = false } = {}) {
   const context = await browser.newContext({
     viewport: viewport || { width: 1280, height: 900 },
     serviceWorkers: 'block'
   });
   contexts.add(context);
   const page = await context.newPage();
-  await page.addInitScript({ content: fixture + `\n;(() => {\n  const authenticated = ${JSON.stringify(authenticated)};\n  const seedHistory = ${JSON.stringify(seedHistory)};\n  if (authenticated) localStorage.setItem('cuteBunnyTestAuth', 'true');\n  if (seedHistory) {\n    const state = window.__cuteBunnyTestState;\n    state.nextMemoryId = 2000;\n    for (let id = 1000; id < 1090; id++) {\n      state.tables.memories.push({ id, owner_id: id % 2 === 0 ? state.friend.id : state.user.id, kind: 'note', text: id === 1000 ? 'An old message with a persistent heart ♡ and a long line that should wrap naturally without wasting available space.' : 'Historical conversation message number ' + id + ' with words of different lengths and an emoji 🌷', created_at: new Date(Date.UTC(2026, 10, 21, 12, 0, 0) - (1090 - id) * 60000).toISOString(), file_name: '', content_type: '', storage_path: '' });\n    }\n    state.tables.memory_likes.push(
+  await page.addInitScript({ content: fixture + `\n;(() => {\n  const authenticated = ${JSON.stringify(authenticated)};\n  const seedHistory = ${JSON.stringify(seedHistory)};\n  const bearfriend = ${JSON.stringify(bearfriend)};\n  if (authenticated) localStorage.setItem('cuteBunnyTestAuth', 'true');\n  if (bearfriend) localStorage.setItem('cuteBunnyBearSelectedFriend:v1', 'friend-test');\n  if (seedHistory) {\n    const state = window.__cuteBunnyTestState;\n    state.nextMemoryId = 2000;\n    for (let id = 1000; id < 1090; id++) {\n      state.tables.memories.push({ id, owner_id: id % 2 === 0 ? state.friend.id : state.user.id, kind: 'note', text: id === 1000 ? 'An old message with a persistent heart ♡ and a long line that should wrap naturally without wasting available space.' : 'Historical conversation message number ' + id + ' with words of different lengths and an emoji 🌷', created_at: new Date(Date.UTC(2026, 10, 21, 12, 0, 0) - (1090 - id) * 60000).toISOString(), file_name: '', content_type: '', storage_path: '' });\n    }\n    state.tables.memory_likes.push(
       { memory_id: 1000, user_id: state.user.id, created_at: new Date().toISOString() },
       { memory_id: 1000, user_id: 'other-test-user', created_at: new Date().toISOString() }
     );
@@ -433,4 +433,90 @@ test('PWA installs its complete shell and reloads offline', async () => {
     await context.close();
     contexts.delete(context);
   }
+});
+
+test('Bearfriend Care Points are idempotent, realtime-synced, and reward equipment persists', async () => {
+  const page = await newTestPage({ authenticated: true, bearfriend: true });
+  await waitForSignedInApp(page);
+  await page.locator('#coupleBearGame').waitFor({ state: 'visible' });
+  await page.locator('#bearCarePointsStrip .bear-care-total b').waitFor({ state: 'visible' });
+  await page.waitForFunction(() =>
+    document.querySelector('#bearCarePointsStrip .bear-care-total b')?.textContent.trim() === '348'
+  );
+
+  assert.equal(
+    await page.locator('#bearCarePointsStrip .bear-care-level b').innerText(),
+    '2',
+    'the initial Care Point total should produce the expected Bear Level'
+  );
+
+  await page.evaluate(() => { window.__cuteBunnyTestState.bearActionCommitThenFail = true; });
+  await page.locator('.bear-action-button[data-couple-action="hug"]').click();
+  await page.waitForFunction(() =>
+    document.querySelector('#bearCarePointsStrip .bear-care-total b')?.textContent.trim() === '350'
+  );
+
+  const firstAction = await page.evaluate(() => {
+    const state = window.__cuteBunnyTestState;
+    return {
+      rpc: state.calls.find(call => call.rpc === 'record_bear_hug_action'),
+      rpcCalls: state.calls.filter(call => call.rpc === 'record_bear_hug_action'),
+      progress: state.tables.bear_partner_progress[0],
+      receiptCount: state.tables.bear_hug_action_receipts.length
+    };
+  });
+  assert.ok(firstAction.rpc, 'a delivered bear action should call the shared progress RPC');
+  assert.equal(firstAction.rpc.args.p_partner_id, 'friend-test');
+  assert.match(firstAction.rpc.args.p_action_id, /^[0-9a-f-]{36}$/i);
+  assert.equal(firstAction.progress.love_points, 350);
+  assert.equal(firstAction.receiptCount, 1);
+  assert.equal(firstAction.rpcCalls.length, 2, 'a lost response after commit should trigger one retry');
+  assert.equal(firstAction.rpcCalls[0].args.p_action_id, firstAction.rpcCalls[1].args.p_action_id,
+    'every retry must reuse the original action UUID');
+
+  const retry = await page.evaluate(async args =>
+    window.supabase.createClient().rpc('record_bear_hug_action', args), firstAction.rpc.args
+  );
+  assert.equal(retry.error, null);
+  assert.equal(retry.data, 350, 'retrying the same action ID must not award points twice');
+  assert.equal(
+    await page.evaluate(() => window.__cuteBunnyTestState.tables.bear_partner_progress[0].love_points),
+    350
+  );
+
+  await page.evaluate(() => {
+    const state = window.__cuteBunnyTestState;
+    const progress = state.tables.bear_partner_progress[0];
+    progress.love_points = 352;
+    progress.last_action = 'kiss';
+    state.emitPostgresChanges('bear_partner_progress', progress);
+  });
+  await page.waitForFunction(() =>
+    document.querySelector('#bearCarePointsStrip .bear-care-total b')?.textContent.trim() === '352'
+  );
+
+  await page.locator('[data-bear-equip="strawberry-hat"]').click();
+  await page.waitForFunction(() =>
+    window.__cuteBunnyTestState.tables.bear_partner_progress[0].equipped_reward_ids.includes('strawberry-hat')
+  );
+  assert.equal(
+    await page.locator('[data-bear-equip="strawberry-hat"]').getAttribute('aria-pressed'),
+    'true',
+    'the selected reward should remain equipped after the RPC response'
+  );
+
+  await page.evaluate(() => {
+    const state = window.__cuteBunnyTestState;
+    const progress = state.tables.bear_partner_progress[0];
+    progress.equipped_reward_ids = ['sunset-meadow'];
+    state.emitPostgresChanges('bear_partner_progress', progress);
+  });
+  await page.waitForFunction(() =>
+    document.querySelector('[data-bear-equip="sunset-meadow"]')?.getAttribute('aria-pressed') === 'true'
+  );
+  assert.equal(
+    await page.locator('[data-bear-equip="strawberry-hat"]').getAttribute('aria-pressed'),
+    'false',
+    'a remote equipment update should replace the previous item in the same slot'
+  );
 });

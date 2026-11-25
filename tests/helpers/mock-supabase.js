@@ -67,6 +67,14 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     upsert(value, options = {}) { this.action = 'upsert'; this.payload = Array.isArray(value) ? value : [value]; this.conflict = options.onConflict; return this; }
     eq(key, value) { this.filters.push(row => row[key] === value); return this; }
     neq(key, value) { this.filters.push(row => row[key] !== value); return this; }
+    or(expression) {
+      const clauses = String(expression).split(',').map(part => {
+        const match = part.match(/^([a-z_]+)\.eq\.(.+)$/);
+        return match ? row => String(row[match[1]]) === match[2] : () => false;
+      });
+      this.filters.push(row => clauses.some(filter => filter(row)));
+      return this;
+    }
     lt(key, value) { this.filters.push(row => row[key] < value); return this; }
     in(key, values) { this.filters.push(row => values.includes(row[key])); return this; }
     is(key, value) { this.filters.push(row => row[key] === value); return this; }

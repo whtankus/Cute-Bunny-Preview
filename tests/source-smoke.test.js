@@ -278,3 +278,23 @@ test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep 
   }
   assert.match(polish, /width:50px;height:50px/);
 });
+
+test('Petal Points grants require server-verified quest evidence', () => {
+  const migration = read('supabase/migrations/202611250001_verify_petal_reward_activity.sql');
+  const app = read('app.js');
+  for (const required of [
+    'create or replace function private.daily_quest_slot_complete',
+    'create or replace function public.grant_petal_points',
+    'private.daily_quest_slot_complete(uid, reward_day, reward_slot)',
+    'The daily chest can only be claimed for today',
+    'Weekly reward must belong to the current week',
+    'Not enough verified daily quest sets',
+    'bear_hug_action_receipts',
+    'public.memory_likes',
+    'public.memories',
+    'on conflict (user_id, grant_key) do nothing',
+    'revoke all on function public.grant_petal_points'
+  ]) assert.ok(migration.includes(required), 'migration missing: ' + required);
+  assert.ok(app.includes("error.code==='P0001'"));
+  assert.ok(app.includes('unverified Petal Points claim was discarded'));
+});

@@ -1214,7 +1214,23 @@ async function syncPetalPointsToCloud() {
   for(const [key,rawAmount] of Object.entries(pending)){
    const amount=Math.trunc(Number(rawAmount)); if(!key||!Number.isFinite(amount)||amount<1)continue;
    const {data,error}=await sb.rpc('grant_petal_points',{p_grant_key:String(key),p_amount:amount});
-   if(error)throw error;
+   if(error){
+    // A validation rejection means the browser's queued claim had no matching
+    // persisted activity. Drop only that invalid claim; retain claims on
+    // transport/server failures so offline sync can retry them later.
+    if(error.code==='P0001'){
+     if(String(me?.id||'')!==userId)return false;
+     const latest=readPetalRewards();
+     if(Number(latest[key])===Number(rawAmount)){
+      delete latest[key];
+      try{localStorage.setItem(streakStorageKey('petal-rewards'),JSON.stringify(latest));}
+      catch{return false;}
+     }
+     console.warn('An unverified Petal Points claim was discarded:',key,error.message||error);
+     continue;
+    }
+    throw error;
+   }
    if(String(me?.id||'')!==userId)return false;
    if(data&&Number.isFinite(Number(data.petal_points)))cloudPetalPoints=Math.max(0,Number(data.petal_points));
    const latest=readPetalRewards();

@@ -23,6 +23,9 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     presenceTracks: [],
     presenceState: {},
     bearActionCommitThenFail: false,
+    noteSendCommitThenFail: false,
+    noteSendAlwaysFail: false,
+    noteSendEmitRealtimeBeforeReturn: false,
     tables: {
       profiles: [me, friend],
       follows: [{ follower_id: me.id, followed_id: friend.id, created_at: now }],
@@ -161,6 +164,38 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
         from(table) { return new Query(table); },
         async rpc(name, args = {}) {
           state.calls.push({ rpc: name, args });
+          if (name === 'send_note_message') {
+            const clientId = String(args.p_client_message_id || '');
+            const messageText = String(args.p_text || '').trim();
+            if (state.noteSendAlwaysFail) {
+              return { data: null, error: { message: 'Network request failed', status: 0 } };
+            }
+            let message = state.tables.memories.find(row =>
+              row.owner_id === me.id && row.client_message_id === clientId
+            );
+            if (!clientId || !messageText || messageText.length > 1000) {
+              return { data: null, error: { message: 'Invalid Notes message request', status: 400 } };
+            }
+            if (!message) {
+              message = {
+                id: state.nextMemoryId++, owner_id: me.id, kind: 'note',
+                text: messageText, reply_to_id: args.p_reply_to_id ?? null,
+                client_message_id: clientId, created_at: new Date().toISOString()
+              };
+              state.tables.memories.push(message);
+            } else if (message.text !== messageText || String(message.reply_to_id || '') !== String(args.p_reply_to_id || '')) {
+              return { data: null, error: { message: 'Idempotency key reused with different content', status: 400 } };
+            }
+            if (state.noteSendEmitRealtimeBeforeReturn) {
+              state.noteSendEmitRealtimeBeforeReturn = false;
+              state.emitPostgresChanges('memories', message, 'INSERT');
+            }
+            if (state.noteSendCommitThenFail) {
+              state.noteSendCommitThenFail = false;
+              return { data: null, error: { message: 'Network request failed after commit', status: 0 } };
+            }
+            return { data: message, error: null };
+          }
           if (name === 'mark_notes_seen') {
             const row = state.tables.note_read_cursors.find(item => item.reader_id === me.id && item.owner_id === args.p_owner_id);
             if (row) { row.last_read_message_id = Math.max(row.last_read_message_id, args.p_last_read_message_id); row.last_read_at = new Date().toISOString(); }
@@ -279,9 +314,9 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
             const handlers = state.channelHandlers?.['cute-bunny-presence'];
             handlers?.get('presence:' + event)?.({});
           };
-          state.emitPostgresChanges = (table, payload = {}) => {
+          state.emitPostgresChanges = (table, payload = {}, eventType = 'UPDATE') => {
             for (const handlers of Object.values(state.channelHandlers || {})) {
-              handlers.get('postgres_changes:' + table)?.({ eventType: 'UPDATE', new: payload });
+              handlers.get('postgres_changes:' + table)?.({ eventType, new: payload });
             }
           };
           return channel;

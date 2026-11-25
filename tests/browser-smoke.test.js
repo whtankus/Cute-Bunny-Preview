@@ -410,7 +410,7 @@ test('PWA installs its complete shell and reloads offline', async () => {
 
     const cached = await page.evaluate(async () => {
       const names = await caches.keys();
-      const shell = names.find(name => name === 'cute-bunny-shell-v400');
+      const shell = names.find(name => name === 'cute-bunny-shell-v401');
       if (!shell) return { names, shell: false, assets: [] };
       const cache = await caches.open(shell);
       const requests = await cache.keys();
@@ -519,4 +519,96 @@ test('Bearfriend Care Points are idempotent, realtime-synced, and reward equipme
     'false',
     'a remote equipment update should replace the previous item in the same slot'
   );
+});
+
+
+test('Notes retries a committed message with the same ID and ignores duplicate taps', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatComposer').waitFor({ state: 'visible' });
+  await page.locator('#chatInput').fill('A message with a safely retried delivery ♡');
+
+  await page.evaluate(() => {
+    const state = window.__cuteBunnyTestState;
+    state.noteSendCommitThenFail = true;
+    const button = document.querySelector('#chatSend');
+    button.click();
+    button.click();
+  });
+
+  await page.waitForFunction(() =>
+    document.querySelector('#chatThread')?.textContent.includes('A message with a safely retried delivery ♡') &&
+    window.__cuteBunnyTestState.calls.filter(call => call.rpc === 'send_note_message').length === 2
+  );
+  const result = await page.evaluate(() => {
+    const state = window.__cuteBunnyTestState;
+    const calls = state.calls.filter(call => call.rpc === 'send_note_message');
+    const rows = state.tables.memories.filter(row => row.text === 'A message with a safely retried delivery ♡');
+    return { calls, rows };
+  });
+  assert.equal(result.calls.length, 2, 'the lost response should trigger one safe retry; the second tap must be ignored');
+  assert.equal(result.calls[0].args.p_client_message_id, result.calls[1].args.p_client_message_id);
+  assert.match(result.calls[0].args.p_client_message_id, /^[0-9a-f-]{36}$/i);
+  assert.equal(result.rows.length, 1, 'one client message ID must create only one stored message');
+  assert.equal(result.rows[0].owner_id, 'user-ankush-test');
+});
+
+test('Notes keeps an unconfirmed message retryable after network recovery', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatComposer').waitFor({ state: 'visible' });
+  await page.evaluate(() => { window.__cuteBunnyTestState.noteSendAlwaysFail = true; });
+  await page.locator('#chatInput').fill('Keep this message until the network returns ♡');
+  await page.locator('#chatSend').click();
+
+  const retry = page.locator('[data-retry-note]');
+  await retry.waitFor({ state: 'visible', timeout: 10000 });
+  const clientMessageId = await retry.getAttribute('data-retry-note');
+  assert.ok(clientMessageId);
+  assert.equal(
+    await page.locator('#chatThread').getByText('Keep this message until the network returns ♡').count(),
+    1
+  );
+
+  await page.evaluate(() => { window.__cuteBunnyTestState.noteSendAlwaysFail = false; });
+  await retry.click();
+  await page.waitForFunction(() =>
+    window.__cuteBunnyTestState.tables.memories.some(row => row.text === 'Keep this message until the network returns ♡')
+  );
+  const saved = await page.evaluate(() =>
+    window.__cuteBunnyTestState.tables.memories.find(row => row.text === 'Keep this message until the network returns ♡')
+  );
+  assert.equal(saved.client_message_id, clientMessageId, 'manual retry must reuse the original idempotency key');
+  assert.equal(
+    await page.locator('[data-retry-note]').count(),
+    0,
+    'a confirmed message should no longer show the retry action'
+  );
+});
+
+
+test('Notes reconciles a realtime insert with its optimistic message', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatComposer').waitFor({ state: 'visible' });
+  await page.evaluate(() => { window.__cuteBunnyTestState.noteSendEmitRealtimeBeforeReturn = true; });
+  await page.locator('#chatInput').fill('Realtime should not duplicate this note ♡');
+  await page.locator('#chatSend').click();
+
+  await page.waitForFunction(() =>
+    window.__cuteBunnyTestState.tables.memories.some(row => row.text === 'Realtime should not duplicate this note ♡')
+  );
+  await page.waitForTimeout(120);
+  const result = await page.evaluate(() => ({
+    rows: window.__cuteBunnyTestState.tables.memories.filter(row => row.text === 'Realtime should not duplicate this note ♡').length,
+    bubbles: [...document.querySelectorAll('#chatThread .chat-message-text')]
+      .filter(node => node.textContent === 'Realtime should not duplicate this note ♡').length,
+    feedRows: window.__cuteBunnyTestState.calls.filter(call => call.rpc === 'send_note_message').length
+  }));
+  assert.equal(result.rows, 1, 'the database fixture should contain one message');
+  assert.equal(result.bubbles, 1, 'optimistic and realtime delivery should render as one bubble');
+  assert.equal(result.feedRows, 1);
 });

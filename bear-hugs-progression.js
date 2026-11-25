@@ -149,19 +149,52 @@ async function recordSharedAction(action, partnerId = selectedFriendId, actionId
   const user = getMe(), client = getSupabase();
   if (!user?.id || !partnerId || !client || !isAcceptedPartner(partnerId)) return false;
   const pairKey = [String(user.id), String(partnerId)].sort().join(':');
-  const { data, error } = await client.rpc('record_bear_hug_action', {
-    p_partner_id: partnerId,
-    p_action: action,
-    p_action_id: actionId
-  });
-  if (error) {
-    console.warn('Shared Bearfriend points could not be saved:', error.message || error);
-    setStatus('Your bear moment was sent, but its Love Meter points could not be saved. ♡');
+  const retryDelays = [250, 700];
+  let result = null;
+  let lastError = null;
+
+  // Reuse the same action UUID for every retry. If the server committed the
+  // first request but its response was lost, the receipt table makes the
+  // retry return the current total without awarding the action twice.
+  for (let attempt = 0; attempt <= retryDelays.length; attempt++) {
+    try {
+      result = await client.rpc('record_bear_hug_action', {
+        p_partner_id: partnerId,
+        p_action: action,
+        p_action_id: actionId
+      });
+      lastError = result?.error || null;
+    } catch (error) {
+      result = null;
+      lastError = error;
+    }
+    if (!lastError) break;
+
+    const status = Number(lastError.status || lastError.statusCode || 0);
+    const message = String(lastError.message || lastError.details || lastError);
+    const retryable = status === 0 || status === 408 || status === 425 || status === 429 || status >= 500 ||
+      /fetch|network|timeout|temporar|connection|gateway|econn|aborted/i.test(message);
+    if (!retryable || attempt >= retryDelays.length) break;
+    await new Promise(resolve => setTimeout(resolve, retryDelays[attempt]));
+  }
+
+  const isCurrentPair = sharedProgressPairKey === pairKey && String(selectedFriendId) === String(partnerId);
+  if (lastError) {
+    console.warn('Shared Bearfriend points could not be saved:', lastError.message || lastError);
+    if (isCurrentPair) setStatus('Your bear moment was sent, but its Love Meter points could not be saved. Please retry the action. ♡');
     return false;
   }
-  if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== String(partnerId)) return true;
+
+  const points = Number(result?.data);
+  if (!Number.isFinite(points) || points < 0) {
+    console.warn('Shared Bearfriend progress RPC returned an invalid total:', result?.data);
+    if (isCurrentPair) setStatus('Your bear moment was sent, but its Love Meter total could not be confirmed. ♡');
+    return false;
+  }
+  if (!isCurrentPair) return true;
+
   const previousPoints = sharedPoints;
-  sharedPoints = Math.max(sharedPoints, Number(data) || 0);
+  sharedPoints = Math.max(sharedPoints, points);
   lastSharedAction = action;
   if (sharedProgressInitialized) announceSharedLevelUp(previousPoints, sharedPoints);
   sharedProgressInitialized = true;

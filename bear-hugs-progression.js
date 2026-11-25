@@ -386,7 +386,6 @@ function updateUI() {
   }
   ensureBearAccessoryLayers();
   ensureLivingScene(scene);
-  if (sharedProgressPairKey) loadBearMoments();
   updatePartnerChip();
 }
 

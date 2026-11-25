@@ -70,7 +70,11 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(bear, /actionId: String\(payload\.actionId \|\| ''\)/);
   assert.match(bear, /if \(!delivered\) return;/);
   assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, Number\(data\?\.love_points\) \|\| 0\)/);
-  assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, Number\(data\) \|\| 0\)/);
+  assert.match(bear, /const retryDelays = \[250, 700\]/);
+  assert.match(bear, /p_action_id: actionId/);
+  assert.match(bear, /same action UUID/);
+  assert.match(bear, /const points = Number\(result\?\.data\)/);
+  assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, points\)/);
   assert.match(bear, /recipient's UI acknowledgement is optional[\s\S]*?return true;/);
   assert.match(bear, /lastSharedAction = action/);
   assert.match(bear, /Play immediately and keep every action button available/);

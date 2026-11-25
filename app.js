@@ -743,14 +743,40 @@ async function loadLatestMedia(kind) {
   if (!me || !['photo', 'song'].includes(kind) || mediaPageLoading[kind]) return;
   mediaPageLoading[kind] = true;
   try {
-    const latest = await api('/feed?kind=' + kind + '&limit=8');
-    if (page !== (kind === 'photo' ? 'gallery' : 'music')) { mergeFeedRows(latest); return; }
-    mergeFeedRows(latest);
-    mediaInitialLoaded[kind] = true;
-    feedPageOffsets[kind] = latest.length;
-    feedPageHasMore[kind] = latest.length === 8;
-    mediaVisibleCount[kind] = 8;
-    mediaPageLoading[kind] = false;
+    if (kind === 'photo') {
+      // Load every photo shared in the last 21 days, including photo attachments
+      // sent inside Notes (the API's photo filter includes note rows with storage_path).
+      const cutoff = Date.now() - 21 * 24 * 60 * 60 * 1000;
+      const pageSize = 120;
+      const recentRows = [];
+      let offset = 0, hasOlderPhotos = false, batch = [];
+      do {
+        batch = await api('/feed?kind=photo&limit=' + pageSize + '&offset=' + offset);
+        if (page !== 'gallery') { mergeFeedRows(recentRows); return; }
+        for (const item of batch) {
+          const created = new Date(item.createdAt || item.created_at || 0).getTime();
+          if (Number.isFinite(created) && created >= cutoff) recentRows.push(item);
+          else hasOlderPhotos = true;
+        }
+        offset += batch.length;
+        if (hasOlderPhotos || batch.length < pageSize) break;
+      } while (batch.length === pageSize);
+      mergeFeedRows(recentRows);
+      mediaInitialLoaded.photo = true;
+      mediaVisibleCount.photo = recentRows.length;
+      // Start older-history pagination exactly after the 21-day window.
+      feedPageOffsets.photo = recentRows.length;
+      feedPageHasMore.photo = hasOlderPhotos || batch.length === pageSize;
+    } else {
+      const latest = await api('/feed?kind=song&limit=8');
+      if (page !== 'music') { mergeFeedRows(latest); return; }
+      mergeFeedRows(latest);
+      mediaInitialLoaded.song = true;
+      feedPageOffsets.song = latest.length;
+      feedPageHasMore.song = latest.length === 8;
+      mediaVisibleCount.song = 8;
+    }
+    if (page !== (kind === 'photo' ? 'gallery' : 'music')) return;
     render();
     $('#profileSettingsPanel')?.classList.add('hidden');
   } catch (error) {

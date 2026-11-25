@@ -70,7 +70,7 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(bear, /if \(!delivered\) return;/);
   assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, Number\(data\?\.love_points\) \|\| 0\)/);
   assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, Number\(data\) \|\| 0\)/);
-  assert.match(bear, /recipient's UI acknowledgement is optional[\\s\\S]*?return true;/);
+  assert.match(bear, /recipient's UI acknowledgement is optional[\s\S]*?return true;/);
   assert.match(bear, /lastSharedAction = action/);
   assert.match(bear, /Play immediately and keep every action button available/);
   assert.doesNotMatch(bear.slice(bear.indexOf('async function runLocalAction'), bear.indexOf('function ensureProgressChannel')), /actionInFlight|\.disabled = true|is-sending/);

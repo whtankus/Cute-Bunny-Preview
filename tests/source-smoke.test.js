@@ -221,3 +221,22 @@ test('Achievement Garden keeps earned heart flowers and includes 1,500 and 2,000
   assert.ok(css.includes('.achievement-card.is-earned'));
 });
 
+
+
+test('Daily quest markup never emits NaN and keeps progress percentages bounded', () => {
+  const app = read('app.js');
+  const start = app.indexOf("const dailyQuestMarkup = '<div class=\\\"sg-daily-quest-list\\\">");
+  const end = app.indexOf("const todayDate =", start);
+  const markup = app.slice(start, end);
+  assert.ok(start >= 0 && end > start, 'daily quest markup must be present');
+  assert.doesNotMatch(markup, /\\+\\s*\\+\\s*['\\\"]<div/);
+  assert.match(markup, /Math\\.max\\(0, Math\\.min\\(100/);
+  assert.doesNotMatch(markup, /NaN/);
+});
+
+test('Daily quest cards stay within the viewport on narrow screens', () => {
+  const styles = read('polish.css');
+  assert.match(styles, /sg-daily-quest-list \\.sg-daily-quest-card[\\s\\S]*?grid-template-columns:38px minmax\\(0,1fr\\)!important/);
+  assert.match(styles, /sg-daily-quest-card \\.sg-daily-quest-copy[\\s\\S]*?min-width:0/);
+  assert.match(styles, /sg-daily-quest-progress>span[\\s\\S]*?max-width:100%/);
+});

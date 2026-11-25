@@ -15670,3 +15670,112 @@ body.notes-page-active #content .chat-page .chat-composer .chat-photo-attach svg
     right:7px!important;
   }
 }
+
+
+/* Photo Garden: prominent capsule upload action and consistent two-column chronology. */
+#content .upload-label[data-upload="photo"],
+#content .photo-garden-grid + .upload-label {
+  display:flex!important;
+}
+#content .upload-label:has(input[data-upload="photo"]) {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  min-height:64px!important;
+  margin:24px 0 28px!important;
+  padding:15px 24px!important;
+  border-radius:999px!important;
+  font-size:1.08rem!important;
+  font-weight:900!important;
+  line-height:1.2!important;
+  box-sizing:border-box!important;
+  box-shadow:0 5px 0 #a96578,0 10px 22px rgba(153,91,126,.14)!important;
+}
+#content .upload-label:has(input[data-upload="photo"]):active {
+  transform:translateY(2px)!important;
+  box-shadow:0 3px 0 #a96578,0 6px 14px rgba(153,91,126,.12)!important;
+}
+#content .photo-garden-grid {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-flow:row!important;
+  align-items:start!important;
+  gap:12px!important;
+  width:100%!important;
+  margin-top:18px!important;
+  column-count:initial!important;
+  column-gap:normal!important;
+}
+#content .photo-garden-grid>.feed-item {
+  display:flex!important;
+  flex-direction:column!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  break-inside:initial!important;
+  -webkit-column-break-inside:auto!important;
+}
+#content .photo-garden-grid>.feed-item>.tile {
+  display:block!important;
+  width:100%!important;
+  aspect-ratio:1/1!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  border-radius:18px!important;
+  transform:none!important;
+}
+#content .photo-garden-grid>.feed-item .photo-frame {
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:1/1!important;
+  overflow:hidden!important;
+  border-radius:inherit!important;
+}
+#content .photo-garden-grid>.feed-item .feed-photo {
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-height:0!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  border-radius:inherit!important;
+}
+#content .photo-garden-grid>.feed-item .feed-by {
+  order:2!important;
+  display:flex!important;
+  padding:6px 3px 2px!important;
+  font-size:.72rem!important;
+}
+@media(max-width:480px) {
+  #content .upload-label:has(input[data-upload="photo"]) {
+    min-height:62px!important;
+    margin:22px 0 26px!important;
+    font-size:1.02rem!important;
+  }
+  #content .photo-garden-grid {gap:10px!important}
+}
+
+/* Notes is an immersive writing space: remove the section navigation while active. */
+body.notes-page-active .app #nav {
+  display:none!important;
+}
+body.notes-page-active #content .chat-page .chat-composer {
+  width:min(680px,calc(100vw - 16px))!important;
+  max-width:calc(100vw - 16px)!important;
+}
+body.notes-page-active #content .chat-page #chatPhotoPreview {
+  width:min(680px,calc(100vw - 16px))!important;
+  max-width:calc(100vw - 16px)!important;
+}
+@media(max-width:480px) {
+  body.notes-page-active #content .chat-page .chat-composer,
+  body.notes-page-active #content .chat-page #chatPhotoPreview {
+    width:calc(100vw - 16px)!important;
+    max-width:calc(100vw - 16px)!important;
+  }
+}

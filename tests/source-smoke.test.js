@@ -154,7 +154,7 @@ test('offline shell keeps navigation fallback and notification handling', () => 
   assert.match(sw, /self\.addEventListener\(["']fetch["']/);
   assert.match(sw, /cache\.match\(["']\.\/index\.html["']\)/);
   assert.match(sw, /self\.addEventListener\(["']notificationclick["']/);
-  assert.match(sw, /cute-bunny-shell-v400/);
+  assert.match(sw, /cute-bunny-shell-v401/);
   assert.match(sw, /polish\.css\?v=bearfriend-rewards-polish-20261125/);
   assert.match(sw, /bear-hugs-progression\.js\?v=bearfriend-reward-fix-20261125/);
   assert.match(sw, /header-statusbar-blend\.css/);

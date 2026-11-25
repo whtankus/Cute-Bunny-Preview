@@ -3222,6 +3222,7 @@ function renderNotesPage(options = {}) {
     }
     syncNotesSeenReceiptVisibility(thread);
     observeNoteSeenMessages();
+    syncChatPhotoPreview();
     hydrateMedia();
   });
 }

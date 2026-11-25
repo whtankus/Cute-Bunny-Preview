@@ -240,3 +240,21 @@ test('Daily quest cards stay within the viewport on narrow screens', () => {
   assert.ok(styles.includes('.sg-daily-quest-card .sg-daily-quest-copy'));
   assert.ok(styles.includes('.sg-daily-quest-progress>span{display:block;max-width:100%'));
 });
+
+test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep equipment actions wired', () => {
+  const bear = read('bear-hugs-progression.js');
+  const styles = read('bear-hugs-progression.css');
+  const polish = read('polish.css');
+  assert.doesNotThrow(() => new vm.Script(bear, { filename: 'bear-hugs-progression.js' }));
+  assert.match(bear, /function rewardIconSvg\(reward\)/);
+  assert.match(bear, /rewardIconSvg\(nextReward\)/);
+  assert.match(bear, /data-bear-equip/);
+  assert.match(bear, /ensureBearAccessoryLayers\(\);\s*void equipReward/);
+  assert.doesNotMatch(bear, /🐻　✿　🐻/);
+  assert.match(styles, /bear-reward-icon-art svg/);
+  assert.match(styles, /@media\(max-width:520px\)/);
+  for (const badge of ['moonlit-orchid', 'crystal-butterfly', 'sunfire-blossom']) {
+    assert.match(polish, new RegExp('item-' + badge + ' \\.sg-collectible-art'));
+  }
+  assert.match(polish, /width:50px;height:50px/);
+});

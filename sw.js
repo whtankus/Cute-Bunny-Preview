@@ -1,15 +1,15 @@
-const CACHE_NAME = "cute-bunny-shell-v409";
+const CACHE_NAME = "cute-bunny-shell-v410";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=notes-photo-send-swap-right-20261125s-photo-controls-inside-pill-20261125s-photo-grid-final-20261125",
+  "./style.css?v=notes-dock-right-preview-keyboard-20261125",
   "./polish.css?v=bearfriend-rewards-polish-20261125",
   "./ui-color-system.css?v=20261125-1",
   "./header-statusbar-blend.css?v=20261120-1",
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=43",
+  "./app.js?v=44",
   "./bear-hugs-progression.css?v=bearfriend-reward-fix-20261125",
   "./bear-hugs-progression.js?v=bearfriend-reward-fix-20261125",
   "./manifest.webmanifest",

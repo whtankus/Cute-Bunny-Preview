@@ -39,7 +39,16 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
         memory_id: 100, message: 'Bunny Friend liked your photo ♡', created_at: now, read_at: null
       }],
       note_read_cursors: [],
-      profile_private_settings: [{ user_id: me.id, notification_preferences: { memories: true, buddy: true } }]
+      profile_private_settings: [{ user_id: me.id, notification_preferences: { memories: true, buddy: true } }],
+      bear_partner_requests: [{
+        id: 'bear-pair-test', sender_id: me.id, recipient_id: friend.id, status: 'accepted',
+        created_at: now, sender: me, recipient: friend
+      }],
+      bear_partner_progress: [{
+        id: 'bear-progress-test', partner_low: 'friend-test', partner_high: 'user-ankush-test',
+        love_points: 348, last_action: 'hug', equipped_reward_ids: [], updated_at: now
+      }],
+      bear_hug_action_receipts: []
     }
   };
   window.__cuteBunnyTestState = state;
@@ -165,6 +174,53 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
             memory.text = history.previous_text; memory.edited_at = new Date().toISOString();
             return { data: { ok: true, memory_id: memory.id, text: memory.text, edited_at: memory.edited_at }, error: null };
           }
+          if (name === 'record_bear_hug_action') {
+            const partnerId = String(args.p_partner_id || '');
+            const actionId = String(args.p_action_id || '');
+            const action = String(args.p_action || '');
+            const accepted = state.tables.bear_partner_requests.some(row =>
+              row.status === 'accepted' &&
+              ((row.sender_id === me.id && row.recipient_id === partnerId) ||
+               (row.recipient_id === me.id && row.sender_id === partnerId))
+            );
+            if (!accepted || !actionId || !action) return { data: null, error: { message: 'Invalid Bearfriend action' } };
+            const existing = state.tables.bear_hug_action_receipts.find(row => row.sender_id === me.id && row.action_id === actionId);
+            const progress = state.tables.bear_partner_progress.find(row =>
+              row.partner_low === [me.id, partnerId].sort()[0] &&
+              row.partner_high === [me.id, partnerId].sort()[1]
+            );
+            if (existing) return { data: progress?.love_points ?? existing.points_after, error: null };
+            if (!progress) return { data: null, error: { message: 'Shared progress row missing' } };
+            progress.love_points += 2;
+            progress.last_action = action;
+            progress.updated_at = new Date().toISOString();
+            state.tables.bear_hug_action_receipts.push({
+              sender_id: me.id, action_id: actionId, partner_low: progress.partner_low,
+              partner_high: progress.partner_high, action, points_after: progress.love_points
+            });
+            return { data: progress.love_points, error: null };
+          }
+          if (name === 'set_bear_hug_equipment') {
+            const partnerId = String(args.p_partner_id || '');
+            const ids = Array.isArray(args.p_reward_ids) ? args.p_reward_ids : [];
+            const progress = state.tables.bear_partner_progress.find(row =>
+              row.partner_low === [me.id, partnerId].sort()[0] &&
+              row.partner_high === [me.id, partnerId].sort()[1]
+            );
+            const slots = {
+              'sunset-meadow': ['background', 100], 'strawberry-hat': ['headwear', 350],
+              'honey-bear': ['skin', 1250], 'starry-set': ['background', 2150],
+              'starlight-crowns': ['headwear', 3050]
+            };
+            const selectedSlots = ids.map(id => slots[id]?.[0]);
+            if (!progress || ids.length > 3 || ids.some(id => !slots[id] || progress.love_points < slots[id][1]) ||
+                new Set(selectedSlots).size !== selectedSlots.length) {
+              return { data: null, error: { message: 'Invalid or locked Bear Hugs reward' } };
+            }
+            progress.equipped_reward_ids = [...ids];
+            progress.updated_at = new Date().toISOString();
+            return { data: [...ids], error: null };
+          }
           return { data: name === 'send_buddy_ping' ? true : true, error: null };
         },
         storage: {
@@ -182,7 +238,8 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
             topic,
             on(type, filter, callback) {
               if (type === 'broadcast') handlers.set('broadcast:' + filter?.event, callback);
-            if (type === 'presence') handlers.set('presence:' + filter?.event, callback);
+              if (type === 'presence') handlers.set('presence:' + filter?.event, callback);
+              if (type === 'postgres_changes') handlers.set('postgres_changes:' + filter?.table, callback);
               return channel;
             },
             subscribe(callback) {
@@ -208,6 +265,11 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
           state.emitPresence = (event = 'sync') => {
             const handlers = state.channelHandlers?.['cute-bunny-presence'];
             handlers?.get('presence:' + event)?.({});
+          };
+          state.emitPostgresChanges = (table, payload = {}) => {
+            for (const handlers of Object.values(state.channelHandlers || {})) {
+              handlers.get('postgres_changes:' + table)?.({ eventType: 'UPDATE', new: payload });
+            }
           };
           return channel;
         },

@@ -54,6 +54,24 @@ jobs:
           config = 'window.CUTE_BUNNY_CONFIG = ' + json.dumps({'supabaseUrl': url, 'supabaseAnonKey': key}) + ';\n'
           pathlib.Path('_site/supabase-config.js').write_text(config, encoding='utf-8')
           pathlib.Path('_site/.nojekyll').touch()
+      - name: Verify published app assets
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const html = fs.readFileSync('_site/index.html', 'utf8');
+          const assets = [
+            ...[...html.matchAll(/<link\\b[^>]*rel=[\"']stylesheet[\"'][^>]*href=[\"']([^\"']+)[\"'][^>]*>/gi)].map(match => match[1]),
+            ...[...html.matchAll(/<script\\b[^>]*src=[\"']([^\"']+)[\"'][^>]*>/gi)].map(match => match[1])
+          ].filter(asset => !/^https?:\\/\\//i.test(asset));
+          for (const asset of assets) {
+            const file = decodeURIComponent(asset.split('?')[0].replace(/^\\.\\//, ''));
+            if (!fs.existsSync(path.join('_site', file))) {
+              throw new Error('GitHub Pages artifact is missing referenced asset: ' + file);
+            }
+          }
+          console.log('Verified ' + assets.length + ' local app assets in _site/.');
+          NODE
           PY
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

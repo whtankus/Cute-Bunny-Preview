@@ -15739,19 +15739,29 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
 }
 
 
-/* Photo Garden: preserve each photo's original proportions inside the two-column grid. */
+/* Photo Garden masonry: sender label first, then natural-size photos with no empty grid cells. */
 #content .photo-garden-grid {
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  grid-auto-flow:row!important;
-  align-items:start!important;
-  gap:12px!important;
+  display:block!important;
+  column-count:2!important;
+  column-gap:12px!important;
+  column-fill:balance!important;
+  width:100%!important;
 }
 #content .photo-garden-grid>.feed-item {
-  display:flex!important;
+  display:inline-flex!important;
   flex-direction:column!important;
+  vertical-align:top!important;
+  break-inside:avoid!important;
+  -webkit-column-break-inside:avoid!important;
+  width:100%!important;
   min-width:0!important;
-  margin:0!important;
+  margin:0 0 14px!important;
+}
+#content .photo-garden-grid .feed-by {
+  order:0!important;
+  display:flex!important;
+  min-width:0!important;
+  padding:3px 3px 7px!important;
 }
 #content .photo-garden-grid>.feed-item>.tile {
   display:block!important;
@@ -15769,7 +15779,7 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
   height:auto!important;
   min-height:0!important;
   aspect-ratio:auto!important;
-  margin:0 0 8px!important;
+  margin:0!important;
   overflow:hidden!important;
   border-radius:16px!important;
 }
@@ -15783,13 +15793,4 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
   margin:0!important;
   object-fit:contain!important;
   border-radius:16px!important;
-}
-#content .photo-garden-grid .feed-by {
-  order:2!important;
-  display:flex!important;
-  min-width:0!important;
-  padding:5px 3px 2px!important;
-}
-@media(min-width:620px) {
-  #content .photo-garden-grid {grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }

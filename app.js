@@ -3341,7 +3341,12 @@ function render(options = {}) {
   const visibleFeed = feed.filter(x => !pendingDeleteTimers.has(String(x.id)) && !(x.kind === 'note' && hiddenNoteIds.has(String(x.id))));
   const allPics = visibleFeed.filter(x => x.kind === 'photo' || (x.kind === 'note' && (x.storagePath || x.storage_path)));
   const allSongs = visibleFeed.filter(x => x.kind === 'song');
-  const pics = page === 'gallery' ? allPics.slice(0, mediaVisibleCount.photo) : allPics;
+  const newestFirstPics = allPics.slice().sort((a, b) => {
+    const aTime = new Date(a.createdAt || a.created_at || 0).getTime();
+    const bTime = new Date(b.createdAt || b.created_at || 0).getTime();
+    return (Number.isFinite(bTime) ? bTime : 0) - (Number.isFinite(aTime) ? aTime : 0);
+  });
+  const pics = page === 'gallery' ? newestFirstPics.slice(0, mediaVisibleCount.photo) : newestFirstPics;
   const songs = page === 'music' ? allSongs.slice(0, mediaVisibleCount.song) : allSongs;
   const notes = visibleFeed.filter(x => x.kind === 'note');
 
@@ -4328,7 +4333,6 @@ async function sendChatMessage() {
   field.value = '';
   field.style.height = '';
   pendingChatPhotoFiles = [];
-  photoUrls.forEach(url => URL.revokeObjectURL(url));
   pendingChatPhotoUrls = [];
   syncChatPhotoPreview();
   field.style.overflowY = 'hidden';
@@ -4376,6 +4380,7 @@ async function sendChatMessage() {
     const groupedRecords = saved.groupedPhotos?.map(item => ({ ...item, createdAt: item.created_at, storagePath: item.storage_path || '', fileName: item.file_name || '', contentType: item.content_type || '', author: optimistic.author })) || [record];
     feed = feed.flatMap(m => String(m.id) === tempId ? groupedRecords : [m]);
     renderNotesPage({ followLatest: true });
+    photoUrls.forEach(url => URL.revokeObjectURL(url));
     if (keepKeyboardOpen) refocusComposer();
     else syncNotesKeyboardLayout();
   } catch (error) {

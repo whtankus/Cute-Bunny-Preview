@@ -1167,14 +1167,14 @@ function getDailyQuestRotation(dateKey) {
   const elapsedDays = Number.isFinite(startDate.getTime()) && Number.isFinite(currentDate.getTime())
     ? Math.max(0, Math.floor((currentDate - startDate) / 86400000)) : 0;
   const dayIndex = elapsedDays % 20;
-  // Bear Hugs missions rotate into the community slot on five days of each
+  // Bearfriend missions rotate into the community slot on five days of each
   // 20-day cycle, keeping the daily set at three quests.
   const bearHugQuests = {
     3: ['A warm bear hug','Give your Bearfriend two hugs.','bear-action','heart','hug',2],
     7: ['A kiss for your Bearfriend','Share two kisses with your Bearfriend.','bear-action','heart','kiss',2],
     11: ['A little bear cuddle','Pet your Bearfriend three times.','bear-action','heart','pet',3],
     15: ['Dance together','Share two dances with your Bearfriend.','bear-action','heart','dance',2],
-    19: ['Three caring moments','Share any three Bear Hugs actions together.','bear-action','heart',null,3]
+    19: ['Three caring moments','Share any three Bearfriend actions together.','bear-action','heart',null,3]
   };
   const entries = [chatQuests[dayIndex], photoQuests[dayIndex], bearHugQuests[dayIndex] || communityQuests[dayIndex]];
 
@@ -2291,7 +2291,7 @@ function renderStreakPage() {
         '<span class="sg-daily-quest-icon">' + gardenIllustration(item.art || item.kind || item.id) + '</span>' +
         '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
         '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
-        '<p>' + item.description + '</p>' + (item.kind === 'note' && item.match ? '<div class="sg-quest-keyword-hint"><span>USE IN YOUR MESSAGE</span><b>' + (Array.isArray(item.match) ? item.match.join(' · ') : item.match) + '</b></div>' : '') + '<div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>';
+        '<p>' + item.description + '</p>' +  + '<div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>';
     }).join('') +
     '</div><div class="sg-daily-quest-footer"><span>' + completedQuests + ' / 3 quests complete</span>' +
     (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete today’s 3 quests to earn your Daily Bloom</small>') + '</div>';
@@ -3352,7 +3352,7 @@ function render(options = {}) {
       <section class="couple-bear-game" id="coupleBearGame" aria-labelledby="coupleBearTitle">
         <div class="couple-bear-heading">
           <span class="couple-bear-sparkle" aria-hidden="true">✦</span>
-          <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bear Hugs</h3><p>Choose how our little bears show their love.</p></div>
+          <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bearfriend</h3><p>Choose how our little bears show their love.</p></div>
           <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
         </div>
         <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears, one brown and one white">
@@ -6066,7 +6066,7 @@ document.addEventListener('change', e => {
   updateStreakGoalProgress();
 });
 
-// Bear Hugs mini-game: action animations sync live with the selected friend; the affection meter stays local.
+// Bearfriend mini-game: action animations sync live with the selected friend; the affection meter stays local.
 const bearLoveStorageKey = 'cuteBunnyBearLove:v1';
 const bearSoundStorageKey = 'cuteBunnyBearSounds:v1';
 function readBearLoveCount() {
@@ -6094,7 +6094,7 @@ function updateBearLoveMeter() {
   }
 }
 
-// Bear Hugs articulated SVG animation engine — embedded in the existing Home experience.
+// Bearfriend articulated SVG animation engine — embedded in the existing Home experience.
 let bearPoseEngine = null;
 function destroyBearPoseEngine() {
   if (bearPoseEngine) {
@@ -6309,7 +6309,7 @@ function startBearRealtime() {
       })
       .subscribe(status => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.warn('Bear Hugs receive channel status:', status);
+          console.warn('Bearfriend receive channel status:', status);
         }
       });
   }
@@ -6321,7 +6321,7 @@ function startBearRealtime() {
     bearRealtimePartnerChannel = sb.channel(partnerTopic, { config: { broadcast: { self: false } } })
       .subscribe(status => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.warn('Bear Hugs send channel status:', status);
+          console.warn('Bearfriend send channel status:', status);
         }
       });
   } else if (!partnerTopic && bearRealtimePartnerChannel) {
@@ -6338,8 +6338,8 @@ function publishBearAction(action) {
     event: 'bear-action',
     payload: { action, userId: String(me.id), gender: me.gender || null, sentAt: Date.now() }
   }).then(status => {
-    if (status !== 'ok') console.warn('Bear Hugs action was not delivered:', status);
-  }).catch(error => console.warn('Bear Hugs action could not be sent:', error?.message || error));
+    if (status !== 'ok') console.warn('Bearfriend action was not delivered:', status);
+  }).catch(error => console.warn('Bearfriend action could not be sent:', error?.message || error));
 }
 function syncBearViewerRole() {
   const scene = $('#coupleBearGame .couple-bears-scene');
@@ -6367,7 +6367,7 @@ function triggerBearAction(action, options = {}) {
   document.querySelectorAll('#coupleBearGame [data-couple-action]').forEach(button => {
     button.setAttribute('aria-pressed', String(button.dataset.coupleAction === action));
   });
-  // Shared Bear Hugs points are awarded by the progression module
+  // Shared Bearfriend points are awarded by the progression module
   // only after an action is successfully delivered to the accepted partner.
   updateBearLoveMeter();
   if (!options.remote) publishBearAction(action);

@@ -14981,3 +14981,8 @@ body[data-mode="dark"] .sg-milestone.sg-special-bloom .sg-milestone-art,
 body[data-mode="dark"] .sg-milestone.sg-special-heart .sg-milestone-art{background:radial-gradient(circle,#66536b 0%,#493d50 68%,transparent 100%)}
 body[data-mode="dark"] .sg-milestone.sg-special-bloom .sg-milestone-copy b,
 body[data-mode="dark"] .sg-milestone.sg-special-heart .sg-milestone-copy b{color:#fff0fa}
+
+/* Failed Notes sends stay visible and retryable without looking like a success state. */
+.memory-send-failed{background:#fff0f2ed!important;color:#9b4058!important;border-color:#f0c5d0!important}
+.memory-send-failed button{border:0;background:transparent;color:inherit;font:inherit;font-weight:1000;text-decoration:underline;padding:0 0 0 3px;cursor:pointer}
+body[data-mode="dark"] .memory-send-failed{background:#492f3aed!important;color:#ffd9e1!important;border-color:#805365!important}

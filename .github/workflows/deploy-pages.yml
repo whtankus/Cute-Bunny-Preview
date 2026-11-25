@@ -54,6 +54,7 @@ jobs:
           config = 'window.CUTE_BUNNY_CONFIG = ' + json.dumps({'supabaseUrl': url, 'supabaseAnonKey': key}) + ';\n'
           pathlib.Path('_site/supabase-config.js').write_text(config, encoding='utf-8')
           pathlib.Path('_site/.nojekyll').touch()
+          PY
       - name: Verify published app assets
         run: |
           node <<'NODE'
@@ -72,7 +73,6 @@ jobs:
           }
           console.log('Verified ' + assets.length + ' local app assets in _site/.');
           NODE
-          PY
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

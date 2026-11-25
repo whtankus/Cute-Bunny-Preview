@@ -66,7 +66,6 @@ let lastAutonomousBearAction = '';
 let lastBearActivityAt = Date.now();
 let bearsAreAsleep = false;
 let bearAtmosphereTimer = null;
-let bearMoments = [];
 
 function getPoints() {
   return Math.max(0, Number(sharedPoints) || 0);
@@ -286,34 +285,6 @@ function ensureLivingScene(scene) {
   }
 
 }
-function getBearMomentsKey() {
-  return 'cuteBunnyBearMoments:v1:' + (sharedProgressPairKey || 'unpaired');
-}
-function loadBearMoments() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(getBearMomentsKey()) || '[]');
-    bearMoments = Array.isArray(saved) ? saved.slice(0, 20) : [];
-  } catch { bearMoments = []; }
-}
-function saveBearMoments() {
-  try { localStorage.setItem(getBearMomentsKey(), JSON.stringify(bearMoments.slice(0, 20))); } catch {}
-}
-function renderBearMoments() {
-  if (!bearMoments.length) return '<section class="bear-moments"><div><b>Our little memories</b><small>Delivered moments saved on this device</small></div><p>Your first little memory will appear here. ♡</p></section>';
-  const labels = {hug:'A warm hug',kiss:'A sweet kiss',flykiss:'A flying kiss',hands:'Holding paws',dance:'A little dance',pet:'A gentle pat',feed:'Strawberry time',sleep:'A sleepy moment',tummy:'Tummy tickles',peekaboo:'Peekaboo',bump:'A tiny head bump',slap:'Playful surprise',idle:'A quiet moment'};
-  return '<section class="bear-moments"><div><b>Our little memories</b><small>Recent moments saved on this device</small></div><div class="bear-moments-list">' + bearMoments.slice(0,6).map(moment => '<article><span>' + esc(labels[moment.action] || 'A little moment') + '</span><button type="button" data-bear-moment-favorite="' + esc(moment.actionId) + '" aria-pressed="' + (moment.favorite ? 'true' : 'false') + '" aria-label="' + (moment.favorite ? 'Remove favorite memory' : 'Favorite memory') + '">' + (moment.favorite ? '♥' : '♡') + '</button></article>').join('') + '</div></section>';
-}
-function recordBearMoment(event) {
-  const detail = event?.detail || {};
-  const action = String(detail.action || '');
-  const actionId = String(detail.actionId || '');
-  if (!action || !actionId || !selectedFriendId || !isAcceptedPartner(selectedFriendId)) return;
-  if (bearMoments.some(moment => moment.actionId === actionId)) return;
-  bearMoments.unshift({ action, actionId, at: Date.now(), favorite: false });
-  bearMoments = bearMoments.slice(0, 20);
-  saveBearMoments();
-  updateUI();
-}
 function updateUI() {
   const root = $('#coupleBearGame');
   if (!root) return;
@@ -367,12 +338,6 @@ function updateUI() {
   if (!panel.dataset.rewardHandler) {
     panel.dataset.rewardHandler = 'true';
     panel.addEventListener('click', event => {
-      const favorite = event.target.closest('[data-bear-moment-favorite]');
-      if (favorite) {
-        const moment = bearMoments.find(item => item.actionId === favorite.dataset.bearMomentFavorite);
-        if (moment) { moment.favorite = !moment.favorite; saveBearMoments(); updateUI(); }
-        return;
-      }
       const button = event.target.closest('[data-bear-equip]');
       if (!button || button.disabled) return;
       button.disabled = true;
@@ -410,7 +375,7 @@ function updateUI() {
   ).join('');
   panel.innerHTML = rewardSummary +
     '<section class="bear-rewards"><div class="bear-rewards-heading"><div><b>Little treasures</b><small>' + unlockedCount + ' of ' + REWARDS.length + ' unlocked · collect them with Care Points</small><div class="bear-reward-progress-pips" role="img" aria-label="' + unlockedCount + ' of ' + REWARDS.length + ' treasures unlocked">' + progressPips + '</div></div><span class="bear-reward-count"><b>' + unlockedCount + '</b><small>OF ' + REWARDS.length + '</small></span></div><div class="bear-rewards-list">' +
-    rewardCards + '</div></section>' + renderBearMoments();
+    rewardCards + '</div></section>';
 
   if (scene) {
     scene.classList.toggle('bear-reward-sunset', equippedRewardIds.includes('sunset-meadow'));
@@ -1094,7 +1059,6 @@ function install() {
   if (window.__cuteBunnyBearHugsFixed) return;
   window.__cuteBunnyBearHugsFixed = true;
   ensurePicker();
-  window.addEventListener('cute-bunny:bear-action', recordBearMoment);
   if (!bearAtmosphereTimer) bearAtmosphereTimer = setInterval(() => ensureLivingScene($('.couple-bears-scene')), 15 * 60 * 1000);
 
   // Delegate from document because the app replaces #content on every render.

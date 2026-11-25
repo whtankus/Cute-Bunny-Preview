@@ -50,14 +50,14 @@ test.after(async () => {
   await new Promise(resolve => server?.close(resolve));
 });
 
-async function newTestPage({ authenticated = false, viewport, seedHistory = false } = {}) {
+async function newTestPage({ authenticated = false, viewport, seedHistory = false, bearfriend = false } = {}) {
   const context = await browser.newContext({
     viewport: viewport || { width: 1280, height: 900 },
     serviceWorkers: 'block'
   });
   contexts.add(context);
   const page = await context.newPage();
-  await page.addInitScript({ content: fixture + `\n;(() => {\n  const authenticated = ${JSON.stringify(authenticated)};\n  const seedHistory = ${JSON.stringify(seedHistory)};\n  if (authenticated) localStorage.setItem('cuteBunnyTestAuth', 'true');\n  if (seedHistory) {\n    const state = window.__cuteBunnyTestState;\n    state.nextMemoryId = 2000;\n    for (let id = 1000; id < 1090; id++) {\n      state.tables.memories.push({ id, owner_id: id % 2 === 0 ? state.friend.id : state.user.id, kind: 'note', text: id === 1000 ? 'An old message with a persistent heart ♡ and a long line that should wrap naturally without wasting available space.' : 'Historical conversation message number ' + id + ' with words of different lengths and an emoji 🌷', created_at: new Date(Date.UTC(2026, 10, 21, 12, 0, 0) - (1090 - id) * 60000).toISOString(), file_name: '', content_type: '', storage_path: '' });\n    }\n    state.tables.memory_likes.push(
+  await page.addInitScript({ content: fixture + `\n;(() => {\n  const authenticated = ${JSON.stringify(authenticated)};\n  const seedHistory = ${JSON.stringify(seedHistory)};\n  const bearfriend = ${JSON.stringify(bearfriend)};\n  if (authenticated) localStorage.setItem('cuteBunnyTestAuth', 'true');\n  if (bearfriend) localStorage.setItem('cuteBunnyBearSelectedFriend:v1', 'friend-test');\n  if (seedHistory) {\n    const state = window.__cuteBunnyTestState;\n    state.nextMemoryId = 2000;\n    for (let id = 1000; id < 1090; id++) {\n      state.tables.memories.push({ id, owner_id: id % 2 === 0 ? state.friend.id : state.user.id, kind: 'note', text: id === 1000 ? 'An old message with a persistent heart ♡ and a long line that should wrap naturally without wasting available space.' : 'Historical conversation message number ' + id + ' with words of different lengths and an emoji 🌷', created_at: new Date(Date.UTC(2026, 10, 21, 12, 0, 0) - (1090 - id) * 60000).toISOString(), file_name: '', content_type: '', storage_path: '' });\n    }\n    state.tables.memory_likes.push(
       { memory_id: 1000, user_id: state.user.id, created_at: new Date().toISOString() },
       { memory_id: 1000, user_id: 'other-test-user', created_at: new Date().toISOString() }
     );

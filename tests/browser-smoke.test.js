@@ -587,3 +587,28 @@ test('Notes keeps an unconfirmed message retryable after network recovery', asyn
     'a confirmed message should no longer show the retry action'
   );
 });
+
+
+test('Notes reconciles a realtime insert with its optimistic message', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatComposer').waitFor({ state: 'visible' });
+  await page.evaluate(() => { window.__cuteBunnyTestState.noteSendEmitRealtimeBeforeReturn = true; });
+  await page.locator('#chatInput').fill('Realtime should not duplicate this note ♡');
+  await page.locator('#chatSend').click();
+
+  await page.waitForFunction(() =>
+    window.__cuteBunnyTestState.tables.memories.some(row => row.text === 'Realtime should not duplicate this note ♡')
+  );
+  await page.waitForTimeout(120);
+  const result = await page.evaluate(() => ({
+    rows: window.__cuteBunnyTestState.tables.memories.filter(row => row.text === 'Realtime should not duplicate this note ♡').length,
+    bubbles: [...document.querySelectorAll('#chatThread .chat-message-text')]
+      .filter(node => node.textContent === 'Realtime should not duplicate this note ♡').length,
+    feedRows: window.__cuteBunnyTestState.calls.filter(call => call.rpc === 'send_note_message').length
+  }));
+  assert.equal(result.rows, 1, 'the database fixture should contain one message');
+  assert.equal(result.bubbles, 1, 'optimistic and realtime delivery should render as one bubble');
+  assert.equal(result.feedRows, 1);
+});

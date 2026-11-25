@@ -4320,6 +4320,7 @@ async function sendChatMessage() {
     isPending: true,
     previewUrl: photoUrls[0] || '',
     previewUrls: photoUrls,
+    groupedPhotos: photoFiles.map((file, index) => ({ id: tempId + '-photo-' + index, previewUrl: photoUrls[index] })),
     author: { ...me, id: me?.id, displayName: me?.displayName || me?.username, mascot: me?.mascot || '🐰' }
   };
 

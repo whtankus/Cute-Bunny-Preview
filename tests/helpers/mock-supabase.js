@@ -22,6 +22,7 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     broadcasts: [],
     presenceTracks: [],
     presenceState: {},
+    bearActionCommitThenFail: false,
     tables: {
       profiles: [me, friend],
       follows: [{ follower_id: me.id, followed_id: friend.id, created_at: now }],
@@ -206,6 +207,10 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
               sender_id: me.id, action_id: actionId, partner_low: progress.partner_low,
               partner_high: progress.partner_high, action, points_after: progress.love_points
             });
+            if (state.bearActionCommitThenFail) {
+              state.bearActionCommitThenFail = false;
+              return { data: null, error: { message: 'Network request failed after commit', status: 0 } };
+            }
             return { data: progress.love_points, error: null };
           }
           if (name === 'set_bear_hug_equipment') {

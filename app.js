@@ -2951,7 +2951,11 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
         </div>
       </div>
       ${seenReceipt}
-      ${m.isPending ? '<span class="memory-upload-status" role="status">Sending your message…</span>' : ''}
+      ${m.isPending
+        ? '<span class="memory-upload-status" role="status">Sending your message…</span>'
+        : m.isFailed
+          ? '<span class="memory-upload-status memory-send-failed" role="status">Not confirmed · <button type="button" data-retry-note="' + esc(m.clientMessageId || '') + '">Retry safely</button></span>'
+          : ''}
     </div>
   `;
 }
@@ -7031,6 +7035,13 @@ document.addEventListener('click', async e => {
     return;
   }
   if (e.target.closest('[data-chat-reply-cancel]')) { replyingToMessageId = null; renderNotesPage(); return; }
+  const retryNote = e.target.closest('[data-retry-note]');
+  if (retryNote) {
+    const clientMessageId = String(retryNote.dataset.retryNote || '');
+    const pendingMessage = feed.find(item => item?.isFailed && item.clientMessageId === clientMessageId);
+    if (pendingMessage) void sendChatMessage(pendingMessage);
+    return;
+  }
   const jumpReply = e.target.closest('[data-chat-jump]');
   if (jumpReply) {
     const target = document.querySelector(`.chat-message[data-memory="${CSS.escape(jumpReply.dataset.chatJump)}"]`);

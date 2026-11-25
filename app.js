@@ -3206,7 +3206,7 @@ function renderNotesPage(options = {}) {
         <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
         <input id="chatPhotoInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
-        <button type="button" class="chat-photo-attach" id="chatPhotoAttach" aria-label="Attach a photo" title="Choose a photo">▧</button>
+        <button type="button" class="chat-photo-attach" id="chatPhotoAttach" aria-label="Attach a photo" title="Choose a photo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9.5" r="1.7" fill="currentColor"/><path d="m5.5 17 5-5 3.2 3 2.4-2.2 2.5 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
         <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
         <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
         <div id="chatPhotoPreview" class="chat-photo-preview" hidden><img id="chatPhotoPreviewImage" alt="Selected photo preview"><span id="chatPhotoPreviewName"></span><button type="button" id="chatPhotoRemove" aria-label="Remove selected photo">×</button></div>
@@ -3988,7 +3988,7 @@ async function openPhotoLightbox(id) {
   const item = feed.find(memory => String(memory.id) === String(id));
   if (!item || !(item.kind === 'photo' || (item.kind === 'note' && (item.storagePath || item.storage_path)))) return;
   const gate = $('#photoLightbox'), image = $('#photoLightboxImage'), deleteButton = $('#photoLightboxDelete'), saveButton = $('#photoLightboxSave');
-  const thumb = [...document.querySelectorAll('.feed-item[data-memory]')].find(node => node.dataset.memory === String(id))?.querySelector('.feed-photo');
+  const thumb = [...document.querySelectorAll('.feed-item[data-memory], .chat-message[data-memory]')].find(node => node.dataset.memory === String(id))?.querySelector('.feed-photo');
   const isOwnPhoto = String(item.author?.id || item.owner_id || '') === String(me?.id || '');
   const canDelete = isOwnPhoto && !item.isPending;
   gate.dataset.memoryId = String(id);

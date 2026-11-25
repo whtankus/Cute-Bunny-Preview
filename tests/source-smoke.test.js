@@ -26,6 +26,7 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.match(styles, /bear-reward-apply:disabled/);
   assert.match(styles, /bear-visual-cap/);
   assert.ok(html.includes('bearfriend-reward-fix-20261125'));
+  assert.ok(html.includes('header-statusbar-blend.css'));
 });
 
 test('Bearfriend shared Care Points do not wait for recipient acknowledgement and level follows points', () => {
@@ -135,12 +136,27 @@ test('offline shell keeps navigation fallback and notification handling', () => 
   assert.match(sw, /self\.addEventListener\(["']fetch["']/);
   assert.match(sw, /cache\.match\(["']\.\/index\.html["']\)/);
   assert.match(sw, /self\.addEventListener\(["']notificationclick["']/);
+  assert.match(sw, /cute-bunny-shell-v400/);
+  assert.match(sw, /polish\.css\?v=bearfriend-rewards-polish-20261125/);
+  assert.match(sw, /bear-hugs-progression\.js\?v=bearfriend-reward-fix-20261125/);
+  assert.match(sw, /header-statusbar-blend\.css/);
+});
+
+test('GitHub Pages copies and validates all local app assets', () => {
+  const workflow = read('.github/workflows/deploy-pages.yml');
+  assert.match(workflow, /cp .*header-statusbar-blend\.css/);
+  assert.match(workflow, /cp .*bear-hugs-progression\.js/);
+  assert.match(workflow, /Verify published app assets/);
+  assert.match(workflow, /GitHub Pages artifact is missing referenced asset/);
 });
 
 test('build script copies the app shell and emits generated configuration', () => {
   const build = read('scripts/build-preview.js');
   for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'sw.js', 'manifest.webmanifest']) {
     assert.ok(build.includes("'" + asset + "'"), 'build asset list must include ' + asset);
+  }
+  for (const asset of ['header-statusbar-blend.css', 'bear-hugs-progression.css', 'bear-hugs-progression.js']) {
+    assert.ok(build.includes("'" + asset + "'"), 'Android bundle must include ' + asset);
   }
   assert.match(build, /SUPABASE_URL/);
   assert.match(build, /SUPABASE_PUBLISHABLE_KEY/);
@@ -254,7 +270,7 @@ test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep 
   assert.match(styles, /bear-reward-icon-art svg/);
   assert.match(styles, /@media\(max-width:520px\)/);
   for (const badge of ['moonlit-orchid', 'crystal-butterfly', 'sunfire-blossom']) {
-    assert.match(polish, new RegExp('item-' + badge + ' \\.sg-collectible-art'));
+    assert.match(polish, new RegExp('item-' + badge + ' \.sg-collectible-art'));
   }
   assert.match(polish, /width:50px;height:50px/);
 });

@@ -302,5 +302,5 @@ test('Notes supports up to three grouped photos with compact previews and 21-day
  const app=read('app.js'), css=read('style.css'), html=read('index.html'), schema=read('supabase/schema.sql');
  assert.match(app,/pendingChatPhotoFiles/); assert.match(app,/photo_group_id/); assert.match(app,/Choose up to three photos/);
  assert.match(app,/multiple hidden/); assert.match(css,/chat-message-photo-wrap\.is-photo-group/);
- assert.match(html,/app\.js\?v=41/); assert.match(schema,/photo_group_id/);
+ assert.match(html,/app\.js\?v=43/); assert.match(schema,/photo_group_id/);
 });

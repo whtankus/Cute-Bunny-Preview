@@ -25,7 +25,7 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.match(bear, /bear-care-milestone/);
   assert.match(styles, /bear-reward-apply:disabled/);
   assert.match(styles, /bear-visual-cap/);
-  assert.ok(html.includes('bear-hugs-living-world-20261124-3'));
+  assert.ok(html.includes('bearfriend-reward-polish-20261125'));
 });
 
 test('Bearfriend shared Care Points do not wait for recipient acknowledgement and level follows points', () => {
@@ -42,7 +42,7 @@ test('Daily quests do not show the use-in-your-message hint', () => {
 test('Bear Hugs uses one fixed level and Care Point-based treasure collection', () => {
   const bear = read('bear-hugs-progression.js');
   const styles = read('bear-hugs-progression.css');
-  assert.ok(bear.includes('<small>BEAR LEVEL</small><b>1</b>'));
+  assert.ok(bear.includes("<small>BEAR LEVEL</small><b>' + bearLevel + '</b>"));
   assert.doesNotMatch(bear, /reward\.level|nextReward\.level/);
   for (const threshold of [100, 350, 1250, 2150, 3050]) {
     assert.ok(bear.includes('unlockPoints: ' + threshold));
@@ -70,7 +70,7 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(bear, /if \(!delivered\) return;/);
   assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, Number\(data\?\.love_points\) \|\| 0\)/);
   assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, Number\(data\) \|\| 0\)/);
-  assert.match(bear, /return acknowledged/);
+  assert.match(bear, /recipient's UI acknowledgement is optional[\\s\\S]*?return true;/);
   assert.match(bear, /lastSharedAction = action/);
   assert.match(bear, /Play immediately and keep every action button available/);
   assert.doesNotMatch(bear.slice(bear.indexOf('async function runLocalAction'), bear.indexOf('function ensureProgressChannel')), /actionInFlight|\.disabled = true|is-sending/);

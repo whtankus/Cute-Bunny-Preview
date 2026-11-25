@@ -142,6 +142,14 @@ test('offline shell keeps navigation fallback and notification handling', () => 
   assert.match(sw, /header-statusbar-blend\.css/);
 });
 
+test('GitHub Pages copies and validates all local app assets', () => {
+  const workflow = read('.github/workflows/deploy-pages.yml');
+  assert.match(workflow, /cp .*header-statusbar-blend\\.css/);
+  assert.match(workflow, /cp .*bear-hugs-progression\\.js/);
+  assert.match(workflow, /Verify published app assets/);
+  assert.match(workflow, /GitHub Pages artifact is missing referenced asset/);
+});
+
 test('build script copies the app shell and emits generated configuration', () => {
   const build = read('scripts/build-preview.js');
   for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'sw.js', 'manifest.webmanifest']) {

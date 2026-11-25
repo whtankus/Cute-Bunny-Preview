@@ -14981,3 +14981,20 @@ body[data-mode="dark"] .sg-milestone.sg-special-bloom .sg-milestone-art,
 body[data-mode="dark"] .sg-milestone.sg-special-heart .sg-milestone-art{background:radial-gradient(circle,#66536b 0%,#493d50 68%,transparent 100%)}
 body[data-mode="dark"] .sg-milestone.sg-special-bloom .sg-milestone-copy b,
 body[data-mode="dark"] .sg-milestone.sg-special-heart .sg-milestone-copy b{color:#fff0fa}
+
+
+/* Notes photo attachment: compact icon, clear preview, and native photo proportions. */
+.chat-composer{position:relative;flex-wrap:wrap}
+.chat-composer .chat-photo-attach{flex:0 0 42px;width:42px;height:44px;min-width:42px;border:1px solid #ead6e2;border-radius:13px;background:#fff3f7;color:#a96787;font-size:1.3rem;line-height:1;cursor:pointer}
+.chat-composer .chat-photo-attach:focus-visible{outline:2px solid #d99ab5;outline-offset:2px}
+.chat-photo-preview{display:flex;align-items:center;gap:9px;flex:1 0 100%;min-width:0;padding:7px 9px;border:1px solid #ecd9e4;border-radius:12px;background:#fff7fa;color:#795c70;font:700 .72rem Nunito,sans-serif}
+.chat-photo-preview[hidden]{display:none}
+.chat-photo-preview img{width:48px;height:48px;object-fit:cover;border-radius:9px}
+.chat-photo-preview span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.chat-photo-preview button{width:28px;height:28px;border:0;border-radius:50%;background:#f8e5ed;color:#925d79;font-size:1.2rem;cursor:pointer}
+.chat-message-photo-wrap{max-width:min(100%,360px);margin:8px 0 2px;overflow:hidden;border-radius:13px;line-height:0}
+.chat-message-photo{display:block;width:100%;max-height:360px;object-fit:cover;border-radius:13px;cursor:zoom-in}
+.chat-message-photo.is-loading{background:linear-gradient(110deg,#f6eaf0 8%,#fff8fb 18%,#f6eaf0 33%);background-size:200% 100%}
+.chat-message .chat-bubble{max-width:min(100%,420px)}
+body[data-mode="dark"] .chat-composer .chat-photo-attach{border-color:#655166;background:#3b3042;color:#f0c9dd}
+body[data-mode="dark"] .chat-photo-preview{border-color:#655166;background:#392f40;color:#e8d5e2}

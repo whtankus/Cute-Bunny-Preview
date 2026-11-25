@@ -15050,3 +15050,77 @@ body[data-mode="dark"] #content .chat-page .chat-composer .chat-photo-attach {
   }
   #content .chat-page .chat-composer textarea { padding-left:51px!important; }
 }
+
+
+/* Notes photo button mirrors the 34px send control and stays out of the way
+   while the mobile keyboard is open. */
+#content .chat-page:not(.notes-keyboard-open) .chat-composer .chat-photo-attach {
+  position:absolute!important;
+  left:8px!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:8px!important;
+  display:grid!important;
+  place-items:center!important;
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  min-height:34px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid #e5cde8!important;
+  border-radius:50%!important;
+  background:linear-gradient(145deg,#fbeaf1 0%,#f0e8fb 100%)!important;
+  color:#a96787!important;
+  font-size:0!important;
+  line-height:1!important;
+  opacity:1!important;
+  visibility:visible!important;
+  transform:none!important;
+  box-shadow:0 2px 6px #9e85b21c!important;
+  cursor:pointer!important;
+  touch-action:manipulation;
+}
+#content .chat-page:not(.notes-keyboard-open) .chat-composer .chat-photo-attach svg {
+  display:block;
+  width:18px;
+  height:18px;
+}
+#content .chat-page:not(.notes-keyboard-open) .chat-composer textarea {
+  padding-left:51px!important;
+}
+#content .chat-page.notes-keyboard-open .chat-composer .chat-photo-attach {
+  display:none!important;
+  visibility:hidden!important;
+}
+#content .chat-page.notes-keyboard-open .chat-composer textarea {
+  padding-left:17px!important;
+}
+body[data-mode="dark"] #content .chat-page:not(.notes-keyboard-open) .chat-composer .chat-photo-attach {
+  border-color:#655166!important;
+  background:linear-gradient(145deg,#4a3548 0%,#393149 100%)!important;
+  color:#f0c9dd!important;
+}
+
+/* Notes photos open in the same soft, zooming viewer as Photo Garden images. */
+@keyframes photo-lightbox-card-enter {
+  from { opacity:0; transform:translateY(13px) scale(.94); }
+  to { opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes photo-lightbox-image-enter {
+  from { opacity:.7; transform:scale(.94); }
+  to { opacity:1; transform:scale(1); }
+}
+#photoLightbox:not(.hidden) .photo-lightbox-card {
+  transform-origin:center;
+  animation:photo-lightbox-card-enter .28s cubic-bezier(.2,.78,.24,1) both;
+}
+#photoLightbox:not(.hidden) .photo-lightbox-card>img {
+  animation:photo-lightbox-image-enter .34s cubic-bezier(.2,.78,.24,1) both;
+}
+@media(prefers-reduced-motion:reduce) {
+  #photoLightbox:not(.hidden) .photo-lightbox-card,
+  #photoLightbox:not(.hidden) .photo-lightbox-card>img {
+    animation:none!important;
+  }
+}

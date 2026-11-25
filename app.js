@@ -3231,7 +3231,7 @@ function renderNotesPage(options = {}) {
 function achievementGardenMarkup(items) {
   const stats = {
     memories: items.length,
-    photos: items.filter(item => item.kind === 'photo').length,
+    photos: items.filter(item => item.kind === 'photo' || (item.kind === 'note' && (item.storagePath || item.storage_path))).length,
     notes: items.filter(item => item.kind === 'note').length,
     songs: items.filter(item => item.kind === 'song').length,
     streak: Math.max(0, Number(me?.login_streak) || 0),
@@ -3530,7 +3530,7 @@ function showFriendProfile(user) {
   if (badgesPanel) badgesPanel.hidden = false;
   {
     const profileFeed = isOwnProfile ? (Array.isArray(feed) ? feed : []) : [];
-    const photosPublic = Number(user.photo_count ?? user.photos_count ?? 0) || profileFeed.filter(item => item.kind === 'photo').length;
+    const photosPublic = Number(user.photo_count ?? user.photos_count ?? 0) || profileFeed.filter(item => item.kind === 'photo' || (item.kind === 'note' && item.storagePath)).length;
     const notesPublic = Number(user.note_count ?? user.notes_count ?? 0) || profileFeed.filter(item => item.kind === 'note').length;
     const songsPublic = Number(user.song_count ?? user.songs_count ?? 0) || profileFeed.filter(item => item.kind === 'song').length;
     const petalsPublic = isOwnProfile && typeof petalRewardBalance === 'function' ? petalRewardBalance() : Number(user.petals ?? user.petal_points ?? 0);
@@ -3538,7 +3538,7 @@ function showFriendProfile(user) {
   }
   {
     const ownFeed = isOwnProfile && Array.isArray(feed) ? feed : [];
-    const photos = isOwnProfile ? ownFeed.filter(item => item.kind === 'photo').length : Number(user.photo_count ?? user.photos_count ?? 0);
+    const photos = isOwnProfile ? ownFeed.filter(item => item.kind === 'photo' || (item.kind === 'note' && item.storagePath)).length : Number(user.photo_count ?? user.photos_count ?? 0);
     const notes = isOwnProfile ? ownFeed.filter(item => item.kind === 'note').length : Number(user.note_count ?? user.notes_count ?? 0);
     const songs = isOwnProfile ? ownFeed.filter(item => item.kind === 'song').length : Number(user.song_count ?? user.songs_count ?? 0);
     if (isOwnProfile) {
@@ -4269,7 +4269,7 @@ async function downloadMemoryById(id, button) {
     const { data, error } = await sb.storage.from('memories').download(item.storagePath);
     if (error) throw error;
     const url = URL.createObjectURL(data), link = document.createElement('a');
-    const fallback = item.kind === 'photo' ? 'cute-bunny-photo.jpg' : 'cute-bunny-song';
+    const fallback = item.kind === 'song' ? 'cute-bunny-song' : 'cute-bunny-photo.jpg';
     link.href = url;
     link.download = String(item.fileName || fallback).replace(/[\/:*?"<>|]/g, '_');
     document.body.append(link);
@@ -5958,7 +5958,7 @@ async function resolveMediaSource(memory) {
 }
 
 async function prewarmPhotoSources(items, concurrency = 4) {
-  const queue = (items || []).filter(item => item?.kind === 'photo' && item.storagePath && !item.isPending);
+  const queue = (items || []).filter(item => (item?.kind === 'photo' || (item?.kind === 'note' && item.storagePath)) && item.storagePath && !item.isPending);
   if (!queue.length || !sb) return;
   let next = 0;
   const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
@@ -6537,7 +6537,7 @@ document.addEventListener('selectstart', e => {
 // Notes message gestures: button press feedback, tap to like, hold for Copy/Delete.
 document.addEventListener('pointerdown', e => {
   const bubble = e.target.closest('.chat-page .chat-bubble, .home-note-memory .chat-bubble');
-  if (!bubble || e.target.closest('button, .chat-actions-popup') || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  if (!bubble || e.target.closest('.feed-photo, button, .chat-actions-popup') || (e.pointerType === 'mouse' && e.button !== 0)) return;
 
   clearTimeout(messagePressState.timer);
   clearTimeout(messagePressState.suppressTimer);

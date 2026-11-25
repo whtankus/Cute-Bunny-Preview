@@ -4296,6 +4296,7 @@ async function sendChatMessage() {
   const photoFile = pendingChatPhotoFile;
   if (!text && !photoFile) return;
   const replyId = replyingToMessageId;
+  const keepKeyboardOpen = document.activeElement === field && document.body.classList.contains('notes-keyboard-open');
   const tempId = 'local-note-' + Date.now();
   const createdAt = new Date().toISOString();
   const optimistic = {
@@ -4330,7 +4331,8 @@ async function sendChatMessage() {
     syncChatComposerState(nextField);
     syncNotesKeyboardLayout();
   };
-  refocusComposer();
+  if (keepKeyboardOpen) refocusComposer();
+  else syncNotesKeyboardLayout();
 
   try {
     let saved;
@@ -4343,19 +4345,22 @@ async function sendChatMessage() {
         .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at').single();
       if (result.error) throw result.error; saved = result.data;
     }
-    recordStreakNoteQuest(text);
+    if (text) recordStreakNoteQuest(text);
+    if (photoFile) recordStreakDailyQuest('photo', photoFile.name);
     void loadKindnessEventStatus();
     if (replyingToMessageId === replyId) replyingToMessageId = null;
     const record = { ...saved, createdAt: saved.created_at, storagePath: saved.storage_path || '', fileName: saved.file_name || '', contentType: saved.content_type || '', author: optimistic.author };
     feed = feed.map(m => String(m.id) === tempId ? record : m);
     renderNotesPage({ followLatest: true });
-    refocusComposer();
+    if (keepKeyboardOpen) refocusComposer();
+    else syncNotesKeyboardLayout();
   } catch (error) {
     feed = feed.filter(m => String(m.id) !== tempId);
     if (replyId) replyingToMessageId = replyId;
     if (photoFile) { pendingChatPhotoFile = photoFile; pendingChatPhotoUrl = URL.createObjectURL(photoFile); syncChatPhotoPreview(); }
     renderNotesPage({ followLatest: true });
-    refocusComposer(true);
+    if (keepKeyboardOpen) refocusComposer(true);
+    else syncNotesKeyboardLayout();
     toast(error.message);
   }
 }
@@ -7590,7 +7595,11 @@ function isTouchNotesViewport() {
 }
 
 document.addEventListener('click', event => {
-  if (event.target.closest('#chatPhotoAttach')) { $('#chatPhotoInput')?.click(); return; }
+  if (event.target.closest('#chatPhotoAttach')) {
+    const input = $('#chatPhotoInput');
+    if (input) { input.value = ''; input.click(); }
+    return;
+  }
   if (event.target.closest('#chatPhotoRemove')) { pendingChatPhotoFile = null; if (pendingChatPhotoUrl) URL.revokeObjectURL(pendingChatPhotoUrl); pendingChatPhotoUrl = ''; syncChatPhotoPreview(); return; }
 });
 document.addEventListener('change', event => {

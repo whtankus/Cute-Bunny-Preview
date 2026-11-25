@@ -2759,7 +2759,7 @@ function go(p, options = {}) {
   // page's document scroll position.
   window.scrollTo({ top: 0, behavior: 'auto' });
   render({ followLatest: p === 'notes' && previousPage === 'notes' });
-  if (p === 'gallery' && !mediaInitialLoaded.photo) void loadLatestMedia('photo');
+  if (p === 'gallery') void loadLatestMedia('photo');
   else if (p === 'music' && !mediaInitialLoaded.song) void loadLatestMedia('song');
   syncPresenceUI();
   void updateMyPresencePage();

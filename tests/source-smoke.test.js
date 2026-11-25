@@ -278,3 +278,22 @@ test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep 
   }
   assert.match(polish, /width:50px;height:50px/);
 });
+
+
+test('14-day retention deletes only chat notes and photos, preserving songs and lifetime hearts', () => {
+  const cleanup = read('supabase/functions/cleanup-expired-memories/index.ts');
+  const migration = read('supabase/migrations/20261125150000_add_chat_photo_retention_index.sql');
+  const schedule = read('supabase/retention-setup.sql');
+  const docs = read('docs/MEMORY_RETENTION.md');
+  assert.match(cleanup, /const RETENTION_DAYS = 14/);
+  assert.match(cleanup, /\.in\("kind", \["note", "photo"\]\)/);
+  assert.match(cleanup, /\.lt\("created_at", cutoff\)/);
+  assert.match(cleanup, /admin\.storage[\s\S]*?\.remove\(/);
+  assert.match(cleanup, /songsDeleted: 0/);
+  assert.match(cleanup, /heartTotalsChanged: false/);
+  assert.doesNotMatch(cleanup, /from\("profile_heart_totals"\)/);
+  assert.match(migration, /where kind in \('note', 'photo'\)/);
+  assert.match(schedule, /cleanup-expired-chat-photo-memories/);
+  assert.match(docs, /Songs .*never selected or deleted/);
+  assert.match(docs, /profile_heart_totals/);
+});

@@ -195,3 +195,119 @@ body[data-mode="dark"] :is(button,a,input,textarea,select,[role="button"]):focus
 @media (prefers-reduced-motion: reduce) {
   body #nav button, body #content .primary { transition:none!important; }
 }
+
+
+/* Screen-level pass: carry the same semantic palette into the actual page
+   components while leaving collectible art, bear fur and user wallpapers intact. */
+body[data-mode="light"] { color-scheme:light; }
+body[data-mode="dark"] { color-scheme:dark; }
+body[data-theme] #content .home-hero {
+  border-color:color-mix(in srgb,var(--cb-accent) 18%,white);
+  background:
+    radial-gradient(circle at 92% 14%,rgba(255,255,255,.68) 0 3px,transparent 4px),
+    linear-gradient(118deg,
+      color-mix(in srgb,var(--cb-accent-soft) 86%,white),
+      color-mix(in srgb,var(--cb-surface-soft) 78%,white) 62%,
+      color-mix(in srgb,var(--cb-accent-soft) 48%,#fff3df));
+  box-shadow:0 10px 25px rgba(var(--cb-shadow-color),.10),inset 0 1px 0 rgba(255,255,255,.8);
+}
+body[data-theme] #content .home-hero h3 { color:var(--cb-text); }
+body[data-theme] #content .home-hero p { color:var(--cb-text-soft); }
+body[data-theme] #content .home-hero small { color:var(--cb-accent-strong); }
+body[data-theme] #content .couple-bear-game {
+  border-color:color-mix(in srgb,var(--cb-accent) 26%,var(--cb-border));
+  background:
+    radial-gradient(ellipse at 14% 10%,color-mix(in srgb,var(--cb-accent-soft) 82%,transparent),transparent 44%),
+    radial-gradient(ellipse at 88% 92%,color-mix(in srgb,var(--cb-surface-soft) 84%,transparent),transparent 44%),
+    var(--cb-surface-soft);
+  box-shadow:0 9px 26px rgba(var(--cb-shadow-color),.09);
+}
+body[data-theme] #content .couple-bears-scene {
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--cb-surface) 72%,transparent),
+    color-mix(in srgb,var(--cb-accent-soft) 74%,transparent));
+}
+body[data-theme] #content .couple-bear-heading .couple-bear-sparkle,
+body[data-theme] #content .bear-hand-link,
+body[data-theme] #content .bear-kiss-heart { color:var(--cb-accent); }
+body[data-theme] #content .bear-name {
+  background:color-mix(in srgb,var(--cb-surface) 90%,transparent);
+  color:var(--cb-text-soft);
+  border:1px solid color-mix(in srgb,var(--cb-border) 80%,transparent);
+}
+body[data-theme] #content .bear-action-button {
+  border-color:var(--cb-border);
+  background:var(--cb-surface);
+  color:var(--cb-text);
+  box-shadow:0 3px 0 color-mix(in srgb,var(--cb-accent) 18%,var(--cb-border));
+}
+body[data-theme] #content .bear-action-button[aria-pressed="true"] {
+  border-color:color-mix(in srgb,var(--cb-accent) 52%,var(--cb-border));
+  background:var(--cb-accent-soft);
+  color:var(--cb-accent-strong);
+  box-shadow:0 3px 0 color-mix(in srgb,var(--cb-accent) 32%,var(--cb-border));
+}
+body[data-theme] #content .bear-love-track {
+  background:color-mix(in srgb,var(--cb-accent) 15%,var(--cb-surface));
+}
+body[data-theme] #content .bear-love-track>span {
+  background:linear-gradient(90deg,var(--cb-accent),var(--cb-accent-strong));
+}
+body[data-theme] #content .friend-search-input-wrap,
+body[data-theme] #content .friend-row,
+body[data-theme] #content .friend-profile-card:not([data-wallpaper]) {
+  color:var(--cb-text);
+  background:var(--cb-surface);
+  border-color:var(--cb-border);
+}
+body[data-theme] #content .friend-row :is(h2,h3,strong,b),
+body[data-theme] #content .friend-section-title h3 { color:var(--cb-text); }
+body[data-theme] #content .friend-row :is(p,small,.muted),
+body[data-theme] #content .friend-row .friend-profile-bio { color:var(--cb-text-soft); }
+body[data-theme] #content .upload-label {
+  color:#fff;
+  background:linear-gradient(135deg,var(--cb-accent),var(--cb-accent-strong));
+  border-color:color-mix(in srgb,var(--cb-accent) 35%,white);
+}
+body[data-theme] #content .chat-page,
+body[data-theme] #content .chat-composer {
+  border-color:var(--cb-border);
+  background:var(--cb-surface);
+}
+body[data-theme] #content .chat-composer { border-top-color:var(--cb-border); }
+body[data-theme] #content .chat-composer .input {
+  color:var(--cb-text);
+  background:var(--cb-control);
+  border-color:var(--cb-border);
+}
+body[data-mode="dark"] #content .home-hero {
+  border-color:var(--cb-border);
+  background:linear-gradient(120deg,#3b2c3d,#342d43 62%,#403442);
+  box-shadow:0 10px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.04);
+}
+body[data-mode="dark"] #content .couple-bear-game {
+  background:
+    radial-gradient(ellipse at 14% 10%,rgba(210,142,174,.12),transparent 44%),
+    radial-gradient(ellipse at 88% 92%,rgba(157,135,190,.13),transparent 44%),
+    var(--cb-surface);
+  border-color:var(--cb-border);
+}
+body[data-mode="dark"] #content .couple-bears-scene {
+  background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(210,142,174,.075));
+}
+body[data-mode="dark"] #content .bear-name {
+  color:#f2e7f0;
+  background:rgba(48,40,56,.94);
+  border-color:var(--cb-border);
+}
+body[data-mode="dark"] #content .friend-search-input-wrap,
+body[data-mode="dark"] #content .friend-row {
+  color:var(--cb-text);
+  background:var(--cb-surface);
+  border-color:var(--cb-border);
+}
+body[data-mode="dark"] #content .upload-label {
+  color:#241f2a;
+  background:linear-gradient(135deg,#d28eae,#efbfd3);
+  border-color:#efbfd3;
+}

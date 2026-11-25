@@ -15248,3 +15248,72 @@ body[data-mode="dark"] #content .chat-page:not(.notes-keyboard-open) .chat-compo
 @media(max-width:480px) {
   #content .chat-page .chat-composer .chat-photo-attach {margin-bottom:6px!important}
 }
+
+/* Final Notes composer geometry: prevent textarea overlap with send/photo controls. */
+#content .chat-page .chat-composer {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 38px 38px!important;
+  grid-template-rows:auto auto!important;
+  align-items:end!important;
+  column-gap:8px!important;
+  row-gap:0!important;
+  width:100%!important;
+}
+#content .chat-page .chat-composer #chatInput {
+  grid-column:1!important;
+  grid-row:1!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  padding-left:14px!important;
+  padding-right:10px!important;
+}
+#content .chat-page .chat-composer #chatSend {
+  grid-column:2!important;
+  grid-row:1!important;
+  position:relative!important;
+  inset:auto!important;
+  width:38px!important;
+  min-width:38px!important;
+  max-width:38px!important;
+  height:38px!important;
+  margin:0 0 6px!important;
+  z-index:4!important;
+}
+#content .chat-page .chat-composer .chat-photo-attach {
+  grid-column:3!important;
+  grid-row:1!important;
+  position:relative!important;
+  inset:auto!important;
+  width:38px!important;
+  min-width:38px!important;
+  max-width:38px!important;
+  height:38px!important;
+  margin:0 0 6px!important;
+  z-index:4!important;
+  transform:none!important;
+}
+#content .chat-page .chat-composer #chatPhotoInput,
+#content .chat-page .chat-composer #chatReplyingTo,
+#content .chat-page .chat-composer #chatSeenStatus {grid-column:1 / -1}
+#content .chat-page .chat-composer #chatPhotoInput[hidden],
+#content .chat-page .chat-composer #chatSend[hidden] {display:none!important}
+#content .chat-page .chat-composer:has(#chatSend[hidden]) {
+  grid-template-columns:minmax(0,1fr) 38px!important;
+}
+#content .chat-page .chat-composer:has(#chatSend[hidden]) .chat-photo-attach {
+  grid-column:2!important;
+}
+#content .chat-page.notes-keyboard-open .chat-composer .chat-photo-attach {
+  display:grid!important;
+  visibility:visible!important;
+}
+#content .chat-page.notes-keyboard-open .chat-composer #chatInput {
+  padding-left:14px!important;
+}
+#content .chat-page .chat-photo-thumb {overflow:visible!important}
+#content .chat-page .chat-photo-thumb button {
+  top:-7px!important;right:-7px!important;left:auto!important;z-index:8!important;
+}

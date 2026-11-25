@@ -403,6 +403,7 @@ test('Bearfriend Care Points are idempotent, realtime-synced, and reward equipme
     'the initial Care Point total should produce the expected Bear Level'
   );
 
+  await page.evaluate(() => { window.__cuteBunnyTestState.bearActionCommitThenFail = true; });
   await page.locator('.bear-action-button[data-couple-action="hug"]').click();
   await page.waitForFunction(() =>
     document.querySelector('#bearCarePointsStrip .bear-care-total b')?.textContent.trim() === '350'
@@ -412,6 +413,7 @@ test('Bearfriend Care Points are idempotent, realtime-synced, and reward equipme
     const state = window.__cuteBunnyTestState;
     return {
       rpc: state.calls.find(call => call.rpc === 'record_bear_hug_action'),
+      rpcCalls: state.calls.filter(call => call.rpc === 'record_bear_hug_action'),
       progress: state.tables.bear_partner_progress[0],
       receiptCount: state.tables.bear_hug_action_receipts.length
     };
@@ -421,6 +423,9 @@ test('Bearfriend Care Points are idempotent, realtime-synced, and reward equipme
   assert.match(firstAction.rpc.args.p_action_id, /^[0-9a-f-]{36}$/i);
   assert.equal(firstAction.progress.love_points, 350);
   assert.equal(firstAction.receiptCount, 1);
+  assert.equal(firstAction.rpcCalls.length, 2, 'a lost response after commit should trigger one retry');
+  assert.equal(firstAction.rpcCalls[0].args.p_action_id, firstAction.rpcCalls[1].args.p_action_id,
+    'every retry must reuse the original action UUID');
 
   const retry = await page.evaluate(async args =>
     window.supabase.createClient().rpc('record_bear_hug_action', args), firstAction.rpc.args

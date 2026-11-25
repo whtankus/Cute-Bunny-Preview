@@ -29,6 +29,7 @@ test('production build emits a complete app bundle with generated public config'
       'app.js',
       'style.css',
       'polish.css',
+      'ui-color-system.css',
       'header-statusbar-blend.css',
       'button-interactions.css',
       'swipe-gestures.css',

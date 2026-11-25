@@ -15137,5 +15137,15 @@ body[data-mode="dark"] #content .chat-page:not(.notes-keyboard-open) .chat-compo
 .chat-message-photo-wrap.is-photo-group .chat-message-photo.is-loading{background:#f5edf1}
 
 /* The attach control yields to the send control once a draft exists. */
-#content .chat-page .chat-composer.has-message .chat-photo-attach{display:none!important;visibility:hidden!important}
+
 .chat-message-photo{border:0!important;animation:none!important;transition:none!important}
+
+/* Notes composer: photo picker stays at the right; previews sit above the bar. */
+#content .chat-page .chat-composer{flex-wrap:nowrap;align-items:flex-end}
+#content .chat-page .chat-composer .chat-photo-attach{order:3;align-self:stretch;flex:0 0 42px;width:42px;height:44px;min-width:42px}
+#content .chat-page .chat-composer #chatInput{order:1;flex:1 1 0}
+#content .chat-page .chat-composer #chatSend{order:2}
+#content .chat-page .chat-photo-preview{display:flex;position:relative;flex:0 0 auto;align-items:flex-start;justify-content:flex-start;gap:7px;width:100%;min-height:0;margin:0 0 7px;padding:4px 0 0;border:0;border-radius:0;background:transparent;box-shadow:none}
+#content .chat-page .chat-photo-preview[hidden]{display:none}
+#content .chat-page .chat-photo-thumb img{width:58px;height:58px;object-fit:cover;border-radius:9px}
+#content .chat-page .chat-photo-thumb button{top:-5px;right:-5px}

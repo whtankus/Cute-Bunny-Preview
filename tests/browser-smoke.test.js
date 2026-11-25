@@ -441,7 +441,7 @@ test('PWA installs its complete shell and reloads offline', async () => {
 
     const cached = await page.evaluate(async () => {
       const names = await caches.keys();
-      const shell = names.find(name => name === 'cute-bunny-shell-v402');
+      const shell = names.find(name => name === 'cute-bunny-shell-v407');
       if (!shell) return { names, shell: false, assets: [] };
       const cache = await caches.open(shell);
       const requests = await cache.keys();

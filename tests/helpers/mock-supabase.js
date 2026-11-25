@@ -24,6 +24,7 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     presenceState: {},
     bearActionCommitThenFail: false,
     noteSendCommitThenFail: false,
+    noteSendAlwaysFail: false,
     tables: {
       profiles: [me, friend],
       follows: [{ follower_id: me.id, followed_id: friend.id, created_at: now }],
@@ -165,6 +166,9 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
           if (name === 'send_note_message') {
             const clientId = String(args.p_client_message_id || '');
             const messageText = String(args.p_text || '').trim();
+            if (state.noteSendAlwaysFail) {
+              return { data: null, error: { message: 'Network request failed', status: 0 } };
+            }
             let message = state.tables.memories.find(row =>
               row.owner_id === me.id && row.client_message_id === clientId
             );

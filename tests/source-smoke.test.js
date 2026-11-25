@@ -140,7 +140,7 @@ test('offline shell keeps navigation fallback and notification handling', () => 
   assert.match(sw, /self\.addEventListener\(["']fetch["']/);
   assert.match(sw, /cache\.match\(["']\.\/index\.html["']\)/);
   assert.match(sw, /self\.addEventListener\(["']notificationclick["']/);
-  assert.match(sw, /cute-bunny-shell-v404/);
+  assert.match(sw, /cute-bunny-shell-v406/);
   assert.match(sw, /polish\.css\?v=bearfriend-rewards-polish-20261125/);
   assert.match(sw, /bear-hugs-progression\.js\?v=bearfriend-reward-fix-20261125/);
   assert.match(sw, /header-statusbar-blend\.css/);
@@ -297,6 +297,19 @@ test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep 
   assert.match(polish, /width:50px;height:50px/);
 });
 
+
+test('Notes photo composer keeps picker on the right, remove controls on thumbnails, and sent photos hydrated', () => {
+ const app=read('app.js'), css=read('style.css');
+ const preview=app.indexOf('id="chatPhotoPreview"');
+ const composer=app.indexOf('id="chatComposer"', preview);
+ assert.ok(preview >= 0 && composer > preview, 'photo previews must sit above the composer');
+ assert.match(app,/const newestFirstPics = allPics\.slice\(\)\.sort/);
+ assert.match(app,/groupedPhotos: uploaded\.map\(item => \(\{ \.\.\.item \}\)\)/);
+ assert.match(app,/photoUrls\.forEach\(url => URL\.revokeObjectURL\(url\)\);\s*if \(keepKeyboardOpen\)/);
+ assert.match(css,/\.chat-photo-attach\s*\{\s*position:relative!important;\s*inset:auto!important/);
+ assert.match(css,/\.chat-photo-thumb button\s*\{[\s\S]*?right:-7px!important/);
+ assert.match(css,/\.notes-keyboard-open \.chat-composer \.chat-photo-attach\s*\{\s*display:grid!important/);
+});
 
 test('Notes supports up to three grouped photos with compact previews and 21-day retention schema', () => {
  const app=read('app.js'), css=read('style.css'), html=read('index.html'), schema=read('supabase/schema.sql');

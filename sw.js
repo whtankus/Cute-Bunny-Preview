@@ -1,14 +1,15 @@
-const CACHE_NAME = "cute-bunny-shell-v402";
+const CACHE_NAME = "cute-bunny-shell-v403";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=notes-photo-icon-visible-20261125",
+  "./style.css?v=notes-photo-composer-20261125-1",
   "./polish.css?v=bearfriend-rewards-polish-20261125",
+  "./ui-color-system.css?v=20261125-1",
   "./header-statusbar-blend.css?v=20261120-1",
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=39",
+  "./app.js?v=40",
   "./bear-hugs-progression.css?v=bearfriend-reward-fix-20261125",
   "./bear-hugs-progression.js?v=bearfriend-reward-fix-20261125",
   "./manifest.webmanifest",
@@ -22,6 +23,7 @@ const SHELL_FILES = new Set([
   "index.html",
   "style.css",
   "polish.css",
+  "ui-color-system.css",
   "header-statusbar-blend.css",
   "button-interactions.css",
   "swipe-gestures.css",

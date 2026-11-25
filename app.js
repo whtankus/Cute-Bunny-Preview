@@ -2969,7 +2969,10 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
 
 function memoryCard(m, options = {}) {
   const ownerId = String(m.author?.id || m.owner_id || '');
-  const owner = m.author || [me, ...friends].find(user => String(user?.id || '') === ownerId) || {};
+  const knownOwner = [me, ...friends].find(user => String(user?.id || '') === ownerId);
+  const owner = (m.author && (m.author.displayName || m.author.display_name || m.author.username))
+    ? m.author
+    : knownOwner || m.author || {};
   const name = esc(owner.displayName || owner.display_name || owner.username || (ownerId && ownerId === String(me?.id || '') ? 'You' : 'Friend'));
   const handle = esc(owner.username || '');
   const pet = esc(owner.mascot || '🐰');

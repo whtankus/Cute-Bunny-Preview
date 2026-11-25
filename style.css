@@ -14998,3 +14998,55 @@ body[data-mode="dark"] .sg-milestone.sg-special-heart .sg-milestone-copy b{color
 .chat-message .chat-bubble{max-width:min(100%,420px)}
 body[data-mode="dark"] .chat-composer .chat-photo-attach{border-color:#655166;background:#3b3042;color:#f0c9dd}
 body[data-mode="dark"] .chat-photo-preview{border-color:#655166;background:#392f40;color:#e8d5e2}
+
+
+/* Fix: keep the Notes photo picker visible inside the writing bar. */
+#content .chat-page .chat-composer {
+  position:relative!important;
+}
+#content .chat-page .chat-composer .chat-photo-attach {
+  position:absolute!important;
+  z-index:3!important;
+  left:9px!important;
+  top:50%!important;
+  display:grid!important;
+  place-items:center!important;
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid #ead6e2!important;
+  border-radius:50%!important;
+  background:#fff3f7!important;
+  color:#a96787!important;
+  font-size:1.25rem!important;
+  line-height:1!important;
+  opacity:1!important;
+  visibility:visible!important;
+  transform:translateY(-50%)!important;
+  cursor:pointer!important;
+}
+#content .chat-page .chat-composer textarea {
+  padding-left:55px!important;
+}
+body[data-mode="dark"] #content .chat-page .chat-composer .chat-photo-attach {
+  border-color:#655166!important;
+  background:#3b3042!important;
+  color:#f0c9dd!important;
+}
+#content .chat-page .chat-composer .chat-photo-attach:focus-visible {
+  outline:2px solid #d99ab5!important;
+  outline-offset:2px!important;
+}
+@media(max-width:480px) {
+  #content .chat-page .chat-composer .chat-photo-attach {
+    left:8px!important;
+    width:34px!important;
+    height:34px!important;
+    min-width:34px!important;
+    min-height:34px!important;
+  }
+  #content .chat-page .chat-composer textarea { padding-left:51px!important; }
+}

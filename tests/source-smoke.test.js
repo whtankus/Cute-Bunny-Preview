@@ -318,7 +318,7 @@ test('Notes supports up to three grouped photos with compact previews and 21-day
 test('Notes photo dock keeps picker at right, lifts previews with keyboard, and opens shared photos on one tap', () => {
   const css = read('style.css');
   const app = read('app.js');
-  assert.match(css, /notes-dock-right-preview-keyboard-20261125/);
+  assert.match(css, /Notes mobile dock: identical right-side control slot/);
   assert.match(css, /#chatPhotoPreview\[hidden\]/);
   assert.match(css, /notes-keyboard-open #content \.chat-page #chatPhotoPreview/);
   assert.match(css, /\.chat-composer:has\(#chatSend\[hidden\]\) \.chat-photo-attach/);

@@ -154,6 +154,18 @@ test('Notes can send a photo with or without a caption and show it in Photos', a
   assert.match(saved.storage_path, /^user-ankush-test\\//);
   await page.locator('#nav button[data-page="gallery"]').click();
   await page.locator('.photo-garden-grid .feed-photo[data-media="' + saved.id + '"]').waitFor({ state: 'visible' });
+
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatPhotoAttach').click();
+  await page.locator('#chatPhotoInput').setInputFiles({ name: 'notes-photo-only.png', mimeType: 'image/png', buffer: image });
+  await page.locator('#chatPhotoPreview').waitFor({ state: 'visible' });
+  await page.locator('#chatSend').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.some(row => row.file_name === 'notes-photo-only.png'));
+  const photoOnly = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.file_name === 'notes-photo-only.png'));
+  assert.equal(photoOnly.kind, 'note');
+  assert.equal(photoOnly.text, '', 'a photo can be sent without a caption');
+  await page.locator('#nav button[data-page="gallery"]').click();
+  await page.locator('.photo-garden-grid .feed-photo[data-media="' + photoOnly.id + '"]').waitFor({ state: 'visible' });
 });
 
 test('opening Notes records a seen receipt for a visible friend message', async () => {

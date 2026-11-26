@@ -5,6 +5,7 @@
 - [x] Extract DOM query and HTML escaping helpers to `src/core/dom.js`.
 - [x] Extract Supabase client construction to `src/services/supabase-client.js`.
 - [x] Extract image upload optimization to `src/services/media-optimizer.js`.
+- [x] Move Supabase-backed data access into `src/services/api.js` with injected app dependencies.
 - [x] Extract shared visual tokens to `src/styles/tokens.css`.
 - [x] Move Notes composer submit and desktop Enter handling to `src/features/notes/chat-events.js`.
 - [x] Update browser loading, GitHub Pages publishing, production build and service-worker precache for nested source paths.

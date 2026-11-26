@@ -25,8 +25,21 @@ create table if not exists public.memories (
   file_name text not null default '',
   content_type text not null default '',
   storage_path text not null default '',
+  photo_group_id uuid,
+  client_message_id uuid,
+  client_photo_id uuid,
+  chat_message_id bigint references public.memories(id) on delete cascade,
   created_at timestamptz not null default now()
 );
+
+alter table public.memories add column if not exists photo_group_id uuid;
+alter table public.memories add column if not exists client_message_id uuid;
+alter table public.memories add column if not exists client_photo_id uuid;
+alter table public.memories add column if not exists chat_message_id bigint references public.memories(id) on delete cascade;
+create unique index if not exists memories_client_message_id_uidx on public.memories(client_message_id);
+create unique index if not exists memories_client_photo_id_uidx on public.memories(client_photo_id);
+create index if not exists memories_chat_message_id_idx on public.memories(chat_message_id) where chat_message_id is not null;
+create index if not exists memories_photo_group_id_idx on public.memories(photo_group_id) where photo_group_id is not null;
 create index if not exists memories_owner_created on public.memories(owner_id, created_at desc);
 create index if not exists follows_follower on public.follows(follower_id);
 

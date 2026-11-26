@@ -386,3 +386,28 @@ test('friend presence sweep covers online, offline, Notes entry, and Notes exit 
   await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
   assert.equal(await page.locator('#cb-presence-sweep').evaluate(node => getComputedStyle(node).visibility), 'visible');
 });
+
+
+test('Notes photo picker remains available for empty focused composer and toggles after typing', async () => {
+  const page = await newTestPage({ authenticated: true, viewport: { width: 390, height: 844 } });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatPhotoPicker').waitFor({ state: 'visible' });
+  await page.locator('#chatInput').focus();
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true);
+  await page.locator('#chatInput').fill('Caption');
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), false);
+  assert.equal(await page.locator('#chatSend').isVisible(), true);
+  await page.locator('#chatInput').fill('');
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true);
+  await page.locator('#chatPhotoInput').setInputFiles({
+    name: 'preview.png', mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64')
+  });
+  await page.locator('#chatPhotoPreview').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), false);
+  assert.equal(await page.locator('#chatSend').isVisible(), true);
+  await page.locator('[data-chat-photo-remove]').click();
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true);
+  assert.equal(await page.locator('#chatSend').isVisible(), false);
+});

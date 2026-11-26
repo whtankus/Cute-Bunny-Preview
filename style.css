@@ -14981,3 +14981,39 @@ body[data-mode="dark"] .sg-milestone.sg-special-bloom .sg-milestone-art,
 body[data-mode="dark"] .sg-milestone.sg-special-heart .sg-milestone-art{background:radial-gradient(circle,#66536b 0%,#493d50 68%,transparent 100%)}
 body[data-mode="dark"] .sg-milestone.sg-special-bloom .sg-milestone-copy b,
 body[data-mode="dark"] .sg-milestone.sg-special-heart .sg-milestone-copy b{color:#fff0fa}
+
+
+/* Notes Chat photo sharing: one steady composer row with a removable preview rail. */
+#content .chat-composer{flex-wrap:wrap;align-items:stretch}
+#content .chat-composer-main{display:flex;flex:1 1 100%;align-items:flex-end;gap:8px;width:100%;min-width:0}
+#content .chat-composer-main textarea{flex:1 1 auto;min-width:0}
+#content .chat-composer .chat-photo-input{position:absolute;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+#content .chat-composer .chat-photo-picker{display:inline-flex;flex:0 0 44px;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;margin:0;padding:0;border:1px solid #ead4e5;border-radius:50%;background:linear-gradient(145deg,#fffafd,#f5edf9);color:#a66f96;box-shadow:0 3px 0 #e5d4e7,0 5px 10px #9e85b214;transition:transform .16s ease}
+#content .chat-composer .chat-photo-picker[hidden],#content .chat-composer #chatSend[hidden]{display:none!important}
+#content .chat-composer .chat-photo-picker svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#content .chat-composer #chatSend{display:inline-flex;flex:0 0 44px;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;margin:0;padding:0;border-radius:50%}
+#content .chat-photo-preview{display:flex;flex:0 0 100%;align-items:center;gap:9px;width:100%;max-width:100%;padding:3px 1px 6px;overflow-x:auto;overscroll-behavior-x:contain}
+#content .chat-photo-preview[hidden]{display:none!important}
+#content .chat-photo-preview-item{position:relative;flex:0 0 64px;width:64px;height:64px;overflow:visible;border:1px solid #ead5e4;border-radius:12px;background:#f8eff6}
+#content .chat-photo-preview-item img{display:block;width:100%;height:100%;border-radius:11px;object-fit:cover}
+#content .chat-photo-preview-item button{position:absolute;top:-7px;right:-7px;display:grid;place-items:center;width:23px;height:23px;min-width:23px;min-height:23px;padding:0;border:2px solid #fff;border-radius:50%;background:#8f6a8d;color:#fff;font-size:17px;line-height:1}
+#content .chat-shared-photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;width:min(100%,340px);margin-top:8px}
+#content .chat-shared-photo-grid[data-photo-count="1"]{grid-template-columns:minmax(0,1fr)}
+#content .chat-shared-photo-item{min-width:0;margin:0;overflow:hidden;border-radius:12px;background:#f7edf4}
+#content .chat-shared-photo-item .photo-frame{width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:12px}
+#content .chat-shared-photo-item .chat-shared-photo{display:block;width:100%;height:100%;max-height:230px;object-fit:cover;cursor:zoom-in}
+#content .chat-reply-photo-preview{flex:0 0 28px;width:28px;height:28px;border-radius:6px;object-fit:cover;background:#f2e5ef}
+#content .chat-replying-content{display:flex;align-items:center;gap:8px;min-width:0}
+#content .chat-replying-copy,#content .chat-reply-preview-copy{display:flex;flex-direction:column;min-width:0}
+#content .chat-replying-copy small,#content .chat-reply-preview-copy small{font-size:10px;opacity:.7}
+#content .chat-message-retry{align-self:flex-start;margin:3px 0 0 8px;padding:4px 11px;border:1px solid #dfb4cb;border-radius:999px;background:#fff5fa;color:#a45e80;font:800 11px Nunito,sans-serif}
+body[data-mode="dark"] #content .chat-composer .chat-photo-picker{border-color:#66536b;background:linear-gradient(145deg,#46394d,#392f42);color:#e5b9d4;box-shadow:0 3px 0 #2d2435,0 5px 10px #0003}
+body[data-mode="dark"] #content .chat-photo-preview-item{border-color:#66536b;background:#382e40}
+body[data-mode="dark"] #content .chat-photo-preview-item button{border-color:#382e40}
+body[data-mode="dark"] #content .chat-shared-photo-item,body[data-mode="dark"] #content .chat-reply-photo-preview{background:#382e40}
+@media(max-width:480px){#content .chat-composer-main{gap:7px}#content .chat-photo-preview-item{flex-basis:58px;width:58px;height:58px}}
+
+#content .chat-shared-photo.is-loading,#content .chat-reply-photo-preview.is-loading{opacity:.72;background:linear-gradient(110deg,#f4eaf2 8%,#fff8fc 18%,#f4eaf2 33%);background-size:200% 100%;animation:chat-photo-shimmer 1.3s linear infinite}
+#content .chat-shared-photo.has-load-error,#content .chat-reply-photo-preview.has-load-error{object-fit:contain;background:#f4eaf2;opacity:.85}
+@keyframes chat-photo-shimmer{to{background-position-x:-200%}}
+@media(prefers-reduced-motion:reduce){#content .chat-shared-photo.is-loading,#content .chat-reply-photo-preview.is-loading{animation:none}}

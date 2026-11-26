@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('core browser scripts parse without syntax errors', () => {
-  for (const file of ['app.js', 'sw.js', 'scripts/build-preview.js']) {
+  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);
   }
 });
@@ -210,3 +210,28 @@ test('Achievement Garden keeps earned heart flowers and includes 1,500 and 2,000
   assert.ok(css.includes('.achievement-card.is-earned'));
 });
 
+
+
+test('core helpers and Supabase client are isolated behind small service boundaries', () => {
+  const core = read('src/core/dom.js');
+  const service = read('src/services/supabase-client.js');
+  const app = read('app.js');
+  const html = read('index.html');
+  assert.match(core, /window\.CuteBunnyCore/);
+  assert.match(core, /escapeHtml/);
+  assert.match(service, /window\.CuteBunnyServices/);
+  assert.match(service, /createSupabaseClient/);
+  assert.match(app, /window\.CuteBunnyCore/);
+  assert.match(app, /window\.CuteBunnyServices\.createSupabaseClient/);
+  assert.ok(html.indexOf('src="src/core/dom.js"') < html.indexOf('src="app.js'));
+  assert.ok(html.indexOf('src="src/services/supabase-client.js"') < html.indexOf('src="app.js'));
+});
+
+test('design tokens load separately from the remaining polish stylesheet', () => {
+  const html = read('index.html');
+  const tokens = read('src/styles/tokens.css');
+  const polish = read('polish.css');
+  assert.match(tokens, /--cb-ink:/);
+  assert.doesNotMatch(polish.slice(0, 1200), /:root\s*\{/);
+  assert.ok(html.indexOf('href="src/styles/tokens.css"') < html.indexOf('href="polish.css'));
+});

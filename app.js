@@ -2968,7 +2968,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const replyText = replyTarget?.text || (replyTarget?.photos?.length ? 'Photo' : 'This message is no longer available');
   const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote">${replyPhotoThumb}<span class="chat-reply-preview-copy"><small>${esc(replyAuthor)}</small><span class="chat-reply-preview-text">${esc(replyText)}</span></span></span></button>` : '';
   const sharedPhotos = Array.isArray(m.photos) ? m.photos : [];
-  const photoMarkup = sharedPhotos.length ? `<div class="chat-shared-photo-grid" data-photo-count="${sharedPhotos.length}">${sharedPhotos.map(photo => `<div class="chat-shared-photo-item"><div class="photo-frame"><img class="feed-photo is-loading chat-shared-photo" loading="lazy" decoding="async" data-media="${esc(photo.id)}" ${photo.previewUrl ? `src="${esc(photo.previewUrl)}"` : ''} alt="Photo shared by ${name}" role="button" tabindex="0" aria-label="Open shared photo" draggable="false"></div></div>`).join('')}</div>` : '';
+  const photoMarkup = sharedPhotos.length ? `<div class="chat-shared-photo-grid" data-photo-count="${sharedPhotos.length}">${sharedPhotos.map(photo => `<div class="feed-item chat-shared-photo-item" data-kind="photo" data-memory="${esc(photo.id)}" data-owner="${esc(photo.owner_id || ownerId)}"><div class="photo-frame"><img class="feed-photo is-loading chat-shared-photo" loading="lazy" decoding="async" data-media="${esc(photo.id)}" ${photo.previewUrl ? `src="${esc(photo.previewUrl)}"` : ''} alt="Photo shared by ${name}" role="button" tabindex="0" aria-label="Open shared photo" draggable="false"></div></div>`).join('')}</div>` : '';
 
   return `
     <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}" data-like-count="${Number(m.like_count) || 0}" data-reaction-count="${Array.isArray(m.reactions) ? m.reactions.length : 0}">
@@ -4250,7 +4250,12 @@ async function deleteSafely(id) {
     undo.remove();
     try {
       await api('/memories/' + encodeURIComponent(id), { method: 'DELETE' });
-      feed = feed.filter(m => String(m.id) !== String(id));
+      if (item.kind === 'photo' && item.chat_message_id) {
+        const parent = feed.find(memory => String(memory.id) === String(item.chat_message_id));
+        if (parent?.photos) parent.photos = parent.photos.filter(photo => String(photo.id) !== String(id));
+      }
+      const deletedIds = new Set([String(id), ...(item.kind === 'note' ? (item.photos || []).map(photo => String(photo.id)) : [])]);
+      feed = feed.filter(memory => !deletedIds.has(String(memory.id)));
       if (String(playlist[playlistIndex]?.id) === String(id)) {
         const audio = $('#globalAudio');
         songLoadSequence++;

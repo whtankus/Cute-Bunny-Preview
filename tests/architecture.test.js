@@ -100,3 +100,24 @@ test("page rendering is delegated to feature modules", () => {
  assert.match(music, /function renderMusicPage\(/);
  assert.match(friends, /function renderFriendsPage\(/);
 });
+
+
+test("base and polish feature styles preserve their cascade layers", () => {
+ const html = read("index.html");
+ const build = read("scripts/build-preview.js");
+ const worker = read("sw.js");
+ const styleIndex = html.indexOf("style.css?v=milestone-shine-20261124");
+ const tokensIndex = html.indexOf("src/styles/tokens.css");
+ const polishIndex = html.indexOf("polish.css?v=badge-size-uniform-20261124");
+ for (const feature of ["home","photos","notes","music","friends","notifications","profile","streak"]) {
+  const base = "src/styles/features/base-" + feature + ".css";
+  const polish = "src/styles/features/" + feature + ".css";
+  assert.ok(html.indexOf(base) > styleIndex && html.indexOf(base) < tokensIndex, feature + " base styles load before tokens and polish");
+  assert.ok(html.indexOf(polish) > polishIndex, feature + " polish styles load after legacy polish");
+  for (const path of [base,polish]) {
+   assert.ok(build.includes(path), path + " is copied");
+   assert.ok(worker.includes(path), path + " is precached");
+   assert.ok(read(path).length > 100, path + " contains CSS rules");
+  }
+ }
+});

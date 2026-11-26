@@ -394,6 +394,8 @@ test('Notes photo picker toggles with typing and selected-photo removal', async 
   await page.locator('#nav button[data-page="notes"]').click();
   await page.locator('#chatPhotoPicker').waitFor({ state: 'visible' });
   await page.locator('#chatInput').focus();
+  await page.locator('.chat-page').evaluate(node => { node.classList.add('notes-keyboard-open'); document.body.classList.add('notes-keyboard-open'); });
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true, 'photo picker remains visible while the software keyboard layout is active');
   assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true, 'photo picker remains visible while the empty input is focused');
   await page.locator('#chatInput').fill('A caption');
   assert.equal(await page.locator('#chatPhotoPicker').isVisible(), false);
@@ -461,4 +463,38 @@ test('Notes sends multiple photos with a caption, adds them to Photos Garden, an
   await page.locator('#chatInput').fill('Replying to your photos ♡');
   await page.locator('#chatSend').click();
   await page.waitForFunction(parentId => window.__cuteBunnyTestState.tables.memories.some(row => row.text === 'Replying to your photos ♡' && row.reply_to_id === parentId), result.parent.id);
+  const replyId = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.text === 'Replying to your photos ♡').id);
+  await page.locator('.chat-message[data-memory="' + replyId + '"] [data-chat-jump="' + result.parent.id + '"]').click();
+  assert.equal(await page.locator('.chat-message[data-memory="' + result.parent.id + '"]').evaluate(node => node.classList.contains('chat-message-highlight')), true);
+});
+
+test('Notes photo upload retries reuse IDs and do not duplicate messages or gallery entries', async () => {
+  const page = await newTestPage({ authenticated: true });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatPhotoInput').setInputFiles({
+    name: 'retry.png', mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64')
+  });
+  await page.locator('#chatInput').fill('A photo that needs one retry');
+  await page.evaluate(() => { window.__cuteBunnyTestState.failNextUpload = true; });
+  await page.locator('#chatSend').click();
+  await page.locator('.chat-message-retry').waitFor({ state: 'visible' });
+  const beforeRetry = await page.evaluate(() => ({
+    parents: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'note' && row.text === 'A photo that needs one retry').length,
+    photos: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'photo' && row.text === 'A photo that needs one retry').length
+  }));
+  assert.equal(beforeRetry.parents, 1);
+  assert.equal(beforeRetry.photos, 0, 'an interrupted batch must not publish partial gallery records');
+  await page.locator('.chat-message-retry').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'photo' && row.text === 'A photo that needs one retry').length === 1);
+  const afterRetry = await page.evaluate(() => ({
+    parents: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'note' && row.text === 'A photo that needs one retry'),
+    photos: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'photo' && row.text === 'A photo that needs one retry'),
+    uploads: window.__cuteBunnyTestState.uploads.filter(upload => upload.path.includes('/notes/'))
+  }));
+  assert.equal(afterRetry.parents.length, 1);
+  assert.equal(afterRetry.photos.length, 1);
+  assert.equal(afterRetry.uploads.length, 2, 'retry uploads the same stable object path again');
+  assert.equal(afterRetry.uploads[0].path, afterRetry.uploads[1].path);
 });

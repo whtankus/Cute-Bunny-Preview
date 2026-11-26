@@ -18,6 +18,7 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     nextMemoryId: 103,
     nextEditHistoryId: 1,
     uploads: [],
+    failNextUpload: false,
     calls: [],
     broadcasts: [],
     presenceTracks: [],
@@ -178,7 +179,11 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
         storage: {
           from(bucket) {
             return {
-              async upload(path, file, options) { state.uploads.push({ bucket, path, name: file.name, type: file.type, size: file.size, options }); return { data: { path }, error: null }; },
+              async upload(path, file, options) {
+                state.uploads.push({ bucket, path, name: file.name, type: file.type, size: file.size, options });
+                if (state.failNextUpload) { state.failNextUpload = false; return { data: null, error: { message: 'Simulated interrupted upload' } }; }
+                return { data: { path }, error: null };
+              },
               async createSignedUrl(path) { return { data: { signedUrl: 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' }, error: null }; },
               async remove(paths) { state.calls.push({ storageDelete: paths }); return { data: [], error: null }; }
             };

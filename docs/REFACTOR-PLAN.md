@@ -1,35 +1,34 @@
 # Stability and architecture refactor
 
-## Completed foundation
-- [x] Define lowercase kebab-case naming rules and feature ownership.
-- [x] Extract DOM query and HTML escaping helpers to `src/core/dom.js`.
-- [x] Extract Supabase client construction to `src/services/supabase-client.js`.
-- [x] Extract image upload optimization to `src/services/media-optimizer.js`.
-- [x] Move Supabase-backed data access into `src/services/api.js` with injected app dependencies.
-- [x] Extract shared visual tokens to `src/styles/tokens.css`.
-- [x] Move Notes composer submit and desktop Enter handling to `src/features/notes/chat-events.js`.
-- [x] Update browser loading, GitHub Pages publishing, production build and service-worker precache for nested source paths.
-- [x] Add regression checks for the extracted boundaries and production asset copying.
-- [x] Extract 154 function implementations across Home, Photos, Notes, Music, Friends, Notifications, Profile and Streak Garden.
-- [x] Split 562 feature-scoped CSS rules from `polish.css` into eight feature stylesheets.
-- [x] Audit duplicate selectors across the legacy style layers; retain intentional cascade overrides and document the high-frequency selectors.
-- [ ] Run full Android build/install regression on a configured native runner.
+## Completed
+- [x] Extract shared DOM helpers, Supabase client construction, media optimization and the injected API facade.
+- [x] Extract Notes message rendering, composer, typing, presence transitions, delivery and read-receipt logic into `src/features/notes/notes.js`.
+- [x] Extract Photos feed pagination, media hydration and lightbox functions into `src/features/photos/photos.js`.
+- [x] Extract Home, Photos, Music and Friends page renderers from the legacy `render()` coordinator.
+- [x] Extract Music player/source/playback functions into `src/features/music/music.js`.
+- [x] Extract Friends search, row and profile activity functions into `src/features/friends/friends.js`.
+- [x] Extract Notifications loading, grouping, read-state and visibility functions into `src/features/notifications/notifications.js`.
+- [x] Extract Profile editor, preview and save functions into `src/features/profile/profile.js`.
+- [x] Extract Streak Garden state, quests, rewards and rendering functions into `src/features/streak/streak.js`.
+- [x] Split 562 feature-scoped rules from `polish.css` into eight feature stylesheets under `src/styles/features/`.
+- [x] Audit repeated selectors in the legacy CSS layers and document high-frequency overrides in `docs/CSS-AUDIT.md`.
+- [x] Wire feature scripts and stylesheets into HTML, preview builds, syntax checks, project structure checks and service-worker precache.
+- [x] Add architecture tests for module loading order and feature stylesheet wiring.
 
-## Remaining feature migrations
-1. Extract Notes chat into `src/features/notes/`, preserving DOM IDs, typing/read receipts and realtime event contracts.
-2. Extract Photos/feed rendering into `src/features/photos/` and `src/features/home/`.
-3. Extract Music, Friends, Notifications, Profile and Streak Garden one at a time.
-4. Move Bearfriend and gesture modules into the feature tree after checking all script, cache and packaging paths.
-5. Move Supabase data access into domain services without changing the database contract.
-6. Split remaining legacy CSS by feature and remove duplicate selectors only after visual regression checks.
+## Remaining validation and cleanup
+- [ ] Run the complete GitHub browser regression suite against the latest PR head.
+- [ ] Run a configured Android Gradle build, install the APK on an emulator/device, and test upgrade/install behavior.
+- [ ] Consolidate duplicate CSS selectors only after visual regression comparison; preserve deliberate theme, responsive and state overrides.
+- [ ] Continue the second-stage migration from classic-script shared lexical state to explicit dependency injection and feature-owned state.
+- [ ] Move Bearfriend and gesture modules into the feature tree when their native and offline asset references are updated.
 
-## Required checks per migration
+## Validation commands
 - `npm run check`
 - `npm test`
 - `npm run build` with repository Supabase build variables
-- GitHub Pages workflow
-- Browser regression checks across tabs and themes
-- Android APK build and install/upgrade check
+- GitHub Pages preview workflow
+- Browser regression across Home, Photos, Notes, Music, Friends, Notifications, Profile and Streak Garden
+- Android APK build, install and upgrade check
 
 ## Constraints
-No feature redesign during structural-only changes. No schema/API changes during file moves. Do not remove a legacy file until every script tag, build asset, workflow, service-worker entry, test and native packaging reference is updated.
+No feature redesign during structural-only changes. No database schema or API contract changes. Do not remove legacy assets until HTML, build, workflow, service-worker, test and native packaging references are updated.

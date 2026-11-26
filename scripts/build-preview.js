@@ -12,6 +12,8 @@ const assets = [
   'app.js',
   'style.css',
   'polish.css',
+  'notes-chat-layout.css',
+  'notes-chat-layout.js',
   'ui-color-system.css',
   'header-statusbar-blend.css',
   'button-interactions.css',

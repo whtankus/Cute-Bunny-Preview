@@ -13,6 +13,7 @@ const assets = [
   'src/core/dom.js',
   'src/services/supabase-client.js',
   'src/services/media-optimizer.js',
+  'src/features/notes/chat-events.js',
   'src/styles/tokens.css',
   'style.css',
   'polish.css',

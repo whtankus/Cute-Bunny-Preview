@@ -26,7 +26,7 @@
 │   │   └── streak/streak.js
 │   └── styles/
 │       ├── tokens.css
-│       └── features/{home,photos,notes,music,friends,notifications,profile,streak}.css
+│       └── features/{base-,}{home,photos,notes,music,friends,notifications,profile,streak}.css
 ├── bear-hugs-progression.js
 ├── bear-hugs-progression.css
 ├── swipe-gestures.js

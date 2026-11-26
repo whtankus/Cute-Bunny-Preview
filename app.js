@@ -7763,24 +7763,28 @@ function syncNotesKeyboardLayout() {
     const availableHeight = Math.max(180, Math.floor(visibleViewportBottom - pageTop));
     document.documentElement.style.setProperty('--notes-page-height', availableHeight + 'px');
 
-    // The composer floats over the bottom of the thread, so reserve its height
-    // to ensure the last message can scroll fully into view above the input.
-    if (thread) {
-      const composerHeight = Math.ceil(composer?.getBoundingClientRect().height || 50);
-      const bottomClearance = composerHeight + 20;
-      thread.style.setProperty('padding-bottom', bottomClearance + 'px', 'important');
-      thread.style.setProperty('scroll-padding-bottom', bottomClearance + 'px');
-    }
-
     requestAnimationFrame(() => {
       if (!notesPage.isConnected || !thread?.isConnected || !notesKeyboardFollowLatest) return;
       thread.scrollTop = thread.scrollHeight;
     });
   } else {
     document.documentElement.style.removeProperty('--notes-page-height');
-    thread?.style.removeProperty('padding-bottom');
-    thread?.style.removeProperty('scroll-padding-bottom');
     notesKeyboardFollowLatest = false;
+  }
+
+  // The composer is fixed over the conversation in both keyboard states.
+  // Measure its real overlap with the scrollport and reserve enough scrollable
+  // space for the final message, including the viewport's safe-area positioning.
+  if (thread && composer) {
+    const threadBottom = thread.getBoundingClientRect().bottom;
+    const composerTop = composer.getBoundingClientRect().top;
+    const overlap = Math.max(0, threadBottom - composerTop);
+    const bottomClearance = Math.ceil(overlap + 24);
+    thread.style.setProperty('padding-bottom', bottomClearance + 'px', 'important');
+    thread.style.setProperty('scroll-padding-bottom', bottomClearance + 'px');
+  } else if (thread) {
+    thread.style.setProperty('padding-bottom', '24px', 'important');
+    thread.style.setProperty('scroll-padding-bottom', '24px');
   }
 }
 

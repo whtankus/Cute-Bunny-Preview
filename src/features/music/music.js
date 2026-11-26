@@ -145,3 +145,14 @@ function stepSong(step) {
   // genuinely new track from the currently playing one.
   void playSong(songs[nextIndex].id);
 }
+
+
+function renderMusicPage(c, songs) {
+    c.innerHTML = `
+      <div class="heading"><h2>Cozy music 🎵</h2><p>Your songs play right here in the garden.</p></div>
+      <label class="primary upload-label">＋ Add a song<input data-upload="song" type="file" accept="audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm" hidden></label>
+      <h3 class="shared-songs-title">Your shared songs</h3>
+      <div class="grid media-grid music-grid">${songs.map(memoryCard).join('') || '<div class="empty">Add a song file and listen together right here ♡'}</div>
+      ${historySentinelMarkup('bottom')}
+    `;
+}

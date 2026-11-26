@@ -228,7 +228,7 @@ test('Notes Chat photo sharing is linked to the existing Photos Garden model', (
 
 
 test('Notes photo retry permissions stay scoped to the signed-in owner', () => {
-  const migration = read('supabase/migrations/20261126123000_notes_chat_photo_sharing.sql');
+  const migration = read('supabase/migrations/20261126123000_notes_chat_photo_retry_permissions.sql');
   assert.match(migration, /Update own note messages and linked photos/);
   assert.match(migration, /owner_id = \(select auth\.uid\(\)\) and kind in \('note','photo'\)/);
   assert.match(migration, /grant update \(owner_id,kind,text,reply_to_id,photo_group_id,client_message_id,file_name,content_type,storage_path,chat_message_id,client_photo_id\)/);

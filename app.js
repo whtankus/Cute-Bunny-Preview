@@ -3043,7 +3043,7 @@ function syncChatReplyPreview() {
   preview.classList.toggle('is-mine', isMine);
   preview.classList.toggle('is-friend', !!item && !isMine);
   preview.innerHTML = item
-    ? `<div class="chat-replying-content"><span class="chat-replying-label"><b>Replying to ${esc(item.author?.displayName || item.author?.display_name || item.author?.username || 'message')}</b></span><span class="chat-replying-message">${esc(item.text || 'Message unavailable')}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
+    ? `<div class="chat-replying-content"><span class="chat-replying-label"><b>Replying to ${esc(item.author?.displayName || item.author?.display_name || item.author?.username || 'message')}</b></span><span class="chat-replying-message">${esc(item.text || ((item.storagePath || item.storage_path) ? 'Photo' : 'Message unavailable'))}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
     : '';
 }
 

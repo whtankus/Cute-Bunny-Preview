@@ -4,7 +4,8 @@
   function createApi({ client, getCurrentUser, fetchFriendHeartCounts, themes }) {
     const sb = client;
     const APP_THEMES = themes;
-    return async function api(path, options = {}) {\n  const me = getCurrentUser();
+    return async function api(path, options = {}) {
+  const me = getCurrentUser();
   if (!sb) throw Error('Add your Supabase URL and publishable key in supabase-config.js first.');
   const method = options.method || 'GET';
   const body = options.body && !(options.body instanceof FormData) ? JSON.parse(options.body) : options.body;

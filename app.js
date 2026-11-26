@@ -1,4 +1,5 @@
-const $ = s => document.querySelector(s), cfg = window.CUTE_BUNNY_CONFIG || {};
+const { query: $, escapeHtml: esc } = window.CuteBunnyCore;
+const cfg = window.CUTE_BUNNY_CONFIG || {};
 
 // Keep the expanded player outside the sticky header's backdrop-filter stacking
 // context, so it can sample and blur the wallpaper behind the whole panel.
@@ -7,11 +8,7 @@ const appRootElement = document.getElementById('app');
 if (nowPlayingPanelElement && appRootElement && nowPlayingPanelElement.parentElement !== appRootElement) {
   appRootElement.appendChild(nowPlayingPanelElement);
 }
-const sb = window.supabase && cfg.supabaseUrl && !cfg.supabaseUrl.startsWith('PASTE_')
-  ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-    })
-  : null;
+const sb = window.CuteBunnyServices.createSupabaseClient(window.supabase, cfg);
 
 let token = localStorage.getItem('cuteBunnyToken') || '', me = null, page = 'home', feed = [], friends = [], friendResults = [], friendQuery = '';
 const APP_THEMES = Object.freeze(['rose', 'lavender', 'mint', 'sky', 'peach', 'berry', 'midnight', 'sage', 'buttercup']);
@@ -147,9 +144,6 @@ function setMode(mode) {
   if (me) localStorage.setItem('cuteBunnyMode:' + me.username, mode);
 }
 
-const esc = s => String(s || '').replace(/[&<>"']/g, c => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-}[c]));
 
 async function optimizePhotoUpload(file) {
   if (!file || file.type === 'image/gif' || !/^image\/(jpeg|png|webp)$/i.test(file.type)) return file;

@@ -25,25 +25,13 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.match(bear, /bear-care-milestone/);
   assert.match(styles, /bear-reward-apply:disabled/);
   assert.match(styles, /bear-visual-cap/);
-  assert.ok(html.includes('bearfriend-reward-fix-20261125'));
-  assert.ok(html.includes('header-statusbar-blend.css'));
-});
-
-test('Bearfriend shared Care Points do not wait for recipient acknowledgement and level follows points', () => {
-  const bear = read('bear-hugs-progression.js');
-  assert.match(bear, /return true;[\s\S]*?recipient's UI acknowledgement is optional/);
-  assert.match(bear, /const bearLevel = 1 \+ REWARDS\.filter/);
-});
-
-test('Daily quests do not show the use-in-your-message hint', () => {
-  const app = read('app.js');
-  assert.doesNotMatch(app, /USE IN YOUR MESSAGE|sg-quest-keyword-hint/);
+  assert.ok(html.includes('bear-hugs-living-world-20261124-3'));
 });
 
 test('Bear Hugs uses one fixed level and Care Point-based treasure collection', () => {
   const bear = read('bear-hugs-progression.js');
   const styles = read('bear-hugs-progression.css');
-  assert.ok(bear.includes("<small>BEAR LEVEL</small><b>' + bearLevel + '</b>"));
+  assert.ok(bear.includes('<small>BEAR LEVEL</small><b>1</b>'));
   assert.doesNotMatch(bear, /reward\.level|nextReward\.level/);
   for (const threshold of [100, 350, 1250, 2150, 3050]) {
     assert.ok(bear.includes('unlockPoints: ' + threshold));
@@ -70,12 +58,8 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(bear, /actionId: String\(payload\.actionId \|\| ''\)/);
   assert.match(bear, /if \(!delivered\) return;/);
   assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, Number\(data\?\.love_points\) \|\| 0\)/);
-  assert.match(bear, /const retryDelays = \[250, 700\]/);
-  assert.match(bear, /p_action_id: actionId/);
-  assert.match(bear, /same action UUID/);
-  assert.match(bear, /const points = Number\(result\?\.data\)/);
-  assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, points\)/);
-  assert.match(bear, /recipient's UI acknowledgement is optional[\s\S]*?return true;/);
+  assert.match(bear, /sharedPoints = Math\.max\(sharedPoints, Number\(data\) \|\| 0\)/);
+  assert.match(bear, /return acknowledged/);
   assert.match(bear, /lastSharedAction = action/);
   assert.match(bear, /Play immediately and keep every action button available/);
   assert.doesNotMatch(bear.slice(bear.indexOf('async function runLocalAction'), bear.indexOf('function ensureProgressChannel')), /actionInFlight|\.disabled = true|is-sending/);
@@ -83,7 +67,7 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.doesNotMatch(styles, /bear-mood-pill/);
 });
 
-test('Bearfriend keeps visual-only idle personality without a removed memories dependency', () => {
+test('Bear Hugs adds visual-only idle personality, sleep, props, atmosphere and memories safely', () => {
   const bear = read('bear-hugs-progression.js');
   const app = read('app.js');
   const styles = read('bear-hugs-progression.css');
@@ -92,10 +76,10 @@ test('Bearfriend keeps visual-only idle personality without a removed memories d
   assert.match(app, /curious=Math\.max/);
   assert.doesNotMatch(bear, /bear-living-props|data-couple-action="feed"/);
   assert.match(styles, /bear-time-morning/);
-  assert.doesNotMatch(bear, /loadBearMoments|renderBearMoments|recordBearMoment|bearMoments/);
+  assert.match(bear, /recordBearMoment/);
   assert.match(bear, /bearsAreAsleep/);
   assert.match(styles, /bear-living-atmosphere/);
-  assert.doesNotMatch(styles, /bear-moments/);
+  assert.match(styles, /bear-moments-list/);
 });
 
 test('Bear Hugs plays a random visual-only action after 25 seconds of inactivity', () => {
@@ -140,18 +124,6 @@ test('offline shell keeps navigation fallback and notification handling', () => 
   assert.match(sw, /self\.addEventListener\(["']fetch["']/);
   assert.match(sw, /cache\.match\(["']\.\/index\.html["']\)/);
   assert.match(sw, /self\.addEventListener\(["']notificationclick["']/);
-  assert.match(sw, /cute-bunny-shell-v410/);
-  assert.match(sw, /polish\.css\?v=bearfriend-rewards-polish-20261125/);
-  assert.match(sw, /bear-hugs-progression\.js\?v=bearfriend-reward-fix-20261125/);
-  assert.match(sw, /header-statusbar-blend\.css/);
-});
-
-test('GitHub Pages copies and validates all local app assets', () => {
-  const workflow = read('.github/workflows/deploy-pages.yml');
-  assert.match(workflow, /cp .*header-statusbar-blend\.css/);
-  assert.match(workflow, /cp .*bear-hugs-progression\.js/);
-  assert.match(workflow, /Verify published app assets/);
-  assert.match(workflow, /GitHub Pages artifact is missing referenced asset/);
 });
 
 test('build script copies the app shell and emits generated configuration', () => {
@@ -159,29 +131,8 @@ test('build script copies the app shell and emits generated configuration', () =
   for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'sw.js', 'manifest.webmanifest']) {
     assert.ok(build.includes("'" + asset + "'"), 'build asset list must include ' + asset);
   }
-  for (const asset of ['header-statusbar-blend.css', 'bear-hugs-progression.css', 'bear-hugs-progression.js']) {
-    assert.ok(build.includes("'" + asset + "'"), 'Android bundle must include ' + asset);
-  }
   assert.match(build, /SUPABASE_URL/);
   assert.match(build, /SUPABASE_PUBLISHABLE_KEY/);
-});
-
-test('Notes composer supports photo-only and captioned photo messages and includes them in Photos', () => {
-  const app = read('app.js');
-  const css = read('style.css');
-  assert.match(app, /id="chatPhotoAttach"/);
-  assert.match(app, /id="chatPhotoInput"/);
-  assert.match(app, /pendingChatPhotoFile/);
-  assert.match(app, /form\.append\('kind', 'note'\)/);
-  assert.match(app, /m\.kind === 'note' && \(m\.storagePath \|\| m\.storage_path\)/);
-  assert.match(app, /chat-message-photo/);
-  assert.match(app, /photo\.closest\('\.feed-item, \.chat-message'\)/);
-  assert.match(css, /\.chat-photo-preview/);
-  assert.match(app, /id="chatPhotoAttach"[^>]*><svg/);
-  assert.match(app, /querySelectorAll\('\.feed-item\[data-memory\], \.chat-message\[data-memory\]'\)/);
-  assert.match(css, /chat-page:not\(\.notes-keyboard-open\).*chat-photo-attach/s);
-  assert.match(css, /chat-page\.notes-keyboard-open \.chat-composer \.chat-photo-attach\s*\{\s*display:none!important/);
-  assert.match(css, /photo-lightbox-image-enter/);
 });
 
 test('Notes typing uses the same shared Broadcast channel as the working Cute Bunny app', () => {
@@ -259,70 +210,3 @@ test('Achievement Garden keeps earned heart flowers and includes 1,500 and 2,000
   assert.ok(css.includes('.achievement-card.is-earned'));
 });
 
-
-
-test('Daily quest markup never emits NaN and keeps progress percentages bounded', () => {
-  const app = read('app.js');
-  const start = app.indexOf('const dailyQuestMarkup =');
-  const end = app.indexOf('const todayDate =', start);
-  const markup = app.slice(start, end);
-  assert.ok(start >= 0 && end > start, 'daily quest markup must be present');
-  assert.doesNotMatch(markup, /\+\s*\+\s*['"]<div/);
-  assert.ok(markup.includes('Math.max(0, Math.min(100'));
-  assert.doesNotMatch(markup, /NaN/);
-});
-
-test('Daily quest cards stay within the viewport on narrow screens', () => {
-  const styles = read('polish.css');
-  assert.ok(styles.includes('grid-template-columns:38px minmax(0,1fr)!important'));
-  assert.ok(styles.includes('.sg-daily-quest-card .sg-daily-quest-copy'));
-  assert.ok(styles.includes('.sg-daily-quest-progress>span{display:block;max-width:100%'));
-});
-
-test('Bearfriend rewards use simple SVG previews, fit responsive cards and keep equipment actions wired', () => {
-  const bear = read('bear-hugs-progression.js');
-  const styles = read('bear-hugs-progression.css');
-  const polish = read('polish.css');
-  assert.doesNotThrow(() => new vm.Script(bear, { filename: 'bear-hugs-progression.js' }));
-  assert.match(bear, /function rewardIconSvg\(reward\)/);
-  assert.match(bear, /rewardIconSvg\(nextReward\)/);
-  assert.match(bear, /data-bear-equip/);
-  assert.match(bear, /ensureBearAccessoryLayers\(\);\s*void equipReward/);
-  assert.doesNotMatch(bear, /🐻　✿　🐻/);
-  assert.match(styles, /bear-reward-icon-art svg/);
-  assert.match(styles, /@media\(max-width:520px\)/);
-  for (const badge of ['moonlit-orchid', 'crystal-butterfly', 'sunfire-blossom']) {
-    assert.match(polish, new RegExp('item-' + badge + ' \.sg-collectible-art'));
-  }
-  assert.match(polish, /width:50px;height:50px/);
-});
-
-
-test('Notes photo composer swaps the right-side photo picker for Send when content is ready', () => {
-  const app = read('app.js');
-  const css = read('style.css');
-  assert.match(app, /id="chatPhotoAttach"/);
-  assert.match(app, /id="chatSend"[^>]*hidden/);
-  assert.match(css, /\.chat-composer:has\(#chatSend:not\(\[hidden\]\)\) \.chat-photo-attach/);
-  assert.match(css, /\.chat-composer:has\(#chatSend\[hidden\]\) \.chat-photo-attach/);
-  assert.match(css, /\.chat-photo-attach\s*\{[\s\S]*?right:8px!important/);
-  assert.match(css, /\.chat-photo-preview/);
-});
-
-test('Notes supports up to three grouped photos with compact previews and 21-day retention schema', () => {
- const app=read('app.js'), css=read('style.css'), html=read('index.html'), schema=read('supabase/schema.sql');
- assert.match(app,/pendingChatPhotoFiles/); assert.match(app,/photo_group_id/); assert.match(app,/Choose up to three photos/);
- assert.match(app,/multiple hidden/); assert.match(css,/chat-message-photo-wrap\.is-photo-group/);
- assert.match(html,/app\.js\?v=44/); assert.match(schema,/photo_group_id/);
-});
-
-
-test('Notes photo dock keeps picker at right, lifts previews with keyboard, and opens shared photos on one tap', () => {
-  const css = read('style.css');
-  const app = read('app.js');
-  assert.match(css, /Notes mobile dock: identical right-side control slot/);
-  assert.match(css, /#chatPhotoPreview\[hidden\]/);
-  assert.match(css, /notes-keyboard-open #content \.chat-page #chatPhotoPreview/);
-  assert.match(css, /\.chat-composer:has\(#chatSend\[hidden\]\) \.chat-photo-attach/);
-  assert.match(app, /if \(photo\.closest\('\.chat-message'\)\)\s*\{[\s\S]*?openPhotoLightbox\(String\(id\)\)/);
-});

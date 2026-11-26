@@ -140,16 +140,20 @@ test('offline shell keeps navigation fallback and notification handling', () => 
   assert.match(sw, /self\.addEventListener\(["']fetch["']/);
   assert.match(sw, /cache\.match\(["']\.\/index\.html["']\)/);
   assert.match(sw, /self\.addEventListener\(["']notificationclick["']/);
-  assert.match(sw, /cute-bunny-shell-v410/);
+  assert.match(sw, /cute-bunny-shell-v411/);
   assert.match(sw, /polish\.css\?v=bearfriend-rewards-polish-20261125/);
   assert.match(sw, /bear-hugs-progression\.js\?v=bearfriend-reward-fix-20261125/);
   assert.match(sw, /header-statusbar-blend\.css/);
+  assert.match(sw, /notes-chat-layout\.css/);
+  assert.match(sw, /notes-chat-layout\.js/);
 });
 
 test('GitHub Pages copies and validates all local app assets', () => {
   const workflow = read('.github/workflows/deploy-pages.yml');
   assert.match(workflow, /cp .*header-statusbar-blend\.css/);
   assert.match(workflow, /cp .*bear-hugs-progression\.js/);
+  assert.match(workflow, /cp .*notes-chat-layout\.css/);
+  assert.match(workflow, /cp .*notes-chat-layout\.js/);
   assert.match(workflow, /Verify published app assets/);
   assert.match(workflow, /GitHub Pages artifact is missing referenced asset/);
 });
@@ -159,7 +163,7 @@ test('build script copies the app shell and emits generated configuration', () =
   for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'sw.js', 'manifest.webmanifest']) {
     assert.ok(build.includes("'" + asset + "'"), 'build asset list must include ' + asset);
   }
-  for (const asset of ['header-statusbar-blend.css', 'bear-hugs-progression.css', 'bear-hugs-progression.js']) {
+  for (const asset of ['header-statusbar-blend.css', 'bear-hugs-progression.css', 'bear-hugs-progression.js', 'notes-chat-layout.css', 'notes-chat-layout.js']) {
     assert.ok(build.includes("'" + asset + "'"), 'Android bundle must include ' + asset);
   }
   assert.match(build, /SUPABASE_URL/);

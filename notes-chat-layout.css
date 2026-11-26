@@ -43,9 +43,11 @@ body.notes-page-active #content .chat-page .chat-replying-to:not([hidden]) {
   border-left:3px solid var(--cb-accent,#bd6f91); border-radius:12px;
   background:var(--cb-surface-soft,#f8e7ed);
 }
+body.notes-page-active #content .chat-page #chatPhotoPreview,
 body.notes-page-active #content .chat-page .chat-photo-preview {
   position:relative!important; z-index:0!important; pointer-events:none!important;
 }
+body.notes-page-active #content .chat-page #chatPhotoPreview button,
 body.notes-page-active #content .chat-page .chat-photo-preview button {
   pointer-events:auto!important;
 }

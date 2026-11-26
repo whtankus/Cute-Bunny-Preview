@@ -1,9 +1,11 @@
-const CACHE_NAME = "cute-bunny-shell-v410";
+const CACHE_NAME = "cute-bunny-shell-v411";
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./style.css?v=notes-dock-right-preview-keyboard-20261125",
   "./polish.css?v=bearfriend-rewards-polish-20261125",
+  "./notes-chat-layout.css?v=20261126-dock",
+  "./notes-chat-layout.js?v=20261126-dock",
   "./ui-color-system.css?v=20261125-1",
   "./header-statusbar-blend.css?v=20261120-1",
   "./button-interactions.css?v=nav-3d-depth-20261118",
@@ -23,6 +25,8 @@ const SHELL_FILES = new Set([
   "index.html",
   "style.css",
   "polish.css",
+  "notes-chat-layout.css",
+  "notes-chat-layout.js",
   "ui-color-system.css",
   "header-statusbar-blend.css",
   "button-interactions.css",

@@ -361,8 +361,10 @@ function renderNotesPage(options = {}) {
   });
 }
 
-const pendingChatPhotoFiles = [];
-const pendingChatPhotoUrls = [];
+window.pendingChatPhotoFiles = [];
+window.pendingChatPhotoUrls = [];
+const pendingChatPhotoFiles = window.pendingChatPhotoFiles;
+const pendingChatPhotoUrls = window.pendingChatPhotoUrls;
 const CHAT_PHOTO_MAX_COUNT = 3;
 const CHAT_PHOTO_MAX_BYTES = 8 * 1024 * 1024;
 const CHAT_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
@@ -416,6 +418,8 @@ async function uploadChatPhoto(file, previewUrl, caption, tempId) {
     throw error;
   }
 }
+
+window.syncChatPhotoPreview = syncChatPhotoPreview;
 
 async function sendChatMessage() {
   const field = $('#chatInput');

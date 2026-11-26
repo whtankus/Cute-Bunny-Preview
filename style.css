@@ -15796,12 +15796,41 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
 }
 
 
-/* Chat shared photos: half-size natural proportions with scroll clearance above the fixed composer. */
+/* Chat shared photos: 50%-size cap, intrinsic image ratio, and a photo-sized message bubble. */
+#content .chat-page .chat-message-line:has(.chat-message-photo-wrap) {
+  display:flex!important;
+  width:fit-content!important;
+  max-width:100%!important;
+  min-width:0!important;
+}
+#content .chat-page .chat-bubble-wrap:has(.chat-message-photo-wrap) {
+  display:inline-flex!important;
+  flex:0 1 auto!important;
+  align-items:flex-start!important;
+  width:fit-content!important;
+  max-width:calc(100% - 3.5rem)!important;
+  min-width:0!important;
+}
+#content .chat-page .chat-bubble:has(.chat-message-photo-wrap) {
+  display:inline-block!important;
+  flex:0 1 auto!important;
+  width:fit-content!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  padding:6px!important;
+}
 #content .chat-page .chat-message-photo-wrap {
-  width:min(100%,260px)!important;
-  max-width:min(100%,260px)!important;
+  display:block!important;
+  flex:0 1 auto!important;
+  width:min(260px,100%)!important;
+  max-width:100%!important;
+  min-width:0!important;
   height:auto!important;
+  margin:0!important;
   overflow:visible!important;
+  border-radius:13px!important;
+  line-height:0!important;
 }
 #content .chat-page .chat-message-photo-wrap:not(.is-photo-group) .chat-message-photo {
   display:block!important;

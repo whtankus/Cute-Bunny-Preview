@@ -16232,3 +16232,189 @@ body.notes-page-active #content .chat-page .chat-composer #chatSend[hidden] {
     font-size:16px!important;
   }
 }
+
+
+/* 2026-11-26 unified Notes input + inline reply composer.
+   The input shell owns the border and positioning; the circular control is
+   overlaid inside its right edge and does not consume horizontal layout space. */
+body.notes-page-active #content .chat-page .chat-composer {
+  position:relative!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:8px!important;
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  padding:10px!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell {
+  position:relative!important;
+  display:block!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:56px!important;
+  box-sizing:border-box!important;
+  border:1px solid #ead9e7!important;
+  border-radius:28px!important;
+  background:linear-gradient(135deg,#fffafd 0%,#fff5fa 100%)!important;
+  box-shadow:0 4px 12px rgba(128,90,117,.09),inset 0 1px 0 #fff!important;
+  overflow:visible!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatInput {
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  min-height:56px!important;
+  max-height:116px!important;
+  height:56px;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:15px 68px 15px 16px!important;
+  border:0!important;
+  border-radius:28px!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:var(--cb-text,#59465b)!important;
+  font:600 15px/1.4 Nunito,sans-serif!important;
+  text-align:left!important;
+  vertical-align:middle!important;
+  resize:none!important;
+  overflow-x:hidden!important;
+  overflow-y:hidden;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatInput::placeholder {
+  color:#aa91a2!important;
+  opacity:1!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatPhotoAttach,
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatSend {
+  position:absolute!important;
+  z-index:2!important;
+  top:-1px!important;
+  right:-1px!important;
+  bottom:-1px!important;
+  left:auto!important;
+  display:grid!important;
+  place-items:center!important;
+  flex:none!important;
+  width:auto!important;
+  height:auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:none!important;
+  max-height:none!important;
+  aspect-ratio:1/1!important;
+  box-sizing:border-box!important;
+  margin:0!important;
+  padding:0!important;
+  border-radius:50%!important;
+  transform:none!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatPhotoAttach {
+  border:1px solid #e8c9e5!important;
+  background:linear-gradient(145deg,#ffe7f1,#eee4ff)!important;
+  color:#986aab!important;
+  box-shadow:0 3px 9px rgba(166,119,165,.2)!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatSend {
+  min-width:56px!important;
+  background:linear-gradient(145deg,#d895b0 0%,#c77fa2 100%)!important;
+  color:#fff!important;
+  box-shadow:0 3px 9px rgba(166,119,165,.2)!important;
+  font-size:19px!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatPhotoAttach svg {
+  display:block!important;
+  width:23px!important;
+  height:23px!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatSend[hidden] {
+  display:none!important;
+}
+body.notes-page-active #content .chat-page .chat-composer .chat-photo-preview {
+  order:-2!important;
+  width:100%!important;
+  margin:0!important;
+}
+body.notes-page-active #content .chat-page .chat-composer #chatReplyingTo {
+  order:-1!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+body.notes-page-active #content .chat-page .chat-composer #chatSeenStatus {
+  order:0!important;
+  align-self:flex-end!important;
+}
+body.notes-page-active #content .chat-page.is-reply-inline {
+  padding-bottom:0!important;
+}
+body.notes-page-active #content .chat-page.is-reply-inline #chatThread {
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:0!important;
+  padding-bottom:24px!important;
+  scroll-padding-bottom:24px!important;
+}
+body.notes-page-active #content .chat-page.is-reply-inline #chatComposer {
+  position:relative!important;
+  inset:auto!important;
+  left:auto!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:auto!important;
+  z-index:1!important;
+  display:flex!important;
+  flex:0 0 auto!important;
+  align-self:stretch!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin:12px 0 18px!important;
+  padding:10px!important;
+  transform:none!important;
+  border:1px solid var(--cb-border,#ead4e1)!important;
+  border-radius:22px!important;
+  background:rgba(255,253,251,.97)!important;
+  box-shadow:0 7px 20px rgba(128,90,117,.1),inset 0 1px 0 #fff!important;
+}
+body.notes-page-active #content .chat-page.is-reply-inline.notes-keyboard-open {
+  padding-bottom:0!important;
+}
+body.notes-page-active #content .chat-page.is-reply-inline.notes-keyboard-open #chatComposer {
+  position:relative!important;
+  bottom:auto!important;
+  transform:none!important;
+}
+body[data-mode="dark"].notes-page-active #content .chat-page .chat-composer .chat-input-shell {
+  border-color:#655166!important;
+  background:#302838!important;
+}
+body[data-mode="dark"].notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatInput {
+  color:#f2e7f0!important;
+}
+body[data-mode="dark"].notes-page-active #content .chat-page.is-reply-inline #chatComposer {
+  background:rgba(48,40,56,.97)!important;
+}
+@media(max-width:480px) {
+  body.notes-page-active #content .chat-page .chat-composer {
+    padding:8px!important;
+    gap:7px!important;
+  }
+  body.notes-page-active #content .chat-page .chat-composer .chat-input-shell,
+  body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatInput {
+    min-height:56px!important;
+  }
+  body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatInput {
+    height:56px;
+    padding:15px 64px 15px 13px!important;
+    font-size:16px!important;
+  }
+  body.notes-page-active #content .chat-page.is-reply-inline #chatComposer {
+    margin:10px 0 14px!important;
+    padding:8px!important;
+  }
+}

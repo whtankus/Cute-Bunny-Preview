@@ -72,8 +72,6 @@ The feature-first tree is a migration destination; not every feature has been mo
 
 
 ## Feature extraction status
-Eight feature scripts now own 154 extracted function declarations and load before `app.js` as classic scripts. This preserves access to the existing app-level lexical state during the staged migration. It is not yet full dependency injection or isolated feature state. Streak garden illustration data and feature-specific CSS remain in legacy files pending safe extraction and cascade review.
+Eight feature scripts own 154 extracted function declarations, plus four feature page renderers. They load before `app.js` as classic scripts so they can continue to use the existing app-level lexical state. This is a compatibility boundary, not full dependency injection or isolated feature state. The shared realtime lifecycle coordinator and the Streak Garden illustration helper remain in `app.js` for a later dependency-aware extraction.
 
-
-## Current feature extraction
-Eight feature scripts now own 154 function declarations. Feature CSS has been split into eight stylesheets. The scripts load before `app.js` as classic scripts to preserve access to app-level lexical state; dependency injection and isolated feature state remain future work. The shared base stylesheet remains intact.
+Feature CSS is split into sixteen stylesheets: eight base-layer stylesheets and eight polish/override stylesheets. Base styles load after `style.css` and before tokens/polish; override styles load after `polish.css`. Selector audit details are in `docs/CSS-AUDIT.md`.

@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('core browser scripts parse without syntax errors', () => {
-  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/features/notes/chat-events.js', 'sw.js', 'scripts/build-preview.js']) {
+  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/features/notes/chat-events.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);
   }
 });
@@ -262,4 +262,19 @@ test('Notes composer submit and desktop Enter handling live in the Notes feature
   assert.match(notes, /event\.shiftKey/);
   assert.match(notes, /event\.isComposing/);
   assert.ok(html.indexOf('src/features/notes/chat-events.js') > html.indexOf('src="app.js'));
+});
+
+
+test('Supabase data access is provided by an injected service instead of being embedded in app.js', () => {
+  const app = read('app.js');
+  const service = read('src/services/api.js');
+  const html = read('index.html');
+  assert.doesNotMatch(app, /async function api\(path, options = \{\}\)/);
+  assert.match(app, /CuteBunnyServices\.createApi/);
+  assert.match(service, /function createApi\(\{ client, getCurrentUser, fetchFriendHeartCounts, themes \}\)/);
+  assert.match(service, /return async function api/);
+  assert.match(service, /sb\.from\('memories'\)/);
+  assert.match(service, /sb\.storage\.from\('memories'\)/);
+  assert.match(html, /src="src\/services\/api\.js"/);
+  assert.ok(html.indexOf('src/services/api.js') < html.indexOf('src="app.js'));
 });

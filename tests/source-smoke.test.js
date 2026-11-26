@@ -44,16 +44,17 @@ test('Bear Hugs uses one fixed level and Care Point-based treasure collection', 
 
 test('Bear Hugs daily missions track only successfully delivered actions', () => {
   const app = read('app.js');
+  const streak = read('src/features/streak/streak.js');
   const bear = read('bear-hugs-progression.js');
   const styles = read('bear-hugs-progression.css');
-  assert.match(app, /bearActions: Array\.isArray\(saved\.bearActions\)/);
-  assert.match(app, /bearActionIds: Array\.isArray\(saved\.bearActionIds\)/);
-  assert.match(app, /!state\.bearActionIds\.includes\(actionId\)/);
-  assert.match(app, /kind === 'bear-action'/);
-  assert.match(app, /bearHugQuests/);
-  assert.match(app, /cute-bunny:bear-action/);
-  assert.match(app, /item\.kind === 'bear-action' \? 'bear-hugs'/);
-  assert.match(app, /destination === 'bear-hugs'/);
+  assert.match(streak, /bearActions: Array\.isArray\(saved\.bearActions\)/);
+  assert.match(streak, /bearActionIds: Array\.isArray\(saved\.bearActionIds\)/);
+  assert.match(streak, /!state\.bearActionIds\.includes\(actionId\)/);
+  assert.match(streak, /kind === 'bear-action'/);
+  assert.match(streak, /bearHugQuests/);
+  assert.match(streak, /cute-bunny:bear-action/);
+  assert.match(streak, /item\.kind === 'bear-action' \? 'bear-hugs'/);
+  assert.match(streak, /destination === 'bear-hugs'/);
   assert.match(bear, /new CustomEvent\('cute-bunny:bear-action'/);
   assert.match(bear, /actionId: String\(payload\.actionId \|\| ''\)/);
   assert.match(bear, /if \(!delivered\) return;/);
@@ -174,12 +175,12 @@ test('streak entry button and thumbnail play boing on pointer and keyboard activ
 
 
 test('main navigation shows glowing new-activity dots for unread content notifications', () => {
-  const app = read('app.js');
+  const notifications = read('src/features/notifications/notifications.js');
   const html = read('index.html');
   const css = read('style.css');
-  assert.match(app, /function updateNavNewDots\(\)/);
-  assert.match(app, /gallery: \['photo'\], music: \['song'\], notes: \['note'\], friends: \['buddy'\]/);
-  assert.match(app, /function markNavNotificationsSeen\(targetPage\)/);
+  assert.match(notifications, /function updateNavNewDots\(\)/);
+  assert.match(notifications, /gallery: \['photo'\], music: \['song'\], notes: \['note'\], friends: \['buddy'\]/);
+  assert.match(notifications, /function markNavNotificationsSeen\(targetPage\)/);
   for (const page of ['home', 'gallery', 'notes', 'music', 'friends']) {
     assert.ok(html.includes('data-page="' + page + '"') && html.includes('class="nav-new-dot"'));
   }

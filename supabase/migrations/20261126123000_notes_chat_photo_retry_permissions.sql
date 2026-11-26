@@ -1,3 +1,5 @@
+-- Replace the earlier note-only update policy to avoid duplicate permissive UPDATE checks.
+drop policy if exists "Update own notes" on public.memories;
 -- Permit idempotent upserts for Notes parents and their linked Photos Garden records.
 drop policy if exists "Update own note messages and linked photos" on public.memories;
 create policy "Update own note messages and linked photos"

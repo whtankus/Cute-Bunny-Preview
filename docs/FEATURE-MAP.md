@@ -32,11 +32,11 @@ Feature modules should own rendering and event handlers. Services own network/st
 
 
 ## Feature-owned source files
-- home: `src/features/home/home.js` and `src/styles/features/home.css`
-- photos: `src/features/photos/photos.js` and `src/styles/features/photos.css`
-- notes: `src/features/notes/notes.js` and `src/styles/features/notes.css`
-- music: `src/features/music/music.js` and `src/styles/features/music.css`
-- friends: `src/features/friends/friends.js` and `src/styles/features/friends.css`
-- notifications: `src/features/notifications/notifications.js` and `src/styles/features/notifications.css`
-- profile: `src/features/profile/profile.js` and `src/styles/features/profile.css`
-- streak: `src/features/streak/streak.js` and `src/styles/features/streak.css`
+- home: `src/features/home/home.js`, `src/styles/features/base-home.css` (base layer) and `src/styles/features/home.css` (polish layer)
+- photos: `src/features/photos/photos.js`, `src/styles/features/base-photos.css` (base layer) and `src/styles/features/photos.css` (polish layer)
+- notes: `src/features/notes/notes.js`, `src/styles/features/base-notes.css` (base layer) and `src/styles/features/notes.css` (polish layer)
+- music: `src/features/music/music.js`, `src/styles/features/base-music.css` (base layer) and `src/styles/features/music.css` (polish layer)
+- friends: `src/features/friends/friends.js`, `src/styles/features/base-friends.css` (base layer) and `src/styles/features/friends.css` (polish layer)
+- notifications: `src/features/notifications/notifications.js`, `src/styles/features/base-notifications.css` (base layer) and `src/styles/features/notifications.css` (polish layer)
+- profile: `src/features/profile/profile.js`, `src/styles/features/base-profile.css` (base layer) and `src/styles/features/profile.css` (polish layer)
+- streak: `src/features/streak/streak.js`, `src/styles/features/base-streak.css` (base layer) and `src/styles/features/streak.css` (polish layer)

@@ -16403,6 +16403,9 @@ body.notes-page-active #content .chat-page .chat-composer #chatReplyingTo .chat-
   font-size:10px!important;
   line-height:1.25!important;
 }
+body.notes-page-active #content .chat-page.is-reply-inline #chatComposer #chatSeenStatus {
+  order:1!important;
+}
 body[data-mode="dark"].notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatInput {
   color:#f2e7f0!important;
 }

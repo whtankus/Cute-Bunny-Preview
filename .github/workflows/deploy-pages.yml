@@ -33,6 +33,7 @@ jobs:
           node --check src/core/dom.js
           node --check src/services/supabase-client.js
           node --check src/services/media-optimizer.js
+          node --check src/services/api.js
           node --check src/features/notes/chat-events.js
           node --check sw.js
           node --check swipe-gestures.js
@@ -52,6 +53,7 @@ jobs:
           cp src/core/dom.js _site/src/core/
           cp src/services/supabase-client.js _site/src/services/
           cp src/services/media-optimizer.js _site/src/services/
+          cp src/services/api.js _site/src/services/
           cp src/features/notes/chat-events.js _site/src/features/notes/
           cp src/styles/tokens.css _site/src/styles/
           cp index.html app.js style.css polish.css button-interactions.css swipe-gestures.css swipe-gestures.js bear-hugs-progression.css bear-hugs-progression.js manifest.webmanifest sw.js bunny-app-icon-192.png bunny-app-icon-512.png apple-touch-icon.png _site/

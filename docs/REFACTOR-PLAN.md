@@ -6,6 +6,7 @@
 - [x] Extract Supabase client construction to `src/services/supabase-client.js`.
 - [x] Extract image upload optimization to `src/services/media-optimizer.js`.
 - [x] Extract shared visual tokens to `src/styles/tokens.css`.
+- [x] Move Notes composer submit and desktop Enter handling to `src/features/notes/chat-events.js`.
 - [x] Update browser loading, GitHub Pages publishing, production build and service-worker precache for nested source paths.
 - [x] Add regression checks for the extracted boundaries and production asset copying.
 

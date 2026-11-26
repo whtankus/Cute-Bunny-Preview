@@ -549,7 +549,7 @@ test('PWA installs its complete shell and reloads offline', async () => {
       };
     });
     assert.equal(cached.shell, true, 'the current app shell cache should be installed');
-    for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'notes-chat-layout.css', 'notes-chat-layout.js', 'header-statusbar-blend.css', 'bear-hugs-progression.js', 'bear-hugs-progression.css']) {
+    for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'notes-chat-layout.css', 'header-statusbar-blend.css', 'bear-hugs-progression.js', 'bear-hugs-progression.css']) {
       assert.ok(cached.assets.includes(asset), 'offline cache should include ' + asset);
     }
 

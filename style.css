@@ -15672,32 +15672,6 @@ body.notes-page-active #content .chat-page .chat-composer .chat-photo-attach svg
 }
 
 
-/* Photo Garden: prominent capsule upload action and consistent two-column chronology. */
-#content .upload-label[data-upload="photo"],
-#content .photo-garden-grid + .upload-label {
-  display:flex!important;
-}
-#content .upload-label:has(input[data-upload="photo"]) {
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  width:100%!important;
-  min-height:64px!important;
-  margin:24px 0 28px!important;
-  padding:15px 24px!important;
-  border-radius:999px!important;
-  font-size:1.08rem!important;
-  font-weight:900!important;
-  line-height:1.2!important;
-  box-sizing:border-box!important;
-  box-shadow:0 5px 0 #a96578,0 10px 22px rgba(153,91,126,.14)!important;
-}
-#content .upload-label:has(input[data-upload="photo"]):active {
-  transform:translateY(2px)!important;
-  box-shadow:0 3px 0 #a96578,0 6px 14px rgba(153,91,126,.12)!important;
-}
-
-
 /* Notes is an immersive writing space: remove the section navigation while active. */
 body.notes-page-active .app #nav {
   display:flex!important;
@@ -15736,63 +15710,6 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
     width:calc(100vw - 16px)!important;
     max-width:calc(100vw - 16px)!important;
   }
-}
-
-
-/* Photo Garden masonry: sender label first, then natural-size photos with no empty grid cells. */
-#content .photo-garden-grid {
-  display:block!important;
-  column-count:2!important;
-  column-gap:12px!important;
-  column-fill:balance!important;
-  width:100%!important;
-}
-#content .photo-garden-grid>.feed-item {
-  display:inline-flex!important;
-  flex-direction:column!important;
-  vertical-align:top!important;
-  break-inside:avoid!important;
-  -webkit-column-break-inside:avoid!important;
-  width:100%!important;
-  min-width:0!important;
-  margin:0 0 14px!important;
-}
-#content .photo-garden-grid .feed-by {
-  order:0!important;
-  display:flex!important;
-  min-width:0!important;
-  padding:3px 3px 7px!important;
-}
-#content .photo-garden-grid>.feed-item>.tile {
-  display:block!important;
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  aspect-ratio:auto!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:visible!important;
-}
-#content .photo-garden-grid .photo-frame {
-  display:block!important;
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  aspect-ratio:auto!important;
-  margin:0!important;
-  overflow:hidden!important;
-  border-radius:16px!important;
-}
-#content .photo-garden-grid .feed-photo {
-  display:block!important;
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:380px!important;
-  aspect-ratio:auto!important;
-  margin:0!important;
-  object-fit:contain!important;
-  border-radius:16px!important;
 }
 
 

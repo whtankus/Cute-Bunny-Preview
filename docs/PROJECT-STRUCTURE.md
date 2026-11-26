@@ -33,9 +33,15 @@ src/
 ├── app/                           # Startup and navigation coordinator
 ├── core/                          # DOM, events, state and shared helpers
 ├── features/
-│   ├── home/  photos/  notes/  music/
-│   ├── friends/  notifications/  profile/
-│   ├── streak-garden/  bearfriend/
+│   ├── home/home.js
+│   ├── photos/photos.js
+│   ├── notes/notes.js
+│   ├── music/music.js
+│   ├── friends/friends.js
+│   ├── notifications/notifications.js
+│   ├── profile/profile.js
+│   ├── streak/streak.js
+│   └── bearfriend/
 ├── services/                      # Supabase, media, storage and realtime
 └── styles/
     ├── tokens.css
@@ -52,3 +58,7 @@ The feature-first tree is a migration destination; not every feature has been mo
 - Move one cohesive behaviour at a time and preserve DOM IDs and event contracts.
 - Preserve nested `src/` paths in production output.
 - Run syntax checks, source tests, production build, Pages deployment, browser regression checks and Android packaging before merging.
+
+
+## Feature extraction status
+Eight feature scripts now own 154 extracted function declarations and load before `app.js` as classic scripts. This preserves access to the existing app-level lexical state during the staged migration. It is not yet full dependency injection or isolated feature state. Streak garden illustration data and feature-specific CSS remain in legacy files pending safe extraction and cascade review.

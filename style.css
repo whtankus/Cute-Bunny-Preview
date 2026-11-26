@@ -15017,3 +15017,9 @@ body[data-mode="dark"] #content .chat-shared-photo-item,body[data-mode="dark"] #
 #content .chat-shared-photo.has-load-error,#content .chat-reply-photo-preview.has-load-error{object-fit:contain;background:#f4eaf2;opacity:.85}
 @keyframes chat-photo-shimmer{to{background-position-x:-200%}}
 @media(prefers-reduced-motion:reduce){#content .chat-shared-photo.is-loading,#content .chat-reply-photo-preview.is-loading{animation:none}}
+
+
+/* Shared Notes images keep their native proportions instead of being cropped into tiles. */
+#content .chat-shared-photo-item .photo-frame{aspect-ratio:auto;height:auto;min-height:0;overflow:visible}
+#content .chat-shared-photo-item .chat-shared-photo{width:100%;height:auto;max-height:360px;object-fit:contain;object-position:center;border-radius:12px;background:#f7edf4}
+body[data-mode="dark"] #content .chat-shared-photo-item .chat-shared-photo{background:#382e40}

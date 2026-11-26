@@ -49,13 +49,13 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     constructor(table) {
       this.table = table; this.action = 'select'; this.payload = null; this.filters = [];
       this.orders = []; this.maxRows = null; this.slice = null; this.cardinality = 'many';
-      this.returning = false; this.conflict = null;
+      this.returning = false; this.conflict = null; this.ignoreDuplicates = false;
     }
     select() { this.returning = true; return this; }
     insert(value) { this.action = 'insert'; this.payload = Array.isArray(value) ? value : [value]; return this; }
     update(value) { this.action = 'update'; this.payload = value; return this; }
     delete() { this.action = 'delete'; return this; }
-    upsert(value, options = {}) { this.action = 'upsert'; this.payload = Array.isArray(value) ? value : [value]; this.conflict = options.onConflict; return this; }
+    upsert(value, options = {}) { this.action = 'upsert'; this.payload = Array.isArray(value) ? value : [value]; this.conflict = options.onConflict; this.ignoreDuplicates = !!options.ignoreDuplicates; return this; }
     eq(key, value) { this.filters.push(row => row[key] === value); return this; }
     neq(key, value) { this.filters.push(row => row[key] !== value); return this; }
     lt(key, value) { this.filters.push(row => row[key] < value); return this; }
@@ -84,7 +84,15 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
           if (this.action === 'upsert') {
             const keys = String(this.conflict || (this.table === 'profile_private_settings' ? 'user_id' : 'id')).split(',').map(key => key.trim());
             const existing = rows.find(item => keys.every(key => item[key] === row[key]));
-            if (existing) { Object.assign(existing, row); return existing; }
+            if (existing) {
+              if (this.ignoreDuplicates) return existing;
+              if (this.table === 'memories') {
+                row.id = existing.id;
+                row.created_at = existing.created_at;
+              }
+              Object.assign(existing, row);
+              return existing;
+            }
           }
           rows.push(row);
           return row;

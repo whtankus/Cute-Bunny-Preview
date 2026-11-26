@@ -210,3 +210,27 @@ test('Achievement Garden keeps earned heart flowers and includes 1,500 and 2,000
   assert.ok(css.includes('.achievement-card.is-earned'));
 });
 
+
+
+test('Notes Chat photo sharing uses stable parent/photo IDs and keeps the Photos Garden linked', () => {
+  const app = read('app.js');
+  const html = read('index.html');
+  const styles = read('style.css');
+  const schema = read('supabase/schema.sql');
+  assert.match(app, /id="chatPhotoInput"[^>]*multiple/);
+  assert.match(app, /id="chatPhotoPicker"/);
+  assert.match(app, /notesSelectedPhotos/);
+  assert.match(app, /client_message_id: draft\.clientMessageId/);
+  assert.match(app, /client_photo_id: photo\.clientPhotoId/);
+  assert.match(app, /chat_message_id: savedParent\.id/);
+  assert.match(app, /onConflict: 'client_message_id'/);
+  assert.match(app, /onConflict: 'client_photo_id'/);
+  assert.match(app, /data-chat-retry/);
+  assert.match(app, /data-chat-jump/);
+  assert.match(app, /notePhotosById/);
+  assert.match(styles, /chat-photo-preview/);
+  assert.match(styles, /chat-shared-photo-grid/);
+  assert.match(schema, /client_message_id uuid/);
+  assert.match(schema, /client_photo_id uuid/);
+  assert.match(schema, /chat_message_id bigint references public\.memories\(id\) on delete cascade/);
+});

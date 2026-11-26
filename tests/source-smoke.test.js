@@ -210,3 +210,26 @@ test('Achievement Garden keeps earned heart flowers and includes 1,500 and 2,000
   assert.ok(css.includes('.achievement-card.is-earned'));
 });
 
+
+
+test('Notes Chat photo sharing is linked to the existing Photos Garden model', () => {
+  const app = read('app.js'), html = read('index.html'), css = read('style.css'), schema = read('supabase/schema.sql');
+  assert.match(app, /id="chatPhotoInput"[^>]*multiple/);
+  assert.match(app, /id="chatPhotoPicker"/);
+  assert.match(app, /client_message_id: draft\.clientMessageId/);
+  assert.match(app, /client_photo_id: photo\.clientPhotoId/);
+  assert.match(app, /chat_message_id: savedParent\.id/);
+  assert.match(app, /notePhotosByMessage/);
+  assert.match(app, /data-chat-retry/);
+  assert.match(css, /chat-photo-preview/);
+  assert.match(schema, /client_message_id uuid/);
+  assert.match(schema, /chat_message_id bigint references public\.memories\(id\) on delete cascade/);
+});
+
+
+test('Notes photo retry permissions stay scoped to the signed-in owner', () => {
+  const migration = read('supabase/migrations/20261126123000_notes_chat_photo_retry_permissions.sql');
+  assert.match(migration, /Update own note messages and linked photos/);
+  assert.match(migration, /owner_id = \(select auth\.uid\(\)\) and kind in \('note','photo'\)/);
+  assert.match(migration, /grant update\s*\(\s*owner_id,\s*kind,\s*text,\s*reply_to_id,\s*photo_group_id,\s*client_message_id,\s*file_name,\s*content_type,\s*storage_path,\s*chat_message_id,\s*client_photo_id\s*\)/);
+});

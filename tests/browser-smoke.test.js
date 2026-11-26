@@ -386,3 +386,105 @@ test('friend presence sweep covers online, offline, Notes entry, and Notes exit 
   await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
   assert.equal(await page.locator('#cb-presence-sweep').evaluate(node => getComputedStyle(node).visibility), 'visible');
 });
+
+
+test('Notes photo messages retry safely, appear in Photos Garden, and accept replies', async () => {
+  const page = await newTestPage({ authenticated: true, viewport: { width: 390, height: 844 } });
+  page.on('pageerror', error => console.log('Notes photo page error:', error.message));
+  page.on('console', message => { if (message.type() === 'error') console.log('Notes photo console error:', message.text()); });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatPhotoPicker').waitFor({ state: 'visible' });
+  await page.locator('#chatInput').focus();
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true, 'empty focused composer keeps the photo icon visible');
+  await page.locator('#chatInput').fill('A temporary caption');
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), false);
+  assert.equal(await page.locator('#chatSend').isVisible(), true);
+  await page.locator('#chatInput').fill('');
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true);
+  assert.equal(await page.locator('#chatSend').isVisible(), false);
+  await page.locator('#chatPhotoInput').setInputFiles({
+    name: 'remove-me.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64')
+  });
+  await page.locator('[data-chat-photo-remove]').click();
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true, 'removing the last selected photo restores the picker');
+  await page.locator('#chatPhotoInput').setInputFiles([
+    { name: 'first.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64') },
+    { name: 'second.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64') }
+  ]);
+  await page.locator('#chatPhotoPreview').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('.chat-photo-preview-item').count(), 2);
+  await page.locator('#chatInput').fill('A little photo story ♡');
+  await page.evaluate(() => { window.__cuteBunnyTestState.failNextUpload = true; });
+  await page.locator('#chatSend').click();
+  await page.waitForTimeout(600);
+  console.log('Notes photo send state:', JSON.stringify(await page.evaluate(() => ({
+    parents: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'note' && row.text === 'A little photo story ♡').length,
+    photos: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'photo' && row.text === 'A little photo story ♡').length,
+    uploads: window.__cuteBunnyTestState.uploads.length,
+    retryButtons: document.querySelectorAll('[data-chat-retry]').length,
+    chatText: document.querySelector('#chatThread')?.innerText
+  }))));
+  await page.locator('[data-chat-retry]').waitFor({ state: 'visible' });
+  const failedState = await page.evaluate(() => {
+    const rows = window.__cuteBunnyTestState.tables.memories;
+    return {
+      parents: rows.filter(row => row.kind === 'note' && row.text === 'A little photo story ♡').length,
+      photos: rows.filter(row => row.kind === 'photo' && row.text === 'A little photo story ♡').length
+    };
+  });
+  assert.equal(failedState.parents, 1);
+  assert.equal(failedState.photos, 0, 'Photos Garden must not show a partially uploaded batch');
+  await page.locator('[data-chat-retry]').click();
+  await page.waitForFunction(() => {
+    const rows = window.__cuteBunnyTestState.tables.memories;
+    const parent = rows.find(row => row.kind === 'note' && row.text === 'A little photo story ♡');
+    return !!parent && rows.filter(row => row.kind === 'photo' && row.chat_message_id === parent.id).length === 2;
+  });
+  const sent = await page.evaluate(() => {
+    const rows = window.__cuteBunnyTestState.tables.memories;
+    const parents = rows.filter(row => row.kind === 'note' && row.text === 'A little photo story ♡');
+    const parent = parents[0];
+    const photos = rows.filter(row => row.kind === 'photo' && row.chat_message_id === parent.id);
+    return { parent, parents, photos, uploads: window.__cuteBunnyTestState.uploads };
+  });
+  assert.equal(sent.parents.length, 1, 'Retry must not duplicate the message');
+  assert.equal(sent.photos.length, 2, 'Retry must not duplicate Photos Garden entries');
+  assert.ok(sent.photos.every(photo => photo.owner_id === sent.parent.owner_id));
+  assert.ok(sent.photos.every(photo => photo.photo_group_id === sent.parent.photo_group_id));
+  assert.equal(sent.uploads.filter(upload => upload.path.includes('/notes/')).length, 2);
+
+  await page.locator('#nav button[data-page="gallery"]').click();
+  await page.waitForFunction(parentId => {
+    return [...document.querySelectorAll('#content .feed-item[data-kind="photo"]')].filter(item =>
+      window.__cuteBunnyTestState.tables.memories.some(photo => String(photo.id) === item.dataset.memory && photo.chat_message_id === parentId)
+    ).length === 2;
+  }, sent.parent.id);
+
+  await page.locator('#nav button[data-page="notes"]').click();
+  const bubble = page.locator('.chat-message[data-memory="' + sent.parent.id + '"] .chat-bubble');
+  const box = await bubble.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  await page.locator('.chat-actions-popup [data-chat-reply="' + sent.parent.id + '"]').click();
+  await page.locator('#chatReplyingTo').waitFor({ state: 'visible' });
+  assert.match(await page.locator('#chatReplyingTo').innerText(), /Photo|A little photo story/);
+  await page.locator('#chatInput').fill('Replying to your photos ♡');
+  await page.locator('#chatSend').click();
+  await page.waitForFunction(parentId => window.__cuteBunnyTestState.tables.memories.some(row =>
+    row.kind === 'note' && row.text === 'Replying to your photos ♡' && row.reply_to_id === parentId
+  ), sent.parent.id);
+
+  await page.locator('#chatPhotoInput').setInputFiles({
+    name: 'photo-only.png', mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64')
+  });
+  await page.locator('#chatSend').click();
+  await page.waitForFunction(() => {
+    const rows = window.__cuteBunnyTestState.tables.memories;
+    const parent = rows.find(row => row.kind === 'note' && row.client_message_id && row.text === '');
+    return !!parent && rows.some(row => row.kind === 'photo' && row.chat_message_id === parent.id);
+  });
+});

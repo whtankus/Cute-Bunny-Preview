@@ -22,11 +22,26 @@ create table if not exists public.memories (
   owner_id uuid not null references public.profiles(id) on delete cascade,
   kind text not null check (kind in ('note','photo','song')),
   text text not null default '' check (char_length(text) <= 1000),
+  reply_to_id bigint references public.memories(id) on delete set null,
+  edited_at timestamptz,
   file_name text not null default '',
   content_type text not null default '',
   storage_path text not null default '',
+  photo_group_id uuid,
+  client_message_id uuid,
+  client_photo_id uuid,
+  chat_message_id bigint references public.memories(id) on delete cascade,
   created_at timestamptz not null default now()
 );
+
+alter table public.memories add column if not exists photo_group_id uuid;
+alter table public.memories add column if not exists client_message_id uuid;
+alter table public.memories add column if not exists client_photo_id uuid;
+alter table public.memories add column if not exists chat_message_id bigint references public.memories(id) on delete cascade;
+create unique index if not exists memories_client_message_id_uidx on public.memories(client_message_id);
+create unique index if not exists memories_client_photo_id_uidx on public.memories(client_photo_id);
+create index if not exists memories_chat_message_id_idx on public.memories(chat_message_id) where chat_message_id is not null;
+create index if not exists memories_photo_group_id_idx on public.memories(photo_group_id) where photo_group_id is not null;
 create index if not exists memories_owner_created on public.memories(owner_id, created_at desc);
 create index if not exists follows_follower on public.follows(follower_id);
 
@@ -60,6 +75,13 @@ drop policy if exists "Create own memories" on public.memories;
 create policy "Create own memories" on public.memories for insert to authenticated with check (owner_id = (select auth.uid()));
 drop policy if exists "Delete own memories" on public.memories;
 create policy "Delete own memories" on public.memories for delete to authenticated using (owner_id = (select auth.uid()));
+drop policy if exists "Update own note messages and linked photos" on public.memories;
+create policy "Update own note messages and linked photos"
+on public.memories for update to authenticated
+using (owner_id = (select auth.uid()) and kind in ('note','photo'))
+with check (owner_id = (select auth.uid()) and kind in ('note','photo'));
+grant update (owner_id,kind,text,reply_to_id,photo_group_id,client_message_id,file_name,content_type,storage_path,chat_message_id,client_photo_id)
+on public.memories to authenticated;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('memories','memories',false,8388608,array['image/jpeg','image/png','image/webp','image/gif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'])

@@ -3026,7 +3026,7 @@ function memoryCard(m, options = {}) {
     const photoCaption = m.text && m.text !== m.fileName ? `<span class="memory-title photo-caption-label">${esc(m.text)}</span>` : '';
     const photoSharedAt = m.createdAt || m.created_at;
     const photoMetadata = `<small class="photo-shared-at">${esc(formatProfileDate(photoSharedAt))} · ${esc(formatNoteClock(photoSharedAt))}${m.chat_message_id ? ' · From Notes Chat' : ''}</small>`;
-    body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo is-loading" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div>${photoCaption}${photoMetadata}</div>`;
+    body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo is-loading" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}"` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div>${photoCaption}${photoMetadata}</div>`;
   } else if (m.kind === 'song') {
     const songAction = m.isPending ? '' : mine
       ? `<button class="song-download card-song-save card-song-delete" type="button" data-memory-delete="${esc(m.id)}" aria-label="Delete song">Delete</button>`

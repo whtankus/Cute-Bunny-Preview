@@ -1,0 +1,221 @@
+/* Feature-scoped styles extracted from polish.css. */
+#notificationGate .notification-card {
+
+  max-height: calc(100dvh - 28px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+}
+
+.notification-loading {
+min-height:34px!important;padding:6px!important
+}
+
+.notification-loader {
+
+  width:15px!important;height:15px!important;border-width:1.7px!important;
+  border-color:color-mix(in srgb,var(--cb-accent,#c87598) 20%,transparent)!important;
+  border-top-color:var(--cb-accent,#c87598)!important;
+  animation:cb-loader-turn .85s linear infinite!important;
+
+}
+
+body[data-theme] #app .notification-badge {
+
+  color:#fff!important;
+  background:var(--cb-accent-strong)!important;
+  border:2px solid var(--cb-bg)!important;
+
+}
+
+body[data-theme] #app .notification-bell-icon {
+
+  stroke:currentColor!important;
+
+}
+
+body[data-theme] #app .notification-bell-icon {
+
+  display:block!important;
+  width:20px!important;
+  height:20px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+
+}
+
+body[data-theme] #app .notification-badge {
+
+  border:2px solid var(--cb-surface)!important;
+  box-shadow:none!important;
+
+}
+
+body[data-theme] #app .notification-bell-icon {
+
+  display:block!important;
+  width:20px!important;
+  height:20px!important;
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.8!important;
+  stroke-linecap:round!important;
+  stroke-linejoin:round!important;
+
+}
+
+body[data-theme] #app .notification-badge {
+
+  color:#fff!important;
+  background:var(--cb-accent-strong)!important;
+  border:2px solid var(--cb-surface)!important;
+  box-shadow:none!important;
+
+}
+
+@media(max-width:520px) {
+body[data-theme] #app .notification-bell-icon {
+width:18px!important;height:18px!important
+}
+}
+
+#app > header .notification-badge {
+
+  color:var(--cb-accent-contrast,#fff)!important;
+  background:var(--cb-accent)!important;
+  border-color:var(--cb-surface)!important;
+
+}
+
+#notificationGate .notification-card {
+gap:12px
+}
+
+#notificationList {
+display:grid;gap:13px
+}
+
+.notification-group {
+display:grid;gap:7px
+}
+
+.notification-group>h3 {
+margin:4px 3px 1px;color:var(--cb-text-muted,#927d91);font-size:.68rem;font-weight:850;letter-spacing:.09em;text-transform:uppercase
+}
+
+#notificationList .notification-row {
+display:flex;align-items:center;gap:5px;min-width:0;padding:8px 7px 8px 9px;border:1px solid var(--cb-border,#f0e3e9);border-radius:15px;background:var(--cb-surface,#fffdfb);color:var(--cb-text,#705b70)
+}
+
+#notificationList .notification-row.is-unread {
+background:color-mix(in srgb,var(--cb-accent-soft,#f7eefb) 72%,var(--cb-surface,#fff));border-color:color-mix(in srgb,var(--cb-accent,#d17f9f) 28%,var(--cb-border,#f0e3e9))
+}
+
+#notificationList .notification-open {
+display:flex;align-items:center;gap:9px;flex:1 1 auto;min-width:0;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer
+}
+
+#notificationList .notification-avatar {
+flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;border-radius:12px;background:var(--cb-accent-soft,#fae7ef);font-size:1.05rem
+}
+
+#notificationList .notification-copy {
+display:block;flex:1;min-width:0
+}
+
+#notificationList .notification-open b,#notificationList .notification-open small,#notificationList .notification-open time {
+display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+
+#notificationList .notification-open b {
+font-size:.76rem;line-height:1.25
+}
+
+#notificationList .notification-open small {
+margin-top:3px;color:var(--cb-text-muted,#8d778b);font-size:.68rem;line-height:1.3
+}
+
+#notificationList .notification-open time {
+margin-top:3px;color:var(--cb-text-muted,#a08d9f);font-size:.61rem;font-variant-numeric:tabular-nums
+}
+
+#notificationList .notification-kind {
+display:grid;place-items:center;flex:0 0 25px;width:25px;height:25px;border-radius:9px;background:var(--cb-surface-raised,#f8edf3);color:var(--cb-accent-strong,#b86e91);font-size:.82rem
+}
+
+#notificationList .notification-unread-dot {
+width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--cb-accent-strong,#d17f9f);box-shadow:0 0 0 3px var(--cb-accent-soft,#f8e7ef)
+}
+
+#notificationList .notification-delete {
+display:grid;place-items:center;flex:0 0 27px;width:27px;height:27px;padding:0;border:0;border-radius:9px;background:transparent;color:var(--cb-text-muted,#a08d9f);font-size:1.1rem;line-height:1;cursor:pointer
+}
+
+#notificationList .notification-delete:hover {
+background:var(--cb-accent-soft,#fae7ef);color:var(--cb-accent-strong,#b86e91)
+}
+
+#notificationList .notification-load-more {
+display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px;border:1px solid var(--cb-border,#eadce6);border-radius:13px;background:var(--cb-surface-raised,#fff7fa);color:var(--cb-accent-strong,#a96c8c);font-size:.72rem;font-weight:800
+}
+
+#notificationList .notification-load-more span {
+display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--cb-accent-soft,#f5e5ee);font-size:.65rem
+}
+
+body[data-mode="dark"] #notificationList .notification-row.is-unread {
+background:color-mix(in srgb,var(--cb-accent) 13%,var(--cb-surface));
+}
+
+body[data-mode="dark"] #notificationList .notification-delete:hover {
+background:var(--cb-accent-soft)
+}
+
+@media(prefers-reduced-motion:reduce) {
+#notificationList .notification-row,#notificationList button {
+transition:none!important
+}
+}
+
+.notification-preference-pair {
+
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  flex-wrap:nowrap;
+  gap:12px;
+  min-width:0;
+  margin:6px 0;
+
+}
+
+.notification-preference-pair>label {
+
+  display:flex;
+  align-items:center;
+  flex:0 1 auto;
+  gap:6px;
+  margin:0!important;
+  white-space:nowrap;
+  font-size:.74rem!important;
+
+}
+
+.notification-preference-pair input {
+flex:0 0 auto
+}
+
+@media(max-width:360px) {
+.notification-preference-pair {
+gap:8px
+}
+}
+
+@media(max-width:360px) {
+.notification-preference-pair>label {
+font-size:.69rem!important
+}
+}

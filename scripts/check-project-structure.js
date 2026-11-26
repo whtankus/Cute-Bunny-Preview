@@ -4,6 +4,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const requiredFiles = [
   'index.html', 'app.js', 'style.css', 'sw.js', 'manifest.webmanifest',
+  'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/styles/tokens.css',
   'capacitor.config.json', 'scripts/build-preview.js', 'tests/source-smoke.test.js',
   'docs/PROJECT-STRUCTURE.md', 'docs/FILE-NAMING.md', 'docs/FEATURE-MAP.md',
   'docs/REFACTOR-PLAN.md', 'supabase/schema.sql'

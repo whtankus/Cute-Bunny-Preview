@@ -1,9 +1,9 @@
 /* Notes chat layout: a real flex dock, never a floating overlay. */
-html, body { height:100%; }
-#app { min-height:100dvh; height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
-#app > header { flex:0 0 auto; }
-#app > #mainContent { flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
-#app > #nav { flex:0 0 auto; position:relative; z-index:5; }
+html, body { min-height:100%; }
+body.notes-page-active #app { min-height:100dvh; height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
+body.notes-page-active #app > header { flex:0 0 auto; }
+body.notes-page-active #app > #mainContent { flex:1 1 auto; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+body.notes-page-active #app > #nav { flex:0 0 auto; position:relative; z-index:5; }
 body.notes-page-active #mainContent { min-height:0; padding:0; overflow:hidden; }
 body.notes-page-active #content {
   display:flex; flex:1 1 auto; flex-direction:column;

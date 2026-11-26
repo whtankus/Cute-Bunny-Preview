@@ -15023,3 +15023,6 @@ body[data-mode="dark"] #content .chat-shared-photo-item,body[data-mode="dark"] #
 #content .chat-shared-photo-item .photo-frame{aspect-ratio:auto;height:auto;min-height:0;overflow:visible}
 #content .chat-shared-photo-item .chat-shared-photo{width:100%;height:auto;max-height:360px;object-fit:contain;object-position:center;border-radius:12px;background:#f7edf4}
 body[data-mode="dark"] #content .chat-shared-photo-item .chat-shared-photo{background:#382e40}
+
+#content .photo-shared-at{display:block;margin-top:5px;color:#9b8196;font-size:10px;font-weight:700;line-height:1.4}
+body[data-mode="dark"] #content .photo-shared-at{color:#c7abc4}

@@ -25,7 +25,7 @@ body.notes-page-active #content .chat-page > .chat-thread {
 }
 body.notes-page-active #content .chat-page > #chatComposer {
   position:relative!important; inset:auto!important; transform:none!important;
-  z-index:3; display:flex; flex:0 0 auto; width:100%!important;
+  z-index:3; display:flex!important; flex:0 0 auto; flex-direction:column!important; align-items:stretch!important; gap:7px!important; width:100%!important;
   max-width:none!important; margin:0!important; box-sizing:border-box;
   padding:9px 10px max(9px,env(safe-area-inset-bottom,0px))!important;
   border-top:1px solid var(--cb-border,#eadde5)!important;
@@ -57,7 +57,7 @@ body.notes-page-active #content .chat-page #chatInput {
   padding-right:66px!important; resize:none;
 }
 body.notes-page-active #content .chat-page #chatPhotoAttach {
-  position:absolute!important; top:0; right:0; bottom:0;
+  position:absolute!important; display:grid!important; place-items:center!important; top:0; right:0; bottom:0;
   width:56px!important; min-width:56px!important; height:56px!important;
   min-height:56px!important; margin:0!important; border-radius:50%!important;
 }

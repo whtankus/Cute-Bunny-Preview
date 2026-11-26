@@ -12,6 +12,7 @@ const assets = [
   'app.js',
   'src/core/dom.js',
   'src/services/supabase-client.js',
+  'src/services/media-optimizer.js',
   'src/styles/tokens.css',
   'style.css',
   'polish.css',
@@ -28,7 +29,9 @@ const assets = [
 for (const asset of assets) {
   const source = path.join(root, asset);
   if (!fs.existsSync(source)) throw new Error('Missing required preview asset: ' + asset);
-  fs.copyFileSync(source, path.join(output, asset));
+  const destination = path.join(output, asset);
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.copyFileSync(source, destination);
 }
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';

@@ -48,7 +48,6 @@ let notesTypingChannelReady = false, notesTypingQueuedState = null;
 const remoteTypingUsers = new Map();
 let activeMessageActionsId = null;
 let replyingToMessageId = null;
-let pendingChatPhotoFiles = [], pendingChatPhotoUrls = [];
 const noteDeliveryInFlight = new Set();
 const noteDeliveredLocally = new Set();
 let hiddenNoteIds = new Set();
@@ -364,9 +363,7 @@ async function api(path, options = {}) {
     let memoriesQuery = sb.from('memories')
       .select('*,author:profiles!memories_owner_id_fkey(id,username,display_name,mascot,theme)')
       .order('created_at', { ascending: false }).order('id', { ascending: false });
-    if (kindMatch) memoriesQuery = kindMatch[1] === 'photo'
-      ? memoriesQuery.or('kind.eq.photo,and(kind.eq.note,storage_path.not.is.null)')
-      : memoriesQuery.eq('kind', kindMatch[1]);
+    if (kindMatch) memoriesQuery = memoriesQuery.eq('kind', kindMatch[1]);
     if (beforeId && kindMatch?.[1] === 'note') {
       // Keyset pagination is stable when new messages arrive; inserting at the
       // newest end cannot shift the next historical page.
@@ -540,22 +537,18 @@ async function api(path, options = {}) {
   if (path === '/media' && method === 'POST') {
     const form = body;
     let file = form.get('file');
-    const kind = form.get('kind'), caption = form.get('caption') ?? (kind === 'song' ? file.name : '');
+    const kind = form.get('kind'), caption = form.get('caption') || file.name;
     if (file.size > 8 * 1024 * 1024) throw Error('Choose a file under 8 MB.');
     const photoTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], songTypes = ['audio/mpeg', 'audio/mp4', 'audio/ogg', 'audio/wav', 'audio/webm'];
-    if (!(kind === 'photo' || kind === 'note' ? photoTypes.includes(file.type) : kind === 'song' ? songTypes.includes(file.type) : false)) {
+    if (!(kind === 'photo' ? photoTypes.includes(file.type) : kind === 'song' ? songTypes.includes(file.type) : false)) {
       throw Error(kind === 'photo' ? 'Choose a JPG, PNG, WebP, or GIF image.' : 'Choose an MP3, MP4, OGG, WAV, or WebM audio file.');
     }
-    if (kind === 'photo' || kind === 'note') file = await optimizePhotoUpload(file);
+    if (kind === 'photo') file = await optimizePhotoUpload(file);
     const key = session.user.id + '/' + crypto.randomUUID() + '/' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const { error: ue } = await sb.storage.from('memories').upload(key, file, { contentType: file.type, upsert: false });
     fail(ue);
-    const replyToId = kind === 'note' ? Number(form.get('reply_to_id')) || null : null;
-    const photoGroupId = kind === 'note' ? String(form.get('photo_group_id') || '') : '';
     const { data, error } = await sb.from('memories').insert({
-      owner_id: session.user.id, kind, text: caption, file_name: file.name, content_type: file.type, storage_path: key,
-      ...(replyToId ? { reply_to_id: replyToId } : {}),
-      ...(photoGroupId ? { photo_group_id: photoGroupId } : {})
+      owner_id: session.user.id, kind, text: caption, file_name: file.name, content_type: file.type, storage_path: key
     }).select().single();
     if (error) {
       await sb.storage.from('memories').remove([key]);
@@ -743,40 +736,14 @@ async function loadLatestMedia(kind) {
   if (!me || !['photo', 'song'].includes(kind) || mediaPageLoading[kind]) return;
   mediaPageLoading[kind] = true;
   try {
-    if (kind === 'photo') {
-      // Load every photo shared in the last 21 days, including photo attachments
-      // sent inside Notes (the API's photo filter includes note rows with storage_path).
-      const cutoff = Date.now() - 21 * 24 * 60 * 60 * 1000;
-      const pageSize = 120;
-      const recentRows = [];
-      let offset = 0, hasOlderPhotos = false, batch = [];
-      do {
-        batch = await api('/feed?kind=photo&limit=' + pageSize + '&offset=' + offset);
-        if (page !== 'gallery') { mergeFeedRows(recentRows); return; }
-        for (const item of batch) {
-          const created = new Date(item.createdAt || item.created_at || 0).getTime();
-          if (Number.isFinite(created) && created >= cutoff) recentRows.push(item);
-          else hasOlderPhotos = true;
-        }
-        offset += batch.length;
-        if (hasOlderPhotos || batch.length < pageSize) break;
-      } while (batch.length === pageSize);
-      mergeFeedRows(recentRows);
-      mediaInitialLoaded.photo = true;
-      mediaVisibleCount.photo = recentRows.length;
-      // Start older-history pagination exactly after the 21-day window.
-      feedPageOffsets.photo = recentRows.length;
-      feedPageHasMore.photo = hasOlderPhotos || batch.length === pageSize;
-    } else {
-      const latest = await api('/feed?kind=song&limit=8');
-      if (page !== 'music') { mergeFeedRows(latest); return; }
-      mergeFeedRows(latest);
-      mediaInitialLoaded.song = true;
-      feedPageOffsets.song = latest.length;
-      feedPageHasMore.song = latest.length === 8;
-      mediaVisibleCount.song = 8;
-    }
-    if (page !== (kind === 'photo' ? 'gallery' : 'music')) return;
+    const latest = await api('/feed?kind=' + kind + '&limit=8');
+    if (page !== (kind === 'photo' ? 'gallery' : 'music')) { mergeFeedRows(latest); return; }
+    mergeFeedRows(latest);
+    mediaInitialLoaded[kind] = true;
+    feedPageOffsets[kind] = latest.length;
+    feedPageHasMore[kind] = latest.length === 8;
+    mediaVisibleCount[kind] = 8;
+    mediaPageLoading[kind] = false;
     render();
     $('#profileSettingsPanel')?.classList.add('hidden');
   } catch (error) {
@@ -1122,7 +1089,6 @@ function dailyQuestTextMatches(text, match) {
   });
 }
 
-
 function getDailyQuestRotation(dateKey) {
   // A shared 20-day journey: one fresh chat quest, one photo quest,
   // and one community quest each day. Each category has 20 unique entries.
@@ -1200,14 +1166,14 @@ function getDailyQuestRotation(dateKey) {
   const elapsedDays = Number.isFinite(startDate.getTime()) && Number.isFinite(currentDate.getTime())
     ? Math.max(0, Math.floor((currentDate - startDate) / 86400000)) : 0;
   const dayIndex = elapsedDays % 20;
-  // Bearfriend missions rotate into the community slot on five days of each
+  // Bear Hugs missions rotate into the community slot on five days of each
   // 20-day cycle, keeping the daily set at three quests.
   const bearHugQuests = {
     3: ['A warm bear hug','Give your Bearfriend two hugs.','bear-action','heart','hug',2],
     7: ['A kiss for your Bearfriend','Share two kisses with your Bearfriend.','bear-action','heart','kiss',2],
     11: ['A little bear cuddle','Pet your Bearfriend three times.','bear-action','heart','pet',3],
     15: ['Dance together','Share two dances with your Bearfriend.','bear-action','heart','dance',2],
-    19: ['Three caring moments','Share any three Bearfriend actions together.','bear-action','heart',null,3]
+    19: ['Three caring moments','Share any three Bear Hugs actions together.','bear-action','heart',null,3]
   };
   const entries = [chatQuests[dayIndex], photoQuests[dayIndex], bearHugQuests[dayIndex] || communityQuests[dayIndex]];
 
@@ -1608,10 +1574,9 @@ function updateGardenShopItem(id, collection) {
     const owned = normalized.owned.includes(item.id);
     const equipped = normalized.equippedItems.includes(item.id);
     card.classList.toggle('is-equipped', equipped);
-    const claimLocked = item.claimDate && new Date().toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'}) < item.claimDate;
-    button.textContent = equipped ? 'Equipped ✓' : owned ? 'Equip' : claimLocked ? 'Claim on 1st Jan' : item.claimDate ? 'Claim free ♡' : item.cost + ' petals · Collect';
-    button.disabled = !owned && (claimLocked || (!item.claimDate && petalRewardBalance() < item.cost));
-    button.setAttribute('aria-label', equipped ? 'Unequip ' + item.name : owned ? 'Equip ' + item.name : claimLocked ? 'Claim ' + item.name + ' on 1 January 2027' : item.claimDate ? 'Claim ' + item.name + ' for free' : 'Collect ' + item.name + ' for ' + item.cost + ' Petal Points');
+    button.textContent = equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect';
+    button.disabled = !owned && petalRewardBalance() < item.cost;
+    button.setAttribute('aria-label', equipped ? 'Unequip ' + item.name : owned ? 'Equip ' + item.name : 'Collect ' + item.name + ' for ' + item.cost + ' Petal Points');
   });
 }
 function updateGardenPetalBalance() {
@@ -1688,7 +1653,7 @@ async function buyGardenCollectible(id) {
       button.removeAttribute('aria-busy');
       const item = GARDEN_COLLECTIBLES.find(entry => entry.id === button.dataset.buyCollectible);
       const owned = readGardenCollection().owned.includes(button.dataset.buyCollectible);
-      if (item) button.disabled = !owned && (item.claimDate ? new Date().toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'}) < item.claimDate : petalRewardBalance() < item.cost);
+      if (item) button.disabled = !owned && petalRewardBalance() < item.cost;
     });
     updateGardenPetalBalance();
   }
@@ -2300,10 +2265,8 @@ function renderStreakPage() {
       const owned = collection.owned.includes(item.id);
       const equippedIds = new Set(Array.isArray(collection.equippedItems) ? collection.equippedItems : [collection.equipped, collection.bunny].filter(id => id && id !== 'none'));
       const equipped = equippedIds.has(item.id);
-      const claimLocked = item.claimDate && new Date().toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'}) < item.claimDate;
-      const affordable = item.claimDate ? !claimLocked : petalRewardBalance(petalRewards) >= item.cost;
-      const priceLabel = claimLocked ? 'Claim on 1st Jan' : item.claimDate ? 'Free claim ♡' : item.cost + ' petals · Collect';
-      return '<article class="sg-collectible-card item-' + item.id + ' rarity-' + item.rarity + (equipped ? ' is-equipped' : '') + '" data-rarity="' + item.rarity + '"><span class="sg-collectible-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><b>' + item.name + '</b><small>' + (item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)) + ' · ' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : priceLabel) + '</button></article>';
+      const affordable = petalRewardBalance(petalRewards) >= item.cost;
+      return '<article class="sg-collectible-card item-' + item.id + ' rarity-' + item.rarity + (equipped ? ' is-equipped' : '') + '" data-rarity="' + item.rarity + '"><span class="sg-collectible-art">' + item.art + '<i class="sg-art-glint" aria-hidden="true">✧</i></span><b>' + item.name + '</b><small>' + (item.rarity.charAt(0).toUpperCase() + item.rarity.slice(1)) + ' · ' + (item.type === 'bunny' ? 'Bunny style' : 'Garden decor') + '</small><button type="button" data-buy-collectible="' + item.id + '"' + (!owned && !affordable ? ' disabled' : '') + '>' + (equipped ? 'Equipped ✓' : owned ? 'Equip' : item.cost + ' petals · Collect') + '</button></article>';
     }).join('') + '</div></section>';
   const weeklyProgress = getWeeklyBloomProgress(todayKey);
   const weeklyTiers = [{days:3,points:30,title:'Little Bloom',art:gardenIllustration('bloom-3')},{days:5,points:50,title:'Garden Glow',art:gardenIllustration('bloom-5')},{days:7,points:100,title:'Full Bloom',art:gardenIllustration('bloom-7')}];
@@ -2324,7 +2287,7 @@ function renderStreakPage() {
         '<span class="sg-daily-quest-icon">' + gardenIllustration(item.art || item.kind || item.id) + '</span>' +
         '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
         '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
-        '<p>' + item.description + '</p>' + '<div class="sg-daily-quest-progress"><span style="width:' + Math.max(0, Math.min(100, Number(item.target) > 0 ? Number(item.progress) / Number(item.target) * 100 : 0)) + '%"></span></div></div></article>';
+        '<p>' + item.description + '</p>' + (item.kind === 'note' && item.match ? '<div class="sg-quest-keyword-hint"><span>USE IN YOUR MESSAGE</span><b>' + (Array.isArray(item.match) ? item.match.join(' · ') : item.match) + '</b></div>' : '') + '<div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>';
     }).join('') +
     '</div><div class="sg-daily-quest-footer"><span>' + completedQuests + ' / 3 quests complete</span>' +
     (dailyQuestState.badge ? '<b class="sg-daily-bloom-badge">✿ Daily Bloom earned</b>' : '<small>Complete today’s 3 quests to earn your Daily Bloom</small>') + '</div>';
@@ -2785,7 +2748,7 @@ function go(p, options = {}) {
   // page's document scroll position.
   window.scrollTo({ top: 0, behavior: 'auto' });
   render({ followLatest: p === 'notes' && previousPage === 'notes' });
-  if (p === 'gallery') void loadLatestMedia('photo');
+  if (p === 'gallery' && !mediaInitialLoaded.photo) void loadLatestMedia('photo');
   else if (p === 'music' && !mediaInitialLoaded.song) void loadLatestMedia('song');
   syncPresenceUI();
   void updateMyPresencePage();
@@ -2947,9 +2910,6 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const handle = esc(owner.username || 'friend');
   const pet = esc(owner.mascot || '🐰');
   const messageText = esc(m.text || '');
-  const groupedPhotos = Array.isArray(m.groupedPhotos) ? m.groupedPhotos : (m.photo_group_id ? feed.filter(item => item.photo_group_id === m.photo_group_id) : [m]).filter(item => item.storagePath || item.storage_path);
-  const photoItems = groupedPhotos.length ? groupedPhotos : ((m.storagePath || m.storage_path) ? [m] : []);
-  const messagePhoto = photoItems.length ? `<div class="chat-message-photo-wrap${photoItems.length > 1 ? ' is-photo-group' : ''}">${photoItems.map((photo, index) => `<img class="feed-photo chat-message-photo is-loading" loading="lazy" decoding="async" data-media="${esc(photo.id)}" ${photo.previewUrl ? `src="${esc(photo.previewUrl)}"` : ''} alt="Photo ${index + 1} shared in Notes" role="button" tabindex="0" aria-label="Open shared photo" draggable="false">`).join('')}</div>` : '';
   const createdAt = m.createdAt || m.created_at || '';
   const time = esc(formatNoteClock(createdAt));
   const editedLabel = m.edited_at ? '<small class="chat-edited-label">Edited</small>' : '';
@@ -2981,8 +2941,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
             <div class="chat-bubble${hasHeartReaction ? '' : ' no-heart-reaction'}${isShortMessage ? ' is-short-message' : ''}" tabindex="0" data-chat-message-id="${esc(id)}" aria-label="Message from ${name}">
               ${heartButton}
               ${replyMarkup}
-              ${messagePhoto}
-              ${messageText ? `<span class="chat-message-text" dir="auto">${messageText}</span>` : ''}
+              <span class="chat-message-text" dir="auto">${messageText}</span>
             </div>
           </div>
         </div>
@@ -2994,12 +2953,8 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
 }
 
 function memoryCard(m, options = {}) {
-  const ownerId = String(m.author?.id || m.owner_id || '');
-  const knownOwner = [me, ...friends].find(user => String(user?.id || '') === ownerId);
-  const owner = (m.author && (m.author.displayName || m.author.display_name || m.author.username))
-    ? m.author
-    : knownOwner || m.author || {};
-  const name = esc(owner.displayName || owner.display_name || owner.username || (ownerId && ownerId === String(me?.id || '') ? 'You' : 'Friend'));
+  const owner = m.author || {};
+  const name = esc(owner.displayName || owner.display_name || 'Friend');
   const handle = esc(owner.username || '');
   const pet = esc(owner.mascot || '🐰');
   const isLiked = Number(m.like_count || 0) > 0;
@@ -3012,7 +2967,7 @@ function memoryCard(m, options = {}) {
   const mine = String(owner.id || m.owner_id || '') === String(me?.id || '');
 
   let body = '';
-  if (m.kind === 'photo' || (m.kind === 'note' && (m.storagePath || m.storage_path))) {
+  if (m.kind === 'photo') {
     body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo is-loading" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}"` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div></div>`;
   } else if (m.kind === 'song') {
     const songAction = m.isPending ? '' : mine
@@ -3024,8 +2979,7 @@ function memoryCard(m, options = {}) {
     body = chatMessageMarkup(m, !isContinuation, isContinuation);
   }
 
-  const isPhotoMemory = m.kind === 'photo' || (m.kind === 'note' && (m.storagePath || m.storage_path));
-  const authorLine = m.kind === 'note' && !isPhotoMemory ? '' : `<div class="feed-by"><span class="sender-pet" aria-label="${pet}">${pet}</span> <b title="${name}">${name}</b> ${handle ? `<small>@${handle}</small>` : ''}</div>`;
+  const authorLine = m.kind === 'note' ? '' : `<div class="feed-by"><span class="sender-pet" aria-label="${pet}">${pet}</span> <b title="${name}">${name}</b> <small>@${handle}</small></div>`;
   const ownerIndicator = mine && m.kind !== 'note' ? `<span class="memory-owner-indicator" aria-hidden="true">Your memory</span>` : '';
   const continuationClass = m.kind === 'note' && options.isContinuation ? ' is-continuation' : '';
   return `<article class="feed-item ${tone}${pending}${uploading}${m.kind === 'note' ? ' home-note-memory' : ''}${continuationClass}" data-kind="${esc(m.kind)}" data-memory="${esc(m.id)}" data-owner="${esc(owner.id || m.owner_id || '')}">${authorLine}${body}${ownerIndicator}</article>`;
@@ -3071,14 +3025,7 @@ function renderNotesPage(options = {}) {
 
   let previousLabel = '';
   let previousOwnerId = '';
-  const renderedPhotoGroups = new Set();
   const messagesHtml = chatNotes.map(m => {
-    if (m.photo_group_id) {
-      if (renderedPhotoGroups.has(m.photo_group_id)) return '';
-      renderedPhotoGroups.add(m.photo_group_id);
-      const group = chatNotes.filter(item => item.photo_group_id === m.photo_group_id);
-      m = { ...m, groupedPhotos: group };
-    }
     const label = noteDayLabel(m.createdAt || m.created_at);
     const ownerId = String(m.author?.id || m.owner_id || '');
     const isNewDay = label !== previousLabel;
@@ -3232,7 +3179,6 @@ function renderNotesPage(options = {}) {
       syncNotesKeyboardLayout();
       syncNotesSeenReceiptVisibility(existingThread);
       observeNoteSeenMessages();
-      hydrateMedia();
     });
     return;
   }
@@ -3243,14 +3189,11 @@ function renderNotesPage(options = {}) {
         ${olderControl}${messagesHtml || emptyMarkup}
         <div id="chatTypingIndicator" class="chat-typing-indicator" aria-live="polite" aria-atomic="true" hidden></div>
       </div>
-      <div id="chatPhotoPreview" class="chat-photo-preview" hidden></div>
       <form id="chatComposer" class="chat-composer" autocomplete="off">
         <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
-        <input id="chatPhotoInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
         <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
         <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
-        <button type="button" class="chat-photo-attach" id="chatPhotoAttach" aria-label="Attach a photo" title="Choose a photo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9.5" r="1.7" fill="currentColor"/><path d="m5.5 17 5-5 3.2 3 2.4-2.2 2.5 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </form>
     </section>
   `;
@@ -3265,8 +3208,6 @@ function renderNotesPage(options = {}) {
     }
     syncNotesSeenReceiptVisibility(thread);
     observeNoteSeenMessages();
-    syncChatPhotoPreview();
-    hydrateMedia();
   });
 }
 
@@ -3274,7 +3215,7 @@ function renderNotesPage(options = {}) {
 function achievementGardenMarkup(items) {
   const stats = {
     memories: items.length,
-    photos: items.filter(item => item.kind === 'photo' || (item.kind === 'note' && (item.storagePath || item.storage_path))).length,
+    photos: items.filter(item => item.kind === 'photo').length,
     notes: items.filter(item => item.kind === 'note').length,
     songs: items.filter(item => item.kind === 'song').length,
     streak: Math.max(0, Number(me?.login_streak) || 0),
@@ -3370,14 +3311,9 @@ function render(options = {}) {
   }
 
   const visibleFeed = feed.filter(x => !pendingDeleteTimers.has(String(x.id)) && !(x.kind === 'note' && hiddenNoteIds.has(String(x.id))));
-  const allPics = visibleFeed.filter(x => x.kind === 'photo' || (x.kind === 'note' && (x.storagePath || x.storage_path)));
+  const allPics = visibleFeed.filter(x => x.kind === 'photo');
   const allSongs = visibleFeed.filter(x => x.kind === 'song');
-  const newestFirstPics = allPics.slice().sort((a, b) => {
-    const aTime = new Date(a.createdAt || a.created_at || 0).getTime();
-    const bTime = new Date(b.createdAt || b.created_at || 0).getTime();
-    return (Number.isFinite(bTime) ? bTime : 0) - (Number.isFinite(aTime) ? aTime : 0);
-  });
-  const pics = page === 'gallery' ? newestFirstPics.slice(0, mediaVisibleCount.photo) : newestFirstPics;
+  const pics = page === 'gallery' ? allPics.slice(0, mediaVisibleCount.photo) : allPics;
   const songs = page === 'music' ? allSongs.slice(0, mediaVisibleCount.song) : allSongs;
   const notes = visibleFeed.filter(x => x.kind === 'note');
 
@@ -3412,7 +3348,7 @@ function render(options = {}) {
       <section class="couple-bear-game" id="coupleBearGame" aria-labelledby="coupleBearTitle">
         <div class="couple-bear-heading">
           <span class="couple-bear-sparkle" aria-hidden="true">✦</span>
-          <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bearfriend</h3><p>Choose how our little bears show their love.</p></div>
+          <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bear Hugs</h3><p>Choose how our little bears show their love.</p></div>
           <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
         </div>
         <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears, one brown and one white">
@@ -3578,7 +3514,7 @@ function showFriendProfile(user) {
   if (badgesPanel) badgesPanel.hidden = false;
   {
     const profileFeed = isOwnProfile ? (Array.isArray(feed) ? feed : []) : [];
-    const photosPublic = Number(user.photo_count ?? user.photos_count ?? 0) || profileFeed.filter(item => item.kind === 'photo' || (item.kind === 'note' && item.storagePath)).length;
+    const photosPublic = Number(user.photo_count ?? user.photos_count ?? 0) || profileFeed.filter(item => item.kind === 'photo').length;
     const notesPublic = Number(user.note_count ?? user.notes_count ?? 0) || profileFeed.filter(item => item.kind === 'note').length;
     const songsPublic = Number(user.song_count ?? user.songs_count ?? 0) || profileFeed.filter(item => item.kind === 'song').length;
     const petalsPublic = isOwnProfile && typeof petalRewardBalance === 'function' ? petalRewardBalance() : Number(user.petals ?? user.petal_points ?? 0);
@@ -3586,7 +3522,7 @@ function showFriendProfile(user) {
   }
   {
     const ownFeed = isOwnProfile && Array.isArray(feed) ? feed : [];
-    const photos = isOwnProfile ? ownFeed.filter(item => item.kind === 'photo' || (item.kind === 'note' && item.storagePath)).length : Number(user.photo_count ?? user.photos_count ?? 0);
+    const photos = isOwnProfile ? ownFeed.filter(item => item.kind === 'photo').length : Number(user.photo_count ?? user.photos_count ?? 0);
     const notes = isOwnProfile ? ownFeed.filter(item => item.kind === 'note').length : Number(user.note_count ?? user.notes_count ?? 0);
     const songs = isOwnProfile ? ownFeed.filter(item => item.kind === 'song').length : Number(user.song_count ?? user.songs_count ?? 0);
     if (isOwnProfile) {
@@ -4032,9 +3968,9 @@ function closeAllGates() {
 
 async function openPhotoLightbox(id) {
   const item = feed.find(memory => String(memory.id) === String(id));
-  if (!item || !(item.kind === 'photo' || (item.kind === 'note' && (item.storagePath || item.storage_path)))) return;
+  if (!item || item.kind !== 'photo') return;
   const gate = $('#photoLightbox'), image = $('#photoLightboxImage'), deleteButton = $('#photoLightboxDelete'), saveButton = $('#photoLightboxSave');
-  const thumb = [...document.querySelectorAll('.feed-item[data-memory], .chat-message[data-memory]')].find(node => node.dataset.memory === String(id))?.querySelector('.feed-photo');
+  const thumb = [...document.querySelectorAll('.feed-item[data-memory]')].find(node => node.dataset.memory === String(id))?.querySelector('.feed-photo');
   const isOwnPhoto = String(item.author?.id || item.owner_id || '') === String(me?.id || '');
   const canDelete = isOwnPhoto && !item.isPending;
   gate.dataset.memoryId = String(id);
@@ -4317,7 +4253,7 @@ async function downloadMemoryById(id, button) {
     const { data, error } = await sb.storage.from('memories').download(item.storagePath);
     if (error) throw error;
     const url = URL.createObjectURL(data), link = document.createElement('a');
-    const fallback = item.kind === 'song' ? 'cute-bunny-song' : 'cute-bunny-photo.jpg';
+    const fallback = item.kind === 'photo' ? 'cute-bunny-photo.jpg' : 'cute-bunny-song';
     link.href = url;
     link.download = String(item.fileName || fallback).replace(/[\/:*?"<>|]/g, '_');
     document.body.append(link);
@@ -4338,12 +4274,9 @@ async function downloadMemoryById(id, button) {
 
 async function sendChatMessage() {
   const field = $('#chatInput');
-  const text = field?.value.trim() || '';
-  const photoFiles = [...pendingChatPhotoFiles];
-  const photoUrls = [...pendingChatPhotoUrls];
-  if (!text && !photoFiles.length) return;
+  const text = field?.value.trim();
+  if (!text) return;
   const replyId = replyingToMessageId;
-  const keepKeyboardOpen = document.activeElement === field && document.body.classList.contains('notes-keyboard-open');
   const tempId = 'local-note-' + Date.now();
   const createdAt = new Date().toISOString();
   const optimistic = {
@@ -4354,18 +4287,12 @@ async function sendChatMessage() {
     createdAt,
     created_at: createdAt,
     isPending: true,
-    previewUrl: photoUrls[0] || '',
-    previewUrls: photoUrls,
-    groupedPhotos: photoFiles.map((file, index) => ({ id: tempId + '-photo-' + index, previewUrl: photoUrls[index] })),
     author: { ...me, id: me?.id, displayName: me?.displayName || me?.username, mascot: me?.mascot || '🐰' }
   };
 
   stopNotesTyping();
   field.value = '';
   field.style.height = '';
-  pendingChatPhotoFiles = [];
-  pendingChatPhotoUrls = [];
-  syncChatPhotoPreview();
   field.style.overflowY = 'hidden';
   feed = [optimistic, ...feed];
   hideMessageActions();
@@ -4379,48 +4306,26 @@ async function sendChatMessage() {
     syncChatComposerState(nextField);
     syncNotesKeyboardLayout();
   };
-  if (keepKeyboardOpen) refocusComposer();
-  else syncNotesKeyboardLayout();
+  refocusComposer();
 
   try {
-    let saved;
-    if (photoFiles.length) {
-      const groupId = crypto.randomUUID(), uploaded = [];
-      try {
-        for (let index = 0; index < photoFiles.length; index++) {
-          const form = new FormData(); form.append('file', photoFiles[index]); form.append('kind', 'note');
-          form.append('caption', index === 0 ? text : ''); form.append('photo_group_id', groupId);
-          if (index === 0 && replyId) form.append('reply_to_id', String(replyId));
-          uploaded.push(await api('/media', { method: 'POST', body: form }));
-        }
-      } catch (uploadError) {
-        await Promise.all(uploaded.map(item => api('/memories/' + item.id, { method: 'DELETE' }).catch(() => {})));
-        throw uploadError;
-      }
-      saved = { ...uploaded[0], photo_group_id: groupId, groupedPhotos: uploaded.map(item => ({ ...item })) };
-    } else {
-      const result = await sb.from('memories').insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
-        .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at').single();
-      if (result.error) throw result.error; saved = result.data;
-    }
-    if (text) recordStreakNoteQuest(text);
-    if (photoFiles.length) recordStreakDailyQuest('photo', photoFiles[0].name);
+    const { data: saved, error: sendError } = await sb.from('memories')
+      .insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
+      .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at')
+      .single();
+    if (sendError) throw sendError;
+    recordStreakNoteQuest(text);
     void loadKindnessEventStatus();
     if (replyingToMessageId === replyId) replyingToMessageId = null;
-    const record = { ...saved, createdAt: saved.created_at, storagePath: saved.storage_path || '', fileName: saved.file_name || '', contentType: saved.content_type || '', author: optimistic.author };
-    const groupedRecords = saved.groupedPhotos?.map(item => ({ ...item, createdAt: item.created_at, storagePath: item.storage_path || '', fileName: item.file_name || '', contentType: item.content_type || '', author: optimistic.author })) || [record];
-    feed = feed.flatMap(m => String(m.id) === tempId ? groupedRecords : [m]);
+    const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
+    feed = feed.map(m => String(m.id) === tempId ? record : m);
     renderNotesPage({ followLatest: true });
-    photoUrls.forEach(url => URL.revokeObjectURL(url));
-    if (keepKeyboardOpen) refocusComposer();
-    else syncNotesKeyboardLayout();
+    refocusComposer();
   } catch (error) {
     feed = feed.filter(m => String(m.id) !== tempId);
     if (replyId) replyingToMessageId = replyId;
-    if (photoFiles.length) { photoUrls.forEach(url => URL.revokeObjectURL(url)); pendingChatPhotoFiles = photoFiles; pendingChatPhotoUrls = photoFiles.map(file => URL.createObjectURL(file)); syncChatPhotoPreview(); }
     renderNotesPage({ followLatest: true });
-    if (keepKeyboardOpen) refocusComposer(true);
-    else syncNotesKeyboardLayout();
+    refocusComposer(true);
     toast(error.message);
   }
 }
@@ -5731,12 +5636,7 @@ function updateNavNewDots() {
     const targetPage = button.dataset.page;
     const kinds = pageKinds[targetPage] || [];
     const isCurrentTab = targetPage === page;
-    const hasNew = !isCurrentTab && notificationRows.some(row => {
-      if (row.read_at || !kinds.includes(String(row.kind || '').toLowerCase())) return false;
-      if (String(row.actor_id || '') === String(me?.id || '')) return false;
-      if (targetPage === 'notes' && /\\b(left|entered|opened|closed)\\b/i.test(String(row.message || ''))) return false;
-      return true;
-    });
+    const hasNew = !isCurrentTab && notificationRows.some(row => !row.read_at && kinds.includes(String(row.kind || '').toLowerCase()));
     button.querySelector('.nav-new-dot')?.classList.toggle('is-visible', hasNew);
     if (hasNew) button.setAttribute('aria-label', (pageLabels[targetPage] || targetPage) + ', new activity');
     else button.removeAttribute('aria-label');
@@ -6025,7 +5925,7 @@ async function resolveMediaSource(memory) {
 }
 
 async function prewarmPhotoSources(items, concurrency = 4) {
-  const queue = (items || []).filter(item => (item?.kind === 'photo' || (item?.kind === 'note' && item.storagePath)) && item.storagePath && !item.isPending);
+  const queue = (items || []).filter(item => item?.kind === 'photo' && item.storagePath && !item.isPending);
   if (!queue.length || !sb) return;
   let next = 0;
   const workers = Array.from({ length: Math.min(concurrency, queue.length) }, async () => {
@@ -6162,7 +6062,7 @@ document.addEventListener('change', e => {
   updateStreakGoalProgress();
 });
 
-// Bearfriend mini-game: action animations sync live with the selected friend; the affection meter stays local.
+// Bear Hugs mini-game: action animations sync live with the selected friend; the affection meter stays local.
 const bearLoveStorageKey = 'cuteBunnyBearLove:v1';
 const bearSoundStorageKey = 'cuteBunnyBearSounds:v1';
 function readBearLoveCount() {
@@ -6190,7 +6090,7 @@ function updateBearLoveMeter() {
   }
 }
 
-// Bearfriend articulated SVG animation engine — embedded in the existing Home experience.
+// Bear Hugs articulated SVG animation engine — embedded in the existing Home experience.
 let bearPoseEngine = null;
 function destroyBearPoseEngine() {
   if (bearPoseEngine) {
@@ -6405,7 +6305,7 @@ function startBearRealtime() {
       })
       .subscribe(status => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.warn('Bearfriend receive channel status:', status);
+          console.warn('Bear Hugs receive channel status:', status);
         }
       });
   }
@@ -6417,7 +6317,7 @@ function startBearRealtime() {
     bearRealtimePartnerChannel = sb.channel(partnerTopic, { config: { broadcast: { self: false } } })
       .subscribe(status => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.warn('Bearfriend send channel status:', status);
+          console.warn('Bear Hugs send channel status:', status);
         }
       });
   } else if (!partnerTopic && bearRealtimePartnerChannel) {
@@ -6434,8 +6334,8 @@ function publishBearAction(action) {
     event: 'bear-action',
     payload: { action, userId: String(me.id), gender: me.gender || null, sentAt: Date.now() }
   }).then(status => {
-    if (status !== 'ok') console.warn('Bearfriend action was not delivered:', status);
-  }).catch(error => console.warn('Bearfriend action could not be sent:', error?.message || error));
+    if (status !== 'ok') console.warn('Bear Hugs action was not delivered:', status);
+  }).catch(error => console.warn('Bear Hugs action could not be sent:', error?.message || error));
 }
 function syncBearViewerRole() {
   const scene = $('#coupleBearGame .couple-bears-scene');
@@ -6463,7 +6363,7 @@ function triggerBearAction(action, options = {}) {
   document.querySelectorAll('#coupleBearGame [data-couple-action]').forEach(button => {
     button.setAttribute('aria-pressed', String(button.dataset.coupleAction === action));
   });
-  // Shared Bearfriend points are awarded by the progression module
+  // Shared Bear Hugs points are awarded by the progression module
   // only after an action is successfully delivered to the accepted partner.
   updateBearLoveMeter();
   if (!options.remote) publishBearAction(action);
@@ -6559,7 +6459,7 @@ document.addEventListener('pointerdown', e => {
   photoPressState.timer = setTimeout(() => {
     if (!photoPressState.image?.isConnected || photoPressState.pointerId !== e.pointerId) return;
     photoPressState.suppressClick = true;
-    const id = photoPressState.image.closest('.feed-item, .chat-message')?.dataset.memory;
+    const id = photoPressState.image.closest('.feed-item')?.dataset.memory;
     if (id) void openPhotoLightbox(id);
     clearTimeout(photoPressState.suppressTimer);
     photoPressState.suppressTimer = setTimeout(() => {
@@ -6604,7 +6504,7 @@ document.addEventListener('selectstart', e => {
 // Notes message gestures: button press feedback, tap to like, hold for Copy/Delete.
 document.addEventListener('pointerdown', e => {
   const bubble = e.target.closest('.chat-page .chat-bubble, .home-note-memory .chat-bubble');
-  if (!bubble || e.target.closest('.feed-photo, button, .chat-actions-popup') || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  if (!bubble || e.target.closest('button, .chat-actions-popup') || (e.pointerType === 'mouse' && e.button !== 0)) return;
 
   clearTimeout(messagePressState.timer);
   clearTimeout(messagePressState.suppressTimer);
@@ -7511,16 +7411,10 @@ document.addEventListener('click', async e => {
       clearTimeout(photoPressState.suppressTimer);
       return;
     }
-    const id = photo.closest('.feed-item, .chat-message')?.dataset.memory;
+    const id = photo.closest('.feed-item')?.dataset.memory;
     if (!id) return;
     // A double-tap is reserved for liking; only a single tap opens the photo.
     if (performance.now() < suppressPhotoClickUntil) return;
-    if (photo.closest('.chat-message')) {
-      clearTimeout(photoPressState.clickTimer);
-      photoPressState.pendingPhotoId = null;
-      void openPhotoLightbox(String(id));
-      return;
-    }
     clearTimeout(photoPressState.clickTimer);
     photoPressState.pendingPhotoId = String(id);
     photoPressState.clickTimer = setTimeout(() => {
@@ -7538,7 +7432,7 @@ document.addEventListener('click', async e => {
   if (e.target.closest('#photoLightboxDelete')) {
     const id = $('#photoLightbox').dataset.memoryId;
     const item = feed.find(m => String(m.id) === String(id));
-    if (!item || !(item.kind === 'photo' || (item.kind === 'note' && (item.storagePath || item.storage_path))) || item.isPending || String(item.author?.id || item.owner_id || '') !== String(me?.id || '')) return;
+    if (!item || item.kind !== 'photo' || item.isPending || String(item.author?.id || item.owner_id || '') !== String(me?.id || '')) return;
     const confirmGate = $('#photoDeleteConfirmGate');
     confirmGate.dataset.memoryId = String(id);
     confirmGate.classList.remove('hidden');
@@ -7634,19 +7528,11 @@ document.addEventListener('click', async e => {
   }
 });
 
-function syncChatPhotoPreview() {
-  const preview = $('#chatPhotoPreview');
-  if (!preview) return;
-  preview.hidden = !pendingChatPhotoFiles.length;
-  preview.innerHTML = pendingChatPhotoFiles.map((file, index) => `<span class="chat-photo-thumb"><img src="${esc(pendingChatPhotoUrls[index])}" alt="Selected photo ${index + 1}"><button type="button" data-chat-photo-remove="${index}" aria-label="Remove selected photo">×</button></span>`).join('');
-  syncChatComposerState();
-}
-
 function syncChatComposerState(field = $('#chatInput')) {
   const send = $('#chatSend');
   const composer = $('#chatComposer');
   if (!send || !composer) return;
-  const hasMessage = !!field?.value.trim() || pendingChatPhotoFiles.length > 0;
+  const hasMessage = !!field?.value.trim();
   composer.classList.toggle('has-message', hasMessage);
   send.hidden = !hasMessage;
   send.disabled = !hasMessage;
@@ -7658,26 +7544,6 @@ function isTouchNotesViewport() {
   const touchDevice = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0;
   return window.matchMedia('(max-width: 720px)').matches && touchDevice;
 }
-
-document.addEventListener('click', event => {
-  if (event.target.closest('#chatPhotoAttach')) {
-    const input = $('#chatPhotoInput');
-    if (input) { input.value = ''; input.click(); }
-    return;
-  }
-  const removePhoto = event.target.closest('[data-chat-photo-remove]');
-  if (removePhoto) { const index = Number(removePhoto.dataset.chatPhotoRemove); pendingChatPhotoFiles.splice(index, 1); const url = pendingChatPhotoUrls.splice(index, 1)[0]; if (url) URL.revokeObjectURL(url); syncChatPhotoPreview(); return; }
-});
-document.addEventListener('change', event => {
-  if (event.target.id !== 'chatPhotoInput') return;
-  const files = [...(event.target.files || [])]; event.target.value = ''; if (!files.length) return;
-  if (pendingChatPhotoFiles.length + files.length > 3) return toast('Choose up to three photos per message.');
-  for (const file of files) {
-    if (file.size > 8 * 1024 * 1024) return toast('Each photo must be under 8 MB.');
-    if (!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)) return toast('Choose JPG, PNG, WebP, or GIF images.');
-  }
-  pendingChatPhotoFiles.push(...files); pendingChatPhotoUrls.push(...files.map(file => URL.createObjectURL(file))); syncChatPhotoPreview();
-});
 
 document.addEventListener('input', event => {
   if (['profileEditUsername','profileEditDisplayName','profileEditBio'].includes(event.target.id)) updateProfileLivePreview();
@@ -7763,28 +7629,24 @@ function syncNotesKeyboardLayout() {
     const availableHeight = Math.max(180, Math.floor(visibleViewportBottom - pageTop));
     document.documentElement.style.setProperty('--notes-page-height', availableHeight + 'px');
 
+    // The composer floats over the bottom of the thread, so reserve its height
+    // to ensure the last message can scroll fully into view above the input.
+    if (thread) {
+      const composerHeight = Math.ceil(composer?.getBoundingClientRect().height || 50);
+      const bottomClearance = composerHeight + 20;
+      thread.style.setProperty('padding-bottom', bottomClearance + 'px', 'important');
+      thread.style.setProperty('scroll-padding-bottom', bottomClearance + 'px');
+    }
+
     requestAnimationFrame(() => {
       if (!notesPage.isConnected || !thread?.isConnected || !notesKeyboardFollowLatest) return;
       thread.scrollTop = thread.scrollHeight;
     });
   } else {
     document.documentElement.style.removeProperty('--notes-page-height');
+    thread?.style.removeProperty('padding-bottom');
+    thread?.style.removeProperty('scroll-padding-bottom');
     notesKeyboardFollowLatest = false;
-  }
-
-  // The composer is fixed over the conversation in both keyboard states.
-  // Measure its real overlap with the scrollport and reserve enough scrollable
-  // space for the final message, including the viewport's safe-area positioning.
-  if (thread && composer) {
-    const threadBottom = thread.getBoundingClientRect().bottom;
-    const composerTop = composer.getBoundingClientRect().top;
-    const overlap = Math.max(0, threadBottom - composerTop);
-    const bottomClearance = Math.ceil(overlap + 24);
-    thread.style.setProperty('padding-bottom', bottomClearance + 'px', 'important');
-    thread.style.setProperty('scroll-padding-bottom', bottomClearance + 'px');
-  } else if (thread) {
-    thread.style.setProperty('padding-bottom', '24px', 'important');
-    thread.style.setProperty('scroll-padding-bottom', '24px');
   }
 }
 

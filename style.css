@@ -15860,3 +15860,41 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
 #content .chat-page .chat-thread {
   scroll-padding-bottom:calc(24px + env(safe-area-inset-bottom))!important;
 }
+
+
+/* Chat photo-only messages: remove the bubble wrappers and give the image soft corners with gentle motion. */
+#content .chat-page .chat-bubble-wrap:has(.chat-message-photo-wrap),
+#content .chat-page .chat-bubble:has(.chat-message-photo-wrap) {
+  display:contents!important;
+  width:auto!important;
+  max-width:none!important;
+  min-width:0!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#content .chat-page .chat-message-photo-wrap {
+  display:block!important;
+  width:min(130px,100%)!important;
+  max-width:100%!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:16px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#content .chat-page .chat-message-photo-wrap:not(.is-photo-group) .chat-message-photo {
+  border:0!important;
+  border-radius:16px!important;
+  animation:chat-photo-float 3.6s ease-in-out infinite alternate!important;
+  transform-origin:center center!important;
+}
+@keyframes chat-photo-float {
+  from { transform:translateY(0) rotate(-.25deg); }
+  to { transform:translateY(-3px) rotate(.25deg); }
+}

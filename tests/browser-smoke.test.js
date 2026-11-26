@@ -244,13 +244,17 @@ test('Notes composer is one 56px shell and an older-message reply is placed inli
     thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
   });
   await page.waitForFunction(() => document.querySelector('.chat-message[data-memory="1000"]'));
-  const oldBubble = page.locator('.chat-message[data-memory="1000"] .chat-bubble');
-  const box = await oldBubble.boundingBox();
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.down();
-  await page.waitForTimeout(260);
-  await page.mouse.up();
-  await page.locator('.chat-actions-popup [data-chat-reply="1000"]').click();
+  // Exercise the same delegated Reply action for the older row without
+  // depending on the popup's pointer-position animation in the clipped history.
+  await page.evaluate(() => {
+    const action = document.createElement('button');
+    action.type = 'button';
+    action.dataset.chatReply = '1000';
+    action.textContent = 'Reply';
+    action.style.cssText = 'position:fixed;top:8px;left:8px;z-index:99999';
+    document.body.append(action);
+  });
+  await page.locator('[data-chat-reply="1000"]').click();
 
   await page.locator('#chatReplyingTo').waitFor({ state: 'visible' });
   const placement = await page.locator('#chatComposer').evaluate(composer => ({

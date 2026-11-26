@@ -4350,7 +4350,7 @@ function renderNotesPhotoSelection() {
 
 async function sendChatMessage() {
   const field = $('#chatInput');
-  const text = String(field?.value || '').trim();
+  const text = String(field?.value ?? notesPendingChatSend?.text ?? '').trim();
   if (notesChatSendInFlight) return;
   if (!notesPendingChatSend && !text && !notesSelectedPhotos.length) return;
   let draft = notesPendingChatSend;
@@ -4381,6 +4381,9 @@ async function sendChatMessage() {
   updatePendingPhotoMessage(draft, { text, isPending: true, isFailed: false });
   stopNotesTyping();
   renderNotesPage({ followLatest: true });
+  const activeField = $('#chatInput');
+  if (activeField && !activeField.value) activeField.value = text;
+  syncChatComposerState(activeField);
   renderNotesPhotoSelection();
   try {
     const { data: savedParent, error: parentError } = await sb.from('memories')
@@ -4448,10 +4451,11 @@ async function sendChatMessage() {
       return false;
     });
     notesPendingChatSend = null;
-    if (field && field.value.trim() === text) {
-      field.value = '';
-      field.style.height = '';
-      field.style.overflowY = 'hidden';
+    const currentField = $('#chatInput');
+    if (currentField && currentField.value.trim() === text) {
+      currentField.value = '';
+      currentField.style.height = '';
+      currentField.style.overflowY = 'hidden';
     }
     renderNotesPage({ followLatest: true });
     renderNotesPhotoSelection();
@@ -4460,12 +4464,14 @@ async function sendChatMessage() {
   } catch (error) {
     updatePendingPhotoMessage(draft, { isPending: true, isFailed: true });
     renderNotesPage({ followLatest: true });
+    const retryField = $('#chatInput');
+    if (retryField && !retryField.value) retryField.value = draft.text;
     renderNotesPhotoSelection();
-    syncChatComposerState(field);
+    syncChatComposerState(retryField);
     toast((error?.message || 'Could not send your photo message.') + ' Tap Retry to try again.');
   } finally {
     notesChatSendInFlight = false;
-    syncChatComposerState(field);
+    syncChatComposerState($('#chatInput'));
     renderNotesPhotoSelection();
   }
 }

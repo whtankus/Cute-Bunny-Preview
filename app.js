@@ -2974,11 +2974,14 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
     : '';
   const replyTarget = m.reply_to_id ? feed.find(item => String(item.id) === String(m.reply_to_id)) : null;
   const replyAuthor = replyTarget?.author?.displayName || replyTarget?.author?.display_name || replyTarget?.author?.username || 'Original message';
-  const replyPhoto = replyTarget?.photos?.[0];
+  const replyPhotos = replyTarget?.photos?.length ? replyTarget.photos : feed.filter(item => item.kind === 'photo' && String(item.chat_message_id) === String(replyTarget?.id));
+  const replyPhoto = replyPhotos[0];
   const replyPhotoThumb = replyPhoto ? `<img class="feed-photo is-loading chat-reply-photo-preview" alt="" data-media="${esc(replyPhoto.id)}">` : '';
-  const replyText = replyTarget?.text || (replyTarget?.photos?.length ? 'Photo' : 'This message is no longer available');
+  const replyText = replyTarget?.text || (replyPhotos.length ? 'Photo' : 'This message is no longer available');
   const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote">${replyPhotoThumb}<span class="chat-reply-preview-copy"><small>${esc(replyAuthor)}</small><span class="chat-reply-preview-text">${esc(replyText)}</span></span></span></button>` : '';
-  const sharedPhotos = Array.isArray(m.photos) ? m.photos : [];
+  const sharedPhotos = Array.isArray(m.photos) && m.photos.length
+    ? m.photos
+    : feed.filter(item => item.kind === 'photo' && String(item.chat_message_id) === String(m.id));
   const photoMarkup = sharedPhotos.length ? `<div class="chat-shared-photo-grid" data-photo-count="${sharedPhotos.length}">${sharedPhotos.map(photo => `<div class="feed-item chat-shared-photo-item" data-kind="photo" data-memory="${esc(photo.id)}" data-owner="${esc(photo.owner_id || ownerId)}"><div class="photo-frame"><img class="feed-photo is-loading chat-shared-photo" loading="lazy" decoding="async" data-media="${esc(photo.id)}" ${photo.previewUrl ? `src="${esc(photo.previewUrl)}"` : ''} alt="Photo shared by ${name}" role="button" tabindex="0" aria-label="Open shared photo" draggable="false"></div></div>`).join('')}</div>` : '';
 
   return `
@@ -3044,6 +3047,7 @@ function syncChatReplyPreview() {
   const item = replyingToMessageId
     ? feed.find(memory => String(memory.id) === String(replyingToMessageId))
     : null;
+  const itemPhotos = item?.photos?.length ? item.photos : feed.filter(memory => memory.kind === 'photo' && String(memory.chat_message_id) === String(item?.id));
   preview.hidden = !item;
   const replyOwnerId = String(item?.author?.id || item?.owner_id || '');
   const isMine = !!item && replyOwnerId === String(me?.id || '');

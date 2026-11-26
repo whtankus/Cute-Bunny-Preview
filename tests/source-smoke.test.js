@@ -231,5 +231,5 @@ test('Notes photo retry permissions stay scoped to the signed-in owner', () => {
   const migration = read('supabase/migrations/20261126123000_notes_chat_photo_retry_permissions.sql');
   assert.match(migration, /Update own note messages and linked photos/);
   assert.match(migration, /owner_id = \(select auth\.uid\(\)\) and kind in \('note','photo'\)/);
-  assert.match(migration, /grant update \(owner_id,kind,text,reply_to_id,photo_group_id,client_message_id,file_name,content_type,storage_path,chat_message_id,client_photo_id\)/);
+  assert.match(migration, /grant update\\s*\\(\\s*owner_id,\\s*kind,\\s*text,\\s*reply_to_id,\\s*photo_group_id,\\s*client_message_id,\\s*file_name,\\s*content_type,\\s*storage_path,\\s*chat_message_id,\\s*client_photo_id\\s*\\)/);
 });

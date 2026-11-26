@@ -136,7 +136,7 @@
   pointer-events:none;
 }
 
-/* Illustrated, equippable Bearfriend keepsakes. */
+/* Illustrated, equippable Bear Hugs keepsakes. */
 #coupleBearGame .bear-rewards-list{grid-template-columns:1fr 1fr;gap:10px}
 #coupleBearGame .bear-reward{display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:7px;padding:9px;border-radius:15px}
 #coupleBearGame .bear-reward-preview{grid-row:span 2;display:grid;place-items:center;align-content:center;gap:1px;width:58px;height:54px;border-radius:12px;font-size:1.45rem;overflow:hidden}
@@ -334,7 +334,7 @@
   #coupleBearGame .bear-care-foot{font-size:.56rem}
 }
 
-/* Restore the Bearfriend composition: bears first, actions second, progress beneath actions. */
+/* Restore the Bear Hugs composition: bears first, actions second, progress beneath actions. */
 #coupleBearGame .bear-partner-chip:after{content:none!important;display:none!important}
 #coupleBearGame .bear-partner-chip{
   margin:8px auto 10px;
@@ -449,7 +449,7 @@
 }
 
 
-/* Bearfriend progression polish: clear milestones, tactile reward cards, safe feedback. */
+/* Bear Hugs progression polish: clear milestones, tactile reward cards, safe feedback. */
 #coupleBearGame .bear-care-strip{
   position:relative;
   overflow:hidden;
@@ -617,7 +617,7 @@
   #coupleBearGame.is-sending .bear-action-button { transition: none; }
 }
 
-/* Living Bearfriend scene: lightweight ambience and direct object interactions. */
+/* Living Bear Hugs scene: lightweight ambience and direct object interactions. */
 #coupleBearGame .couple-bears-scene{position:relative;isolation:isolate;overflow:hidden}
 #coupleBearGame #bearPoseSvg{position:relative;z-index:2}
 #coupleBearGame .bear-living-atmosphere{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
@@ -633,50 +633,12 @@
 #coupleBearGame .bear-time-night .bear-living-glow{background:radial-gradient(ellipse,rgba(190,177,255,.38),transparent 72%)}
 #coupleBearGame .bear-time-night{filter:saturate(.92)}
 #coupleBearGame .bear-time-night .bear-living-petal{color:#e9e4ff;text-shadow:0 0 8px rgba(219,207,255,.8)}
+#coupleBearGame .bear-moments{margin-top:13px;padding:12px 13px;border:1px solid var(--cb-border);border-radius:17px;background:color-mix(in srgb,var(--cb-card) 88%,#fff 12%)}
+#coupleBearGame .bear-moments>div:first-child{display:grid;gap:3px}
+#coupleBearGame .bear-moments>div:first-child b{font-size:.82rem;color:var(--cb-text)}
+#coupleBearGame .bear-moments>div:first-child small{font-size:.64rem;color:var(--cb-text-soft)}
+#coupleBearGame .bear-moments>p{margin:9px 0 0;font-size:.7rem;color:var(--cb-text-soft)}
+#coupleBearGame .bear-moments-list{display:grid;gap:6px;margin-top:9px}
+#coupleBearGame .bear-moments-list article{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border-radius:11px;background:rgba(255,255,255,.48);font-size:.7rem;color:var(--cb-text)}
+#coupleBearGame .bear-moments-list button{width:29px;height:29px;border:0;border-radius:50%;background:#fff0f5;color:#bd7898;font-size:1rem;cursor:pointer}
 @media(prefers-reduced-motion:reduce){#coupleBearGame .bear-living-petal{animation:none;opacity:.25;bottom:20%}}
-
-
-/* Bearfriend rewards — clean previews, readable cards and reliable touch targets. */
-#coupleBearGame .bear-rewards-list{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:10px}
-#coupleBearGame .bear-reward{
-  box-sizing:border-box;grid-template-columns:58px minmax(0,1fr);grid-template-rows:minmax(58px,auto) auto;
-  align-items:center;gap:8px 9px;min-width:0;min-height:0;padding:10px;border-radius:16px;overflow:hidden;
-}
-#coupleBearGame .bear-reward-preview{
-  box-sizing:border-box;grid-row:1;width:58px;height:58px;min-width:58px;min-height:58px;
-  border:1px solid rgba(255,255,255,.78);border-radius:15px;overflow:hidden;
-}
-#coupleBearGame .bear-reward-icon-art{display:grid;place-items:center;width:100%;height:100%;min-width:0;min-height:0}
-#coupleBearGame .bear-reward-icon-art svg{display:block;width:40px;height:40px;max-width:100%;max-height:100%;filter:drop-shadow(0 2px 2px rgba(75,50,70,.12))}
-#coupleBearGame .bear-reward-preview>i,
-#coupleBearGame .bear-reward-preview>small{display:none!important}
-#coupleBearGame .bear-reward-copy{min-width:0;overflow-wrap:anywhere}
-#coupleBearGame .bear-reward-copy b{font-size:.74rem;line-height:1.22;overflow-wrap:anywhere}
-#coupleBearGame .bear-reward-copy small{font-size:.61rem;line-height:1.32;overflow-wrap:anywhere}
-#coupleBearGame .bear-reward-bottom{
-  grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
-  gap:8px;min-width:0;padding-top:8px;
-}
-#coupleBearGame .bear-reward-state{min-width:0;font-size:.6rem;line-height:1.3;overflow-wrap:anywhere}
-#coupleBearGame .bear-reward-lock{grid-column:1/-1;font-size:.61rem;line-height:1.3;overflow-wrap:anywhere}
-#coupleBearGame .bear-reward-apply{
-  min-height:34px;padding:7px 12px;border-radius:999px;font-size:.65rem;line-height:1;
-  touch-action:manipulation;white-space:nowrap;
-}
-#coupleBearGame .bear-reward.is-applied{border-color:color-mix(in srgb,var(--cb-accent) 58%,var(--cb-border));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cb-accent) 16%,transparent)}
-#coupleBearGame .bear-next-reward-art .bear-reward-icon-art{width:100%;height:100%}
-#coupleBearGame .bear-next-reward-art .bear-reward-icon-art svg{display:block;width:38px;height:38px;max-width:100%;max-height:100%}
-@media(max-width:520px){
-  #coupleBearGame .bear-rewards-list{grid-template-columns:minmax(0,1fr)}
-  #coupleBearGame .bear-reward{grid-template-columns:58px minmax(0,1fr);min-height:0}
-}
-@media(max-width:350px){
-  #coupleBearGame .bear-reward{grid-template-columns:52px minmax(0,1fr);gap:7px;padding:9px}
-  #coupleBearGame .bear-reward-preview{width:52px;height:52px;min-width:52px;min-height:52px}
-  #coupleBearGame .bear-reward-icon-art svg{width:36px;height:36px}
-  #coupleBearGame .bear-reward-bottom{grid-template-columns:minmax(0,1fr)}
-  #coupleBearGame .bear-reward-apply{justify-self:start}
-}
-@media(prefers-reduced-motion:reduce){
-  #coupleBearGame .bear-reward,#coupleBearGame .bear-reward-apply{transition:none}
-}

@@ -73,6 +73,13 @@ drop policy if exists "Create own memories" on public.memories;
 create policy "Create own memories" on public.memories for insert to authenticated with check (owner_id = (select auth.uid()));
 drop policy if exists "Delete own memories" on public.memories;
 create policy "Delete own memories" on public.memories for delete to authenticated using (owner_id = (select auth.uid()));
+drop policy if exists "Update own note messages and linked photos" on public.memories;
+create policy "Update own note messages and linked photos"
+on public.memories for update to authenticated
+using (owner_id = (select auth.uid()) and kind in ('note','photo'))
+with check (owner_id = (select auth.uid()) and kind in ('note','photo'));
+grant update (owner_id,kind,text,reply_to_id,photo_group_id,client_message_id,file_name,content_type,storage_path,chat_message_id,client_photo_id)
+on public.memories to authenticated;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('memories','memories',false,8388608,array['image/jpeg','image/png','image/webp','image/gif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'])

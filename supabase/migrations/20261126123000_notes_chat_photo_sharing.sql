@@ -10,6 +10,14 @@ create unique index if not exists memories_client_photo_id_uidx on public.memori
 create index if not exists memories_chat_message_id_idx on public.memories(chat_message_id) where chat_message_id is not null;
 create index if not exists memories_photo_group_id_idx on public.memories(photo_group_id) where photo_group_id is not null;
 
+drop policy if exists "Update own note messages and linked photos" on public.memories;
+create policy "Update own note messages and linked photos"
+on public.memories for update to authenticated
+using (owner_id = (select auth.uid()) and kind in ('note','photo'))
+with check (owner_id = (select auth.uid()) and kind in ('note','photo'));
+grant update (owner_id,kind,text,reply_to_id,photo_group_id,client_message_id,file_name,content_type,storage_path,chat_message_id,client_photo_id)
+on public.memories to authenticated;
+
 -- Backfill legacy Notes photos into Photos Garden without copying the original storage objects.
 update public.memories set photo_group_id = md5('legacy-note-photo:' || id::text)::uuid
 where kind = 'note' and storage_path <> '' and photo_group_id is null;

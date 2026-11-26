@@ -3081,17 +3081,21 @@ function syncChatReplyPlacement(options = {}) {
       field?.focus({ preventScroll: true });
       syncNotesKeyboardLayout();
       const scrollComposerIntoView = () => {
-        if (!thread.isConnected || !composer.isConnected) return;
+        if (!thread.isConnected || !composer.isConnected || !message.isConnected) return;
+        const threadRect = thread.getBoundingClientRect();
+        const messageRect = message.getBoundingClientRect();
         const visibleBottom = Math.min(
-          thread.getBoundingClientRect().bottom,
+          threadRect.bottom,
           (window.visualViewport?.offsetTop || 0) + (window.visualViewport?.height || window.innerHeight)
         );
+        // Anchor the selected source near the top of the visible scrollport,
+        // leaving room for its quoted preview and composer directly beneath it.
+        if (messageRect.top < threadRect.top + 12 || messageRect.bottom > visibleBottom - 120) {
+          thread.scrollTop += messageRect.top - threadRect.top - 12;
+        }
         const composerRect = composer.getBoundingClientRect();
-        const threadRect = thread.getBoundingClientRect();
         if (composerRect.bottom > visibleBottom - 12) {
           thread.scrollTop += composerRect.bottom - visibleBottom + 20;
-        } else if (message.getBoundingClientRect().top < threadRect.top + 12) {
-          thread.scrollTop -= threadRect.top + 12 - message.getBoundingClientRect().top;
         }
       };
       requestAnimationFrame(scrollComposerIntoView);
@@ -7714,6 +7718,9 @@ function syncChatComposerState(field = $('#chatInput')) {
   send.disabled = !hasMessage;
   send.setAttribute('aria-hidden', String(!hasMessage));
   send.setAttribute('aria-label', hasMessage ? 'Send message' : 'Write a message first');
+  const shell = composer.querySelector('.chat-input-shell');
+  const controlSize = Math.round(field?.getBoundingClientRect().height || 56);
+  if (shell) shell.style.setProperty('--chat-control-size', controlSize + 'px');
 }
 
 function isTouchNotesViewport() {

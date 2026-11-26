@@ -10,6 +10,9 @@
 - [x] Move Notes composer submit and desktop Enter handling to `src/features/notes/chat-events.js`.
 - [x] Update browser loading, GitHub Pages publishing, production build and service-worker precache for nested source paths.
 - [x] Add regression checks for the extracted boundaries and production asset copying.
+- [x] Extract 154 function implementations across Home, Photos, Notes, Music, Friends, Notifications, Profile and Streak Garden.
+- [ ] Move feature-specific CSS after selector ownership and cascade review.
+- [ ] Run full Android build/install regression on a configured native runner.
 
 ## Remaining feature migrations
 1. Extract Notes chat into `src/features/notes/`, preserving DOM IDs, typing/read receipts and realtime event contracts.

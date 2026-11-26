@@ -15796,10 +15796,10 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
 }
 
 
-/* Chat shared photos: readable natural proportions and scroll clearance above the fixed composer. */
+/* Chat shared photos: half-size natural proportions with scroll clearance above the fixed composer. */
 #content .chat-page .chat-message-photo-wrap {
-  width:min(100%,520px)!important;
-  max-width:min(100%,520px)!important;
+  width:min(100%,260px)!important;
+  max-width:min(100%,260px)!important;
   height:auto!important;
   overflow:visible!important;
 }

@@ -29,3 +29,14 @@ Feature modules should own rendering and event handlers. Services own network/st
 - notifications: `src/features/notifications/notifications.js`
 - profile: `src/features/profile/profile.js`
 - streak: `src/features/streak/streak.js`
+
+
+## Feature-owned source files
+- home: `src/features/home/home.js` and `src/styles/features/home.css`
+- photos: `src/features/photos/photos.js` and `src/styles/features/photos.css`
+- notes: `src/features/notes/notes.js` and `src/styles/features/notes.css`
+- music: `src/features/music/music.js` and `src/styles/features/music.css`
+- friends: `src/features/friends/friends.js` and `src/styles/features/friends.css`
+- notifications: `src/features/notifications/notifications.js` and `src/styles/features/notifications.css`
+- profile: `src/features/profile/profile.js` and `src/styles/features/profile.css`
+- streak: `src/features/streak/streak.js` and `src/styles/features/streak.css`

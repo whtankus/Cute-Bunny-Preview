@@ -205,7 +205,7 @@ test('Notes can reply to a specific message and persist its parent ID', async ()
   assert.equal(saved.reply_to_id, 101);
 });
   
-test('Notes composer is one 56px shell and an older-message reply is placed inline', async () => {
+test('Notes composer stays in the bottom dock while older-message replies show a quote above it', async () => {
   const page = await newTestPage({
     authenticated: true,
     seedHistory: true,
@@ -257,16 +257,28 @@ test('Notes composer is one 56px shell and an older-message reply is placed inli
   await page.locator('[data-chat-reply="1000"]').click();
 
   await page.locator('#chatReplyingTo').waitFor({ state: 'visible' });
-  const placement = await page.locator('#chatComposer').evaluate(composer => ({
-    parent: composer.parentElement.id,
-    previousMessage: composer.previousElementSibling?.dataset.memory || null,
-    position: getComputedStyle(composer).position,
-    replyMode: composer.closest('.chat-page').classList.contains('is-reply-inline')
-  }));
-  assert.equal(placement.parent, 'chatThread');
-  assert.equal(placement.previousMessage, '1000');
+  const placement = await page.evaluate(() => {
+    const composer = document.querySelector('#chatComposer');
+    const thread = document.querySelector('#chatThread');
+    const nav = document.querySelector('#nav');
+    const rect = node => node.getBoundingClientRect();
+    return {
+      parent: composer.parentElement.className,
+      previousElement: composer.previousElementSibling?.id || '',
+      position: getComputedStyle(composer).position,
+      replyPreviewVisible: !document.querySelector('#chatReplyingTo').hidden,
+      composerAboveNav: rect(composer).bottom <= rect(nav).top + 1,
+      threadAboveComposer: rect(thread).bottom <= rect(composer).top + 1,
+      replyMode: composer.closest('.chat-page').classList.contains('is-reply-inline')
+    };
+  });
+  assert.match(placement.parent, /chat-page/);
+  assert.equal(placement.previousElement, 'chatThread');
   assert.notEqual(placement.position, 'fixed');
-  assert.equal(placement.replyMode, true);
+  assert.equal(placement.replyPreviewVisible, true);
+  assert.equal(placement.composerAboveNav, true, 'composer must stay above bottom navigation');
+  assert.equal(placement.threadAboveComposer, true, 'thread must end before the composer dock');
+  assert.equal(placement.replyMode, false);
 
   // Shrink the emulated mobile viewport to represent the visible area above
   // the software keyboard, then verify the inline composer stays in flow.
@@ -526,7 +538,7 @@ test('PWA installs its complete shell and reloads offline', async () => {
 
     const cached = await page.evaluate(async () => {
       const names = await caches.keys();
-      const shell = names.find(name => name === 'cute-bunny-shell-v410');
+      const shell = names.find(name => name === 'cute-bunny-shell-v411');
       if (!shell) return { names, shell: false, assets: [] };
       const cache = await caches.open(shell);
       const requests = await cache.keys();
@@ -537,7 +549,7 @@ test('PWA installs its complete shell and reloads offline', async () => {
       };
     });
     assert.equal(cached.shell, true, 'the current app shell cache should be installed');
-    for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'header-statusbar-blend.css', 'bear-hugs-progression.js', 'bear-hugs-progression.css']) {
+    for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'notes-chat-layout.css', 'header-statusbar-blend.css', 'bear-hugs-progression.js', 'bear-hugs-progression.css']) {
       assert.ok(cached.assets.includes(asset), 'offline cache should include ' + asset);
     }
 

@@ -203,6 +203,64 @@ test('Notes can reply to a specific message and persist its parent ID', async ()
   const saved = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.text === 'Replying to your hello ♡'));
   assert.equal(saved.reply_to_id, 101);
 });
+  
+test('Notes composer is one 56px shell and an older-message reply is placed inline', async () => {
+  const page = await newTestPage({
+    authenticated: true,
+    seedHistory: true,
+    viewport: { width: 390, height: 844 }
+  });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatComposer').waitFor({ state: 'visible' });
+
+  const initialSize = await page.locator('.chat-input-shell').evaluate(shell => {
+    const field = shell.querySelector('#chatInput');
+    const photo = shell.querySelector('#chatPhotoAttach');
+    const rect = node => {
+      const box = node.getBoundingClientRect();
+      return { width: Math.round(box.width), height: Math.round(box.height) };
+    };
+    return { shell: rect(shell), field: rect(field), photo: rect(photo) };
+  });
+  assert.deepEqual(initialSize.field, { width: initialSize.shell.width, height: 56 });
+  assert.deepEqual(initialSize.photo, { width: 56, height: 56 });
+
+  await page.evaluate(() => {
+    const thread = document.querySelector('#chatThread');
+    thread.scrollTop = 0;
+    thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
+  });
+  await page.waitForFunction(() => document.querySelector('.chat-message[data-memory="1000"]'));
+  const oldBubble = page.locator('.chat-message[data-memory="1000"] .chat-bubble');
+  const box = await oldBubble.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  await page.locator('.chat-actions-popup [data-chat-reply="1000"]').click();
+
+  await page.locator('#chatReplyingTo').waitFor({ state: 'visible' });
+  const placement = await page.locator('#chatComposer').evaluate(composer => ({
+    parent: composer.parentElement.id,
+    previousMessage: composer.previousElementSibling?.dataset.memory || null,
+    position: getComputedStyle(composer).position,
+    replyMode: composer.closest('.chat-page').classList.contains('is-reply-inline')
+  }));
+  assert.equal(placement.parent, 'chatThread');
+  assert.equal(placement.previousMessage, '1000');
+  assert.notEqual(placement.position, 'fixed');
+  assert.equal(placement.replyMode, true);
+
+  await page.locator('#chatInput').fill('Replying to an older message ♡');
+  await page.locator('#chatSend').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.some(row => row.text === 'Replying to an older message ♡'));
+  const saved = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.text === 'Replying to an older message ♡'));
+  assert.equal(saved.reply_to_id, 1000);
+  assert.equal(await page.locator('#chatComposer').evaluate(composer => composer.parentElement.classList.contains('chat-page')), true);
+  assert.equal(await page.locator('.chat-page').evaluate(node => node.classList.contains('is-reply-inline')), false);
+});
+
 
 test('profile edits save through the authenticated database client', async () => {
   const page = await newTestPage({ authenticated: true });

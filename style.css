@@ -15794,3 +15794,24 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
   object-fit:contain!important;
   border-radius:16px!important;
 }
+
+
+/* Chat shared photos: readable natural proportions and scroll clearance above the fixed composer. */
+#content .chat-page .chat-message-photo-wrap {
+  width:min(100%,520px)!important;
+  max-width:min(100%,520px)!important;
+  height:auto!important;
+  overflow:visible!important;
+}
+#content .chat-page .chat-message-photo-wrap:not(.is-photo-group) .chat-message-photo {
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
+}
+#content .chat-page .chat-thread {
+  scroll-padding-bottom:calc(24px + env(safe-area-inset-bottom))!important;
+}

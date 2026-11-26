@@ -23,7 +23,7 @@ The legacy `style.css` and `polish.css` layers were scanned for repeated selecto
 | `.friend-profile-avatar-wrap` | 16 |
 
 ## Changes made
-- Moved 562 feature-scoped rules from `polish.css` into eight feature stylesheets under `src/styles/features/`.
+- Moved 3,810 feature-scoped rules into sixteen feature stylesheets: 3,248 base rules from `style.css` and 562 polish/override rules from `polish.css`. The `base-*.css` files load immediately after the legacy base stylesheet; the feature override files load after legacy polish, preserving the two cascade layers.
 - Kept mixed-scope and shared layout selectors in the legacy stylesheet.
 - Preserved the relative order of rules within each extracted feature stylesheet and retained their enclosing media/supports conditions.
 - Added each stylesheet to the HTML shell, preview build copy list, and service-worker precache.

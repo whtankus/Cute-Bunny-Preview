@@ -3018,7 +3018,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
         </div>
       </div>
       ${seenReceipt}
-      ${m.isPending ? `<span class="memory-upload-status" role="status">${m.isFailed ? 'Photo message not sent' : 'Sending your message…'}</span>` : ''}
+      ${m.isPending ? `<span class="memory-upload-status" role="status">${m.isFailed ? (sharedPhotos.length ? 'Photo message not sent' : 'Message not sent') : 'Sending your message…'}</span>` : ''}
       ${retryMarkup}
     </div>
   `;
@@ -4285,7 +4285,7 @@ async function deleteSafely(id) {
     undo.remove();
     try {
       await api('/memories/' + encodeURIComponent(id), { method: 'DELETE' });
-      feed = feed.filter(m => String(m.id) !== String(id));
+      feed = feed.filter(m => String(m.id) !== String(id) && !(item.kind === 'note' && String(m.chat_message_id || '') === String(id)));
       if (item.kind === 'photo' && item.chat_message_id) {
         const parent = feed.find(memory => String(memory.id) === String(item.chat_message_id));
         if (parent?.photos) parent.photos = parent.photos.filter(photo => String(photo.id) !== String(id));

@@ -3189,6 +3189,32 @@ function renderNotesPage(options = {}) {
           const desiredText = desiredNode.querySelector('.chat-message-text')?.textContent;
           const currentText = current.querySelector('.chat-message-text');
           if (currentText && desiredText != null && currentText.textContent !== desiredText) currentText.textContent = desiredText;
+
+          // Pending message nodes are kept mounted to avoid scroll/focus jumps,
+          // but their delivery state and linked photo set must still reconcile.
+          const desiredStatus = desiredNode.querySelector('.memory-upload-status');
+          const currentStatus = current.querySelector('.memory-upload-status');
+          if (desiredStatus && currentStatus) {
+            currentStatus.textContent = desiredStatus.textContent;
+            currentStatus.setAttribute('role', desiredStatus.getAttribute('role') || 'status');
+          } else if (desiredStatus && !currentStatus) current.append(desiredStatus);
+          else if (!desiredStatus && currentStatus) currentStatus.remove();
+
+          const desiredRetry = desiredNode.querySelector('.chat-message-retry');
+          const currentRetry = current.querySelector('.chat-message-retry');
+          if (desiredRetry && currentRetry) {
+            if (desiredRetry.outerHTML !== currentRetry.outerHTML) currentRetry.replaceWith(desiredRetry);
+          } else if (desiredRetry && !currentRetry) current.append(desiredRetry);
+          else if (!desiredRetry && currentRetry) currentRetry.remove();
+          current.classList.toggle('is-uploading', desiredNode.classList.contains('is-uploading'));
+
+          const desiredPhotos = desiredNode.querySelector('.chat-shared-photo-grid');
+          const currentPhotos = current.querySelector('.chat-shared-photo-grid');
+          const photoIds = node => [...node.querySelectorAll('[data-media]')].map(image => String(image.dataset.media)).join('|');
+          if (desiredPhotos && currentPhotos && photoIds(desiredPhotos) !== photoIds(currentPhotos)) currentPhotos.replaceWith(desiredPhotos);
+          else if (desiredPhotos && !currentPhotos) current.querySelector('.chat-bubble')?.append(desiredPhotos);
+          else if (!desiredPhotos && currentPhotos) currentPhotos.remove();
+
           const desiredReply = desiredNode.querySelector('.chat-reply-preview');
           const currentReply = current.querySelector('.chat-reply-preview');
           if (desiredReply && currentReply) { currentReply.innerHTML = desiredReply.innerHTML; currentReply.dataset.chatJump = desiredReply.dataset.chatJump; }

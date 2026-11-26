@@ -266,6 +266,10 @@ test('Notes composer is one 56px shell and an older-message reply is placed inli
 
   // Shrink the emulated mobile viewport to represent the visible area above
   // the software keyboard, then verify the inline composer stays in flow.
+  await page.evaluate(() => Object.defineProperty(window.screen, 'height', {
+    configurable: true,
+    get: () => 844
+  }));
   await page.setViewportSize({ width: 390, height: 500 });
   await page.locator('#chatInput').focus();
   await page.waitForFunction(() => document.body.classList.contains('notes-keyboard-open'));

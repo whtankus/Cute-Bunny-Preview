@@ -390,15 +390,27 @@ test('friend presence sweep covers online, offline, Notes entry, and Notes exit 
 
 test('Notes photo messages retry safely, appear in Photos Garden, and accept replies', async () => {
   const page = await newTestPage({ authenticated: true, viewport: { width: 390, height: 844 } });
+  page.on('pageerror', error => console.log('Notes photo page error:', error.message));
+  page.on('console', message => { if (message.type() === 'error') console.log('Notes photo console error:', message.text()); });
   await waitForSignedInApp(page);
   await page.locator('#nav button[data-page="notes"]').click();
   await page.locator('#chatPhotoInput').setInputFiles([
     { name: 'first.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64') },
     { name: 'second.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64') }
   ]);
+  await page.locator('#chatPhotoPreview').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('.chat-photo-preview-item').count(), 2);
   await page.locator('#chatInput').fill('A little photo story ♡');
   await page.evaluate(() => { window.__cuteBunnyTestState.failNextUpload = true; });
   await page.locator('#chatSend').click();
+  await page.waitForTimeout(600);
+  console.log('Notes photo send state:', JSON.stringify(await page.evaluate(() => ({
+    parents: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'note' && row.text === 'A little photo story ♡').length,
+    photos: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'photo' && row.text === 'A little photo story ♡').length,
+    uploads: window.__cuteBunnyTestState.uploads.length,
+    retryButtons: document.querySelectorAll('[data-chat-retry]').length,
+    chatText: document.querySelector('#chatThread')?.innerText
+  }))));
   await page.locator('[data-chat-retry]').waitFor({ state: 'visible' });
   const failedState = await page.evaluate(() => {
     const rows = window.__cuteBunnyTestState.tables.memories;

@@ -733,7 +733,7 @@ async function refresh() {
     mediaVisibleCount.photo = mediaVisibleCount.song = 8;
     feedPageHasMore.photo = (results[3] || []).length === 8;
     feedPageHasMore.song = (results[4] || []).length === 8;
-    const initialNotes = results[6] || [];
+    const initialNotes = (results[6] || []).filter(item => item.kind === 'note');
     noteHistoryCursor = initialNotes.length ? String(initialNotes[initialNotes.length - 1].id) : null;
     feedPageHasMore.note = initialNotes.length === FEED_PAGE_SIZE;
     friends = results[2];
@@ -815,13 +815,15 @@ async function loadMoreFeed() {
       : kind === 'all' ? '/feed?offset=' + offset : '/feed?kind=' + kind + '&offset=' + offset;
     if (!query) return;
     const older = await api(query);
+    const olderNoteRows = kind === 'note' ? older.filter(item => item.kind === 'note') : [];
     if (kind === 'note') {
-      if (older.length) noteHistoryCursor = String(older[older.length - 1].id);
+      if (olderNoteRows.length) noteHistoryCursor = String(olderNoteRows[olderNoteRows.length - 1].id);
     } else {
       feedPageOffsets[kind] += older.length;
       if (kind !== 'all') mediaVisibleCount[kind] += older.length;
     }
-    feedPageHasMore[kind] = older.length === FEED_PAGE_SIZE;
+    const pageItemCount = kind === 'note' ? olderNoteRows.length : older.length;
+    feedPageHasMore[kind] = pageItemCount === FEED_PAGE_SIZE;
     mergeFeedRows(older); feedHasMore = feedPageHasMore.all;
     if (page === 'notes') {
       renderNotesPage();

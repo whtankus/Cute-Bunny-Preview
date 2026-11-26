@@ -3271,7 +3271,11 @@ function renderNotesPage(options = {}) {
     }
     syncNotesSeenReceiptVisibility(thread);
     observeNoteSeenMessages();
-    syncChatComposerState($('#chatInput'));
+    const currentComposerInput = $('#chatInput');
+    if (currentComposerInput && notesPendingChatSend && !currentComposerInput.value) {
+      currentComposerInput.value = notesPendingChatSend.text || '';
+    }
+    syncChatComposerState(currentComposerInput);
     renderNotesPhotoSelection();
     hydrateMedia();
   });

@@ -83,3 +83,20 @@ test("feature stylesheets are loaded and available to the production shell", () 
   assert.ok(read(path).length > 100, feature + " stylesheet has extracted rules");
  }
 });
+
+
+test("page rendering is delegated to feature modules", () => {
+ const app = read("app.js");
+ const home = read("src/features/home/home.js");
+ const photos = read("src/features/photos/photos.js");
+ const music = read("src/features/music/music.js");
+ const friends = read("src/features/friends/friends.js");
+ assert.match(app, /renderHomePage\(c, visibleFeed, notes, pics, songs\)/);
+ assert.match(app, /renderPhotosPage\(c, pics\)/);
+ assert.match(app, /renderMusicPage\(c, songs\)/);
+ assert.match(app, /renderFriendsPage\(c\)/);
+ assert.match(home, /function renderHomePage\(/);
+ assert.match(photos, /function renderPhotosPage\(/);
+ assert.match(music, /function renderMusicPage\(/);
+ assert.match(friends, /function renderFriendsPage\(/);
+});

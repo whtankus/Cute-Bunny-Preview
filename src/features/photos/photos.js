@@ -300,3 +300,13 @@ function hydrateMedia() {
     if (page === 'music') warmSongSources(feed.filter(item => item.kind === 'song').slice(0, 8));
   } else nodes.forEach(node => void hydrateOneMedia(node));
 }
+
+
+function renderPhotosPage(c, pics) {
+    c.innerHTML = `
+      <div class="heading"><h2>Photo garden 🌷</h2><p>Little snapshots, shared with your friend.</p></div>
+      <label class="primary upload-label">＋ Add photo<input data-upload="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden></label>
+      <section class="photo-garden-grid" aria-label="Shared photo garden">${pics.map(memoryCard).join('') || '<div class="empty">Your garden is waiting for its first photo ♡</div>'}</section>
+      ${historySentinelMarkup('bottom')}
+    `;
+}

@@ -4,7 +4,16 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const requiredFiles = [
   'index.html', 'app.js', 'style.css', 'sw.js', 'manifest.webmanifest',
-  'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/styles/tokens.css',
+  'src/core/dom.js',
+  'src/features/home/home.js', 'src/styles/features/home.css',
+  'src/features/photos/photos.js', 'src/styles/features/photos.css',
+  'src/features/notes/notes.js', 'src/styles/features/notes.css',
+  'src/features/music/music.js', 'src/styles/features/music.css',
+  'src/features/friends/friends.js', 'src/styles/features/friends.css',
+  'src/features/notifications/notifications.js', 'src/styles/features/notifications.css',
+  'src/features/profile/profile.js', 'src/styles/features/profile.css',
+  'src/features/streak/streak.js', 'src/styles/features/streak.css',
+  'src/features/notes/chat-events.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/styles/tokens.css',
   'capacitor.config.json', 'scripts/build-preview.js', 'tests/source-smoke.test.js', 'tests/architecture.test.js',
   'docs/PROJECT-STRUCTURE.md', 'docs/FILE-NAMING.md', 'docs/FEATURE-MAP.md',
   'docs/REFACTOR-PLAN.md', 'supabase/schema.sql'

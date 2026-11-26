@@ -22,6 +22,8 @@ create table if not exists public.memories (
   owner_id uuid not null references public.profiles(id) on delete cascade,
   kind text not null check (kind in ('note','photo','song')),
   text text not null default '' check (char_length(text) <= 1000),
+  reply_to_id bigint references public.memories(id) on delete set null,
+  edited_at timestamptz,
   file_name text not null default '',
   content_type text not null default '',
   storage_path text not null default '',

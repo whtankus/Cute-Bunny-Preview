@@ -1,0 +1,101 @@
+/* Feature-scoped styles extracted from polish.css. */
+#content .home-welcome {
+
+  margin-bottom: 18px;
+
+}
+
+#content .home-welcome h2 {
+
+  font-size: clamp(1.55rem, 4.5vw, 2rem);
+
+}
+
+#content .home-hero {
+
+  min-height: 218px;
+  padding: clamp(20px, 4vw, 30px);
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 92% 14%, rgba(255,255,255,.72) 0 3px, transparent 4px),
+    linear-gradient(118deg, #f7dfe7 0%, #eee7f8 62%, #fff0dc 100%);
+  box-shadow: 0 12px 26px rgba(117, 79, 111, .10), inset 0 1px 0 rgba(255,255,255,.8);
+
+}
+
+#content .home-hero h3 {
+
+  color: #59445e;
+  font-size: clamp(1.28rem, 4vw, 1.65rem);
+  line-height: 1.2;
+
+}
+
+#content .home-hero p {
+
+  color: #6f5c73;
+  font-size: .92rem;
+  line-height: 1.65;
+
+}
+
+#content .home-hero .hero-art {
+
+  flex-shrink: 0;
+  filter: drop-shadow(0 9px 12px rgba(103, 76, 106, .12));
+
+}
+
+@media (max-width: 640px) {
+#content .home-hero {
+
+    min-height: 196px;
+    gap: 8px;
+  
+}
+}
+
+@media (max-width: 640px) {
+#content .home-hero .hero-art {
+
+    width: 118px;
+    height: 118px;
+    flex-basis: 118px;
+  
+}
+}
+
+@media (max-width: 380px) {
+#content .home-hero {
+
+    padding: 17px;
+  
+}
+}
+
+@media (max-width: 380px) {
+#content .home-hero .hero-art {
+
+    width: 96px;
+    height: 96px;
+    flex-basis: 96px;
+  
+}
+}
+
+@media (max-width: 380px) {
+#content .home-hero h3 {
+
+    font-size: 1.2rem;
+  
+}
+}
+
+@media (max-width: 380px) {
+#content .home-hero p {
+
+    font-size: .82rem;
+  
+}
+}

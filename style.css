@@ -16272,7 +16272,7 @@ body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #cha
   height:56px;
   box-sizing:border-box!important;
   margin:0!important;
-  padding:15px 68px 15px 16px!important;
+  padding:17px 68px 17px 16px!important;
   border:0!important;
   border-radius:28px!important;
   outline:0!important;
@@ -16423,7 +16423,7 @@ body[data-mode="dark"].notes-page-active #content .chat-page.is-reply-inline #ch
   }
   body.notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatInput {
     height:56px;
-    padding:15px 64px 15px 13px!important;
+    padding:17px 64px 17px 13px!important;
     font-size:16px!important;
   }
   body.notes-page-active #content .chat-page.is-reply-inline #chatComposer {

@@ -1,46 +1,29 @@
-# Stability and architecture refactor plan
+# Stability and architecture refactor
 
-## Phase 1 — Establish safe conventions
+## Completed foundation
+- [x] Define lowercase kebab-case naming rules and feature ownership.
+- [x] Extract DOM query and HTML escaping helpers to `src/core/dom.js`.
+- [x] Extract Supabase client construction to `src/services/supabase-client.js`.
+- [x] Extract image upload optimization to `src/services/media-optimizer.js`.
+- [x] Extract shared visual tokens to `src/styles/tokens.css`.
+- [x] Update browser loading, GitHub Pages publishing, production build and service-worker precache for nested source paths.
+- [x] Add regression checks for the extracted boundaries and production asset copying.
 
-- [x] Document current layout and feature ownership.
-- [x] Define simple, consistent filename rules.
-- [x] Add a repeatable project-structure check.
-- [ ] Record a baseline for all existing tests and builds.
+## Remaining feature migrations
+1. Extract Notes chat into `src/features/notes/`, preserving DOM IDs, typing/read receipts and realtime event contracts.
+2. Extract Photos/feed rendering into `src/features/photos/` and `src/features/home/`.
+3. Extract Music, Friends, Notifications, Profile and Streak Garden one at a time.
+4. Move Bearfriend and gesture modules into the feature tree after checking all script, cache and packaging paths.
+5. Move Supabase data access into domain services without changing the database contract.
+6. Split remaining legacy CSS by feature and remove duplicate selectors only after visual regression checks.
 
-## Phase 2 — Separate feature code
-
-- [ ] Extract one feature at a time from `app.js`, starting with isolated UI features.
-- [ ] Keep a small app entry point responsible for startup and navigation.
-- [ ] Move feature styles into scoped feature stylesheets.
-- [ ] Preserve existing DOM IDs and data attributes until tests cover replacements.
-
-## Phase 3 — Simplify shared services
-
-- [ ] Centralise Supabase client access and shared data operations.
-- [ ] Separate media URL/cache handling from feature rendering.
-- [ ] Separate realtime/presence lifecycle from Notes and Friends UI.
-- [ ] Add explicit error handling and cleanup for timers, observers and channels.
-
-## Phase 4 — CSS cleanup
-
-- [ ] Inventory duplicate selectors and override chains.
-- [ ] Introduce shared design tokens for colour, spacing, radius and shadows.
-- [ ] Move feature selectors into feature stylesheets.
-- [ ] Remove a legacy rule only after checking all screen sizes and themes.
-
-## Phase 5 — Verify every migration
-
-Run these checks before merging each refactor:
+## Required checks per migration
 - `npm run check`
 - `npm test`
-- `npm run build` with the required Supabase build variables
+- `npm run build` with repository Supabase build variables
 - GitHub Pages workflow
-- Android APK workflow
-- Browser regression checks for Home, Photos, Notes, Music, Friends, Streak Garden and Bearfriend
+- Browser regression checks across tabs and themes
+- Android APK build and install/upgrade check
 
-## Non-negotiable constraints
-
-- No feature redesign during structural-only changes.
-- No database/API contract changes during file moves.
-- No deleting a file until every import, script tag, build asset, service-worker cache entry, test and workflow reference is updated.
-- Keep each change small enough to revert independently.
+## Constraints
+No feature redesign during structural-only changes. No schema/API changes during file moves. Do not remove a legacy file until every script tag, build asset, workflow, service-worker entry, test and native packaging reference is updated.

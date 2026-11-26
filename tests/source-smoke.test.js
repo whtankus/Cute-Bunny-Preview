@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('core browser scripts parse without syntax errors', () => {
-  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'sw.js', 'scripts/build-preview.js']) {
+  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);
   }
 });
@@ -234,4 +234,18 @@ test('design tokens load separately from the remaining polish stylesheet', () =>
   assert.match(tokens, /--cb-ink:/);
   assert.doesNotMatch(polish.slice(0, 1200), /:root\s*\{/);
   assert.ok(html.indexOf('href="src/styles/tokens.css"') < html.indexOf('href="polish.css'));
+});
+
+
+test('photo optimization is isolated from the main application and keeps original files safe', () => {
+  const app = read('app.js');
+  const media = read('src/services/media-optimizer.js');
+  const html = read('index.html');
+  assert.doesNotMatch(app, /async function optimizePhotoUpload\(file\)/);
+  assert.match(app, /CuteBunnyServices\.optimizePhotoUpload/);
+  assert.match(media, /createImageBitmap/);
+  assert.match(media, /image\/webp/);
+  assert.match(media, /blob\.size >= file\.size/);
+  assert.match(media, /bitmap\?\.close\?\.\(\)/);
+  assert.ok(html.indexOf('src/services/media-optimizer.js') < html.indexOf('src="app.js'));
 });

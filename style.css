@@ -16355,7 +16355,6 @@ body.notes-page-active #content .chat-page.is-reply-inline #chatThread {
   display:flex!important;
   flex-direction:column!important;
   align-items:stretch!important;
-  gap:0!important;
   padding-bottom:24px!important;
   scroll-padding-bottom:24px!important;
 }

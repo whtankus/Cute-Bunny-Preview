@@ -69,3 +69,17 @@ test("feature modules are loaded before app.js", () => {
   assert.match(read("src/features/" + feature + "/" + feature + ".js"), /^\/\* .* feature functions/);
  }
 });
+
+
+test("feature stylesheets are loaded and available to the production shell", () => {
+ const html = read("index.html");
+ const build = read("scripts/build-preview.js");
+ const worker = read("sw.js");
+ for (const feature of ["home","photos","notes","music","friends","notifications","profile","streak"]) {
+  const path = "src/styles/features/" + feature + ".css";
+  assert.ok(html.includes(path), feature + " stylesheet is loaded");
+  assert.ok(build.includes(path), feature + " stylesheet is copied");
+  assert.ok(worker.includes(path), feature + " stylesheet is precached");
+  assert.ok(read(path).length > 100, feature + " stylesheet has extracted rules");
+ }
+});

@@ -11,7 +11,8 @@
 - [x] Update browser loading, GitHub Pages publishing, production build and service-worker precache for nested source paths.
 - [x] Add regression checks for the extracted boundaries and production asset copying.
 - [x] Extract 154 function implementations across Home, Photos, Notes, Music, Friends, Notifications, Profile and Streak Garden.
-- [ ] Move feature-specific CSS after selector ownership and cascade review.
+- [x] Split 562 feature-scoped CSS rules from `polish.css` into eight feature stylesheets.
+- [x] Audit duplicate selectors across the legacy style layers; retain intentional cascade overrides and document the high-frequency selectors.
 - [ ] Run full Android build/install regression on a configured native runner.
 
 ## Remaining feature migrations

@@ -2968,7 +2968,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const replyText = replyTarget?.text || (replyTarget?.photos?.length ? 'Photo' : 'This message is no longer available');
   const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote">${replyPhotoThumb}<span class="chat-reply-preview-copy"><small>${esc(replyAuthor)}</small><span class="chat-reply-preview-text">${esc(replyText)}</span></span></span></button>` : '';
   const sharedPhotos = Array.isArray(m.photos) ? m.photos : [];
-  const photoMarkup = sharedPhotos.length ? `<div class="chat-shared-photo-grid" data-photo-count="${sharedPhotos.length}">${sharedPhotos.map(photo => `<div class="chat-shared-photo-item"><div class="photo-frame"><img class="feed-photo is-loading chat-shared-photo" loading="lazy" decoding="async" data-media="${esc(photo.id)}" alt="Photo shared by ${name}" role="button" tabindex="0" aria-label="Open shared photo" draggable="false"></div></div>`).join('')}</div>` : '';
+  const photoMarkup = sharedPhotos.length ? `<div class="chat-shared-photo-grid" data-photo-count="${sharedPhotos.length}">${sharedPhotos.map(photo => `<div class="chat-shared-photo-item"><div class="photo-frame"><img class="feed-photo is-loading chat-shared-photo" loading="lazy" decoding="async" data-media="${esc(photo.id)}" ${photo.previewUrl ? `src="${esc(photo.previewUrl)}"` : ''} alt="Photo shared by ${name}" role="button" tabindex="0" aria-label="Open shared photo" draggable="false"></div></div>`).join('')}</div>` : '';
 
   return `
     <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}" data-like-count="${Number(m.like_count) || 0}" data-reaction-count="${Array.isArray(m.reactions) ? m.reactions.length : 0}">
@@ -3009,7 +3009,8 @@ function memoryCard(m, options = {}) {
 
   let body = '';
   if (m.kind === 'photo') {
-    body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo is-loading" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}"` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div></div>`;
+    const photoCaption = m.text && m.text !== m.fileName ? `<span class="memory-title photo-caption-label">${esc(m.text)}</span>` : '';
+    body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo is-loading" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}"` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div>${photoCaption}</div>`;
   } else if (m.kind === 'song') {
     const songAction = m.isPending ? '' : mine
       ? `<button class="song-download card-song-save card-song-delete" type="button" data-memory-delete="${esc(m.id)}" aria-label="Delete song">Delete</button>`

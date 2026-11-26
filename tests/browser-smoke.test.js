@@ -50,10 +50,9 @@ test.after(async () => {
   await new Promise(resolve => server?.close(resolve));
 });
 
-async function newTestPage({ authenticated = false, viewport, seedHistory = false, bearfriend = false, mobile = false } = {}) {
+async function newTestPage({ authenticated = false, viewport, seedHistory = false, bearfriend = false } = {}) {
   const context = await browser.newContext({
     viewport: viewport || { width: 1280, height: 900 },
-    ...(mobile ? { isMobile: true, hasTouch: true, deviceScaleFactor: 1 } : {}),
     serviceWorkers: 'block'
   });
   contexts.add(context);
@@ -204,102 +203,6 @@ test('Notes can reply to a specific message and persist its parent ID', async ()
   const saved = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.text === 'Replying to your hello ♡'));
   assert.equal(saved.reply_to_id, 101);
 });
-  
-test('Notes composer stays in the bottom dock while older-message replies show a quote above it', async () => {
-  const page = await newTestPage({
-    authenticated: true,
-    seedHistory: true,
-    mobile: true,
-    viewport: { width: 390, height: 844 }
-  });
-  await waitForSignedInApp(page);
-  await page.locator('#nav button[data-page="notes"]').click();
-  await page.locator('#chatComposer').waitFor({ state: 'visible' });
-
-  const initialSize = await page.locator('.chat-input-shell').evaluate(shell => {
-    const field = shell.querySelector('#chatInput');
-    const photo = shell.querySelector('#chatPhotoAttach');
-    const rect = node => {
-      const box = node.getBoundingClientRect();
-      return { width: Math.round(box.width), height: Math.round(box.height) };
-    };
-    return { shell: rect(shell), field: rect(field), photo: rect(photo) };
-  });
-  assert.deepEqual(initialSize.field, { width: initialSize.shell.width, height: 56 });
-  assert.deepEqual(initialSize.photo, { width: 56, height: 56 });
-
-  const firstPageCount = await page.locator('#chatThread > .chat-message[data-memory]').count();
-  await page.evaluate(() => {
-    const thread = document.querySelector('#chatThread');
-    thread.scrollTop = 0;
-    thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
-  });
-  await page.waitForFunction(
-    count => document.querySelectorAll('#chatThread > .chat-message[data-memory]').length >= count + 38,
-    firstPageCount
-  );
-  await page.evaluate(() => {
-    const thread = document.querySelector('#chatThread');
-    thread.scrollTop = 0;
-    thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
-  });
-  await page.waitForFunction(() => document.querySelector('.chat-message[data-memory="1000"]'));
-  // Exercise the same delegated Reply action for the older row without
-  // depending on the popup's pointer-position animation in the clipped history.
-  await page.evaluate(() => {
-    const action = document.createElement('button');
-    action.type = 'button';
-    action.dataset.chatReply = '1000';
-    action.textContent = 'Reply';
-    action.style.cssText = 'position:fixed;top:8px;left:8px;z-index:99999';
-    document.body.append(action);
-  });
-  await page.locator('[data-chat-reply="1000"]').click();
-
-  await page.locator('#chatReplyingTo').waitFor({ state: 'visible' });
-  const placement = await page.evaluate(() => {
-    const composer = document.querySelector('#chatComposer');
-    const thread = document.querySelector('#chatThread');
-    const nav = document.querySelector('#nav');
-    const rect = node => node.getBoundingClientRect();
-    return {
-      parent: composer.parentElement.className,
-      previousElement: composer.previousElementSibling?.id || '',
-      position: getComputedStyle(composer).position,
-      replyPreviewVisible: !document.querySelector('#chatReplyingTo').hidden,
-      composerAboveNav: rect(composer).bottom <= rect(nav).top + 1,
-      threadAboveComposer: rect(thread).bottom <= rect(composer).top + 1,
-      replyMode: composer.closest('.chat-page').classList.contains('is-reply-inline')
-    };
-  });
-  assert.match(placement.parent, /chat-page/);
-  assert.equal(placement.previousElement, 'chatThread');
-  assert.notEqual(placement.position, 'fixed');
-  assert.equal(placement.replyPreviewVisible, true);
-  assert.equal(placement.composerAboveNav, true, 'composer must stay above bottom navigation');
-  assert.equal(placement.threadAboveComposer, true, 'thread must end before the composer dock');
-  assert.equal(placement.replyMode, false);
-
-  // Shrink the emulated mobile viewport to represent the visible area above
-  // the software keyboard, then verify the inline composer stays in flow.
-  await page.evaluate(() => Object.defineProperty(window.screen, 'height', {
-    configurable: true,
-    get: () => 844
-  }));
-  await page.setViewportSize({ width: 390, height: 500 });
-  await page.locator('#chatInput').focus();
-  await page.waitForFunction(() => document.body.classList.contains('notes-keyboard-open'));
-  assert.notEqual(await page.locator('#chatComposer').evaluate(node => getComputedStyle(node).position), 'fixed');
-
-  await page.locator('#chatInput').fill('Replying to an older message ♡');
-  await page.locator('#chatSend').click();
-  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.some(row => row.text === 'Replying to an older message ♡'));
-  const saved = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.text === 'Replying to an older message ♡'));
-  assert.equal(saved.reply_to_id, 1000);
-  assert.equal(await page.locator('#chatComposer').evaluate(composer => composer.parentElement.classList.contains('chat-page')), true);
-  assert.equal(await page.locator('.chat-page').evaluate(node => node.classList.contains('is-reply-inline')), false);
-});
-
 
 test('profile edits save through the authenticated database client', async () => {
   const page = await newTestPage({ authenticated: true });
@@ -538,7 +441,7 @@ test('PWA installs its complete shell and reloads offline', async () => {
 
     const cached = await page.evaluate(async () => {
       const names = await caches.keys();
-      const shell = names.find(name => name === 'cute-bunny-shell-v411');
+      const shell = names.find(name => name === 'cute-bunny-shell-v410');
       if (!shell) return { names, shell: false, assets: [] };
       const cache = await caches.open(shell);
       const requests = await cache.keys();
@@ -549,7 +452,7 @@ test('PWA installs its complete shell and reloads offline', async () => {
       };
     });
     assert.equal(cached.shell, true, 'the current app shell cache should be installed');
-    for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'notes-chat-layout.css', 'header-statusbar-blend.css', 'bear-hugs-progression.js', 'bear-hugs-progression.css']) {
+    for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'header-statusbar-blend.css', 'bear-hugs-progression.js', 'bear-hugs-progression.css']) {
       assert.ok(cached.assets.includes(asset), 'offline cache should include ' + asset);
     }
 

@@ -3043,48 +3043,8 @@ function syncChatReplyPreview() {
   preview.classList.toggle('is-mine', isMine);
   preview.classList.toggle('is-friend', !!item && !isMine);
   preview.innerHTML = item
-    ? `<div class="chat-replying-content"><span class="chat-replying-label"><b>Replying to ${esc(item.author?.displayName || item.author?.display_name || item.author?.username || 'message')}</b></span><span class="chat-replying-message">${esc(item.text || ((item.storagePath || item.storage_path) ? 'Photo' : 'Message unavailable'))}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
+    ? `<div class="chat-replying-content"><span class="chat-replying-message">${esc(item.text || 'Message unavailable')}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
     : '';
-}
-
-/* Keep the composer in its dedicated bottom dock in both normal and reply mode.
-   The selected message remains in the independently scrolling thread; the quote
-   preview is rendered inside the dock immediately above the writing field. */
-function syncChatReplyPlacement(options = {}) {
-  const notesPage = $('.chat-page');
-  const thread = $('#chatThread');
-  const composer = $('#chatComposer');
-  if (!notesPage || !thread || !composer) return;
-
-  notesPage.classList.remove('is-reply-inline');
-  if (composer.parentElement !== notesPage) notesPage.append(composer);
-
-  if (!replyingToMessageId || !options.scroll) return;
-  const message = thread.querySelector(`.chat-message[data-memory="${CSS.escape(String(replyingToMessageId))}"]`);
-  if (!message) return;
-
-  requestAnimationFrame(() => {
-    if (!thread.isConnected || !message.isConnected) return;
-    $('#chatInput')?.focus({ preventScroll: true });
-    syncNotesKeyboardLayout();
-
-    const revealSelectedMessage = () => {
-      if (!thread.isConnected || !message.isConnected) return;
-      const threadRect = thread.getBoundingClientRect();
-      const messageRect = message.getBoundingClientRect();
-      const visibleTop = threadRect.top + 10;
-      const visibleBottom = threadRect.bottom - 10;
-      if (messageRect.top < visibleTop) {
-        thread.scrollTop += messageRect.top - visibleTop;
-      } else if (messageRect.bottom > visibleBottom) {
-        thread.scrollTop += messageRect.bottom - visibleBottom;
-      }
-    };
-
-    requestAnimationFrame(revealSelectedMessage);
-    setTimeout(revealSelectedMessage, 220);
-    setTimeout(revealSelectedMessage, 420);
-  });
 }
 
 /* Clean Notes conversation; message markup is shared with Home → Memory History. */
@@ -3161,7 +3121,6 @@ function renderNotesPage(options = {}) {
   const desiredThreadMarkup = olderControl + (messagesHtml || emptyMarkup);
   if (existingThread && existingThread.__cbNotesMarkup === desiredThreadMarkup) {
     syncNotesTypingIndicator();
-    syncChatReplyPlacement({ scroll: !!options.scrollToReply });
     return;
   }
 
@@ -3255,12 +3214,11 @@ function renderNotesPage(options = {}) {
       if (atPosition !== node) existingThread.insertBefore(node, atPosition || null);
     });
     [...existingThread.children].forEach(node => {
-      if (!nextNodes.includes(node) && node.id !== 'chatTypingIndicator' && node.id !== 'chatComposer') node.remove();
+      if (!nextNodes.includes(node) && node.id !== 'chatTypingIndicator') node.remove();
     });
     existingThread.__cbNotesMarkup = desiredThreadMarkup;
     syncNotesTypingIndicator();
 
-    syncChatReplyPlacement({ scroll: !!options.scrollToReply });
     requestAnimationFrame(() => {
       if (!existingThread.isConnected) return;
       if (options.followLatest || wasNearBottom) {
@@ -3285,22 +3243,19 @@ function renderNotesPage(options = {}) {
         ${olderControl}${messagesHtml || emptyMarkup}
         <div id="chatTypingIndicator" class="chat-typing-indicator" aria-live="polite" aria-atomic="true" hidden></div>
       </div>
+      <div id="chatPhotoPreview" class="chat-photo-preview" hidden></div>
       <form id="chatComposer" class="chat-composer" autocomplete="off">
-        <div id="chatPhotoPreview" class="chat-photo-preview" hidden></div>
         <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
         <input id="chatPhotoInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
-        <div class="chat-input-shell">
-          <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
-          <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
-          <button type="button" class="chat-photo-attach" id="chatPhotoAttach" aria-label="Attach a photo" title="Choose a photo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9.5" r="1.7" fill="currentColor"/><path d="m5.5 17 5-5 3.2 3 2.4-2.2 2.5 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-        </div>
+        <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
+        <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
+        <button type="button" class="chat-photo-attach" id="chatPhotoAttach" aria-label="Attach a photo" title="Choose a photo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="9" cy="9.5" r="1.7" fill="currentColor"/><path d="m5.5 17 5-5 3.2 3 2.4-2.2 2.5 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </form>
     </section>
   `;
 
   requestAnimationFrame(() => {
-    syncChatReplyPlacement({ scroll: !!options.scrollToReply });
     syncNotesKeyboardLayout();
     const thread = $('#chatThread');
     if (thread) {
@@ -7106,16 +7061,13 @@ document.addEventListener('click', async e => {
   if (replyBtn) {
     replyingToMessageId = String(replyBtn.dataset.chatReply);
     hideMessageActions();
-    if (page !== 'notes') go('notes');
-    renderNotesPage({ scrollToReply: true });
-    return;
-  }
-  if (e.target.closest('[data-chat-reply-cancel]')) {
-    replyingToMessageId = null;
-    renderNotesPage();
+    if (page !== 'notes') go('notes'); else renderNotesPage();
+    const input = $('#chatInput');
+    input?.focus({ preventScroll: true });
     syncNotesKeyboardLayout();
     return;
   }
+  if (e.target.closest('[data-chat-reply-cancel]')) { replyingToMessageId = null; renderNotesPage(); return; }
   const jumpReply = e.target.closest('[data-chat-jump]');
   if (jumpReply) {
     const target = document.querySelector(`.chat-message[data-memory="${CSS.escape(jumpReply.dataset.chatJump)}"]`);
@@ -7700,9 +7652,6 @@ function syncChatComposerState(field = $('#chatInput')) {
   send.disabled = !hasMessage;
   send.setAttribute('aria-hidden', String(!hasMessage));
   send.setAttribute('aria-label', hasMessage ? 'Send message' : 'Write a message first');
-  const shell = composer.querySelector('.chat-input-shell');
-  const controlSize = Math.round(field?.getBoundingClientRect().height || 56);
-  if (shell) shell.style.setProperty('--chat-control-size', controlSize + 'px');
 }
 
 function isTouchNotesViewport() {
@@ -7737,7 +7686,7 @@ document.addEventListener('input', event => {
   if (field.value.trim()) startNotesTyping();
   else stopNotesTyping();
   field.style.height = 'auto';
-  const nextHeight = Math.min(Math.max(field.scrollHeight, 56), 116);
+  const nextHeight = Math.min(Math.max(field.scrollHeight, 50), 116);
   field.style.height = nextHeight + 'px';
   field.style.overflowY = field.scrollHeight > 116 ? 'auto' : 'hidden';
   syncChatComposerState(field);
@@ -7823,22 +7772,10 @@ function syncNotesKeyboardLayout() {
     notesKeyboardFollowLatest = false;
   }
 
-  // Inline reply mode keeps the composer in the conversation flow below the
-  // selected message; it must never become the keyboard-following bottom dock.
-  if (thread && notesPage.classList.contains('is-reply-inline')) {
-    thread.style.setProperty('padding-bottom', '24px', 'important');
-    thread.style.setProperty('scroll-padding-bottom', '24px');
-    if (keyboardOpen && focused && composer) {
-      requestAnimationFrame(() => {
-        const rect = composer.getBoundingClientRect();
-        const visibleBottom = Math.min(
-          thread.getBoundingClientRect().bottom,
-          (window.visualViewport?.offsetTop || 0) + (window.visualViewport?.height || window.innerHeight)
-        );
-        if (rect.bottom > visibleBottom - 12) thread.scrollTop += rect.bottom - visibleBottom + 20;
-      });
-    }
-  } else if (thread && composer) {
+  // The composer is fixed over the conversation in both keyboard states.
+  // Measure its real overlap with the scrollport and reserve enough scrollable
+  // space for the final message, including the viewport's safe-area positioning.
+  if (thread && composer) {
     const threadBottom = thread.getBoundingClientRect().bottom;
     const composerTop = composer.getBoundingClientRect().top;
     const overlap = Math.max(0, threadBottom - composerTop);

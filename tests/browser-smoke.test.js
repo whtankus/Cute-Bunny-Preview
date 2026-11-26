@@ -226,6 +226,16 @@ test('Notes composer is one 56px shell and an older-message reply is placed inli
   assert.deepEqual(initialSize.field, { width: initialSize.shell.width, height: 56 });
   assert.deepEqual(initialSize.photo, { width: 56, height: 56 });
 
+  const firstPageCount = await page.locator('#chatThread > .chat-message[data-memory]').count();
+  await page.evaluate(() => {
+    const thread = document.querySelector('#chatThread');
+    thread.scrollTop = 0;
+    thread.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }));
+  });
+  await page.waitForFunction(
+    count => document.querySelectorAll('#chatThread > .chat-message[data-memory]').length >= count + 38,
+    firstPageCount
+  );
   await page.evaluate(() => {
     const thread = document.querySelector('#chatThread');
     thread.scrollTop = 0;

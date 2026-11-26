@@ -3047,62 +3047,44 @@ function syncChatReplyPreview() {
     : '';
 }
 
-/* The active reply composer belongs directly after its source message in the
-   scrollable conversation, not in the fixed bottom dock. */
+/* Keep the composer in its dedicated bottom dock in both normal and reply mode.
+   The selected message remains in the independently scrolling thread; the quote
+   preview is rendered inside the dock immediately above the writing field. */
 function syncChatReplyPlacement(options = {}) {
   const notesPage = $('.chat-page');
   const thread = $('#chatThread');
   const composer = $('#chatComposer');
-  const photoPreview = $('#chatPhotoPreview');
   if (!notesPage || !thread || !composer) return;
 
-  const replyItem = replyingToMessageId
-    ? feed.find(memory => String(memory.id) === String(replyingToMessageId))
-    : null;
-  if (!replyItem) {
-    notesPage.classList.remove('is-reply-inline');
-    if (composer.parentElement !== notesPage) {
-      if (photoPreview?.parentElement === notesPage) photoPreview.after(composer);
-      else notesPage.append(composer);
-    }
-    return;
-  }
+  notesPage.classList.remove('is-reply-inline');
+  if (composer.parentElement !== notesPage) notesPage.append(composer);
 
+  if (!replyingToMessageId || !options.scroll) return;
   const message = thread.querySelector(`.chat-message[data-memory="${CSS.escape(String(replyingToMessageId))}"]`);
   if (!message) return;
-  notesPage.classList.add('is-reply-inline');
-  if (composer.parentElement !== thread || composer.previousElementSibling !== message) {
-    message.after(composer);
-  }
 
-  if (options.scroll) {
-    requestAnimationFrame(() => {
-      const field = $('#chatInput');
-      field?.focus({ preventScroll: true });
-      syncNotesKeyboardLayout();
-      const scrollComposerIntoView = () => {
-        if (!thread.isConnected || !composer.isConnected || !message.isConnected) return;
-        const threadRect = thread.getBoundingClientRect();
-        const messageRect = message.getBoundingClientRect();
-        const visibleBottom = Math.min(
-          threadRect.bottom,
-          (window.visualViewport?.offsetTop || 0) + (window.visualViewport?.height || window.innerHeight)
-        );
-        // Anchor the selected source near the top of the visible scrollport,
-        // leaving room for its quoted preview and composer directly beneath it.
-        if (messageRect.top < threadRect.top + 12 || messageRect.bottom > visibleBottom - 120) {
-          thread.scrollTop += messageRect.top - threadRect.top - 12;
-        }
-        const composerRect = composer.getBoundingClientRect();
-        if (composerRect.bottom > visibleBottom - 12) {
-          thread.scrollTop += composerRect.bottom - visibleBottom + 20;
-        }
-      };
-      requestAnimationFrame(scrollComposerIntoView);
-      setTimeout(scrollComposerIntoView, 220);
-      setTimeout(scrollComposerIntoView, 420);
-    });
-  }
+  requestAnimationFrame(() => {
+    if (!thread.isConnected || !message.isConnected) return;
+    $('#chatInput')?.focus({ preventScroll: true });
+    syncNotesKeyboardLayout();
+
+    const revealSelectedMessage = () => {
+      if (!thread.isConnected || !message.isConnected) return;
+      const threadRect = thread.getBoundingClientRect();
+      const messageRect = message.getBoundingClientRect();
+      const visibleTop = threadRect.top + 10;
+      const visibleBottom = threadRect.bottom - 10;
+      if (messageRect.top < visibleTop) {
+        thread.scrollTop += messageRect.top - visibleTop;
+      } else if (messageRect.bottom > visibleBottom) {
+        thread.scrollTop += messageRect.bottom - visibleBottom;
+      }
+    };
+
+    requestAnimationFrame(revealSelectedMessage);
+    setTimeout(revealSelectedMessage, 220);
+    setTimeout(revealSelectedMessage, 420);
+  });
 }
 
 /* Clean Notes conversation; message markup is shared with Home → Memory History. */

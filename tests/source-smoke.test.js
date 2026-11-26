@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('core browser scripts parse without syntax errors', () => {
-  for (const file of ['app.js', 'sw.js', 'scripts/build-preview.js']) {
+  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/features/notes/chat-events.js', 'src/features/home/home.js', 'src/features/photos/photos.js', 'src/features/notes/notes.js', 'src/features/music/music.js', 'src/features/friends/friends.js', 'src/features/notifications/notifications.js', 'src/features/profile/profile.js', 'src/features/streak/streak.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);
   }
 });
@@ -44,15 +44,16 @@ test('Bear Hugs uses one fixed level and Care Point-based treasure collection', 
 
 test('Bear Hugs daily missions track only successfully delivered actions', () => {
   const app = read('app.js');
+  const streak = read('src/features/streak/streak.js');
   const bear = read('bear-hugs-progression.js');
   const styles = read('bear-hugs-progression.css');
-  assert.match(app, /bearActions: Array\.isArray\(saved\.bearActions\)/);
-  assert.match(app, /bearActionIds: Array\.isArray\(saved\.bearActionIds\)/);
-  assert.match(app, /!state\.bearActionIds\.includes\(actionId\)/);
-  assert.match(app, /kind === 'bear-action'/);
-  assert.match(app, /bearHugQuests/);
+  assert.match(streak, /bearActions: Array\.isArray\(saved\.bearActions\)/);
+  assert.match(streak, /bearActionIds: Array\.isArray\(saved\.bearActionIds\)/);
+  assert.match(streak, /!state\.bearActionIds\.includes\(actionId\)/);
+  assert.match(streak, /kind === 'bear-action'/);
+  assert.match(streak, /bearHugQuests/);
   assert.match(app, /cute-bunny:bear-action/);
-  assert.match(app, /item\.kind === 'bear-action' \? 'bear-hugs'/);
+  assert.match(streak, /item\.kind === 'bear-action' \? 'bear-hugs'/);
   assert.match(app, /destination === 'bear-hugs'/);
   assert.match(bear, /new CustomEvent\('cute-bunny:bear-action'/);
   assert.match(bear, /actionId: String\(payload\.actionId \|\| ''\)/);
@@ -174,12 +175,12 @@ test('streak entry button and thumbnail play boing on pointer and keyboard activ
 
 
 test('main navigation shows glowing new-activity dots for unread content notifications', () => {
-  const app = read('app.js');
+  const notifications = read('src/features/notifications/notifications.js');
   const html = read('index.html');
   const css = read('style.css');
-  assert.match(app, /function updateNavNewDots\(\)/);
-  assert.match(app, /gallery: \['photo'\], music: \['song'\], notes: \['note'\], friends: \['buddy'\]/);
-  assert.match(app, /function markNavNotificationsSeen\(targetPage\)/);
+  assert.match(notifications, /function updateNavNewDots\(\)/);
+  assert.match(notifications, /gallery: \['photo'\], music: \['song'\], notes: \['note'\], friends: \['buddy'\]/);
+  assert.match(notifications, /function markNavNotificationsSeen\(targetPage\)/);
   for (const page of ['home', 'gallery', 'notes', 'music', 'friends']) {
     assert.ok(html.includes('data-page="' + page + '"') && html.includes('class="nav-new-dot"'));
   }
@@ -210,3 +211,71 @@ test('Achievement Garden keeps earned heart flowers and includes 1,500 and 2,000
   assert.ok(css.includes('.achievement-card.is-earned'));
 });
 
+
+
+test('core helpers and Supabase client are isolated behind small service boundaries', () => {
+  const core = read('src/core/dom.js');
+  const service = read('src/services/supabase-client.js');
+  const app = read('app.js');
+  const html = read('index.html');
+  assert.match(core, /window\.CuteBunnyCore/);
+  assert.match(core, /escapeHtml/);
+  assert.match(service, /window\.CuteBunnyServices/);
+  assert.match(service, /createSupabaseClient/);
+  assert.match(app, /window\.CuteBunnyCore/);
+  assert.match(app, /window\.CuteBunnyServices\.createSupabaseClient/);
+  assert.ok(html.indexOf('src="src/core/dom.js"') < html.indexOf('src="app.js'));
+  assert.ok(html.indexOf('src="src/services/supabase-client.js"') < html.indexOf('src="app.js'));
+});
+
+test('design tokens load separately from the remaining polish stylesheet', () => {
+  const html = read('index.html');
+  const tokens = read('src/styles/tokens.css');
+  const polish = read('polish.css');
+  assert.match(tokens, /--cb-ink:/);
+  assert.doesNotMatch(polish.slice(0, 1200), /:root\s*\{/);
+  assert.ok(html.indexOf('href="src/styles/tokens.css"') < html.indexOf('href="polish.css'));
+});
+
+
+test('photo optimization is isolated from the main application and keeps original files safe', () => {
+  const app = read('app.js');
+  const media = read('src/services/media-optimizer.js');
+  const html = read('index.html');
+  assert.doesNotMatch(app, /async function optimizePhotoUpload\(file\)/);
+  assert.match(app, /CuteBunnyServices\.optimizePhotoUpload/);
+  assert.match(media, /createImageBitmap/);
+  assert.match(media, /image\/webp/);
+  assert.match(media, /blob\.size >= file\.size/);
+  assert.match(media, /bitmap\?\.close\?\.\(\)/);
+  assert.ok(html.indexOf('src/services/media-optimizer.js') < html.indexOf('src="app.js'));
+});
+
+
+test('Notes composer submit and desktop Enter handling live in the Notes feature module', () => {
+  const app = read('app.js');
+  const notes = read('src/features/notes/chat-events.js');
+  const html = read('index.html');
+  assert.doesNotMatch(app, /event\.target\.id === 'chatComposer'/);
+  assert.match(notes, /event\.target\.id !== 'chatComposer'/);
+  assert.match(notes, /window\.sendChatMessage/);
+  assert.match(notes, /window\.isTouchNotesViewport/);
+  assert.match(notes, /event\.shiftKey/);
+  assert.match(notes, /event\.isComposing/);
+  assert.ok(html.indexOf('src/features/notes/chat-events.js') > html.indexOf('src="app.js'));
+});
+
+
+test('Supabase data access is provided by an injected service instead of being embedded in app.js', () => {
+  const app = read('app.js');
+  const service = read('src/services/api.js');
+  const html = read('index.html');
+  assert.doesNotMatch(app, /async function api\(path, options = \{\}\)/);
+  assert.match(app, /CuteBunnyServices\.createApi/);
+  assert.match(service, /function createApi\(\{ client, getCurrentUser, fetchFriendHeartCounts, themes \}\)/);
+  assert.match(service, /return async function api/);
+  assert.match(service, /sb\.from\('memories'\)/);
+  assert.match(service, /sb\.storage\.from\('memories'\)/);
+  assert.match(html, /src="src\/services\/api\.js"/);
+  assert.ok(html.indexOf('src/services/api.js') < html.indexOf('src="app.js'));
+});

@@ -10,6 +10,9 @@ fs.mkdirSync(output, { recursive: true });
 const assets = [
   'index.html',
   'app.js',
+  'src/core/dom.js',
+  'src/services/supabase-client.js',
+  'src/styles/tokens.css',
   'style.css',
   'polish.css',
   'button-interactions.css',

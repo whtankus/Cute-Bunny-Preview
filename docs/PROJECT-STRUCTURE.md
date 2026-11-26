@@ -10,6 +10,7 @@
 ├── polish.css                     # Remaining visual refinements
 ├── src/
 │   ├── core/dom.js                # DOM query and HTML escaping helpers
+│   ├── features/notes/chat-events.js # Notes composer keyboard and submit events
 │   ├── services/
 │   │   ├── supabase-client.js     # Supabase client construction
 │   │   └── media-optimizer.js     # Safe image upload optimization

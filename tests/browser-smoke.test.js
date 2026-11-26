@@ -476,9 +476,11 @@ test('Notes photo upload retries reuse IDs and do not duplicate messages or gall
     name: 'retry.png', mimeType: 'image/png',
     buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64')
   });
+  await page.locator('#chatPhotoPreview').waitFor({ state: 'visible' });
   await page.locator('#chatInput').fill('A photo that needs one retry');
   await page.evaluate(() => { window.__cuteBunnyTestState.failNextUpload = true; });
   await page.locator('#chatSend').click();
+  await page.waitForFunction(() => window.__cuteBunnyTestState.failNextUpload === false && window.__cuteBunnyTestState.uploads.some(upload => upload.path.includes('/notes/')));
   await page.locator('.chat-message-retry').waitFor({ state: 'visible' });
   const beforeRetry = await page.evaluate(() => ({
     parents: window.__cuteBunnyTestState.tables.memories.filter(row => row.kind === 'note' && row.text === 'A photo that needs one retry').length,

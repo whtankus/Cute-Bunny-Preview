@@ -5,25 +5,36 @@
 ```text
 /
 ├── index.html
-├── app.js                         # Legacy app coordinator; split incrementally
-├── style.css                      # Legacy global styles
-├── polish.css                     # Remaining visual refinements
+├── app.js                         # Startup, shared state and navigation coordinator
+├── style.css                      # Shared legacy/base styles
+├── polish.css                     # Shared refinements and unclassified legacy rules
 ├── src/
-│   ├── core/dom.js                # DOM query and HTML escaping helpers
-│   ├── features/notes/chat-events.js # Notes composer keyboard and submit events
+│   ├── core/dom.js
 │   ├── services/
-│   │   ├── supabase-client.js     # Supabase client construction
-│   │   ├── media-optimizer.js     # Safe image upload optimization
-│   │   └── api.js                 # Supabase data access facade
-│   └── styles/tokens.css         # Shared design tokens
-├── bear-hugs-progression.js      # Bearfriend behaviour
-├── bear-hugs-progression.css     # Bearfriend styles
-├── swipe-gestures.js             # Gesture behaviour
-├── swipe-gestures.css            # Gesture styles
-├── scripts/                      # Build and maintenance scripts
-├── tests/                        # Regression tests
-├── docs/                          # Developer documentation
-└── supabase/                      # Database schema, migrations and functions
+│   │   ├── supabase-client.js
+│   │   ├── media-optimizer.js
+│   │   └── api.js
+│   ├── features/
+│   │   ├── home/home.js
+│   │   ├── photos/photos.js
+│   │   ├── notes/notes.js
+│   │   ├── notes/chat-events.js
+│   │   ├── music/music.js
+│   │   ├── friends/friends.js
+│   │   ├── notifications/notifications.js
+│   │   ├── profile/profile.js
+│   │   └── streak/streak.js
+│   └── styles/
+│       ├── tokens.css
+│       └── features/{home,photos,notes,music,friends,notifications,profile,streak}.css
+├── bear-hugs-progression.js
+├── bear-hugs-progression.css
+├── swipe-gestures.js
+├── swipe-gestures.css
+├── scripts/
+├── tests/
+├── docs/
+└── supabase/
 ```
 
 ## Target feature-first layout

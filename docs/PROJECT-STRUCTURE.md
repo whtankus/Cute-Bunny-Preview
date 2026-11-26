@@ -13,7 +13,8 @@
 │   ├── features/notes/chat-events.js # Notes composer keyboard and submit events
 │   ├── services/
 │   │   ├── supabase-client.js     # Supabase client construction
-│   │   └── media-optimizer.js     # Safe image upload optimization
+│   │   ├── media-optimizer.js     # Safe image upload optimization
+│   │   └── api.js                 # Supabase data access facade
 │   └── styles/tokens.css         # Shared design tokens
 ├── bear-hugs-progression.js      # Bearfriend behaviour
 ├── bear-hugs-progression.css     # Bearfriend styles

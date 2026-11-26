@@ -394,6 +394,20 @@ test('Notes photo messages retry safely, appear in Photos Garden, and accept rep
   page.on('console', message => { if (message.type() === 'error') console.log('Notes photo console error:', message.text()); });
   await waitForSignedInApp(page);
   await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatPhotoPicker').waitFor({ state: 'visible' });
+  await page.locator('#chatInput').focus();
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true, 'empty focused composer keeps the photo icon visible');
+  await page.locator('#chatInput').fill('A temporary caption');
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), false);
+  assert.equal(await page.locator('#chatSend').isVisible(), true);
+  await page.locator('#chatInput').fill('');
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true);
+  assert.equal(await page.locator('#chatSend').isVisible(), false);
+  await page.locator('#chatPhotoInput').setInputFiles({
+    name: 'remove-me.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64')
+  });
+  await page.locator('[data-chat-photo-remove]').click();
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true, 'removing the last selected photo restores the picker');
   await page.locator('#chatPhotoInput').setInputFiles([
     { name: 'first.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64') },
     { name: 'second.png', mimeType: 'image/png', buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64') }
@@ -462,4 +476,15 @@ test('Notes photo messages retry safely, appear in Photos Garden, and accept rep
   await page.waitForFunction(parentId => window.__cuteBunnyTestState.tables.memories.some(row =>
     row.kind === 'note' && row.text === 'Replying to your photos ♡' && row.reply_to_id === parentId
   ), sent.parent.id);
+
+  await page.locator('#chatPhotoInput').setInputFiles({
+    name: 'photo-only.png', mimeType: 'image/png',
+    buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j3x8AAAAASUVORK5CYII=', 'base64')
+  });
+  await page.locator('#chatSend').click();
+  await page.waitForFunction(() => {
+    const rows = window.__cuteBunnyTestState.tables.memories;
+    const parent = rows.find(row => row.kind === 'note' && row.client_message_id && row.text === '');
+    return !!parent && rows.some(row => row.kind === 'photo' && row.chat_message_id === parent.id);
+  });
 });

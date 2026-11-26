@@ -763,7 +763,18 @@ async function refresh() {
 
 function mergeFeedRows(rows) {
   const byId = new Map(feed.map(item => [String(item.id), item]));
-  for (const row of rows || []) byId.set(String(row.id), { ...byId.get(String(row.id)), ...row });
+  for (const row of rows || []) {
+    const previous = byId.get(String(row.id));
+    const merged = { ...previous, ...row };
+    // A persisted parent row can arrive during a retry; retain its local failed
+    // state and object-URL previews until the complete photo batch is committed.
+    if (previous?.isFailed) {
+      merged.isPending = true;
+      merged.isFailed = true;
+      merged.photos = previous.photos || merged.photos || [];
+    }
+    byId.set(String(row.id), merged);
+  }
   feed = [...byId.values()].sort((a, b) => new Date(b.createdAt || b.created_at || 0) - new Date(a.createdAt || a.created_at || 0));
 }
 
@@ -4385,14 +4396,23 @@ async function sendChatMessage() {
   if (activeField && !activeField.value) activeField.value = text;
   syncChatComposerState(activeField);
   renderNotesPhotoSelection();
+  let savedParent = null;
   try {
-    const { data: savedParent, error: parentError } = await sb.from('memories')
+    const { data: parentRow, error: parentError } = await sb.from('memories')
       .upsert({ owner_id: me.id, kind: 'note', text, reply_to_id: draft.replyId ? Number(draft.replyId) : null,
         photo_group_id: draft.photoGroupId, client_message_id: draft.clientMessageId },
         { onConflict: 'client_message_id' })
       .select('id,owner_id,kind,text,created_at,reply_to_id,photo_group_id,client_message_id,edited_at')
       .single();
     if (parentError) throw parentError;
+    savedParent = parentRow;
+    const optimisticRow = feed.find(item => String(item.id) === String(draft.optimisticId));
+    if (optimisticRow) {
+      optimisticRow.id = savedParent.id;
+      optimisticRow.createdAt = savedParent.created_at;
+      optimisticRow.created_at = savedParent.created_at;
+      draft.optimisticId = String(savedParent.id);
+    }
     const uploadedPhotoRows = [];
     for (const photo of draft.photos) {
       const file = photo.file;
@@ -4462,7 +4482,14 @@ async function sendChatMessage() {
     syncChatComposerState(field);
     toast(savedPhotos.length ? 'Photo message shared ♡' : 'Message sent ♡');
   } catch (error) {
-    updatePendingPhotoMessage(draft, { isPending: true, isFailed: true });
+    if (savedParent && !feed.some(item => String(item.id) === String(savedParent.id))) {
+      feed.unshift({ ...savedParent, createdAt: savedParent.created_at, isPending: true, isFailed: true,
+        photos: draft.photos.map(photo => ({ id: photo.clientPhotoId, previewUrl: photo.previewUrl })),
+        author: { ...me, id: me?.id, displayName: me?.displayName || me?.username, mascot: me?.mascot || '🐰' } });
+      draft.optimisticId = String(savedParent.id);
+    }
+    updatePendingPhotoMessage(draft, { isPending: true, isFailed: true,
+      ...(savedParent ? { photos: draft.photos.map(photo => ({ id: photo.clientPhotoId, previewUrl: photo.previewUrl })) } : {}) });
     renderNotesPage({ followLatest: true });
     const retryField = $('#chatInput');
     if (retryField && !retryField.value) retryField.value = draft.text;
@@ -6095,6 +6122,10 @@ async function hydrateOneMedia(node) {
     const url = await resolveMediaSource(memory);
     if (node.isConnected && !node.getAttribute('src')) node.src = url;
   } catch (error) {
+    if (node instanceof HTMLImageElement) {
+      node.classList.remove('is-loading', 'is-loaded');
+      node.classList.add('has-load-error');
+    }
     console.warn('Photo could not be loaded:', error?.message || error);
   } finally {
     delete node.dataset.mediaLoading;

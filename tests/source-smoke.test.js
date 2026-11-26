@@ -52,9 +52,9 @@ test('Bear Hugs daily missions track only successfully delivered actions', () =>
   assert.match(streak, /!state\.bearActionIds\.includes\(actionId\)/);
   assert.match(streak, /kind === 'bear-action'/);
   assert.match(streak, /bearHugQuests/);
-  assert.match(streak, /cute-bunny:bear-action/);
+  assert.match(app, /cute-bunny:bear-action/);
   assert.match(streak, /item\.kind === 'bear-action' \? 'bear-hugs'/);
-  assert.match(streak, /destination === 'bear-hugs'/);
+  assert.match(app, /destination === 'bear-hugs'/);
   assert.match(bear, /new CustomEvent\('cute-bunny:bear-action'/);
   assert.match(bear, /actionId: String\(payload\.actionId \|\| ''\)/);
   assert.match(bear, /if \(!delivered\) return;/);

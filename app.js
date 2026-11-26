@@ -3053,10 +3053,10 @@ function syncChatReplyPreview() {
   const isMine = !!item && replyOwnerId === String(me?.id || '');
   preview.classList.toggle('is-mine', isMine);
   preview.classList.toggle('is-friend', !!item && !isMine);
-  const photo = item?.photos?.[0];
+  const photo = itemPhotos[0];
   const thumb = photo ? `<img class="chat-reply-photo-preview" data-media="${esc(photo.id)}" alt="">` : '';
   const author = item?.author?.displayName || item?.author?.display_name || item?.author?.username || 'Friend';
-  const label = item ? (item.text || (item.photos?.length ? 'Photo' : 'Message unavailable')) : '';
+  const label = item ? (item.text || (itemPhotos.length ? 'Photo' : 'Message unavailable')) : '';
   preview.innerHTML = item
     ? `<div class="chat-replying-content">${thumb}<span class="chat-replying-copy"><small>${esc(author)}</small><span class="chat-replying-message">${esc(label)}</span></span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
     : '';

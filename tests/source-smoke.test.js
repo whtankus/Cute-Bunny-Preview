@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('core browser scripts parse without syntax errors', () => {
-  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'sw.js', 'scripts/build-preview.js']) {
+  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/features/notes/chat-events.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);
   }
 });
@@ -248,4 +248,18 @@ test('photo optimization is isolated from the main application and keeps origina
   assert.match(media, /blob\.size >= file\.size/);
   assert.match(media, /bitmap\?\.close\?\.\(\)/);
   assert.ok(html.indexOf('src/services/media-optimizer.js') < html.indexOf('src="app.js'));
+});
+
+
+test('Notes composer submit and desktop Enter handling live in the Notes feature module', () => {
+  const app = read('app.js');
+  const notes = read('src/features/notes/chat-events.js');
+  const html = read('index.html');
+  assert.doesNotMatch(app, /event\.target\.id === 'chatComposer'/);
+  assert.match(notes, /event\.target\.id !== 'chatComposer'/);
+  assert.match(notes, /window\.sendChatMessage/);
+  assert.match(notes, /window\.isTouchNotesViewport/);
+  assert.match(notes, /event\.shiftKey/);
+  assert.match(notes, /event\.isComposing/);
+  assert.ok(html.indexOf('src/features/notes/chat-events.js') > html.indexOf('src="app.js'));
 });

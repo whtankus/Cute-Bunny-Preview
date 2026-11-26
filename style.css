@@ -15796,7 +15796,7 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
 }
 
 
-/* Chat shared photos: 50%-size cap, intrinsic image ratio, and a photo-sized message bubble. */
+/* Chat shared photos: compact, borderless media with the Photo Garden entrance/hover motion. */
 #content .chat-page .chat-message-line:has(.chat-message-photo-wrap) {
   display:flex!important;
   width:fit-content!important;
@@ -15818,18 +15818,26 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
   max-width:100%!important;
   min-width:0!important;
   box-sizing:border-box!important;
-  padding:6px!important;
+  padding:0!important;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
 }
 #content .chat-page .chat-message-photo-wrap {
   display:block!important;
   flex:0 1 auto!important;
-  width:min(260px,100%)!important;
+  width:min(130px,100%)!important;
   max-width:100%!important;
   min-width:0!important;
   height:auto!important;
   margin:0!important;
+  padding:0!important;
   overflow:visible!important;
-  border-radius:13px!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
   line-height:0!important;
 }
 #content .chat-page .chat-message-photo-wrap:not(.is-photo-group) .chat-message-photo {
@@ -15840,6 +15848,14 @@ body.notes-page-active #content .chat-page #chatPhotoPreview {
   max-height:none!important;
   aspect-ratio:auto!important;
   object-fit:contain!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  animation:feed-in .25s ease-out!important;
+  transition:transform .2s ease!important;
+}
+#content .chat-page .chat-message-photo-wrap:not(.is-photo-group) .chat-message-photo:hover {
+  transform:translateY(-3px) rotate(-.4deg);
 }
 #content .chat-page .chat-thread {
   scroll-padding-bottom:calc(24px + env(safe-area-inset-bottom))!important;

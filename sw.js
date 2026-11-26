@@ -1,26 +1,30 @@
-const CACHE_NAME = "cute-bunny-shell-v393";
+const CACHE_NAME = "cute-bunny-shell-v410";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=milestone-shine-20261124",
-  "./polish.css?v=legendary-living-motion-20261124",
+  "./style.css?v=notes-dock-right-preview-keyboard-20261125",
+  "./polish.css?v=bearfriend-rewards-polish-20261125",
+  "./ui-color-system.css?v=20261125-1",
+  "./header-statusbar-blend.css?v=20261120-1",
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=32",
-  "./bear-hugs-progression.css?v=bear-hugs-living-world-20261124-3",
-  "./bear-hugs-progression.js?v=bear-hugs-living-world-20261124-3",
+  "./app.js?v=44",
+  "./bear-hugs-progression.css?v=bearfriend-reward-fix-20261125",
+  "./bear-hugs-progression.js?v=bearfriend-reward-fix-20261125",
   "./manifest.webmanifest",
   "./supabase-config.js",
   "./bunny-app-icon-192.png",
   "./bunny-app-icon-512.png",
-  "./apple-touch-icon.png"
+  "./apple-touch-icon.png",
 ];
 
 const SHELL_FILES = new Set([
   "index.html",
   "style.css",
   "polish.css",
+  "ui-color-system.css",
+  "header-statusbar-blend.css",
   "button-interactions.css",
   "swipe-gestures.css",
   "swipe-gestures.js",

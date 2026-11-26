@@ -44,7 +44,7 @@ jobs:
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY || secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         run: |
           mkdir -p _site
-          cp index.html app.js style.css polish.css button-interactions.css swipe-gestures.css swipe-gestures.js bear-hugs-progression.css bear-hugs-progression.js manifest.webmanifest sw.js bunny-app-icon-192.png bunny-app-icon-512.png apple-touch-icon.png _site/
+          cp index.html app.js style.css polish.css ui-color-system.css header-statusbar-blend.css button-interactions.css swipe-gestures.css swipe-gestures.js bear-hugs-progression.css bear-hugs-progression.js manifest.webmanifest sw.js bunny-app-icon-192.png bunny-app-icon-512.png apple-touch-icon.png _site/
           python3 - <<'PY'
           import json, os, pathlib
           url = os.environ.get('SUPABASE_URL', '').strip()
@@ -55,6 +55,24 @@ jobs:
           pathlib.Path('_site/supabase-config.js').write_text(config, encoding='utf-8')
           pathlib.Path('_site/.nojekyll').touch()
           PY
+      - name: Verify published app assets
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const html = fs.readFileSync('_site/index.html', 'utf8');
+          const assets = [
+            ...[...html.matchAll(/<link\b[^>]*rel=[\"']stylesheet[\"'][^>]*href=[\"']([^\"']+)[\"'][^>]*>/gi)].map(match => match[1]),
+            ...[...html.matchAll(/<script\b[^>]*src=[\"']([^\"']+)[\"'][^>]*>/gi)].map(match => match[1])
+          ].filter(asset => !/^https?:\/\//i.test(asset));
+          for (const asset of assets) {
+            const file = decodeURIComponent(asset.split('?')[0].replace(/^\.\//, ''));
+            if (!fs.existsSync(path.join('_site', file))) {
+              throw new Error('GitHub Pages artifact is missing referenced asset: ' + file);
+            }
+          }
+          console.log('Verified ' + assets.length + ' local app assets in _site/.');
+          NODE
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

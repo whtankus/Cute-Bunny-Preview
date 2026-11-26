@@ -50,9 +50,10 @@ test.after(async () => {
   await new Promise(resolve => server?.close(resolve));
 });
 
-async function newTestPage({ authenticated = false, viewport, seedHistory = false, bearfriend = false } = {}) {
+async function newTestPage({ authenticated = false, viewport, seedHistory = false, bearfriend = false, mobile = false } = {}) {
   const context = await browser.newContext({
     viewport: viewport || { width: 1280, height: 900 },
+    ...(mobile ? { isMobile: true, hasTouch: true, deviceScaleFactor: 1 } : {}),
     serviceWorkers: 'block'
   });
   contexts.add(context);
@@ -208,6 +209,7 @@ test('Notes composer is one 56px shell and an older-message reply is placed inli
   const page = await newTestPage({
     authenticated: true,
     seedHistory: true,
+    mobile: true,
     viewport: { width: 390, height: 844 }
   });
   await waitForSignedInApp(page);
@@ -261,6 +263,13 @@ test('Notes composer is one 56px shell and an older-message reply is placed inli
   assert.equal(placement.previousMessage, '1000');
   assert.notEqual(placement.position, 'fixed');
   assert.equal(placement.replyMode, true);
+
+  // Shrink the emulated mobile viewport to represent the visible area above
+  // the software keyboard, then verify the inline composer stays in flow.
+  await page.setViewportSize({ width: 390, height: 500 });
+  await page.locator('#chatInput').focus();
+  await page.waitForFunction(() => document.body.classList.contains('notes-keyboard-open'));
+  assert.notEqual(await page.locator('#chatComposer').evaluate(node => getComputedStyle(node).position), 'fixed');
 
   await page.locator('#chatInput').fill('Replying to an older message ♡');
   await page.locator('#chatSend').click();

@@ -16391,6 +16391,18 @@ body.notes-page-active #content .chat-page.is-reply-inline.notes-keyboard-open #
 body[data-mode="dark"].notes-page-active #content .chat-page .chat-composer .chat-input-shell {
   border-color:#655166!important;
   background:#302838!important;
+  box-shadow:inset 0 0 0 1px #655166,0 4px 12px rgba(0,0,0,.18)!important;
+}
+body.notes-page-active #content .chat-page .chat-composer #chatReplyingTo .chat-replying-content {
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  gap:3px!important;
+}
+body.notes-page-active #content .chat-page .chat-composer #chatReplyingTo .chat-replying-label {
+  display:block!important;
+  color:#a45e80!important;
+  font-size:10px!important;
+  line-height:1.25!important;
 }
 body[data-mode="dark"].notes-page-active #content .chat-page .chat-composer .chat-input-shell #chatInput {
   color:#f2e7f0!important;

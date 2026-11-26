@@ -331,7 +331,18 @@ function renderNotesPage(options = {}) {
       <form id="chatComposer" class="chat-composer" autocomplete="off">
         <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
-        <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
+        <div id="chatPhotoPreview" class="chat-photo-preview" hidden aria-label="Selected photos"></div>
+        <input id="chatPhotoInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden>
+        <div class="chat-composer-entry">
+          <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
+          <button type="button" class="chat-photo-attach" id="chatPhotoAttach" aria-label="Attach a photo" title="Choose a photo">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="9" cy="9.5" r="1.7" fill="currentColor"/>
+              <path d="m5.5 17 5-5 3.2 3 2.4-2.2 2.5 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
         <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
       </form>
     </section>
@@ -350,32 +361,89 @@ function renderNotesPage(options = {}) {
   });
 }
 
+const pendingChatPhotoFiles = [];
+const pendingChatPhotoUrls = [];
+const CHAT_PHOTO_MAX_COUNT = 3;
+const CHAT_PHOTO_MAX_BYTES = 8 * 1024 * 1024;
+const CHAT_PHOTO_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
+function syncChatPhotoPreview() {
+  const preview = $('#chatPhotoPreview');
+  if (!preview) return;
+  preview.hidden = pendingChatPhotoFiles.length === 0;
+  preview.innerHTML = pendingChatPhotoFiles.map((file, index) => `
+    <span class="chat-photo-thumb">
+      <img src="${esc(pendingChatPhotoUrls[index])}" alt="Selected photo ${index + 1}">
+      <button type="button" data-chat-photo-remove="${index}" aria-label="Remove selected photo">×</button>
+    </span>
+  `).join('');
+  syncChatComposerState($('#chatInput'));
+}
+
+function clearChatPhotoSelection() {
+  pendingChatPhotoUrls.forEach(url => URL.revokeObjectURL(url));
+  pendingChatPhotoFiles.length = 0;
+  pendingChatPhotoUrls.length = 0;
+  syncChatPhotoPreview();
+}
+
+async function uploadChatPhoto(file, previewUrl, caption, tempId) {
+  const optimistic = {
+    id: tempId, kind: 'photo', fileName: file.name, text: caption || file.name,
+    contentType: file.type, createdAt: new Date().toISOString(), isPending: true,
+    previewUrl, author: { id: me.id, username: me.username, displayName: me.displayName, mascot: me.mascot }
+  };
+  if (previewUrl) pendingMediaUrls.set(tempId, previewUrl);
+  feed = [optimistic, ...feed];
+  render();
+  const form = new FormData();
+  form.append('file', file);
+  form.append('kind', 'photo');
+  form.append('caption', caption || file.name);
+  try {
+    const saved = await api('/media', { method: 'POST', body: form });
+    const item = {
+      ...saved, createdAt: saved.created_at || optimistic.createdAt,
+      fileName: saved.file_name || file.name, contentType: saved.content_type || file.type,
+      storagePath: saved.storage_path, author: optimistic.author, previewUrl
+    };
+    feed = feed.map(memory => String(memory.id) === tempId ? item : memory);
+    recordStreakDailyQuest('photo', file.name);
+    render();
+  } catch (error) {
+    feed = feed.filter(memory => String(memory.id) !== tempId);
+    pendingMediaUrls.delete(tempId);
+    throw error;
+  }
+}
+
 async function sendChatMessage() {
   const field = $('#chatInput');
-  const text = field?.value.trim();
-  if (!text) return;
+  const text = field?.value.trim() || '';
+  const photos = pendingChatPhotoFiles.slice();
+  const photoUrls = pendingChatPhotoUrls.slice();
+  if (!text && !photos.length) return;
   const replyId = replyingToMessageId;
   const tempId = 'local-note-' + Date.now();
   const createdAt = new Date().toISOString();
-  const optimistic = {
-    id: tempId,
-    kind: 'note',
-    text,
+  const optimistic = text ? {
+    id: tempId, kind: 'note', text,
     reply_to_id: replyId ? Number(replyId) : null,
-    createdAt,
-    created_at: createdAt,
-    isPending: true,
+    createdAt, created_at: createdAt, isPending: true,
     author: { ...me, id: me?.id, displayName: me?.displayName || me?.username, mascot: me?.mascot || '🐰' }
-  };
-
+  } : null;
   stopNotesTyping();
-  field.value = '';
-  field.style.height = '';
-  field.style.overflowY = 'hidden';
-  feed = [optimistic, ...feed];
+  if (field) {
+    field.value = '';
+    field.style.height = '';
+    field.style.overflowY = 'hidden';
+  }
+  pendingChatPhotoFiles.length = 0;
+  pendingChatPhotoUrls.length = 0;
+  syncChatPhotoPreview();
+  if (optimistic) feed = [optimistic, ...feed];
   hideMessageActions();
   renderNotesPage({ followLatest: true });
-
   const refocusComposer = (restoreDraft = false) => {
     const nextField = $('#chatInput');
     if (!nextField) return;
@@ -385,26 +453,42 @@ async function sendChatMessage() {
     syncNotesKeyboardLayout();
   };
   refocusComposer();
-
   try {
-    const { data: saved, error: sendError } = await sb.from('memories')
-      .insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
-      .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at')
-      .single();
-    if (sendError) throw sendError;
-    recordStreakNoteQuest(text);
-    void loadKindnessEventStatus();
-    if (replyingToMessageId === replyId) replyingToMessageId = null;
-    const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
-    feed = feed.map(m => String(m.id) === tempId ? record : m);
+    if (text) {
+      const { data: saved, error: sendError } = await sb.from('memories')
+        .insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
+        .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at').single();
+      if (sendError) throw sendError;
+      recordStreakNoteQuest(text);
+      void loadKindnessEventStatus();
+      if (replyingToMessageId === replyId) replyingToMessageId = null;
+      const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
+      feed = feed.map(memory => String(memory.id) === tempId ? record : memory);
+    }
     renderNotesPage({ followLatest: true });
+    for (let index = 0; index < photos.length; index++) {
+      try {
+        await uploadChatPhoto(photos[index], photoUrls[index], text, 'notes-photo-' + Date.now() + '-' + index);
+      } catch (error) {
+        toast(error?.message || 'A photo could not be uploaded.');
+      } finally {
+        URL.revokeObjectURL(photoUrls[index]);
+      }
+    }
+    toast(photos.length ? 'Photo shared in Notes and added to Photos.' : 'Message sent.');
     refocusComposer();
   } catch (error) {
-    feed = feed.filter(m => String(m.id) !== tempId);
+    if (optimistic) feed = feed.filter(memory => String(memory.id) !== tempId);
     if (replyId) replyingToMessageId = replyId;
+    // Restore the selected photos when the note insert fails.
+    photos.forEach((file, index) => {
+      pendingChatPhotoFiles.push(file);
+      pendingChatPhotoUrls.push(photoUrls[index]);
+    });
     renderNotesPage({ followLatest: true });
+    syncChatPhotoPreview();
     refocusComposer(true);
-    toast(error.message);
+    toast(error.message || 'Your message could not be sent.');
   }
 }
 

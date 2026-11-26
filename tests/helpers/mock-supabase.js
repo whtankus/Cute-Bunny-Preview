@@ -18,7 +18,6 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     nextMemoryId: 103,
     nextEditHistoryId: 1,
     uploads: [],
-    failNextUpload: false,
     calls: [],
     broadcasts: [],
     presenceTracks: [],
@@ -50,13 +49,13 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     constructor(table) {
       this.table = table; this.action = 'select'; this.payload = null; this.filters = [];
       this.orders = []; this.maxRows = null; this.slice = null; this.cardinality = 'many';
-      this.returning = false; this.conflict = null; this.ignoreDuplicates = false;
+      this.returning = false; this.conflict = null;
     }
     select() { this.returning = true; return this; }
     insert(value) { this.action = 'insert'; this.payload = Array.isArray(value) ? value : [value]; return this; }
     update(value) { this.action = 'update'; this.payload = value; return this; }
     delete() { this.action = 'delete'; return this; }
-    upsert(value, options = {}) { this.action = 'upsert'; this.payload = Array.isArray(value) ? value : [value]; this.conflict = options.onConflict; this.ignoreDuplicates = !!options.ignoreDuplicates; return this; }
+    upsert(value, options = {}) { this.action = 'upsert'; this.payload = Array.isArray(value) ? value : [value]; this.conflict = options.onConflict; return this; }
     eq(key, value) { this.filters.push(row => row[key] === value); return this; }
     neq(key, value) { this.filters.push(row => row[key] !== value); return this; }
     lt(key, value) { this.filters.push(row => row[key] < value); return this; }
@@ -85,12 +84,7 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
           if (this.action === 'upsert') {
             const keys = String(this.conflict || (this.table === 'profile_private_settings' ? 'user_id' : 'id')).split(',').map(key => key.trim());
             const existing = rows.find(item => keys.every(key => item[key] === row[key]));
-            if (existing) {
-              if (this.ignoreDuplicates) return existing;
-              if (this.table === 'memories') { row.id = existing.id; row.created_at = existing.created_at; }
-              Object.assign(existing, row);
-              return existing;
-            }
+            if (existing) { Object.assign(existing, row); return existing; }
           }
           rows.push(row);
           return row;
@@ -176,11 +170,7 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
         storage: {
           from(bucket) {
             return {
-              async upload(path, file, options) {
-                if (state.failNextUpload) { state.failNextUpload = false; return { data: null, error: { message: 'Temporary upload failure' } }; }
-                state.uploads.push({ bucket, path, name: file.name, type: file.type, size: file.size, options });
-                return { data: { path }, error: null };
-              },
+              async upload(path, file, options) { state.uploads.push({ bucket, path, name: file.name, type: file.type, size: file.size, options }); return { data: { path }, error: null }; },
               async createSignedUrl(path) { return { data: { signedUrl: 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' }, error: null }; },
               async remove(paths) { state.calls.push({ storageDelete: paths }); return { data: [], error: null }; }
             };

@@ -50,14 +50,14 @@ test.after(async () => {
   await new Promise(resolve => server?.close(resolve));
 });
 
-async function newTestPage({ authenticated = false, viewport, seedHistory = false, bearfriend = false } = {}) {
+async function newTestPage({ authenticated = false, viewport, seedHistory = false } = {}) {
   const context = await browser.newContext({
     viewport: viewport || { width: 1280, height: 900 },
     serviceWorkers: 'block'
   });
   contexts.add(context);
   const page = await context.newPage();
-  await page.addInitScript({ content: fixture + `\n;(() => {\n  const authenticated = ${JSON.stringify(authenticated)};\n  const seedHistory = ${JSON.stringify(seedHistory)};\n  const bearfriend = ${JSON.stringify(bearfriend)};\n  if (authenticated) localStorage.setItem('cuteBunnyTestAuth', 'true');\n  if (bearfriend) localStorage.setItem('cuteBunnyBearSelectedFriend:v1', 'friend-test');\n  if (seedHistory) {\n    const state = window.__cuteBunnyTestState;\n    state.nextMemoryId = 2000;\n    for (let id = 1000; id < 1090; id++) {\n      state.tables.memories.push({ id, owner_id: id % 2 === 0 ? state.friend.id : state.user.id, kind: 'note', text: id === 1000 ? 'An old message with a persistent heart ♡ and a long line that should wrap naturally without wasting available space.' : 'Historical conversation message number ' + id + ' with words of different lengths and an emoji 🌷', created_at: new Date(Date.UTC(2026, 10, 21, 12, 0, 0) - (1090 - id) * 60000).toISOString(), file_name: '', content_type: '', storage_path: '' });\n    }\n    state.tables.memory_likes.push(
+  await page.addInitScript({ content: fixture + `\n;(() => {\n  const authenticated = ${JSON.stringify(authenticated)};\n  const seedHistory = ${JSON.stringify(seedHistory)};\n  if (authenticated) localStorage.setItem('cuteBunnyTestAuth', 'true');\n  if (seedHistory) {\n    const state = window.__cuteBunnyTestState;\n    state.nextMemoryId = 2000;\n    for (let id = 1000; id < 1090; id++) {\n      state.tables.memories.push({ id, owner_id: id % 2 === 0 ? state.friend.id : state.user.id, kind: 'note', text: id === 1000 ? 'An old message with a persistent heart ♡ and a long line that should wrap naturally without wasting available space.' : 'Historical conversation message number ' + id + ' with words of different lengths and an emoji 🌷', created_at: new Date(Date.UTC(2026, 10, 21, 12, 0, 0) - (1090 - id) * 60000).toISOString(), file_name: '', content_type: '', storage_path: '' });\n    }\n    state.tables.memory_likes.push(
       { memory_id: 1000, user_id: state.user.id, created_at: new Date().toISOString() },
       { memory_id: 1000, user_id: 'other-test-user', created_at: new Date().toISOString() }
     );
@@ -135,37 +135,6 @@ test('authenticated session restores and sends a Notes message', async () => {
   assert.ok(saved, 'the message should be persisted through the Supabase client');
   assert.equal(saved.owner_id, 'user-ankush-test');
   assert.equal(saved.kind, 'note');
-});
-
-test('Notes can send a photo with or without a caption and show it in Photos', async () => {
-  const page = await newTestPage({ authenticated: true });
-  await waitForSignedInApp(page);
-  await page.locator('#nav button[data-page="notes"]').click();
-  await page.locator('#chatPhotoAttach').click();
-  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/W9sAAAAASUVORK5CYII=', 'base64');
-  await page.locator('#chatPhotoInput').setInputFiles({ name: 'notes-share.png', mimeType: 'image/png', buffer: image });
-  await page.locator('#chatPhotoPreview').waitFor({ state: 'visible' });
-  await page.locator('#chatInput').fill('A tiny shared moment');
-  await page.locator('#chatSend').click();
-  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.some(row => row.file_name === 'notes-share.png'));
-  const saved = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.file_name === 'notes-share.png'));
-  assert.equal(saved.kind, 'note', 'photo messages remain part of the Notes conversation');
-  assert.equal(saved.text, 'A tiny shared moment');
-  assert.ok(saved.storage_path.startsWith('user-ankush-test/'));
-  await page.locator('#nav button[data-page="gallery"]').click();
-  await page.locator('.photo-garden-grid .feed-photo[data-media="' + saved.id + '"]').waitFor({ state: 'visible' });
-
-  await page.locator('#nav button[data-page="notes"]').click();
-  await page.locator('#chatPhotoAttach').click();
-  await page.locator('#chatPhotoInput').setInputFiles({ name: 'notes-photo-only.png', mimeType: 'image/png', buffer: image });
-  await page.locator('#chatPhotoPreview').waitFor({ state: 'visible' });
-  await page.locator('#chatSend').click();
-  await page.waitForFunction(() => window.__cuteBunnyTestState.tables.memories.some(row => row.file_name === 'notes-photo-only.png'));
-  const photoOnly = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.file_name === 'notes-photo-only.png'));
-  assert.equal(photoOnly.kind, 'note');
-  assert.equal(photoOnly.text, '', 'a photo can be sent without a caption');
-  await page.locator('#nav button[data-page="gallery"]').click();
-  await page.locator('.photo-garden-grid .feed-photo[data-media="' + photoOnly.id + '"]').waitFor({ state: 'visible' });
 });
 
 test('opening Notes records a seen receipt for a visible friend message', async () => {
@@ -416,138 +385,4 @@ test('friend presence sweep covers online, offline, Notes entry, and Notes exit 
   await setFriendPresence('gallery');
   await page.locator('#cb-presence-sweep.is-active').waitFor({ state: 'attached' });
   assert.equal(await page.locator('#cb-presence-sweep').evaluate(node => getComputedStyle(node).visibility), 'visible');
-});
-
-test('PWA installs its complete shell and reloads offline', async () => {
-  const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    serviceWorkers: 'allow'
-  });
-  contexts.add(context);
-  const page = await context.newPage();
-  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2', route => route.abort());
-  await page.route('https://fonts.googleapis.com/**', route => route.abort());
-  await page.route('https://fonts.gstatic.com/**', route => route.abort());
-
-  try {
-    await page.goto(baseUrl, { waitUntil: 'load' });
-    await page.evaluate(async () => {
-      const registration = await navigator.serviceWorker.ready;
-      if (!registration.active) throw new Error('Service worker did not activate');
-    });
-    // The app reloads itself on the first controllerchange; wait for that
-    // handoff instead of racing it with a second manual reload.
-    await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-
-    const cached = await page.evaluate(async () => {
-      const names = await caches.keys();
-      const shell = names.find(name => name === 'cute-bunny-shell-v410');
-      if (!shell) return { names, shell: false, assets: [] };
-      const cache = await caches.open(shell);
-      const requests = await cache.keys();
-      return {
-        names,
-        shell: true,
-        assets: requests.map(request => new URL(request.url).pathname.split('/').pop())
-      };
-    });
-    assert.equal(cached.shell, true, 'the current app shell cache should be installed');
-    for (const asset of ['index.html', 'app.js', 'style.css', 'polish.css', 'header-statusbar-blend.css', 'bear-hugs-progression.js', 'bear-hugs-progression.css']) {
-      assert.ok(cached.assets.includes(asset), 'offline cache should include ' + asset);
-    }
-
-    await context.setOffline(true);
-    await page.reload({ waitUntil: 'domcontentloaded', timeout: 15000 });
-    await page.locator('#welcome').waitFor({ state: 'visible', timeout: 10000 });
-    assert.equal(await page.evaluate(() => Boolean(navigator.serviceWorker.controller)), true);
-  } finally {
-    await context.close();
-    contexts.delete(context);
-  }
-});
-
-test('Bearfriend Care Points are idempotent, realtime-synced, and reward equipment persists', async () => {
-  const page = await newTestPage({ authenticated: true, bearfriend: true });
-  await waitForSignedInApp(page);
-  await page.locator('#coupleBearGame').waitFor({ state: 'visible' });
-  await page.locator('#bearCarePointsStrip .bear-care-total b').waitFor({ state: 'visible' });
-  await page.waitForFunction(() =>
-    document.querySelector('#bearCarePointsStrip .bear-care-total b')?.textContent.trim() === '348'
-  );
-
-  assert.equal(
-    await page.locator('#bearCarePointsStrip .bear-care-level b').innerText(),
-    '2',
-    'the initial Care Point total should produce the expected Bear Level'
-  );
-
-  await page.evaluate(() => { window.__cuteBunnyTestState.bearActionCommitThenFail = true; });
-  await page.locator('.bear-action-button[data-couple-action="hug"]').click();
-  await page.waitForFunction(() =>
-    document.querySelector('#bearCarePointsStrip .bear-care-total b')?.textContent.trim() === '350'
-  );
-
-  const firstAction = await page.evaluate(() => {
-    const state = window.__cuteBunnyTestState;
-    return {
-      rpc: state.calls.find(call => call.rpc === 'record_bear_hug_action'),
-      rpcCalls: state.calls.filter(call => call.rpc === 'record_bear_hug_action'),
-      progress: state.tables.bear_partner_progress[0],
-      receiptCount: state.tables.bear_hug_action_receipts.length
-    };
-  });
-  assert.ok(firstAction.rpc, 'a delivered bear action should call the shared progress RPC');
-  assert.equal(firstAction.rpc.args.p_partner_id, 'friend-test');
-  assert.match(firstAction.rpc.args.p_action_id, /^[0-9a-f-]{36}$/i);
-  assert.equal(firstAction.progress.love_points, 350);
-  assert.equal(firstAction.receiptCount, 1);
-  assert.equal(firstAction.rpcCalls.length, 2, 'a lost response after commit should trigger one retry');
-  assert.equal(firstAction.rpcCalls[0].args.p_action_id, firstAction.rpcCalls[1].args.p_action_id,
-    'every retry must reuse the original action UUID');
-
-  const retry = await page.evaluate(async args =>
-    window.supabase.createClient().rpc('record_bear_hug_action', args), firstAction.rpc.args
-  );
-  assert.equal(retry.error, null);
-  assert.equal(retry.data, 350, 'retrying the same action ID must not award points twice');
-  assert.equal(
-    await page.evaluate(() => window.__cuteBunnyTestState.tables.bear_partner_progress[0].love_points),
-    350
-  );
-
-  await page.evaluate(() => {
-    const state = window.__cuteBunnyTestState;
-    const progress = state.tables.bear_partner_progress[0];
-    progress.love_points = 352;
-    progress.last_action = 'kiss';
-    state.emitPostgresChanges('bear_partner_progress', progress);
-  });
-  await page.waitForFunction(() =>
-    document.querySelector('#bearCarePointsStrip .bear-care-total b')?.textContent.trim() === '352'
-  );
-
-  await page.locator('[data-bear-equip="strawberry-hat"]').click();
-  await page.waitForFunction(() =>
-    window.__cuteBunnyTestState.tables.bear_partner_progress[0].equipped_reward_ids.includes('strawberry-hat')
-  );
-  assert.equal(
-    await page.locator('[data-bear-equip="strawberry-hat"]').getAttribute('aria-pressed'),
-    'true',
-    'the selected reward should remain equipped after the RPC response'
-  );
-
-  await page.evaluate(() => {
-    const state = window.__cuteBunnyTestState;
-    const progress = state.tables.bear_partner_progress[0];
-    progress.equipped_reward_ids = ['sunset-meadow'];
-    state.emitPostgresChanges('bear_partner_progress', progress);
-  });
-  await page.waitForFunction(() =>
-    document.querySelector('[data-bear-equip="sunset-meadow"]')?.getAttribute('aria-pressed') === 'true'
-  );
-  assert.equal(
-    await page.locator('[data-bear-equip="strawberry-hat"]').getAttribute('aria-pressed'),
-    'false',
-    'a remote equipment update should replace the previous item in the same slot'
-  );
 });

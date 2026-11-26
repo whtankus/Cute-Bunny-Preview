@@ -25,7 +25,6 @@ create table if not exists public.memories (
   file_name text not null default '',
   content_type text not null default '',
   storage_path text not null default '',
-  photo_group_id uuid,
   created_at timestamptz not null default now()
 );
 create index if not exists memories_owner_created on public.memories(owner_id, created_at desc);

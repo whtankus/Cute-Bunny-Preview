@@ -7684,36 +7684,14 @@ document.addEventListener('scroll', event => {
   }
 }, true);
 
-// Chat form submission
-// Chat form submission
-document.addEventListener('submit', event => {
-  if (event.target.id === 'chatComposer') {
-    event.preventDefault();
-    void sendChatMessage();
-  }
-});
-
+// Global Escape handling stays in the app shell; Notes send events live in src/features/notes/chat-events.js.
 document.addEventListener('keydown', event => {
-  if (
-    event.target.id === 'chatInput' &&
-    event.key === 'Enter' &&
-    !event.shiftKey &&
-    !event.isComposing &&
-    event.keyCode !== 229 &&
-    !isTouchNotesViewport()
-  ) {
-    // Enter sends on desktop; on phones it keeps the keyboard's normal new-line action.
-    event.preventDefault();
-    void sendChatMessage();
+  if (event.key !== 'Escape') return;
+  if (event.target.id === 'chatInput') {
+    event.target.blur();
     return;
   }
-  if (event.key === 'Escape') {
-    if (event.target.id === 'chatInput') {
-      event.target.blur();
-      return;
-    }
-    closeAllGates();
-  }
+  closeAllGates();
 });
 
 // Auth form submission

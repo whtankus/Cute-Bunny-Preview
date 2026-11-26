@@ -4387,7 +4387,7 @@ async function sendChatMessage() {
     const uploadedPhotoRows = [];
     for (const photo of draft.photos) {
       const file = photo.file;
-      if (!file || !/^image\\/(jpeg|png|webp|gif)$/i.test(file.type)) throw Error('Choose a JPG, PNG, WebP, or GIF photo.');
+      if (!file || !/^image\/(jpeg|png|webp|gif)$/i.test(file.type)) throw Error('Choose a JPG, PNG, WebP, or GIF photo.');
       if (file.size > 8 * 1024 * 1024) throw Error('Each photo must be smaller than 8 MB.');
       const extension = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
       const storagePath = `${me.id}/notes/${draft.clientMessageId}/${photo.clientPhotoId}.${extension}`;

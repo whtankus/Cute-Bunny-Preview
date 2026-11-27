@@ -351,6 +351,57 @@ function hydrateMedia() {
 }
 
 
+
+/* Measure the intrinsic card content and map it to CSS grid row spans.
+   This keeps chronological DOM order while allowing either column to grow
+   independently, without CSS multi-column's vertical reordering. */
+let photoGardenLayoutObserver = null;
+let photoGardenLayoutFrame = 0;
+
+function layoutPhotoGardenMasonry() {
+  const grid = document.querySelector('#content .photo-garden-grid');
+  if (!grid) return;
+  const styles = getComputedStyle(grid);
+  const rowSize = parseFloat(styles.gridAutoRows) || 4;
+  const rowGap = parseFloat(styles.rowGap) || 8;
+  const items = [...grid.querySelectorAll(':scope > .feed-item')];
+  items.forEach(item => {
+    const tile = item.querySelector(':scope > .tile');
+    const byline = item.querySelector(':scope > .feed-by');
+    if (!tile) return;
+    const contentHeight = tile.getBoundingClientRect().height + (byline?.getBoundingClientRect().height || 0);
+    if (!contentHeight) return;
+    const span = Math.max(1, Math.ceil((contentHeight + rowGap) / (rowSize + rowGap)));
+    item.style.gridRowEnd = 'span ' + span;
+  });
+}
+
+function schedulePhotoGardenMasonry() {
+  if (photoGardenLayoutFrame) cancelAnimationFrame(photoGardenLayoutFrame);
+  photoGardenLayoutFrame = requestAnimationFrame(() => {
+    photoGardenLayoutFrame = 0;
+    layoutPhotoGardenMasonry();
+  });
+}
+
+function observePhotoGardenMasonry() {
+  photoGardenLayoutObserver?.disconnect();
+  photoGardenLayoutObserver = null;
+  const grid = document.querySelector('#content .photo-garden-grid');
+  if (!grid) return;
+  layoutPhotoGardenMasonry();
+  if ('ResizeObserver' in window) {
+    photoGardenLayoutObserver = new ResizeObserver(schedulePhotoGardenMasonry);
+    grid.querySelectorAll(':scope > .feed-item > .tile, :scope > .feed-item > .feed-by')
+      .forEach(node => photoGardenLayoutObserver.observe(node));
+  }
+  grid.querySelectorAll('.feed-photo').forEach(image => {
+    image.addEventListener('load', schedulePhotoGardenMasonry, { passive: true });
+    image.addEventListener('error', schedulePhotoGardenMasonry, { passive: true });
+  });
+  window.addEventListener('resize', schedulePhotoGardenMasonry, { passive: true });
+}
+
 function renderPhotosPage(c, pics) {
     c.innerHTML = `
       <div class="heading"><h2>Photo garden 🌷</h2><p>Little snapshots, shared with your friend.</p></div>
@@ -358,4 +409,5 @@ function renderPhotosPage(c, pics) {
       <section class="photo-garden-grid" aria-label="Shared photo garden, latest photos first">${pics.map(memoryCard).join('') || '<div class="empty">Your garden is waiting for its first photo ♡</div>'}</section>
       ${historySentinelMarkup('bottom')}
     `;
+    observePhotoGardenMasonry();
 }

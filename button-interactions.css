@@ -282,27 +282,29 @@ body[data-mode="dark"] .app #nav button[data-page].active{
 }
 
 
-/* Soft, location-aware ripple for primary actions and section navigation. */
-.app #nav button[data-page],.app button.primary,.app button.round{
-  position:relative;
+/* Consistent, clipped feedback for every interactive button. */
+.cb-ripple-host{
   overflow:hidden;
   isolation:isolate;
   -webkit-tap-highlight-color:transparent;
 }
 .cb-tap-ripple{
   position:absolute;
-  z-index:-1;
+  z-index:0;
   display:block;
+  box-sizing:border-box;
+  border:2px solid currentColor;
   border-radius:50%;
   pointer-events:none;
-  background:currentColor;
-  opacity:.16;
-  transform:translate(-50%,-50%) scale(.08);
-  animation:cb-tap-ripple .48s cubic-bezier(.16,.72,.3,1) both;
+  background:transparent;
+  box-shadow:0 0 0 1px color-mix(in srgb,currentColor 22%,transparent);
+  opacity:.52;
+  transform:translate(-50%,-50%) scale(.06);
+  animation:cb-tap-ripple .56s cubic-bezier(.16,.72,.3,1) both;
 }
 @keyframes cb-tap-ripple{
-  0%{opacity:.16;transform:translate(-50%,-50%) scale(.08)}
-  70%{opacity:.1}
+  0%{opacity:.52;transform:translate(-50%,-50%) scale(.06)}
+  62%{opacity:.31}
   100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
 }
 #content.cb-page-enter{

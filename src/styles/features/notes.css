@@ -559,5 +559,5 @@ body[data-mode="dark"] #content .chat-composer #chatReplyingTo {
   #content .chat-message-photos.count-3 .chat-message-photo:first-child img {max-height:188px}
   #content .chat-composer-main #chatInput {min-height:44px;max-height:104px;padding:10px 54px 10px 12px;border-radius:16px!important}
 }
-body[data-mode="dark"] #content .chat-composer-main {background:var(--cb-surface-raised,#302838);border-color:var(--cb-border)}
+body[data-mode="dark"] #content .chat-composer-main {background:transparent;border-color:transparent;box-shadow:none}
 body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#302838}

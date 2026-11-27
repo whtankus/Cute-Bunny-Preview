@@ -164,14 +164,13 @@
     const offsetMatch = path.match(/[?&]offset=(\d+)/);
     const kindMatch = path.match(/[?&]kind=(photo|song|note)/);
     const limitMatch = path.match(/[?&]limit=(\d+)/);
-    const oldestFirst = kindMatch?.[1] === 'photo' && /[?&]order=oldest(?:&|$)/.test(path);
     const beforeIdMatch = path.match(/[?&]beforeId=(\d+)/);
     const offset = Math.max(0, Number(offsetMatch?.[1]) || 0);
     const beforeId = Math.max(0, Number(beforeIdMatch?.[1]) || 0);
     const pageSize = Math.min(120, Math.max(1, Number(limitMatch?.[1]) || FEED_PAGE_SIZE));
     let memoriesQuery = sb.from('memories')
       .select('*,author:profiles!memories_owner_id_fkey(id,username,display_name,mascot,theme)')
-      .order('created_at', { ascending: oldestFirst }).order('id', { ascending: oldestFirst });
+      .order('created_at', { ascending: false }).order('id', { ascending: false });
     if (kindMatch) memoriesQuery = memoriesQuery.eq('kind', kindMatch[1]);
     if (beforeId && kindMatch?.[1] === 'note') {
       // Keyset pagination is stable when new messages arrive; inserting at the

@@ -341,3 +341,11 @@ test('Notes photo selection validates each file and releases local previews afte
   assert.match(photos, /URL\.revokeObjectURL\(previousPreviewUrl\)/);
   assert.match(photos, /delete item\.previewUrl/);
 });
+
+
+test('Notes keeps the selected preview if the stored image fails to decode', () => {
+  const photos = read('src/features/photos/photos.js');
+  assert.match(photos, /node\.decode\(\)\.then\(releasePreview\)\.catch\(restorePreview\)/);
+  assert.match(photos, /node\.dataset\.localPreview = 'true'/);
+  assert.match(photos, /node\.addEventListener\('error', restorePreview/);
+});

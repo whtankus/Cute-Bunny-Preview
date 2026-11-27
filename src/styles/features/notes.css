@@ -509,32 +509,36 @@ body[data-mode="dark"] #content .chat-composer #chatReplyingTo {
 }
 
 
-/* Notes attachment previews, message thumbnails and unified composer. */
+/* Notes attachment previews and composer restored to the original Notes layout. */
 #content .chat-composer-main {
-  display:flex;grid-column:1/-1;grid-row:4;align-items:center;gap:7px;
-  min-width:0;width:calc(100% + 4px);max-width:none;box-sizing:border-box;
-  margin-inline:-2px;padding:3px 5px 3px 9px;
-  border:1px solid var(--cb-border,#ead3df);border-radius:999px;
-  background:var(--cb-surface-raised,#fffafd);
-  box-shadow:0 3px 0 color-mix(in srgb,var(--cb-accent,#d78cac) 16%,transparent);
+  position:relative;display:flex;grid-column:1/-1;grid-row:3;
+  align-items:center;gap:0;min-width:0;width:100%;max-width:100%;
+  margin:0;padding:0;border:0;border-radius:0;
+  background:transparent;box-shadow:none;box-sizing:border-box;
 }
+#content #chatComposer.has-photos .chat-composer-main {grid-row:4}
 #content .chat-composer-main #chatInput {
   flex:1 1 auto;align-self:center;min-width:0;width:100%;
-  min-height:38px;max-height:108px;box-sizing:border-box;
-  margin:0;padding:8px 5px;border:0!important;outline:0!important;
-  background:transparent!important;box-shadow:none!important;resize:none;
-  line-height:1.3;
+  min-height:44px;max-height:132px;box-sizing:border-box;
+  margin:0;padding:11px 56px 11px 14px;
+  border:1px solid var(--cb-border,#ead3df)!important;border-radius:14px!important;
+  outline:0!important;background:var(--cb-control,#fffefd)!important;
+  color:var(--cb-text,#59465b)!important;
+  box-shadow:inset 0 1px 2px rgba(82,57,79,.035)!important;
+  resize:none;line-height:1.4;
 }
 #content .chat-composer-main #chatSend,
 #content .chat-composer-main .chat-photo-picker {
-  display:inline-flex;flex:0 0 38px;align-items:center;justify-content:center;
-  width:38px;min-width:38px;height:38px;min-height:38px;padding:0;
+  position:absolute;right:5px;top:50%;transform:translateY(-50%);
+  display:inline-flex;flex:0 0 40px;align-items:center;justify-content:center;
+  width:40px;min-width:40px;height:40px;min-height:40px;padding:0;
   border:0;border-radius:50%;line-height:1;box-shadow:none;box-sizing:border-box;
 }
 #content .chat-composer-main .chat-photo-picker {color:#a96889;background:linear-gradient(145deg,#fce5ef,#eee7ff)}
 #content .chat-photo-picker svg {width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #content .chat-composer-main #chatSend {color:#fff;background:linear-gradient(145deg,#e69bb9,#c59be8);font-size:19px;box-shadow:0 3px 8px #d5a2c566}
 #content .chat-composer-main [hidden],#content .chat-photo-preview[hidden] {display:none!important}
+#content .chat-composer-main #chatSend[hidden],#content .chat-composer-main .chat-photo-picker[hidden] {display:none!important}
 #content .chat-photo-input {position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}
 #content .chat-photo-preview {display:flex;grid-column:1/-1;grid-row:3;gap:8px;align-items:center;flex-wrap:wrap;padding:3px 2px 6px}
 #content .chat-photo-preview-item {position:relative;width:58px;height:58px;border-radius:13px;overflow:visible}
@@ -553,7 +557,7 @@ body[data-mode="dark"] #content .chat-composer #chatReplyingTo {
   #content .chat-message-photos.count-1 {width:min(100%,128px);max-width:128px}
   #content .chat-message-photo img {max-height:92px}
   #content .chat-message-photos.count-3 .chat-message-photo:first-child img {max-height:188px}
-  #content .chat-composer-main {gap:5px}
+  #content .chat-composer-main #chatInput {min-height:44px;max-height:104px;padding:10px 54px 10px 12px;border-radius:16px!important}
 }
-body[data-mode="dark"] #content .chat-composer-main {background:var(--cb-surface-raised,#302838);border-color:var(--cb-border)}
+body[data-mode="dark"] #content .chat-composer-main {background:transparent;border-color:transparent;box-shadow:none}
 body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#302838}

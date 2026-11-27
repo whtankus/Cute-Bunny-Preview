@@ -335,6 +335,7 @@ test('Notes photo attachments do not display like indicators and retain reply co
   assert.match(styles, /inset: 50% auto auto 50% !important/);
   assert.match(styles, /animation: cb-photo-garden-float 3\.4s ease-in-out infinite/);
   assert.match(styles, /border-radius: 22px !important/);
+  assert.match(styles, /#content \.chat-message-photo \{[\s\S]*?border-radius: 22px !important;[\s\S]*?box-shadow: none !important;[\s\S]*?transform-style: flat;/, 'shared Notes photos should keep rounded corners without 3D depth or shadow');
   assert.match(read('app.js'), /showMessageActions\(id, messagePressState\.bubble, !!photoTarget\)/);
   assert.match(read('app.js'), /chat-actions-popup' \+ \(photoTarget \? ' is-photo-actions'/);
   assert.match(read('src/styles/features/base-photos.css'), /Shared photo viewer: place the available Delete or Save action below the photo, centred/);

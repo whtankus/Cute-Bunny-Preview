@@ -686,22 +686,18 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
 }
 
 
-/* Shared Notes photos sit outside the text bubble as rounded, raised photo cards. */
+/* Shared Notes photos stay rounded without a raised or 3D card effect. */
 #content .chat-message-photos {
   width: min(100%, 218px);
   max-width: min(218px, 100%);
-  perspective: 700px;
 }
 #content .chat-message-photo {
   position: relative;
-  border: 1px solid rgba(255,255,255,.94) !important;
+  border: 0 !important;
   border-radius: 22px !important;
-  background: linear-gradient(145deg, var(--cb-surface-raised, #fffafd), var(--cb-accent-soft, #f4e3ed)) !important;
-  box-shadow:
-    0 3px 0 color-mix(in srgb, var(--cb-accent, #bc83a2) 24%, transparent),
-    0 10px 20px rgba(70,45,68,.16),
-    inset 0 1px 0 rgba(255,255,255,.9) !important;
-  transform-style: preserve-3d;
+  background: transparent !important;
+  box-shadow: none !important;
+  transform-style: flat;
   -webkit-tap-highlight-color: transparent;
 }
 #content .chat-message-photo img {
@@ -709,9 +705,8 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
 }
 #content .chat-message-photo:active,
 #content .chat-message-photo.is-pressed {
-  box-shadow:
-    0 1px 0 color-mix(in srgb, var(--cb-accent, #bc83a2) 22%, transparent),
-    0 4px 9px rgba(70,45,68,.13) !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 .chat-actions-popup.is-photo-actions {
   gap: 7px !important;

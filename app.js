@@ -826,6 +826,16 @@ function go(p, options = {}) {
   // page's document scroll position.
   window.scrollTo({ top: 0, behavior: 'auto' });
   render({ followLatest: p === 'notes' && previousPage === 'notes' });
+  const pageContent = $('#content');
+  if (pageContent) {
+    clearTimeout(pageContent.__cbPageTransitionTimer);
+    pageContent.classList.remove('cb-page-enter');
+    if (previousPage !== p && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      void pageContent.offsetWidth;
+      pageContent.classList.add('cb-page-enter');
+      pageContent.__cbPageTransitionTimer = setTimeout(() => pageContent.classList.remove('cb-page-enter'), 260);
+    }
+  }
   if (p === 'gallery' && !mediaInitialLoaded.photo) void loadLatestMedia('photo');
   else if (p === 'music' && !mediaInitialLoaded.song) void loadLatestMedia('song');
   syncPresenceUI();
@@ -4074,6 +4084,39 @@ sharedAudioElement?.addEventListener('playing', () => {
   const button = [...document.querySelectorAll('[data-play-song]')].find(item => String(item.dataset.playSong) === String(activeId));
   button?.classList.remove('is-buffering', 'is-loading');
 });
+
+// Add subtle tactile feedback to primary taps when the device supports it.
+let lastCuteBunnyHapticAt = 0;
+document.addEventListener('pointerdown', event => {
+  const control = event.target.closest?.('#nav button[data-page], button.primary, button.round');
+  if (!control || control.disabled || event.button !== 0 || event.isPrimary === false) return;
+
+  const now = performance.now();
+  if (typeof navigator.vibrate === 'function' && now - lastCuteBunnyHapticAt > 60) {
+    try {
+      navigator.vibrate(8);
+      lastCuteBunnyHapticAt = now;
+    } catch {}
+  }
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  control.querySelector('.cb-tap-ripple')?.remove();
+  const bounds = control.getBoundingClientRect();
+  const x = event.clientX - bounds.left;
+  const y = event.clientY - bounds.top;
+  const diameter = Math.ceil(Math.hypot(
+    Math.max(x, bounds.width - x),
+    Math.max(y, bounds.height - y)
+  ) * 2);
+  const ripple = document.createElement('span');
+  ripple.className = 'cb-tap-ripple';
+  ripple.setAttribute('aria-hidden', 'true');
+  ripple.style.width = ripple.style.height = diameter + 'px';
+  ripple.style.left = x + 'px';
+  ripple.style.top = y + 'px';
+  control.append(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+}, { passive: true });
 
 // Restore the original PR #115 global boing feedback for every enabled button.
 document.addEventListener('click', event => {

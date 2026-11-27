@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="src/styles/features/profile.css">
   <link rel="stylesheet" href="src/styles/features/streak.css">
   <link rel="stylesheet" href="header-statusbar-blend.css?v=20261120-1">
-  <link rel="stylesheet" href="button-interactions.css?v=nav-3d-depth-20261118">
+  <link rel="stylesheet" href="button-interactions.css?v=fluid-feedback-20261127">
   <link rel="stylesheet" href="swipe-gestures.css?v=20261121-2">
 </head>
 <body class="is-restoring">
@@ -355,7 +355,7 @@
   <script src="src/features/notifications/notifications.js"></script>
   <script src="src/features/profile/profile.js"></script>
   <script src="src/features/streak/streak.js"></script>
-  <script src="app.js?v=42"></script>
+  <script src="app.js?v=43"></script>
   <script src="src/features/notes/chat-events.js"></script>
   <link rel="stylesheet" href="bear-hugs-progression.css?v=bearfriend-name-only-20261127">
   <script src="bear-hugs-progression.js?v=bearfriend-name-only-20261127" defer></script>
@@ -390,7 +390,7 @@
 
       window.addEventListener("load", async () => {
         try {
-          const registration = await navigator.serviceWorker.register("./sw.js?v=201", {
+          const registration = await navigator.serviceWorker.register("./sw.js?v=202", {
             scope: "./",
             updateViaCache: "none"
           });

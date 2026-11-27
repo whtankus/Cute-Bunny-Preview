@@ -280,3 +280,39 @@ body[data-mode="dark"] .app #nav button[data-page].active{
     transition:none!important;
   }
 }
+
+
+/* Soft, location-aware ripple for primary actions and section navigation. */
+.app #nav button[data-page],.app button.primary,.app button.round{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  -webkit-tap-highlight-color:transparent;
+}
+.cb-tap-ripple{
+  position:absolute;
+  z-index:-1;
+  display:block;
+  border-radius:50%;
+  pointer-events:none;
+  background:currentColor;
+  opacity:.16;
+  transform:translate(-50%,-50%) scale(.08);
+  animation:cb-tap-ripple .48s cubic-bezier(.16,.72,.3,1) both;
+}
+@keyframes cb-tap-ripple{
+  0%{opacity:.16;transform:translate(-50%,-50%) scale(.08)}
+  70%{opacity:.1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1)}
+}
+#content.cb-page-enter{
+  animation:cb-page-enter .22s ease-out both;
+}
+@keyframes cb-page-enter{
+  from{opacity:.68}
+  to{opacity:1}
+}
+@media(prefers-reduced-motion:reduce){
+  .cb-tap-ripple{display:none!important;animation:none!important}
+  #content.cb-page-enter{animation:none!important}
+}

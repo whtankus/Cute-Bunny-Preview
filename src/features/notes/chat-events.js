@@ -13,11 +13,27 @@
     const remove = event.target.closest('[data-chat-photo-remove]');
     if (remove) {
       event.preventDefault();
-      const id = remove.getAttribute('data-chat-photo-remove');
-      const selected = notesSelectedPhotos.find(item => item.clientPhotoId === id);
-      if (selected?.previewUrl?.startsWith('blob:')) URL.revokeObjectURL(selected.previewUrl);
-      notesSelectedPhotos = notesSelectedPhotos.filter(item => item.clientPhotoId !== id);
+      event.stopPropagation();
+
+      // Resolve the selected item first, then mutate the source array so the
+      // composer, preview and send-state all observe the same removal.
+      const id = String(remove.getAttribute('data-chat-photo-remove') || '');
+      const selectedIndex = notesSelectedPhotos.findIndex(
+        item => String(item.clientPhotoId || '') === id
+      );
+      if (selectedIndex < 0) {
+        remove.disabled = true;
+        return;
+      }
+
+      remove.disabled = true;
+      const [selected] = notesSelectedPhotos.splice(selectedIndex, 1);
+      if (selected?.previewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(selected.previewUrl);
+      }
+
       window.renderNotesPhotoSelection?.();
+      window.syncChatComposerState?.(document.querySelector('#chatInput'));
       return;
     }
 

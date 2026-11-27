@@ -561,3 +561,80 @@ body[data-mode="dark"] #content .chat-composer #chatReplyingTo {
 }
 body[data-mode="dark"] #content .chat-composer-main {background:transparent;border-color:transparent;box-shadow:none}
 body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#302838}
+
+
+/* Notes composer: fully rounded field, stable action alignment and centred photo removal. */
+#content .chat-composer-main #chatInput {
+  border-radius: 999px !important;
+}
+
+#content .chat-composer-main .chat-photo-picker,
+#content .chat-composer-main #chatSend {
+  position: absolute !important;
+  top: 50% !important;
+  right: 5px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  line-height: 1 !important;
+  transform: translateY(-50%) !important;
+}
+
+#content .chat-composer-main .chat-photo-picker:hover,
+#content .chat-composer-main .chat-photo-picker:active {
+  transform: translateY(-50%) !important;
+  filter: none !important;
+  box-shadow: none !important;
+  background: linear-gradient(145deg, #fce5ef, #eee7ff) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#content .chat-composer-main #chatSend:hover,
+#content .chat-composer-main #chatSend:active {
+  transform: translateY(-50%) !important;
+}
+
+#content .chat-photo-preview-item button {
+  position: absolute !important;
+  z-index: 3 !important;
+  top: 50% !important;
+  right: auto !important;
+  left: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #fff !important;
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-shadow: 0 1px 5px rgba(34, 20, 31, .9) !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transform: translate(-50%, -50%) !important;
+}
+
+#content .chat-photo-preview-item button:hover,
+#content .chat-photo-preview-item button:active {
+  background: transparent !important;
+  color: #fff !important;
+  filter: none !important;
+  box-shadow: none !important;
+  transform: translate(-50%, -50%) !important;
+}

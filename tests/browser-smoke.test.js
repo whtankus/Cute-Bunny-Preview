@@ -219,7 +219,7 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   assert.ok(photo, 'a Photo Garden memory should be saved for the attachment');
   assert.ok(link, 'the Notes message should be linked to the saved photo');
   assert.equal(link.photo_id, photo.id);
-  assert.ok(errors.length === 0, 'photo-only sending should not throw browser errors');
+  assert.deepEqual(errors, [], 'photo-only sending should not throw browser errors: ' + JSON.stringify(errors));
 
   const message = page.locator('.chat-message[data-memory="' + note.id + '"]');
   const bubble = message.locator('.chat-bubble');

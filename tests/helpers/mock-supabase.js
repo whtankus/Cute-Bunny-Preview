@@ -184,7 +184,7 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
           from(bucket) {
             return {
               async upload(path, file, options) { state.uploads.push({ bucket, path, name: file.name, type: file.type, size: file.size, options }); return { data: { path }, error: null }; },
-              async createSignedUrl(path) { return { data: { signedUrl: 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=' }, error: null }; },
+              async createSignedUrl(path) { return { data: { signedUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/W9sAAAAASUVORK5CYII=' }, error: null }; },
               async remove(paths) { state.calls.push({ storageDelete: paths }); return { data: [], error: null }; }
             };
           }

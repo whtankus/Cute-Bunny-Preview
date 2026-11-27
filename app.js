@@ -1329,8 +1329,9 @@ async function deleteSafely(id) {
     pendingDeleteTimers.delete(String(id));
     undo.remove();
     try {
-      await api('/memories/' + encodeURIComponent(id), { method: 'DELETE' });
-      feed = feed.filter(m => String(m.id) !== String(id));
+      const deletion = await api('/memories/' + encodeURIComponent(id), { method: 'DELETE' });
+      const deletedNoteIds = new Set((deletion?.deletedNoteIds || []).map(String));
+      feed = feed.filter(m => String(m.id) !== String(id) && !deletedNoteIds.has(String(m.id)));
       // Notes messages reference their Photo Garden memories by ID. Keep the local
       // message attachments in sync when that shared photo record is deleted.
       feed.forEach(memory => {

@@ -7,7 +7,7 @@ const APP_ASSETS = [
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=40",
+  "./app.js?v=41",
   "./src/core/dom.js",
   "./src/services/supabase-client.js",
   "./src/services/media-optimizer.js",

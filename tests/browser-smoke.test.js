@@ -223,11 +223,25 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
 
   const message = page.locator('.chat-message[data-memory="' + note.id + '"]');
   const bubble = message.locator('.chat-bubble');
-  await message.locator('.chat-message-photo img').waitFor({ state: 'attached' });
-  await page.waitForFunction(noteId => {
+  const sharedImage = message.locator('.chat-message-photo img');
+  await sharedImage.waitFor({ state: 'attached' });
+  const hydration = await page.waitForFunction(noteId => {
     const image = document.querySelector('.chat-message[data-memory="' + noteId + '"] .chat-message-photo img');
     return image && image.dataset.localPreview !== 'true' && image.complete && image.naturalWidth > 0;
-  }, note.id);
+  }, note.id, { timeout: 6000 }).then(() => true).catch(async () => {
+    return sharedImage.evaluate(image => ({
+      source: image.getAttribute('src'),
+      localPreview: image.dataset.localPreview || null,
+      mediaId: image.dataset.media || null,
+      storagePath: image.dataset.storagePath || null,
+      loading: image.dataset.mediaLoading || null,
+      complete: image.complete,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+      hydrateMediaType: typeof window.hydrateMedia
+    }));
+  });
+  assert.equal(hydration, true, 'stored photo should replace its temporary preview: ' + JSON.stringify(hydration));
   assert.equal(await bubble.evaluate(node => node.classList.contains('no-heart-reaction')), false, 'photo-only messages should show the heart reaction state');
   assert.equal(await bubble.locator('.memory-heart-toggle').count(), 1, 'photo-only message should include its heart indicator');
 

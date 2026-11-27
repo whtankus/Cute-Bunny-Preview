@@ -43,7 +43,9 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const messageCharacterCount = noteGraphemeSegmenter
     ? [...noteGraphemeSegmenter.segment(messageValue)].length
     : Array.from(messageValue).length;
-  const attachedPhotos = Array.isArray(m.photos) ? m.photos.slice(0, 3) : [];
+  const attachedPhotos = Array.isArray(m.photos)
+    ? m.photos.filter(photo => !pendingDeleteTimers.has(String(photo.id))).slice(0, 3)
+    : [];
   const messageWordCount = messageValue.trim() ? messageValue.trim().split(/\s+/u).length : 0;
   const isShortMessage = messageCharacterCount > 0 && messageWordCount < 4;
   // Photo attachments do not display message-like hearts in Notes.
@@ -264,6 +266,11 @@ function renderNotesPage(options = {}) {
           const desiredText = desiredNode.querySelector('.chat-message-text')?.textContent;
           const currentText = current.querySelector('.chat-message-text');
           if (currentText && desiredText != null && currentText.textContent !== desiredText) currentText.textContent = desiredText;
+          const desiredPhotos = desiredNode.querySelector('.chat-message-photos');
+          const currentPhotos = current.querySelector('.chat-message-photos');
+          if (desiredPhotos && currentPhotos && desiredPhotos.outerHTML !== currentPhotos.outerHTML) currentPhotos.replaceWith(desiredPhotos);
+          else if (desiredPhotos && !currentPhotos) current.querySelector('.chat-bubble-wrap')?.prepend(desiredPhotos);
+          else if (!desiredPhotos && currentPhotos) currentPhotos.remove();
           const desiredReply = desiredNode.querySelector('.chat-reply-preview');
           const currentReply = current.querySelector('.chat-reply-preview');
           if (desiredReply && currentReply) { currentReply.innerHTML = desiredReply.innerHTML; currentReply.dataset.chatJump = desiredReply.dataset.chatJump; }

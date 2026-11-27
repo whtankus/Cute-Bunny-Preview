@@ -1324,6 +1324,13 @@ async function deleteSafely(id) {
     try {
       await api('/memories/' + encodeURIComponent(id), { method: 'DELETE' });
       feed = feed.filter(m => String(m.id) !== String(id));
+      // Notes messages reference their Photo Garden memories by ID. Keep the local
+      // message attachments in sync when that shared photo record is deleted.
+      feed.forEach(memory => {
+        if (Array.isArray(memory.photos)) {
+          memory.photos = memory.photos.filter(photo => String(photo.id) !== String(id));
+        }
+      });
       if (String(playlist[playlistIndex]?.id) === String(id)) {
         const audio = $('#globalAudio');
         songLoadSequence++;

@@ -724,3 +724,86 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
 @media (prefers-reduced-motion: reduce) {
   #content .chat-message-photo { transform: none !important; }
 }
+
+/* Keep selected Notes photos above the write field and give shared attachments
+   the same airy, natural-proportion masonry and float used by Photo Garden. */
+#content #chatComposer.has-photos {
+  grid-template-columns:minmax(0,1fr)!important;
+  row-gap:8px!important;
+}
+#content #chatComposer.has-photos .chat-photo-preview {
+  display:flex!important;
+  grid-column:1/-1!important;
+  grid-row:3!important;
+  flex-wrap:nowrap!important;
+  align-items:center;
+  gap:9px;
+  width:100%;
+  max-width:100%;
+  padding:5px 2px 9px;
+  overflow-x:auto;
+  overflow-y:visible;
+  overscroll-behavior-inline:contain;
+  scrollbar-width:thin;
+}
+#content #chatComposer.has-photos .chat-composer-main {
+  grid-column:1/-1!important;
+  grid-row:4!important;
+}
+#content .chat-photo-preview-item {
+  flex:0 0 72px;
+  width:72px;
+  height:72px;
+  border-radius:18px;
+}
+#content .chat-photo-preview-item img {
+  width:72px;
+  height:72px;
+  border-radius:18px;
+  object-fit:cover;
+  animation:cb-photo-garden-float 3.4s ease-in-out infinite;
+  transform-origin:center;
+  backface-visibility:hidden;
+  will-change:transform;
+}
+#content .chat-photo-preview-item:nth-child(3n + 2) img {animation-delay:-1.1s}
+#content .chat-photo-preview-item:nth-child(3n) img {animation-delay:-2.2s}
+
+#content .chat-message-photos {
+  display:block!important;
+  column-count:2;
+  column-gap:7px;
+  width:min(100%,248px);
+  max-width:248px;
+}
+#content .chat-message-photos.count-1 {
+  column-count:1;
+  width:min(100%,210px);
+  max-width:210px;
+}
+#content .chat-message-photos .chat-message-photo {
+  display:inline-block!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:auto!important;
+  margin:0 0 7px!important;
+  overflow:hidden;
+  break-inside:avoid;
+  vertical-align:top;
+}
+#content .chat-message-photos .chat-message-photo img {
+  display:block;
+  width:100%!important;
+  height:auto!important;
+  max-height:460px!important;
+  object-fit:cover;
+  border-radius:18px!important;
+}
+@media(max-width:480px) {
+  #content .chat-message-photos {width:min(100%,210px);max-width:210px}
+  #content .chat-photo-preview-item,#content .chat-photo-preview-item img {width:66px;height:66px}
+  #content .chat-photo-preview-item {flex-basis:66px}
+}
+@media(prefers-reduced-motion:reduce) {
+  #content .chat-photo-preview-item img {animation:none!important;transform:none!important;will-change:auto}
+}

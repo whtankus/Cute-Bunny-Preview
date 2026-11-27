@@ -638,3 +638,22 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
   box-shadow: none !important;
   transform: translate(-50%, -50%) !important;
 }
+
+
+/* Notes reply previews: keep the author and quoted content vertically aligned. */
+#content .chat-replying-content {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+#content .chat-replying-author {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--cb-accent-strong, #a45e80);
+  font-size: 10px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

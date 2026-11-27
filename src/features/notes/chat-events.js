@@ -57,18 +57,46 @@
     if (event.target.id !== 'chatPhotoInput') return;
     const input = event.target;
     const files = [...(input.files || [])];
-    const room = Math.max(0, 3 - notesSelectedPhotos.length);
-    if (files.length > room) window.toast?.('You can attach up to three photos ♡');
-    files.slice(0, room).forEach(file => {
-      const validType = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type);
-      const validSize = file.size <= 8 * 1024 * 1024;
-      if (!validType) { window.toast?.('Choose a JPG, PNG, WebP, or GIF image.'); return; }
-      if (!validSize) { window.toast?.('Each photo must be under 8 MB.'); return; }
-      notesSelectedPhotos.push({
-        clientPhotoId: crypto.randomUUID(), file, previewUrl: URL.createObjectURL(file)
-      });
-    });
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+    let rejectedType = false;
+    let rejectedSize = false;
+    let previewFailed = false;
+    let exceededLimit = false;
+
+    // Validate every selected file before filling the remaining slots. An
+    // invalid first file must not cause a valid later file to be silently lost.
+    for (const file of files) {
+      if (notesSelectedPhotos.length >= 3) {
+        exceededLimit = true;
+        break;
+      }
+      if (!allowedTypes.has(file.type)) {
+        rejectedType = true;
+        continue;
+      }
+      if (!Number.isFinite(file.size) || file.size <= 0 || file.size > 8 * 1024 * 1024) {
+        rejectedSize = true;
+        continue;
+      }
+
+      let previewUrl;
+      try {
+        previewUrl = URL.createObjectURL(file);
+      } catch (error) {
+        previewFailed = true;
+        console.warn('Notes photo preview could not be created:', error?.message || error);
+        continue;
+      }
+      const clientPhotoId = window.crypto?.randomUUID?.()
+        || 'photo-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+      notesSelectedPhotos.push({ clientPhotoId, file, previewUrl });
+    }
+
     input.value = '';
+    if (exceededLimit) window.toast?.('You can attach up to three photos ♡');
+    else if (rejectedType) window.toast?.('Choose a JPG, PNG, WebP, or GIF image.');
+    else if (rejectedSize) window.toast?.('Each photo must be larger than 0 bytes and under 8 MB.');
+    else if (previewFailed) window.toast?.('A photo preview could not be created. Try another image.');
     window.renderNotesPhotoSelection?.();
   });
 

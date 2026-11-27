@@ -260,7 +260,8 @@ async function prewarmPhotoSources(items, concurrency = 4) {
 }
 
 async function hydrateOneMedia(node) {
-  if (!node || node.getAttribute('src') || node.dataset.mediaLoading === 'true') return;
+  const hasLocalPreview = node?.dataset.localPreview === 'true';
+  if (!node || (!hasLocalPreview && node.getAttribute('src')) || node.dataset.mediaLoading === 'true') return;
   try {
     const memory = feed.find(item => String(item.id) === String(node.dataset.media)) || (node.dataset.storagePath ? {
       id: node.dataset.media, storagePath: node.dataset.storagePath,
@@ -271,7 +272,45 @@ async function hydrateOneMedia(node) {
     if (node.loading !== 'eager') node.loading = 'lazy';
     node.decoding = 'async';
     const url = await resolveMediaSource(memory);
-    if (node.isConnected && !node.getAttribute('src')) node.src = url;
+    const stillHasLocalPreview = node.dataset.localPreview === 'true';
+    if (node.isConnected && (stillHasLocalPreview || !node.getAttribute('src'))) {
+      const previousPreviewUrl = stillHasLocalPreview ? node.getAttribute('src') || '' : '';
+      node.src = url;
+      delete node.dataset.localPreview;
+
+      // Swap the short-lived picker preview for the durable media-cache URL.
+      // Retire the original object URL only after the replacement has decoded.
+      if (previousPreviewUrl.startsWith('blob:') && previousPreviewUrl !== url) {
+        const releasePreview = () => {
+          if (!node.isConnected || node.getAttribute('src') !== url || !node.complete || node.naturalWidth < 1) return;
+          for (const item of feed) {
+            if (String(item.id) === String(memory.id) && item.previewUrl === previousPreviewUrl) {
+              delete item.previewUrl;
+            }
+            if (Array.isArray(item.photos)) {
+              item.photos.forEach(photo => {
+                if (String(photo.id) === String(memory.id) && photo.previewUrl === previousPreviewUrl) {
+                  delete photo.previewUrl;
+                }
+              });
+            }
+          }
+          URL.revokeObjectURL(previousPreviewUrl);
+        };
+        const restorePreview = error => {
+          if (!node.isConnected || node.getAttribute('src') !== url) return;
+          console.warn('Stored photo did not decode; keeping local preview:', error?.message || error);
+          node.src = previousPreviewUrl;
+          node.dataset.localPreview = 'true';
+        };
+        if (typeof node.decode === 'function') {
+          node.decode().then(releasePreview).catch(restorePreview);
+        } else {
+          node.addEventListener('load', releasePreview, { once: true });
+          node.addEventListener('error', restorePreview, { once: true });
+        }
+      }
+    }
   } catch (error) {
     console.warn('Photo could not be loaded:', error?.message || error);
   } finally {
@@ -299,8 +338,14 @@ function hydrateMedia() {
         void hydrateOneMedia(entry.target);
       }
     }), { rootMargin: page === 'gallery' ? '1400px 0px' : '500px 0px' });
-    nodes.slice(0, page === 'gallery' ? 12 : 0).forEach(node => void hydrateOneMedia(node));
-    nodes.slice(page === 'gallery' ? 12 : 0).forEach(node => mediaObserver.observe(node));
+    const prioritizedNodes = page === 'gallery'
+      ? nodes.slice(0, 12)
+      : page === 'notes'
+        ? nodes.filter(node => node.dataset.localPreview === 'true').slice(-6)
+        : [];
+    const prioritizedSet = new Set(prioritizedNodes);
+    prioritizedNodes.forEach(node => void hydrateOneMedia(node));
+    nodes.filter(node => !prioritizedSet.has(node)).forEach(node => mediaObserver.observe(node));
     if (page === 'music') warmSongSources(feed.filter(item => item.kind === 'song').slice(0, 8));
   } else nodes.forEach(node => void hydrateOneMedia(node));
 }

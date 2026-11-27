@@ -173,6 +173,130 @@ test('Notes can reply to a specific message and persist its parent ID', async ()
   assert.equal(saved.reply_to_id, 101);
 });
 
+test('Notes photos validate, remove, send as a photo-only message, and remain replyable', async () => {
+  const page = await newTestPage({ authenticated: true });
+  const errors = [];
+  const mediaWarnings = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => {
+    if (/Photo could not be loaded|Stored photo did not decode|Using direct photo URL fallback|Persistent photo cache unavailable/i.test(message.text())) {
+      mediaWarnings.push(message.text());
+    }
+  });
+  await waitForSignedInApp(page);
+  await page.locator('#nav button[data-page="notes"]').click();
+  await page.locator('#chatComposer').waitFor({ state: 'visible' });
+
+  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/W9sAAAAASUVORK5CYII=', 'base64');
+  await page.locator('#chatPhotoInput').setInputFiles([
+    { name: 'not-an-image.txt', mimeType: 'text/plain', buffer: Buffer.from('not an image') },
+    { name: 'notes-browser.png', mimeType: 'image/png', buffer: image }
+  ]);
+
+  const previewItems = page.locator('#chatPhotoPreview .chat-photo-preview-item');
+  await previewItems.first().waitFor({ state: 'visible' });
+  assert.equal(await previewItems.count(), 1, 'a valid file after an invalid one must still be added');
+
+  await previewItems.locator('[data-chat-photo-remove]').click();
+  assert.equal(await previewItems.count(), 0, 'removing the preview must clear the selected photo');
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), true, 'the photo picker should return when no photo or text remains');
+  assert.equal(await page.locator('#chatSend').isVisible(), false, 'send should hide after the only selected photo is removed');
+
+  await page.locator('#chatPhotoInput').setInputFiles({
+    name: 'notes-browser.png',
+    mimeType: 'image/png',
+    buffer: image
+  });
+  await page.locator('#chatSend').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#chatPhotoPicker').isVisible(), false, 'the send control should replace the picker while a photo is selected');
+  await page.locator('#chatSend').click();
+
+  const savedNote = await page.waitForFunction(() => {
+    const state = window.__cuteBunnyTestState;
+    const note = state.tables.memories.find(row => row.kind === 'note' && row.text === '');
+    const photo = state.tables.memories.find(row => row.kind === 'photo' && row.file_name === 'notes-browser.png');
+    const link = note && state.tables.note_message_photos.find(row => row.note_id === note.id && row.photo_id === photo?.id);
+    return note && photo && link ? { note, photo, link } : null;
+  });
+  const saved = await savedNote.jsonValue();
+  const note = saved.note;
+  const photo = saved.photo;
+  const link = saved.link;
+  assert.ok(photo, 'a Photo Garden memory should be saved for the attachment');
+  assert.ok(link, 'the Notes message should be linked to the saved photo');
+  assert.equal(link.photo_id, photo.id);
+  assert.deepEqual(errors, [], 'photo-only sending should not throw browser errors: ' + JSON.stringify(errors));
+
+  const message = page.locator('.chat-message[data-memory="' + note.id + '"]');
+  const bubble = message.locator('.chat-bubble');
+  const sharedImage = message.locator('.chat-message-photo img');
+  await sharedImage.waitFor({ state: 'attached' });
+  const hydration = await page.waitForFunction(noteId => {
+    const image = document.querySelector('.chat-message[data-memory="' + noteId + '"] .chat-message-photo img');
+    return image && image.dataset.localPreview !== 'true' && image.complete && image.naturalWidth > 0;
+  }, note.id, { timeout: 6000 }).then(() => true).catch(async () => {
+    return {
+      ...(await sharedImage.evaluate(image => ({
+        source: image.getAttribute('src'),
+        localPreview: image.dataset.localPreview || null,
+        mediaId: image.dataset.media || null,
+        storagePath: image.dataset.storagePath || null,
+        loading: image.dataset.mediaLoading || null,
+        complete: image.complete,
+        naturalWidth: image.naturalWidth,
+        naturalHeight: image.naturalHeight,
+        hydrateMediaType: typeof window.hydrateMedia
+      }))),
+      mediaWarnings
+    };
+  });
+  assert.equal(hydration, true, 'stored photo should replace its temporary preview: ' + JSON.stringify(hydration));
+  assert.equal(await bubble.evaluate(node => node.classList.contains('no-heart-reaction')), false, 'photo-only messages should show the heart reaction state');
+  assert.equal(await bubble.locator('.memory-heart-toggle').count(), 1, 'photo-only message should include its heart indicator');
+
+  const bounds = await bubble.boundingBox();
+  await page.mouse.move(bounds.x + 4, bounds.y + 4);
+  await page.mouse.down();
+  await page.waitForTimeout(260);
+  await page.mouse.up();
+  await page.locator('.chat-actions-popup [data-chat-reply="' + note.id + '"]').click();
+  await page.locator('#chatReplyingTo').waitFor({ state: 'visible' });
+  const replyText = await page.locator('#chatReplyingTo').innerText();
+  assert.match(replyText, /Photo shared/, 'replying to a photo-only message should show the photo context');
+  assert.match(replyText, /Replying to/, 'reply preview should identify the original sender');
+});
+
+test('Notes composer keeps its pill field and action button vertically aligned on desktop and mobile', async () => {
+  for (const viewport of [{ width: 1280, height: 900 }, { width: 360, height: 780 }]) {
+    const page = await newTestPage({ authenticated: true, viewport });
+    await waitForSignedInApp(page);
+    await page.locator('#nav button[data-page="notes"]').click();
+    await page.locator('#chatInput').fill('Alignment check');
+    await page.locator('#chatSend').waitFor({ state: 'visible' });
+
+    const metrics = await page.evaluate(() => {
+      const input = document.querySelector('#chatInput');
+      const send = document.querySelector('#chatSend');
+      const inputRect = input.getBoundingClientRect();
+      const sendRect = send.getBoundingClientRect();
+      return {
+        radius: getComputedStyle(input).borderRadius,
+        sendWidth: sendRect.width,
+        sendHeight: sendRect.height,
+        centerDifference: Math.abs((inputRect.top + inputRect.height / 2) - (sendRect.top + sendRect.height / 2)),
+        horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth
+      };
+    });
+    assert.match(metrics.radius, /999px|50%/);
+    assert.equal(metrics.sendWidth, 40);
+    assert.equal(metrics.sendHeight, 40);
+    assert.ok(metrics.centerDifference < 1, 'send button should remain centred against the writing field: ' + JSON.stringify(metrics));
+    assert.equal(metrics.horizontalOverflow, false, 'Notes should not overflow narrow viewports');
+    await page.context().close();
+    contexts.delete(page.context());
+  }
+});
+
 test('profile edits save through the authenticated database client', async () => {
   const page = await newTestPage({ authenticated: true });
   await waitForSignedInApp(page);

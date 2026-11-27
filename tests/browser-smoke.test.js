@@ -187,7 +187,7 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   await page.locator('#nav button[data-page="notes"]').click();
   await page.locator('#chatComposer').waitFor({ state: 'visible' });
 
-  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/W9sAAAAASUVORK5CYII=', 'base64');
+  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR42mP8X7GKgYGBiYGBgYGBAQAaCwIl/23ctwAAAABJRU5ErkJggg==', 'base64');
   await page.locator('#chatPhotoInput').setInputFiles([
     { name: 'not-an-image.txt', mimeType: 'text/plain', buffer: Buffer.from('not an image') },
     { name: 'notes-browser.png', mimeType: 'image/png', buffer: image }
@@ -363,7 +363,7 @@ test('photo upload stores the file and creates a memory record', async () => {
   const page = await newTestPage({ authenticated: true });
   await waitForSignedInApp(page);
   await page.locator('#nav button[data-page="gallery"]').click();
-  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/W9sAAAAASUVORK5CYII=', 'base64');
+  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR42mP8X7GKgYGBiYGBgYGBAQAaCwIl/23ctwAAAABJRU5ErkJggg==', 'base64');
   await page.locator('input[data-upload="photo"]').setInputFiles({
     name: 'browser-test.png',
     mimeType: 'image/png',

@@ -60,6 +60,19 @@ window.CUTE_BUNNY_CONFIG = { supabaseUrl: 'https://test.supabase.co', supabaseAn
     neq(key, value) { this.filters.push(row => row[key] !== value); return this; }
     lt(key, value) { this.filters.push(row => row[key] < value); return this; }
     in(key, values) { this.filters.push(row => values.includes(row[key])); return this; }
+    or(expression) {
+      const alternatives = String(expression || '').split(',').map(condition => {
+        const [key, operator, ...parts] = condition.split('.');
+        const value = parts.join('.');
+        if (!key || !operator) return () => false;
+        if (operator === 'eq') return row => String(row[key]) === value;
+        if (operator === 'neq') return row => String(row[key]) !== value;
+        if (operator === 'is') return row => String(row[key]) === value;
+        return () => false;
+      });
+      this.filters.push(row => alternatives.some(matches => matches(row)));
+      return this;
+    }
     is(key, value) { this.filters.push(row => row[key] === value); return this; }
     ilike(key, value) { const term = String(value).replace(/%/g, '').toLowerCase(); this.filters.push(row => String(row[key] || '').toLowerCase().includes(term)); return this; }
     order(key, options = {}) { this.orders.push({ key, ascending: options.ascending !== false }); return this; }

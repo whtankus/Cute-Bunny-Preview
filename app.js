@@ -1673,7 +1673,7 @@ function startRealtime() {
           notificationRows = rows;
           notificationLoaded = true;
           updateNotificationBadge();
-          if (['gallery', 'music', 'friends'].includes(page)) void markNavNotificationsSeen(page);
+          if (['gallery', 'music', 'notes', 'friends'].includes(page)) void markNavNotificationsSeen(page);
           const added = rows.find(row => String(row.id) === String(inserted?.id));
           if (added) void showPhoneNotification(added);
           if (!$('#notificationGate').classList.contains('hidden')) renderNotifications();

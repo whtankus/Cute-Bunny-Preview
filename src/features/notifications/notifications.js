@@ -11,6 +11,7 @@ async function loadNotifications() {
     notificationRows = rows;
     notificationLoaded = true;
     updateNotificationBadge();
+    if (['gallery', 'music', 'notes', 'friends'].includes(page)) void markNavNotificationsSeen(page);
     observeNotificationMemoryViews();
   } catch {}
   finally {

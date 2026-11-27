@@ -101,20 +101,21 @@ opacity:1;transform:scale(1)
 
 
 
-/* Row-major Photo Garden: preserve natural photo heights without masonry gaps.
-   A JS layout pass assigns each item to its natural row and measures the row
-   height, so both columns stay aligned while DOM order remains 1–2, 3–4, 5–6. */
+
+/* Balanced, row-ordered masonry. JS measures each card's natural content
+   and assigns grid-row spans; DOM order remains newest-to-oldest. */
 #content .photo-garden-grid{
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
   grid-auto-flow:row!important;
-  grid-auto-rows:auto!important;
+  grid-auto-rows:4px!important;
   align-items:start!important;
+  align-content:start!important;
   column-count:unset!important;
   columns:unset!important;
   column-width:auto!important;
-  column-gap:9px!important;
-  row-gap:9px!important;
+  column-gap:8px!important;
+  row-gap:8px!important;
   width:100%!important;
   direction:ltr;
 }
@@ -125,17 +126,30 @@ opacity:1;transform:scale(1)
   width:auto!important;
   min-width:0!important;
   height:auto!important;
+  min-height:0!important;
   margin:0!important;
-  break-inside:auto!important;
-  -webkit-column-break-inside:auto!important;
+  break-inside:avoid!important;
+  -webkit-column-break-inside:avoid!important;
 }
-#content .photo-garden-grid>.feed-item>.tile,
+#content .photo-garden-grid>.feed-item>.tile{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  margin:0!important;
+  padding:0!important;
+}
 #content .photo-garden-grid>.feed-item>.tile .photo-frame{
+  display:block!important;
   width:100%!important;
   height:auto!important;
   min-height:0!important;
   max-height:none!important;
-  aspect-ratio:auto!important;
+  margin:0!important;
+  overflow:hidden!important;
 }
 #content .photo-garden-grid>.feed-item>.tile .feed-photo{
   display:block!important;

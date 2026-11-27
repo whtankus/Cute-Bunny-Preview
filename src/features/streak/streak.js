@@ -1478,7 +1478,7 @@ function renderStreakPage() {
       '<div class="sg-hero-streak-meta"><span class="sg-eyebrow">CURRENT STREAK</span>' +
       '<div class="sg-count-line"><strong>' + count + '</strong><span><b>' + (count === 1 ? 'day' : 'days') + '</b><small>in a row</small></span></div></div>' +
       '<h3 class="sg-garden-stage">' + gardenStage + '</h3></div></div>' +
-      '<div class="sg-hero-scene"><div class="sg-garden-art" id="sgGardenArt">' + gardenSceneMarkup +
+      '<div class="sg-hero-scene"><div class="sg-garden-art sg-bloom-stage-' + (count >= 30 ? 'full' : count >= 14 ? 'lush' : count >= 7 ? 'bloom' : count >= 3 ? 'sprout' : 'seed') + '" id="sgGardenArt" data-bloom-days="' + count + '">' + gardenSceneMarkup +
         '<div class="sg-garden-hit-layer">' + gardenFlowerMarkup + '</div></div>' +
         '</div>' +
       '<span class="sg-hero-corner sg-corner-one" aria-hidden="true">❧</span></div></section>',

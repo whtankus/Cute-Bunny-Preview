@@ -196,6 +196,16 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   const previewItems = page.locator('#chatPhotoPreview .chat-photo-preview-item');
   await previewItems.first().waitFor({ state: 'visible' });
   assert.equal(await previewItems.count(), 1, 'a valid file after an invalid one must still be added');
+  const deleteAlignment = await previewItems.first().evaluate(item => {
+    const image = item.querySelector('img').getBoundingClientRect();
+    const remove = item.querySelector('[data-chat-photo-remove]').getBoundingClientRect();
+    return {
+      horizontal: Math.abs((image.left + image.width / 2) - (remove.left + remove.width / 2)),
+      vertical: Math.abs((image.top + image.height / 2) - (remove.top + remove.height / 2))
+    };
+  });
+  assert.ok(deleteAlignment.horizontal < 1 && deleteAlignment.vertical < 1,
+    'photo delete control should be centred over its preview');
 
   await previewItems.locator('[data-chat-photo-remove]').click();
   assert.equal(await previewItems.count(), 0, 'removing the preview must clear the selected photo');
@@ -251,8 +261,20 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
     };
   });
   assert.equal(hydration, true, 'stored photo should replace its temporary preview: ' + JSON.stringify(hydration));
-  assert.equal(await bubble.evaluate(node => node.classList.contains('no-heart-reaction')), false, 'photo-only messages should show the heart reaction state');
-  assert.equal(await bubble.locator('.memory-heart-toggle').count(), 1, 'photo-only message should include its heart indicator');
+  assert.equal(await bubble.evaluate(node => node.classList.contains('no-heart-reaction')), true, 'photo-only messages should not show a photo-like indicator');
+  assert.equal(await bubble.locator('.memory-heart-toggle').count(), 0, 'photo attachments should not display a heart indicator');
+  const photoMotion = await sharedImage.evaluate(image => {
+    const style = getComputedStyle(image);
+    return { name: style.animationName, duration: style.animationDuration };
+  });
+  assert.equal(photoMotion.name, 'cb-photo-garden-float', 'Notes photos should use Photo Garden motion');
+  assert.equal(photoMotion.duration, '3.4s', 'Notes photos should use the Photo Garden float timing');
+  const nativeMenuPrevented = await sharedImage.evaluate(image => {
+    const contextMenu = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    image.dispatchEvent(contextMenu);
+    return contextMenu.defaultPrevented;
+  });
+  assert.equal(nativeMenuPrevented, true, 'Notes photos should suppress the browser image context menu');
 
   const bounds = await bubble.boundingBox();
   await page.mouse.move(bounds.x + 4, bounds.y + 4);
@@ -277,13 +299,19 @@ test('Notes composer keeps its pill field and action button vertically aligned o
     const metrics = await page.evaluate(() => {
       const input = document.querySelector('#chatInput');
       const send = document.querySelector('#chatSend');
+      const composer = document.querySelector('#chatComposer');
+      const composerMain = document.querySelector('.chat-composer-main');
       const inputRect = input.getBoundingClientRect();
       const sendRect = send.getBoundingClientRect();
+      const composerRect = composer.getBoundingClientRect();
+      const mainRect = composerMain.getBoundingClientRect();
       return {
         radius: getComputedStyle(input).borderRadius,
         sendWidth: sendRect.width,
         sendHeight: sendRect.height,
         centerDifference: Math.abs((inputRect.top + inputRect.height / 2) - (sendRect.top + sendRect.height / 2)),
+        leftExtension: composerRect.left - mainRect.left,
+        rightExtension: mainRect.right - composerRect.right,
         horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth
       };
     });
@@ -291,6 +319,8 @@ test('Notes composer keeps its pill field and action button vertically aligned o
     assert.equal(metrics.sendWidth, 40);
     assert.equal(metrics.sendHeight, 40);
     assert.ok(metrics.centerDifference < 1, 'send button should remain centred against the writing field: ' + JSON.stringify(metrics));
+    assert.ok(Math.abs(metrics.leftExtension - 3) < 1, 'writing field should extend 3px to the left: ' + JSON.stringify(metrics));
+    assert.ok(Math.abs(metrics.rightExtension - 3) < 1, 'writing field should extend 3px to the right: ' + JSON.stringify(metrics));
     assert.equal(metrics.horizontalOverflow, false, 'Notes should not overflow narrow viewports');
     await page.context().close();
     contexts.delete(page.context());

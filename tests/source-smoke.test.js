@@ -292,7 +292,7 @@ test('Notes love-letter composer supports up to three photos and image-only mess
   assert.ok(notes.includes('photos: selectedPhotos.map'));
   assert.ok(notes.includes('(!text && !selectedPhotos.length)'));
   assert.ok(notes.includes("kind: 'photo'"));
-  assert.ok(events.includes('3 - notesSelectedPhotos.length'));
+  assert.ok(events.includes('notesSelectedPhotos.length >= 3'));
   assert.ok(events.includes('URL.createObjectURL'));
   assert.ok(styles.includes('chat-message-photos'));
   assert.ok(styles.includes('chat-composer-main'));
@@ -316,4 +316,28 @@ test('photo-sharing Notes messages retain the existing swipe-to-reply target', (
   assert.ok(notes.includes('reply_to_id: replyId'));
   assert.ok(gestures.includes('.chat-message .chat-bubble[data-chat-message-id]'));
   assert.ok(gestures.includes('replyingToMessageId = messageId'));
+});
+
+
+test('photo-only Notes messages stay likeable and show accurate reply context', () => {
+  const notes = read('src/features/notes/notes.js');
+  const styles = read('src/styles/features/notes.css');
+  assert.match(notes, /messageCharacterCount >= 6 \|\| attachedPhotos\.length > 0/);
+  assert.match(notes, /replyExcerpt = item\?\.text \|\| \(item\?\.photos\?\.length \? 'Photo shared'/);
+  assert.match(notes, /chat-replying-author/);
+  assert.match(notes, /<b>\$\{esc\(replyAuthor\)\}<\/b>/);
+  assert.match(styles, /#content \.chat-replying-content\s*\{\s*flex-direction: column/);
+});
+
+test('Notes photo selection validates each file and releases local previews after hydration', () => {
+  const events = read('src/features/notes/chat-events.js');
+  const notes = read('src/features/notes/notes.js');
+  const photos = read('src/features/photos/photos.js');
+  assert.match(events, /for \(const file of files\)/);
+  assert.match(events, /notesSelectedPhotos\.length >= 3/);
+  assert.match(events, /window\.crypto\?\.randomUUID\?\./);
+  assert.match(notes, /data-local-preview="true"/);
+  assert.match(photos, /node\.dataset\.localPreview === 'true'/);
+  assert.match(photos, /URL\.revokeObjectURL\(previousPreviewUrl\)/);
+  assert.match(photos, /delete item\.previewUrl/);
 });

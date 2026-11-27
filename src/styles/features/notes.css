@@ -571,8 +571,11 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
 #content .chat-composer-main .chat-photo-picker,
 #content .chat-composer-main #chatSend {
   position: absolute !important;
-  top: 50% !important;
+  top: 0 !important;
+  bottom: 0 !important;
   right: 5px !important;
+  margin-top: auto !important;
+  margin-bottom: auto !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -586,12 +589,12 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
   padding: 0 !important;
   box-sizing: border-box !important;
   line-height: 1 !important;
-  transform: translateY(-50%) !important;
+  transform: none !important;
 }
 
 #content .chat-composer-main .chat-photo-picker:hover,
 #content .chat-composer-main .chat-photo-picker:active {
-  transform: translateY(-50%) !important;
+  transform: none !important;
   filter: none !important;
   box-shadow: none !important;
   background: linear-gradient(145deg, #fce5ef, #eee7ff) !important;
@@ -600,7 +603,7 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
 
 #content .chat-composer-main #chatSend:hover,
 #content .chat-composer-main #chatSend:active {
-  transform: translateY(-50%) !important;
+  transform: none !important;
 }
 
 #content .chat-photo-preview-item button {

@@ -1189,7 +1189,7 @@ function closeMemoryActions() {
 }
 
 /* Two-button floating popup above pressed message: Copy and Delete */
-function showMessageActions(id, bubbleElement) {
+function showMessageActions(id, bubbleElement, photoTarget = false) {
   hideMessageActions();
   const memory = feed.find(m => String(m.id) === String(id));
   if (!memory || !bubbleElement) return;
@@ -1197,14 +1197,16 @@ function showMessageActions(id, bubbleElement) {
   activeMessageActionsId = String(id);
   const ownsMessage = String(memory.author?.id || memory.owner_id || '') === String(me?.id || '');
   const popup = document.createElement('div');
-  popup.className = 'chat-actions-popup';
+  popup.className = 'chat-actions-popup' + (photoTarget ? ' is-photo-actions' : '');
   popup.setAttribute('role', 'toolbar');
-  popup.setAttribute('aria-label', 'Message options');
-  popup.innerHTML = `    <button type="button" class="chat-action-btn reply-btn" data-chat-reply="${esc(id)}">Reply</button>
-    ${ownsMessage ? `<button type="button" class="chat-action-btn edit-btn" data-chat-edit="${esc(id)}">Edit</button>` : ''}
-    <button type="button" class="chat-action-btn" data-chat-copy="${esc(id)}">Copy</button>
-    <button type="button" class="chat-action-btn delete-btn" ${ownsMessage ? 'data-chat-delete' : 'data-chat-hide'}="${esc(id)}">Delete</button>
-  `;
+  popup.setAttribute('aria-label', photoTarget ? 'Photo message options' : 'Message options');
+  popup.innerHTML = photoTarget
+    ? `<button type="button" class="chat-action-btn reply-btn" data-chat-reply="${esc(id)}">Reply</button>
+      <button type="button" class="chat-action-btn delete-btn" ${ownsMessage ? 'data-chat-delete' : 'data-chat-hide'}="${esc(id)}">${ownsMessage ? 'Delete' : 'Hide'}</button>`
+    : `<button type="button" class="chat-action-btn reply-btn" data-chat-reply="${esc(id)}">Reply</button>
+      ${ownsMessage ? `<button type="button" class="chat-action-btn edit-btn" data-chat-edit="${esc(id)}">Edit</button>` : ''}
+      <button type="button" class="chat-action-btn" data-chat-copy="${esc(id)}">Copy</button>
+      <button type="button" class="chat-action-btn delete-btn" ${ownsMessage ? 'data-chat-delete' : 'data-chat-hide'}="${esc(id)}">${ownsMessage ? 'Delete' : 'Hide'}</button>`;
   popup.style.position = 'fixed';
   popup.style.zIndex = '1000';
   document.body.append(popup);
@@ -2749,28 +2751,31 @@ document.addEventListener('selectstart', e => {
   if (e.target.closest('.feed-photo, .photo-frame')) e.preventDefault();
 }, true);
 
-// Notes message gestures: button press feedback, tap to like, hold for Copy/Delete.
+// Notes message gestures: tap text for its reaction, hold text for message options,
+// and hold a shared photo for the shorter Reply/Delete photo menu.
 document.addEventListener('pointerdown', e => {
+  const photoTarget = e.target.closest('.chat-page .chat-message-photo, .home-note-memory .chat-message-photo');
   const bubble = e.target.closest('.chat-page .chat-bubble, .home-note-memory .chat-bubble');
-  if (!bubble || e.target.closest('button, .chat-actions-popup') || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  const pressTarget = photoTarget || bubble;
+  if (!pressTarget || e.target.closest('.chat-actions-popup') || (!photoTarget && e.target.closest('button')) || (e.pointerType === 'mouse' && e.button !== 0)) return;
 
   clearTimeout(messagePressState.timer);
   clearTimeout(messagePressState.suppressTimer);
   messagePressState.suppressClick = false;
   messagePressState.longPressed = false;
-  messagePressState.bubble = bubble;
+  messagePressState.bubble = pressTarget;
   messagePressState.pointerId = e.pointerId;
   messagePressState.startX = e.clientX;
   messagePressState.startY = e.clientY;
-  bubble.classList.add('is-pressed');
+  pressTarget.classList.add('is-pressed');
 
   messagePressState.timer = setTimeout(() => {
     if (!messagePressState.bubble?.isConnected || messagePressState.pointerId !== e.pointerId) return;
-    const id = messagePressState.bubble.dataset.chatMessageId;
+    const id = messagePressState.bubble.dataset.chatMessageId || messagePressState.bubble.closest('.chat-message')?.dataset.memory;
     if (!id) return;
     messagePressState.longPressed = true;
     messagePressState.suppressClick = true;
-    showMessageActions(id, messagePressState.bubble);
+    showMessageActions(id, messagePressState.bubble, !!photoTarget);
   }, 205);
 });
 
@@ -2815,6 +2820,16 @@ function finishNotesMessagePress(e) {
 
 document.addEventListener('pointerup', finishNotesMessagePress);
 document.addEventListener('pointercancel', cancelNotesMessagePress);
+// A completed photo hold opens its action menu, never the ordinary photo viewer.
+document.addEventListener('click', event => {
+  const photo = event.target.closest('.chat-message-photo');
+  if (!photo || !messagePressState.longPressed || !messagePressState.suppressClick) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  messagePressState.suppressClick = false;
+  clearTimeout(messagePressState.suppressTimer);
+  messagePressState.suppressTimer = null;
+}, true);
 document.addEventListener('keydown', event => {
   const editor = event.target.closest?.('.chat-bubble.is-editing .chat-message-text[contenteditable="true"]');
   if (!editor) return;

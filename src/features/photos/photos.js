@@ -364,15 +364,25 @@ function layoutPhotoGardenMasonry() {
   const styles = getComputedStyle(grid);
   const rowSize = parseFloat(styles.gridAutoRows) || 4;
   const rowGap = parseFloat(styles.rowGap) || 8;
+  const stride = rowSize + rowGap;
+  const columns = [0, 0];
   const items = [...grid.querySelectorAll(':scope > .feed-item')];
+
+  // Assign each next chronological photo to whichever column currently ends
+  // higher. Explicit grid coordinates prevent CSS Grid's row cursor from
+  // creating large holes beneath tall photos.
   items.forEach(item => {
     const tile = item.querySelector(':scope > .tile');
     const byline = item.querySelector(':scope > .feed-by');
     if (!tile) return;
     const contentHeight = tile.getBoundingClientRect().height + (byline?.getBoundingClientRect().height || 0);
     if (!contentHeight) return;
-    const span = Math.max(1, Math.ceil((contentHeight + rowGap) / (rowSize + rowGap)));
-    item.style.gridRowEnd = 'span ' + span;
+    const span = Math.max(1, Math.ceil((contentHeight + rowGap) / stride));
+    const column = columns[0] <= columns[1] ? 0 : 1;
+    const rowStart = columns[column] + 1;
+    item.style.gridColumn = String(column + 1);
+    item.style.gridRow = rowStart + ' / span ' + span;
+    columns[column] += span;
   });
 }
 

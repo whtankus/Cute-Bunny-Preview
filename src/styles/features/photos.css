@@ -100,31 +100,52 @@ opacity:1;transform:scale(1)
 }
 
 
-/* Use a true two-column masonry layout so short photos sit directly
-   beneath the previous photo instead of leaving grid-row-sized blank gaps. */
+
+/* Row-major Photo Garden: preserve natural photo heights without masonry gaps.
+   A JS layout pass assigns each item to its natural row and measures the row
+   height, so both columns stay aligned while DOM order remains 1–2, 3–4, 5–6. */
 #content .photo-garden-grid{
-  display:block!important;
-  width:100%;
-  columns:2;
-  column-count:2!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-flow:row!important;
+  grid-auto-rows:auto!important;
+  align-items:start!important;
+  column-count:unset!important;
+  columns:unset!important;
   column-width:auto!important;
-  column-gap:6px!important;
+  column-gap:9px!important;
+  row-gap:9px!important;
+  width:100%!important;
   direction:ltr;
 }
 #content .photo-garden-grid>.feed-item{
-  display:inline-flex!important;
+  display:flex!important;
   flex-direction:column!important;
-  width:100%!important;
-  margin:0 0 6px!important;
-  vertical-align:top!important;
-  break-inside:avoid!important;
-  -webkit-column-break-inside:avoid!important;
-}
-#content .photo-garden-grid>.feed-item>.tile{
-  width:100%!important;
+  align-self:start!important;
+  width:auto!important;
   min-width:0!important;
+  height:auto!important;
+  margin:0!important;
+  break-inside:auto!important;
+  -webkit-column-break-inside:auto!important;
+}
+#content .photo-garden-grid>.feed-item>.tile,
+#content .photo-garden-grid>.feed-item>.tile .photo-frame{
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+}
+#content .photo-garden-grid>.feed-item>.tile .feed-photo{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  object-fit:contain!important;
 }
 @media(max-width:420px){
-  #content .photo-garden-grid{column-gap:4px!important}
-  #content .photo-garden-grid>.feed-item{margin-bottom:4px!important}
+  #content .photo-garden-grid{column-gap:5px!important;row-gap:5px!important}
 }

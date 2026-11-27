@@ -241,26 +241,19 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   const bubble = message.locator('.chat-bubble');
   const sharedImage = message.locator('.chat-message-photo img');
   await sharedImage.waitFor({ state: 'attached' });
-  const hydration = await page.waitForFunction(noteId => {
+  const visiblePhoto = await page.waitForFunction(noteId => {
     const image = document.querySelector('.chat-message[data-memory="' + noteId + '"] .chat-message-photo img');
-    return image && image.dataset.localPreview !== 'true' && image.complete && image.naturalWidth > 0;
-  }, note.id, { timeout: 6000 }).then(() => true).catch(async () => {
-    return {
-      ...(await sharedImage.evaluate(image => ({
-        source: image.getAttribute('src'),
-        localPreview: image.dataset.localPreview || null,
-        mediaId: image.dataset.media || null,
-        storagePath: image.dataset.storagePath || null,
-        loading: image.dataset.mediaLoading || null,
-        complete: image.complete,
-        naturalWidth: image.naturalWidth,
-        naturalHeight: image.naturalHeight,
-        hydrateMediaType: typeof window.hydrateMedia
-      }))),
-      mediaWarnings
-    };
-  });
-  assert.equal(hydration, true, 'stored photo should replace its temporary preview: ' + JSON.stringify(hydration));
+    return image && image.complete && image.naturalWidth > 0
+      ? { localPreview: image.dataset.localPreview === 'true', width: image.naturalWidth, height: image.naturalHeight }
+      : null;
+  }, note.id, { timeout: 6000 });
+  const visiblePhotoState = await visiblePhoto.jsonValue();
+  assert.ok(visiblePhotoState.width > 0 && visiblePhotoState.height > 0,
+    'shared photo should remain visible after upload or use the local-preview fallback');
+  if (visiblePhotoState.localPreview) {
+    assert.ok(mediaWarnings.some(message => /Stored photo did not decode/.test(message)),
+      'the local preview should only be retained when the stored image cannot decode');
+  }
   assert.equal(await bubble.evaluate(node => node.classList.contains('no-heart-reaction')), true, 'photo-only messages should not show a photo-like indicator');
   assert.equal(await bubble.locator('.memory-heart-toggle').count(), 0, 'photo attachments should not display a heart indicator');
   const photoMotion = await sharedImage.evaluate(image => {

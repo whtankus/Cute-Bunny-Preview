@@ -297,8 +297,17 @@ async function hydrateOneMedia(node) {
           }
           URL.revokeObjectURL(previousPreviewUrl);
         };
-        if (typeof node.decode === 'function') node.decode().then(releasePreview).catch(() => {});
-        else node.addEventListener('load', releasePreview, { once: true });
+        const restorePreview = () => {
+          if (!node.isConnected || node.getAttribute('src') !== url) return;
+          node.src = previousPreviewUrl;
+          node.dataset.localPreview = 'true';
+        };
+        if (typeof node.decode === 'function') {
+          node.decode().then(releasePreview).catch(restorePreview);
+        } else {
+          node.addEventListener('load', releasePreview, { once: true });
+          node.addEventListener('error', restorePreview, { once: true });
+        }
       }
     }
   } catch (error) {

@@ -60,7 +60,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
     const source = photo.previewUrl || '';
     const storagePath = photo.storagePath || photo.storage_path || '';
     const contentType = photo.contentType || photo.content_type || '';
-    return `<button class="chat-message-photo" type="button" data-chat-open-photo="${esc(photoId)}" aria-label="Open shared photo ${index + 1}"><img loading="lazy" decoding="async" alt="Shared photo ${index + 1}" ${storagePath ? `data-media="${esc(photoId)}" data-storage-path="${esc(storagePath)}" data-content-type="${esc(contentType)}" ${source ? 'data-local-preview="true"' : ''}` : ''} ${source ? `src="${esc(source)}"` : ''} draggable="false"></button>`;
+    return `<button class="chat-message-photo" type="button" data-chat-open-photo="${esc(photoId)}" data-chat-message-id="${esc(id)}" aria-label="Open shared photo ${index + 1}"><img loading="lazy" decoding="async" alt="Shared photo ${index + 1}" ${storagePath ? `data-media="${esc(photoId)}" data-storage-path="${esc(storagePath)}" data-content-type="${esc(contentType)}" ${source ? 'data-local-preview="true"' : ''}` : ''} ${source ? `src="${esc(source)}"` : ''} draggable="false"></button>`;
   }).join('')}</div>` : '';
   const createdAt = m.createdAt || m.created_at || '';
   const time = esc(formatNoteClock(createdAt));
@@ -82,6 +82,10 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const replyAuthor = replyTarget?.author?.displayName || replyTarget?.author?.display_name || replyTarget?.author?.username || 'Original message';
   const replyText = replyTarget?.text || (replyTarget?.photos?.length ? 'Photo shared' : 'This message is no longer available');
   const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote"><span class="chat-reply-preview-text"><b>${esc(replyAuthor)}</b> · ${esc(replyText)}</span></span></button>` : '';
+  const bubbleContent = `${heartButton}${replyMarkup}${messageText ? `<span class="chat-message-text" dir="auto">${messageText}</span>` : ''}`;
+  const textBubble = bubbleContent
+    ? `<div class="chat-bubble${hasHeartReaction ? '' : ' no-heart-reaction'}${isShortMessage ? ' is-short-message' : ''}" tabindex="0" data-chat-message-id="${esc(id)}" aria-label="Message from ${name}">${bubbleContent}</div>`
+    : '';
 
   return `
     <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}" data-like-count="${Number(m.like_count) || 0}" data-reaction-count="${Array.isArray(m.reactions) ? m.reactions.length : 0}">
@@ -90,12 +94,8 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
         <div class="chat-message-line">
           <time class="chat-message-time" datetime="${esc(createdAt)}">${time}</time>${editedLabel}
           <div class="chat-bubble-wrap">
-            <div class="chat-bubble${hasHeartReaction ? '' : ' no-heart-reaction'}${isShortMessage ? ' is-short-message' : ''}" tabindex="0" data-chat-message-id="${esc(id)}" aria-label="Message from ${name}">
-              ${heartButton}
-              ${replyMarkup}
-              ${photoMarkup}
-              ${messageText ? `<span class="chat-message-text" dir="auto">${messageText}</span>` : ''}
-            </div>
+            ${photoMarkup}
+            ${textBubble}
           </div>
         </div>
       </div>

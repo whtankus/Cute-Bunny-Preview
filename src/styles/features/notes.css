@@ -585,7 +585,7 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
   height: 40px !important;
   min-height: 40px !important;
   max-height: 40px !important;
-  margin: 0 !important;
+  margin: auto 0 !important;
   padding: 0 !important;
   box-sizing: border-box !important;
   line-height: 1 !important;

@@ -327,11 +327,11 @@ test('Notes photo attachments do not display like indicators and retain reply co
   assert.match(notes, /chat-replying-author/);
   assert.match(notes, /<b>\$\{esc\(replyAuthor\)\}<\/b>/);
   assert.match(styles, /#content \.chat-replying-content\s*\{\s*flex-direction: column/);
-  assert.match(styles, /width:calc\\(100% \\+ 6px\\)/);
+  assert.match(styles, /width:calc\(100% \+ 6px\)/);
   assert.match(styles, /margin:0 -3px/);
   assert.match(styles, /inset: 50% auto auto 50% !important/);
-  assert.match(styles, /animation: cb-photo-garden-float 3\\.4s ease-in-out infinite/);
-  assert.match(read('src/features/notes/chat-events.js'), /document\\.addEventListener\\('contextmenu'/);
+  assert.match(styles, /animation: cb-photo-garden-float 3\.4s ease-in-out infinite/);
+  assert.match(read('src/features/notes/chat-events.js'), /document\.addEventListener\('contextmenu'/);
 });
 
 test('Notes photo selection validates each file and releases local previews after hydration', () => {

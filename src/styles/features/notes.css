@@ -688,7 +688,7 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
 
 /* Shared Notes photos sit outside the text bubble as rounded, raised photo cards. */
 #content .chat-message-photos {
-  width: fit-content;
+  width: min(100%, 218px);
   max-width: min(218px, 100%);
   perspective: 700px;
 }

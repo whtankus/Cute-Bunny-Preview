@@ -136,7 +136,7 @@
   pointer-events:none;
 }
 
-/* Illustrated, equippable Bear Hugs keepsakes. */
+/* Illustrated, equippable Bearfriend keepsakes. */
 #coupleBearGame .bear-rewards-list{grid-template-columns:1fr 1fr;gap:10px}
 #coupleBearGame .bear-reward{display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:7px;padding:9px;border-radius:15px}
 #coupleBearGame .bear-reward-preview{grid-row:span 2;display:grid;place-items:center;align-content:center;gap:1px;width:58px;height:54px;border-radius:12px;font-size:1.45rem;overflow:hidden}
@@ -334,7 +334,7 @@
   #coupleBearGame .bear-care-foot{font-size:.56rem}
 }
 
-/* Restore the Bear Hugs composition: bears first, actions second, progress beneath actions. */
+/* Restore the Bearfriend composition: bears first, actions second, progress beneath actions. */
 #coupleBearGame .bear-partner-chip:after{content:none!important;display:none!important}
 #coupleBearGame .bear-partner-chip{
   margin:8px auto 10px;
@@ -449,7 +449,7 @@
 }
 
 
-/* Bear Hugs progression polish: clear milestones, tactile reward cards, safe feedback. */
+/* Bearfriend progression polish: clear milestones, tactile reward cards, safe feedback. */
 #coupleBearGame .bear-care-strip{
   position:relative;
   overflow:hidden;
@@ -617,7 +617,7 @@
   #coupleBearGame.is-sending .bear-action-button { transition: none; }
 }
 
-/* Living Bear Hugs scene: lightweight ambience and direct object interactions. */
+/* Living Bearfriend scene: lightweight ambience and direct object interactions. */
 #coupleBearGame .couple-bears-scene{position:relative;isolation:isolate;overflow:hidden}
 #coupleBearGame #bearPoseSvg{position:relative;z-index:2}
 #coupleBearGame .bear-living-atmosphere{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}

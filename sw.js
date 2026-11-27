@@ -1,13 +1,13 @@
-const CACHE_NAME = "cute-bunny-shell-v396";
+const CACHE_NAME = "cute-bunny-shell-v397";
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./style.css?v=milestone-shine-20261124",
-  "./polish.css?v=legendary-living-motion-20261124",
+  "./polish.css?v=bearfriend-actions-20261127",
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=33",
+  "./app.js?v=37",
   "./src/core/dom.js",
   "./src/services/supabase-client.js",
   "./src/services/media-optimizer.js",
@@ -38,8 +38,8 @@ const APP_ASSETS = [
   "./src/styles/features/notifications.css",
   "./src/styles/features/profile.css",
   "./src/styles/features/streak.css",
-  "./bear-hugs-progression.css?v=bear-hugs-living-world-20261124-3",
-  "./bear-hugs-progression.js?v=bear-hugs-living-world-20261124-3",
+  "./bear-hugs-progression.css?v=bearfriend-actions-20261127",
+  "./bear-hugs-progression.js?v=bearfriend-actions-20261127",
   "./manifest.webmanifest",
   "./supabase-config.js",
   "./bunny-app-icon-192.png",

@@ -233,6 +233,7 @@ function renderNotesPage(options = {}) {
   if (existingThread) {
     const wasNearBottom =
       existingThread.scrollHeight - existingThread.scrollTop - existingThread.clientHeight < 72;
+    const followLatest = !!options.followLatest || wasNearBottom;
     const previousScrollTop = existingThread.scrollTop;
     const desiredRoot = document.createElement('div');
     desiredRoot.innerHTML = desiredThreadMarkup;
@@ -329,7 +330,8 @@ function renderNotesPage(options = {}) {
 
     requestAnimationFrame(() => {
       if (!existingThread.isConnected) return;
-      if (options.followLatest || wasNearBottom) {
+      existingThread.__cbFollowingLatest = followLatest;
+      if (followLatest) {
         existingThread.scrollTop = existingThread.scrollHeight;
       } else {
         existingThread.scrollTop = Math.min(
@@ -371,7 +373,14 @@ function renderNotesPage(options = {}) {
     const thread = $('#chatThread');
     if (thread) {
       thread.__cbNotesMarkup = olderControl + (messagesHtml || emptyMarkup);
+      thread.__cbFollowingLatest = true;
       thread.scrollTop = thread.scrollHeight;
+      if (!thread.__cbFollowLatestListener) {
+        thread.addEventListener('scroll', () => {
+          thread.__cbFollowingLatest = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 96;
+        }, { passive: true });
+        thread.__cbFollowLatestListener = true;
+      }
       syncNotesTypingIndicator();
     }
     syncNotesSeenReceiptVisibility(thread);
@@ -1119,6 +1128,21 @@ function syncNotesSeenReceiptVisibility(thread = $('#chatThread')) {
   const hasReceipt = status.getAttribute('aria-label') !== 'Not seen';
   status.hidden = !hasReceipt || distanceFromBottom > 32;
 }
+
+
+// Photo images may finish decoding after the first scroll-to-latest. Keep the
+// newest photo fully visible above the composer while the reader is following it.
+document.addEventListener('load', event => {
+  const image = event.target;
+  if (!image?.matches?.('.chat-message-photos img')) return;
+  const thread = $('#chatThread');
+  if (page !== 'notes' || !thread?.__cbFollowingLatest) return;
+  requestAnimationFrame(() => {
+    if (page === 'notes' && thread.isConnected && thread.__cbFollowingLatest) {
+      thread.scrollTop = thread.scrollHeight;
+    }
+  });
+}, true);
 
 window.sendChatMessage = sendChatMessage;
 window.isTouchNotesViewport = isTouchNotesViewport;

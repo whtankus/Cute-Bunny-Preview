@@ -3820,16 +3820,10 @@ document.addEventListener('input', event => {
   const field = event.target;
   if (field.value.trim()) startNotesTyping();
   else stopNotesTyping();
-  // Measure the full wrapped content on every keystroke, then clamp only
-  // after the composer has had room to grow naturally.
   field.style.height = 'auto';
-  const isMobileComposer = window.matchMedia('(max-width: 480px)').matches;
-  const maxHeight = isMobileComposer ? 136 : 160;
-  const minHeight = isMobileComposer ? 48 : 50;
-  const contentHeight = Math.ceil(field.scrollHeight);
-  const nextHeight = Math.min(Math.max(contentHeight, minHeight), maxHeight);
+  const nextHeight = Math.min(Math.max(field.scrollHeight, 50), 116);
   field.style.height = nextHeight + 'px';
-  field.style.overflowY = contentHeight > maxHeight ? 'auto' : 'hidden';
+  field.style.overflowY = field.scrollHeight > 116 ? 'auto' : 'hidden';
   syncChatComposerState(field);
   syncNotesKeyboardLayout();
 });

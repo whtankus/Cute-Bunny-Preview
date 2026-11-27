@@ -54,20 +54,21 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
       <section class="couple-bear-game" id="coupleBearGame" aria-labelledby="coupleBearTitle">
         <div class="couple-bear-heading">
           <span class="couple-bear-sparkle" aria-hidden="true">✦</span>
-          <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bear Hugs</h3><p>Choose how our little bears show their love.</p></div>
+          <div><small>BEARFRIEND CORNER</small><h3 id="coupleBearTitle">Bearfriend</h3><p>Share a sweet little moment together.</p></div>
           <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
         </div>
-        <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears, one brown and one white">
-          <svg id="bearPoseSvg" viewBox="90 120 420 270" role="img" aria-label="Two animated bears showing affection through movement">
+        <p class="bear-action-guide" id="bearActionGuide"><span aria-hidden="true">✿</span><span><b>How it works</b><small>Pick an action to play. Choose an accepted Bearfriend with the button above the bears to send it; delivered actions earn 2 shared Care Points and can count toward daily quests.</small></span></p>
+        <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two animated bears sharing a moment">
+          <svg id="bearPoseSvg" viewBox="90 120 420 270" role="img" aria-label="Two animated bears acting out a shared moment">
             <title>Two Little Bears</title>
           </svg>
         </div>
         <p class="couple-bear-status" id="coupleBearStatus" aria-live="polite">Two little bears, one big love.</p>
-        <div class="couple-bear-actions" role="group" aria-label="Choose a bear action">
+        <div class="couple-bear-actions" role="group" aria-label="Bearfriend actions" aria-describedby="bearActionGuide">
           <button type="button" class="bear-action-button" data-couple-action="hug" aria-pressed="false"><span aria-hidden="true">🫂</span><b>Hug</b></button>
           <button type="button" class="bear-action-button" data-couple-action="kiss" aria-pressed="false"><span aria-hidden="true">💋</span><b>Kiss</b></button>
           <button type="button" class="bear-action-button" data-couple-action="flykiss" aria-pressed="false"><span aria-hidden="true">😘</span><b>Flying kiss</b></button>
-          <button type="button" class="bear-action-button" data-couple-action="slap" aria-pressed="false"><span aria-hidden="true">🖐️</span><b>Playful slap</b></button>
+          <button type="button" class="bear-action-button" data-couple-action="slap" aria-pressed="false"><span aria-hidden="true">🖐️</span><b>Silly tap</b></button>
           <button type="button" class="bear-action-button" data-couple-action="hands" aria-pressed="false"><span aria-hidden="true">🤝</span><b>Hold hands</b></button>
           <button type="button" class="bear-action-button" data-couple-action="dance" aria-pressed="false"><span aria-hidden="true">💃</span><b>Dance</b></button>
           <button type="button" class="bear-action-button" data-couple-action="pet" aria-pressed="false"><span aria-hidden="true">🐾</span><b>Pet</b></button>

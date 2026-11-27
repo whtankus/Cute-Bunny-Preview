@@ -2320,7 +2320,7 @@ document.addEventListener('change', e => {
   updateStreakGoalProgress();
 });
 
-// Bear Hugs mini-game: action animations sync live with the selected friend; the affection meter stays local.
+// Bearfriend mini-game: action animations sync live with the selected friend; the affection meter stays local.
 const bearLoveStorageKey = 'cuteBunnyBearLove:v1';
 const bearSoundStorageKey = 'cuteBunnyBearSounds:v1';
 function readBearLoveCount() {
@@ -2348,7 +2348,7 @@ function updateBearLoveMeter() {
   }
 }
 
-// Bear Hugs articulated SVG animation engine — embedded in the existing Home experience.
+// Bearfriend articulated SVG animation engine — embedded in the existing Home experience.
 let bearPoseEngine = null;
 function destroyBearPoseEngine() {
   if (bearPoseEngine) {
@@ -2563,7 +2563,7 @@ function startBearRealtime() {
       })
       .subscribe(status => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.warn('Bear Hugs receive channel status:', status);
+          console.warn('Bearfriend receive channel status:', status);
         }
       });
   }
@@ -2575,7 +2575,7 @@ function startBearRealtime() {
     bearRealtimePartnerChannel = sb.channel(partnerTopic, { config: { broadcast: { self: false } } })
       .subscribe(status => {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-          console.warn('Bear Hugs send channel status:', status);
+          console.warn('Bearfriend send channel status:', status);
         }
       });
   } else if (!partnerTopic && bearRealtimePartnerChannel) {
@@ -2592,8 +2592,8 @@ function publishBearAction(action) {
     event: 'bear-action',
     payload: { action, userId: String(me.id), gender: me.gender || null, sentAt: Date.now() }
   }).then(status => {
-    if (status !== 'ok') console.warn('Bear Hugs action was not delivered:', status);
-  }).catch(error => console.warn('Bear Hugs action could not be sent:', error?.message || error));
+    if (status !== 'ok') console.warn('Bearfriend action was not delivered:', status);
+  }).catch(error => console.warn('Bearfriend action could not be sent:', error?.message || error));
 }
 function syncBearViewerRole() {
   const scene = $('#coupleBearGame .couple-bears-scene');
@@ -2603,14 +2603,17 @@ function triggerBearAction(action, options = {}) {
   const scene = $('#coupleBearGame .couple-bears-scene');
   if (!scene) return;
   const messages = {
-    hug: 'A big, warm bear hug! ♡',
+    hug: 'A big, warm Bearfriend hug! ♡',
     kiss: 'A tiny kiss, sealed with a heart. 💗',
+    flykiss: 'A flying kiss is on its way! 💋',
+    slap: 'A gentle silly tap and a giggle! ✨',
     hands: 'Together, paw in paw. ♡',
     dance: 'Look at them dance! Two happy little bears. ✨',
     pet: 'A gentle head pat. They love it! 🐾',
+    tummy: 'A cozy tummy scratch! 🐻',
     feed: 'Strawberries for two. Yum, yum! 🍓',
-    sleep: 'Shhh… the little bears are dreaming together. 🌙',
-    idle: 'Our little bears are relaxing together. 🌸',
+    sleep: 'Your Bearfriend is dreaming. 🌙',
+    idle: 'Your Bearfriend is relaxing with you. 🌸',
     peekaboo: 'Peekaboo! A little surprise for each other. ♡',
     bump: 'A tiny, gentle bear head bump. ♡'
   };
@@ -2619,9 +2622,16 @@ function triggerBearAction(action, options = {}) {
   const status = $('#coupleBearStatus');
   if (status) status.textContent = messages[action] || 'Two little bears, one big love.';
   document.querySelectorAll('#coupleBearGame [data-couple-action]').forEach(button => {
-    button.setAttribute('aria-pressed', String(button.dataset.coupleAction === action));
+    const selected = button.dataset.coupleAction === action;
+    button.setAttribute('aria-pressed', String(selected));
+    if (selected) {
+      button.classList.remove('is-action-pulse');
+      void button.offsetWidth;
+      button.classList.add('is-action-pulse');
+      window.setTimeout(() => button.classList.remove('is-action-pulse'), 460);
+    }
   });
-  // Shared Bear Hugs points are awarded by the progression module
+  // Shared Bearfriend points are awarded by the progression module
   // only after an action is successfully delivered to the accepted partner.
   updateBearLoveMeter();
   if (!options.remote) publishBearAction(action);

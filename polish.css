@@ -4013,3 +4013,49 @@ body[data-mode="dark"] #content .bear-name{background:rgba(54,43,58,.9);color:#e
     width:54px;height:54px;max-width:54px;max-height:54px;
   }
 }
+
+
+/* Bearfriend actions: clear first-use guidance, roomy controls and one-shot feedback. */
+#content .bear-action-guide{
+  display:flex;align-items:flex-start;gap:10px;margin:13px 0;padding:11px 13px;
+  border:1px solid var(--cb-border);border-radius:16px;
+  background:color-mix(in srgb,var(--cb-card) 84%,var(--cb-accent-soft));
+  color:var(--cb-text-soft);text-align:left;
+}
+#content .bear-action-guide>span:first-child{
+  display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border-radius:10px;
+  background:var(--cb-accent-soft);color:var(--cb-accent-strong);font-size:1rem;
+}
+#content .bear-action-guide>span:last-child{display:grid;gap:3px;min-width:0}
+#content .bear-action-guide b{color:var(--cb-text);font-size:.76rem}
+#content .bear-action-guide small{font-size:.69rem;line-height:1.45}
+#content .couple-bear-actions{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;justify-content:stretch;
+}
+#content .bear-action-button{
+  width:100%;min-width:0;min-height:50px;padding:8px 10px;justify-content:flex-start;
+  border-radius:15px;text-align:left;font-size:.74rem;line-height:1.2;
+}
+#content .bear-action-button>span{flex:0 0 24px;text-align:center}
+#content .bear-action-button:focus-visible{outline:3px solid color-mix(in srgb,var(--cb-accent) 48%,transparent);outline-offset:2px}
+#content .bear-action-button.is-action-pulse>span{animation:bearfriend-action-pop .42s cubic-bezier(.2,.8,.3,1)}
+@keyframes bearfriend-action-pop{
+  0%{transform:scale(.82) rotate(-6deg)}
+  58%{transform:scale(1.24) rotate(5deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+#content .couple-bear-status{
+  min-height:38px;padding:9px 12px;border:1px solid var(--cb-border);
+  border-radius:14px;background:color-mix(in srgb,var(--cb-card) 88%,var(--cb-accent-soft));
+  line-height:1.4;
+}
+@media(max-width:720px){#content .couple-bear-actions{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:460px){
+  #content .couple-bear-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  #content .bear-action-button{min-height:48px;padding:8px 9px}
+  #content .bear-action-guide{margin:10px 0;padding:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  #content .bear-action-button.is-action-pulse>span{animation:none}
+  #content .bear-action-button,#content .bear-action-guide{transition:none}
+}

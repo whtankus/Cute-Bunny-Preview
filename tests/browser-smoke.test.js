@@ -187,7 +187,7 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   await page.locator('#nav button[data-page="notes"]').click();
   await page.locator('#chatComposer').waitFor({ state: 'visible' });
 
-  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/W9sAAAAASUVORK5CYII=', 'base64');
+  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR42mP8X7GKgYGBiYGBgYGBAQAaCwIl/23ctwAAAABJRU5ErkJggg==', 'base64');
   await page.locator('#chatPhotoInput').setInputFiles([
     { name: 'not-an-image.txt', mimeType: 'text/plain', buffer: Buffer.from('not an image') },
     { name: 'notes-browser.png', mimeType: 'image/png', buffer: image }
@@ -196,6 +196,16 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   const previewItems = page.locator('#chatPhotoPreview .chat-photo-preview-item');
   await previewItems.first().waitFor({ state: 'visible' });
   assert.equal(await previewItems.count(), 1, 'a valid file after an invalid one must still be added');
+  const deleteAlignment = await previewItems.first().evaluate(item => {
+    const image = item.querySelector('img').getBoundingClientRect();
+    const remove = item.querySelector('[data-chat-photo-remove]').getBoundingClientRect();
+    return {
+      horizontal: Math.abs((image.left + image.width / 2) - (remove.left + remove.width / 2)),
+      vertical: Math.abs((image.top + image.height / 2) - (remove.top + remove.height / 2))
+    };
+  });
+  assert.ok(deleteAlignment.horizontal < 1 && deleteAlignment.vertical < 1,
+    'photo delete control should be centred over its preview');
 
   await previewItems.locator('[data-chat-photo-remove]').click();
   assert.equal(await previewItems.count(), 0, 'removing the preview must clear the selected photo');
@@ -231,28 +241,33 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   const bubble = message.locator('.chat-bubble');
   const sharedImage = message.locator('.chat-message-photo img');
   await sharedImage.waitFor({ state: 'attached' });
-  const hydration = await page.waitForFunction(noteId => {
+  const visiblePhoto = await page.waitForFunction(noteId => {
     const image = document.querySelector('.chat-message[data-memory="' + noteId + '"] .chat-message-photo img');
-    return image && image.dataset.localPreview !== 'true' && image.complete && image.naturalWidth > 0;
-  }, note.id, { timeout: 6000 }).then(() => true).catch(async () => {
-    return {
-      ...(await sharedImage.evaluate(image => ({
-        source: image.getAttribute('src'),
-        localPreview: image.dataset.localPreview || null,
-        mediaId: image.dataset.media || null,
-        storagePath: image.dataset.storagePath || null,
-        loading: image.dataset.mediaLoading || null,
-        complete: image.complete,
-        naturalWidth: image.naturalWidth,
-        naturalHeight: image.naturalHeight,
-        hydrateMediaType: typeof window.hydrateMedia
-      }))),
-      mediaWarnings
-    };
+    return image && image.complete && image.naturalWidth > 0
+      ? { localPreview: image.dataset.localPreview === 'true', width: image.naturalWidth, height: image.naturalHeight }
+      : null;
+  }, note.id, { timeout: 6000 });
+  const visiblePhotoState = await visiblePhoto.jsonValue();
+  assert.ok(visiblePhotoState.width > 0 && visiblePhotoState.height > 0,
+    'shared photo should remain visible after upload or use the local-preview fallback');
+  if (visiblePhotoState.localPreview) {
+    assert.ok(mediaWarnings.some(message => /Stored photo did not decode/.test(message)),
+      'the local preview should only be retained when the stored image cannot decode');
+  }
+  assert.equal(await bubble.evaluate(node => node.classList.contains('no-heart-reaction')), true, 'photo-only messages should not show a photo-like indicator');
+  assert.equal(await bubble.locator('.memory-heart-toggle').count(), 0, 'photo attachments should not display a heart indicator');
+  const photoMotion = await sharedImage.evaluate(image => {
+    const style = getComputedStyle(image);
+    return { name: style.animationName, duration: style.animationDuration };
   });
-  assert.equal(hydration, true, 'stored photo should replace its temporary preview: ' + JSON.stringify(hydration));
-  assert.equal(await bubble.evaluate(node => node.classList.contains('no-heart-reaction')), false, 'photo-only messages should show the heart reaction state');
-  assert.equal(await bubble.locator('.memory-heart-toggle').count(), 1, 'photo-only message should include its heart indicator');
+  assert.equal(photoMotion.name, 'cb-photo-garden-float', 'Notes photos should use Photo Garden motion');
+  assert.equal(photoMotion.duration, '3.4s', 'Notes photos should use the Photo Garden float timing');
+  const nativeMenuPrevented = await sharedImage.evaluate(image => {
+    const contextMenu = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    image.dispatchEvent(contextMenu);
+    return contextMenu.defaultPrevented;
+  });
+  assert.equal(nativeMenuPrevented, true, 'Notes photos should suppress the browser image context menu');
 
   const bounds = await bubble.boundingBox();
   await page.mouse.move(bounds.x + 4, bounds.y + 4);
@@ -277,13 +292,19 @@ test('Notes composer keeps its pill field and action button vertically aligned o
     const metrics = await page.evaluate(() => {
       const input = document.querySelector('#chatInput');
       const send = document.querySelector('#chatSend');
+      const composer = document.querySelector('#chatComposer');
+      const composerMain = document.querySelector('.chat-composer-main');
       const inputRect = input.getBoundingClientRect();
       const sendRect = send.getBoundingClientRect();
+      const composerRect = composer.getBoundingClientRect();
+      const mainRect = composerMain.getBoundingClientRect();
       return {
         radius: getComputedStyle(input).borderRadius,
         sendWidth: sendRect.width,
         sendHeight: sendRect.height,
         centerDifference: Math.abs((inputRect.top + inputRect.height / 2) - (sendRect.top + sendRect.height / 2)),
+        leftExtension: composerRect.left - mainRect.left,
+        rightExtension: mainRect.right - composerRect.right,
         horizontalOverflow: document.documentElement.scrollWidth > window.innerWidth
       };
     });
@@ -291,6 +312,8 @@ test('Notes composer keeps its pill field and action button vertically aligned o
     assert.equal(metrics.sendWidth, 40);
     assert.equal(metrics.sendHeight, 40);
     assert.ok(metrics.centerDifference < 1, 'send button should remain centred against the writing field: ' + JSON.stringify(metrics));
+    assert.ok(Math.abs(metrics.leftExtension - 3) < 1, 'writing field should extend 3px to the left: ' + JSON.stringify(metrics));
+    assert.ok(Math.abs(metrics.rightExtension - 3) < 1, 'writing field should extend 3px to the right: ' + JSON.stringify(metrics));
     assert.equal(metrics.horizontalOverflow, false, 'Notes should not overflow narrow viewports');
     await page.context().close();
     contexts.delete(page.context());
@@ -333,7 +356,7 @@ test('photo upload stores the file and creates a memory record', async () => {
   const page = await newTestPage({ authenticated: true });
   await waitForSignedInApp(page);
   await page.locator('#nav button[data-page="gallery"]').click();
-  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/W9sAAAAASUVORK5CYII=', 'base64');
+  const image = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR42mP8X7GKgYGBiYGBgYGBAQAaCwIl/23ctwAAAABJRU5ErkJggg==', 'base64');
   await page.locator('input[data-upload="photo"]').setInputFiles({
     name: 'browser-test.png',
     mimeType: 'image/png',

@@ -46,8 +46,8 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const attachedPhotos = Array.isArray(m.photos) ? m.photos.slice(0, 3) : [];
   const messageWordCount = messageValue.trim() ? messageValue.trim().split(/\s+/u).length : 0;
   const isShortMessage = messageCharacterCount > 0 && messageWordCount < 4;
-  // Photo-only Notes messages are still first-class messages and can receive hearts.
-  const hasHeartReaction = messageCharacterCount >= 6 || attachedPhotos.length > 0;
+  // Photo attachments do not display message-like hearts in Notes.
+  const hasHeartReaction = messageCharacterCount >= 6 && attachedPhotos.length === 0;
   const heartButton = hasHeartReaction
     ? `<span class="memory-heart-toggle reaction-heart-indicator${liked ? ' is-lit' : ''}" aria-hidden="true"><span class="heart-wallpaper-fill">♥</span><span class="heart-outline-glyph">${liked ? '♥' : '♡'}</span></span>`
     : '';

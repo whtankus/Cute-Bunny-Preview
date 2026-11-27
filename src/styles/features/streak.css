@@ -341,3 +341,21 @@ color:#e4b9d2
 body[data-mode="dark"] .streak-garden-page .sg-quest-keyword-hint>b {
 color:#f8e6f1
 }
+
+
+/* Living streak garden: growth stages follow the user's consecutive-day count. */
+.streak-garden-page .sg-garden-art{isolation:isolate;transition:filter .35s ease,transform .35s ease}
+.streak-garden-page .sg-garden-art:after{content:"";position:absolute;z-index:2;inset:5% 8% 8%;pointer-events:none;border-radius:50%;opacity:0;transition:opacity .5s ease;background:radial-gradient(ellipse at 50% 65%,rgba(255,231,174,.2),transparent 68%)}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-sprout:after{opacity:.3}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-bloom:after{opacity:.48}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-lush:after{opacity:.68}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-full:after{opacity:.9;background:radial-gradient(ellipse at 50% 65%,rgba(255,222,150,.3),transparent 68%)}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-sprout .sg-garden-svg{filter:saturate(1.05)}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-bloom .sg-garden-svg{filter:saturate(1.14) brightness(1.02)}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-lush .sg-garden-svg{filter:saturate(1.22) brightness(1.035)}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-full .sg-garden-svg{filter:saturate(1.3) brightness(1.05) drop-shadow(0 5px 12px rgba(197,139,164,.18))}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-bloom:before,.streak-garden-page .sg-garden-art.sg-bloom-stage-lush:before,.streak-garden-page .sg-garden-art.sg-bloom-stage-full:before{content:"✿";position:absolute;z-index:3;top:9%;right:12%;color:#e8b3c7;text-shadow:0 2px 8px #fff8;font-size:clamp(15px,2.5vw,23px);pointer-events:none;animation:sg-garden-firefly 3.4s ease-in-out infinite}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-lush:before{content:"✿ · ✧"}
+.streak-garden-page .sg-garden-art.sg-bloom-stage-full:before{content:"✿ ✧ ✿";color:#e9c477}
+@keyframes sg-garden-firefly{50%{transform:translate3d(-5px,-8px,0) rotate(12deg);opacity:.55}}
+@media(prefers-reduced-motion:reduce){.streak-garden-page .sg-garden-art:before{animation:none}}

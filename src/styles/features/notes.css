@@ -512,8 +512,8 @@ body[data-mode="dark"] #content .chat-composer #chatReplyingTo {
 /* Notes attachment previews and composer restored to the original Notes layout. */
 #content .chat-composer-main {
   position:relative;display:flex;grid-column:1/-1;grid-row:3;
-  align-items:center;gap:0;min-width:0;width:100%;max-width:100%;
-  margin:0;padding:0;border:0;border-radius:0;
+  align-items:center;gap:0;min-width:0;width:calc(100% + 6px);max-width:calc(100% + 6px);
+  margin:0 -3px;padding:0;border:0;border-radius:0;
   background:transparent;box-shadow:none;box-sizing:border-box;
 }
 #content #chatComposer.has-photos .chat-composer-main {grid-row:4}
@@ -608,37 +608,35 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
 
 #content .chat-photo-preview-item button {
   position: absolute !important;
+  inset: 50% auto auto 50% !important;
   z-index: 3 !important;
-  top: 50% !important;
-  right: auto !important;
-  left: 50% !important;
   display: grid !important;
   place-items: center !important;
-  width: 36px !important;
-  min-width: 36px !important;
-  height: 36px !important;
-  min-height: 36px !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
   padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
+  border: 1px solid rgba(255,255,255,.76) !important;
+  border-radius: 50% !important;
+  background: rgba(62,39,57,.68) !important;
   color: #fff !important;
-  font-size: 30px !important;
-  font-weight: 700 !important;
+  font-size: 23px !important;
+  font-weight: 800 !important;
   line-height: 1 !important;
-  text-shadow: 0 1px 5px rgba(34, 20, 31, .9) !important;
-  box-shadow: none !important;
+  text-shadow: none !important;
+  box-shadow: 0 2px 8px rgba(27,16,29,.24) !important;
+  backdrop-filter: blur(5px);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transform: translate(-50%, -50%) !important;
 }
-
 #content .chat-photo-preview-item button:hover,
 #content .chat-photo-preview-item button:active {
-  background: transparent !important;
+  background: rgba(62,39,57,.78) !important;
   color: #fff !important;
   filter: none !important;
-  box-shadow: none !important;
+  box-shadow: 0 2px 8px rgba(27,16,29,.24) !important;
   transform: translate(-50%, -50%) !important;
 }
 
@@ -659,4 +657,30 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+
+/* Notes attachments use the same gentle drift as Photo Garden thumbnails. */
+#content .chat-message-photos .chat-message-photo img {
+  transform-origin: center;
+  backface-visibility: hidden;
+  animation: cb-photo-garden-float 3.4s ease-in-out infinite;
+  will-change: transform;
+  -webkit-touch-callout: none;
+}
+#content .chat-message-photos .chat-message-photo:nth-child(3n + 2) img {
+  animation-delay: -1.1s;
+}
+#content .chat-message-photos .chat-message-photo:nth-child(3n) img {
+  animation-delay: -2.2s;
+}
+#content .chat-message-photo:hover img {
+  filter: saturate(1.035);
+}
+@media (prefers-reduced-motion: reduce) {
+  #content .chat-message-photos .chat-message-photo img {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto;
+  }
 }

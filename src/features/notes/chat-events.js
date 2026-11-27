@@ -53,6 +53,16 @@
     }
   });
 
+  // Prevent the browser's native Copy/Save/Open image menu on Notes photos.
+  document.addEventListener('contextmenu', event => {
+    const photoSurface = event.target instanceof Element
+      ? event.target.closest('.chat-message-photo, .chat-photo-preview-item')
+      : null;
+    if (!photoSurface) return;
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
   document.addEventListener('change', event => {
     if (event.target.id !== 'chatPhotoInput') return;
     const input = event.target;

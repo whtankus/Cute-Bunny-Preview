@@ -175,6 +175,21 @@ function observeLatestNotePhotoLayout(thread = $('#chatThread')) {
   thread.querySelectorAll('.chat-message-photos, .chat-message-photos img').forEach(node => observer.observe(node));
 }
 
+function syncNotesNewMessagesButton(thread = $('#chatThread')) {
+  const button = $('#notesNewMessages');
+  if (!button || !thread) return;
+  const count = Math.max(0, Number(thread.__cbNewMessageCount) || 0);
+  button.hidden = count === 0;
+  button.textContent = count === 1 ? '↓ 1 new message' : '↓ ' + count + ' new messages';
+  button.setAttribute('aria-label', count === 1 ? 'Jump to 1 new message' : 'Jump to ' + count + ' new messages');
+  const chatPage = thread.closest('.chat-page');
+  const composer = $('#chatComposer');
+  if (chatPage && composer) {
+    const clearance = Math.max(0, chatPage.getBoundingClientRect().bottom - composer.getBoundingClientRect().top);
+    chatPage.style.setProperty('--notes-new-message-bottom', Math.ceil(clearance + 12) + 'px');
+  }
+}
+
 function renderNotesPage(options = {}) {
   startNotesIncomingPoll();
   if (!seenRelativeInterval) {
@@ -224,6 +239,21 @@ function renderNotesPage(options = {}) {
     : '';
   const olderControl = historySentinelMarkup('top');
   const existingThread = $('#chatThread');
+  const existingMessageIds = new Set(existingThread ? [...existingThread.querySelectorAll(':scope > .chat-message[data-memory]')].map(node => String(node.dataset.memory)) : []);
+  const latestExistingAt = existingThread
+    ? Math.max(0, ...[...existingThread.querySelectorAll('.chat-message-time[datetime]')].map(node => Date.parse(node.dateTime) || 0))
+    : 0;
+  const wasNearBottom = !existingThread || existingThread.scrollHeight - existingThread.scrollTop - existingThread.clientHeight < 72;
+  const followLatest = !!options.followLatest || wasNearBottom;
+  if (existingThread) {
+    const newIncomingCount = chatNotes.filter(note => {
+      const id = String(note.id);
+      const createdAt = Date.parse(note.createdAt || note.created_at || '') || 0;
+      return !note.isPending && !existingMessageIds.has(id) && (!latestExistingAt || createdAt >= latestExistingAt);
+    }).length;
+    existingThread.__cbNewMessageCount = followLatest ? 0 : (Number(existingThread.__cbNewMessageCount) || 0) + newIncomingCount;
+    syncNotesNewMessagesButton(existingThread);
+  }
   const updateSeenStatus = () => {
     const status = $('#chatSeenStatus');
     if (!status) return;
@@ -242,10 +272,12 @@ function renderNotesPage(options = {}) {
   if (existingThread && existingThread.__cbNotesMarkup === desiredThreadMarkup) {
     if (options.followLatest) {
       existingThread.__cbFollowingLatest = true;
+      existingThread.__cbNewMessageCount = 0;
       requestAnimationFrame(() => {
         if (existingThread.isConnected && existingThread.__cbFollowingLatest) existingThread.scrollTop = existingThread.scrollHeight;
       });
     }
+    syncNotesNewMessagesButton(existingThread);
     syncNotesTypingIndicator();
     observeLatestNotePhotoLayout(existingThread);
     return;
@@ -255,9 +287,6 @@ function renderNotesPage(options = {}) {
   // Existing bubbles keep their DOM identity, so incoming messages and receipts
   // cannot restart entrance effects or make the conversation blink.
   if (existingThread) {
-    const wasNearBottom =
-      existingThread.scrollHeight - existingThread.scrollTop - existingThread.clientHeight < 72;
-    const followLatest = !!options.followLatest || wasNearBottom;
     const previousScrollTop = existingThread.scrollTop;
     const desiredRoot = document.createElement('div');
     desiredRoot.innerHTML = desiredThreadMarkup;
@@ -379,6 +408,7 @@ function renderNotesPage(options = {}) {
         ${olderControl}${messagesHtml || emptyMarkup}
         <div id="chatTypingIndicator" class="chat-typing-indicator" aria-live="polite" aria-atomic="true" hidden></div>
       </div>
+      <button type="button" id="notesNewMessages" class="notes-new-messages" aria-live="polite" hidden>↓ New messages</button>
       <form id="chatComposer" class="chat-composer" autocomplete="off">
         <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
@@ -399,11 +429,15 @@ function renderNotesPage(options = {}) {
     if (thread) {
       thread.__cbNotesMarkup = olderControl + (messagesHtml || emptyMarkup);
       thread.__cbFollowingLatest = true;
+      thread.__cbNewMessageCount = 0;
+      syncNotesNewMessagesButton(thread);
       syncNotesTypingIndicator();
       thread.scrollTop = thread.scrollHeight;
       if (!thread.__cbFollowLatestListener) {
         thread.addEventListener('scroll', () => {
           thread.__cbFollowingLatest = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 96;
+          if (thread.__cbFollowingLatest) thread.__cbNewMessageCount = 0;
+          syncNotesNewMessagesButton(thread);
         }, { passive: true });
         thread.__cbFollowLatestListener = true;
       }
@@ -1137,6 +1171,7 @@ function syncNotesKeyboardLayout() {
     thread?.style.removeProperty('scroll-padding-bottom');
     notesKeyboardFollowLatest = false;
   }
+  syncNotesNewMessagesButton(thread);
 }
 
 function scheduleNotesKeyboardLayout() {
@@ -1170,6 +1205,20 @@ document.addEventListener('load', event => {
     }
   });
 }, true);
+
+document.addEventListener('click', event => {
+  let target = event.target;
+  if (target && target.nodeType !== 1) target = target.parentElement;
+  const button = target?.closest?.('#notesNewMessages');
+  if (!button) return;
+  const thread = $('#chatThread');
+  if (!thread) return;
+  thread.__cbFollowingLatest = true;
+  thread.__cbNewMessageCount = 0;
+  syncNotesNewMessagesButton(thread);
+  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  thread.scrollTo({ top: thread.scrollHeight, behavior });
+});
 
 window.sendChatMessage = sendChatMessage;
 window.isTouchNotesViewport = isTouchNotesViewport;

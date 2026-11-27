@@ -262,7 +262,7 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
     shadow: getComputedStyle(node).boxShadow
   }));
   assert.match(photoShape.radius, /22px/);
-  assert.notEqual(photoShape.shadow, 'none', 'shared photos should have a raised 3D card shadow');
+  assert.equal(photoShape.shadow, 'none', 'shared photos should not have a raised or 3D shadow effect');
   const photoMotion = await sharedImage.evaluate(image => {
     const style = getComputedStyle(image);
     return { name: style.animationName, duration: style.animationDuration };

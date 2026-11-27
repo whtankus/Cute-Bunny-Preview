@@ -323,9 +323,9 @@ test('Notes photo attachments do not display like indicators and retain reply co
   const notes = read('src/features/notes/notes.js');
   const styles = read('src/styles/features/notes.css');
   assert.match(notes, /messageCharacterCount >= 6 && attachedPhotos\.length === 0/);
-  assert.match(notes, /data-chat-message-id="\\$\\{esc\\(id\\)\\}"/);
-  assert.match(notes, /const bubbleContent = `\\$\\{heartButton\\}\\$\\{replyMarkup\\}/);
-  assert.match(notes, /\\$\\{photoMarkup\\}\\s*\\$\\{textBubble\\}/);
+  assert.match(notes, /data-chat-message-id="\$\{esc\(id\)\}"/);
+  assert.match(notes, /const bubbleContent = `\$\{heartButton\}\$\{replyMarkup\}/);
+  assert.match(notes, /\$\{photoMarkup\}\s*\$\{textBubble\}/);
   assert.match(notes, /replyExcerpt = item\?\.text \|\| \(item\?\.photos\?\.length \? 'Photo shared'/);
   assert.match(notes, /chat-replying-author/);
   assert.match(notes, /<b>\$\{esc\(replyAuthor\)\}<\/b>/);
@@ -336,7 +336,7 @@ test('Notes photo attachments do not display like indicators and retain reply co
   assert.match(styles, /animation: cb-photo-garden-float 3\.4s ease-in-out infinite/);
   assert.match(styles, /border-radius: 22px !important/);
   assert.match(read('app.js'), /showMessageActions\(id, messagePressState\.bubble, !!photoTarget\)/);
-  assert.match(read('app.js'), /chat-actions-popup' \\+ \(photoTarget \? ' is-photo-actions'/);
+  assert.match(read('app.js'), /chat-actions-popup' \+ \(photoTarget \? ' is-photo-actions'/);
   assert.match(read('src/styles/features/base-photos.css'), /Shared photo viewer: place the available Delete or Save action below the photo, centred/);
   assert.match(read('src/features/notes/chat-events.js'), /document\.addEventListener\('contextmenu'/);
 });

@@ -3824,10 +3824,9 @@ document.addEventListener('input', event => {
   const contentHeight = Math.ceil(field.scrollHeight);
   const nextHeight = Math.min(Math.max(contentHeight, 50), 116);
   field.style.height = nextHeight + 'px';
-  // The composer is bottom-anchored; offset half the added height so the
-  // textarea grows around its center instead of appearing to stretch from an edge.
-  const centerOffset = Math.max(0, (nextHeight - 50) / 2);
-  field.style.transform = centerOffset ? `translateY(${centerOffset}px)` : '';
+  // Keep the textarea's lower edge anchored; added height grows upward.
+  // Never translate the field: that would move its bottom edge and shift the bar. 
+  field.style.removeProperty('transform');
   field.style.overflowY = contentHeight > 116 ? 'auto' : 'hidden';
   syncChatComposerState(field);
   syncNotesKeyboardLayout();

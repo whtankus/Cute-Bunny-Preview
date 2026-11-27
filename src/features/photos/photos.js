@@ -11,7 +11,7 @@ async function loadLatestMedia(kind) {
   if (!me || !['photo', 'song'].includes(kind) || mediaPageLoading[kind]) return;
   mediaPageLoading[kind] = true;
   try {
-    const latest = await api('/feed?kind=' + kind + '&limit=8' + (kind === 'photo' ? '&order=oldest' : ''));
+    const latest = await api('/feed?kind=' + kind + '&limit=8');
     if (page !== (kind === 'photo' ? 'gallery' : 'music')) { mergeFeedRows(latest); return; }
     mergeFeedRows(latest);
     mediaInitialLoaded[kind] = true;
@@ -41,7 +41,7 @@ async function loadMoreFeed() {
     const offset = feedPageOffsets[kind];
     const query = kind === 'note'
       ? (noteHistoryCursor ? '/feed?kind=note&beforeId=' + encodeURIComponent(noteHistoryCursor) + '&limit=' + FEED_PAGE_SIZE : '')
-      : kind === 'all' ? '/feed?offset=' + offset : '/feed?kind=' + kind + '&offset=' + offset + (kind === 'photo' ? '&order=oldest' : '');
+      : kind === 'all' ? '/feed?offset=' + offset : '/feed?kind=' + kind + '&offset=' + offset;
     if (!query) return;
     const older = await api(query);
     if (kind === 'note') {
@@ -355,7 +355,7 @@ function renderPhotosPage(c, pics) {
     c.innerHTML = `
       <div class="heading"><h2>Photo garden 🌷</h2><p>Little snapshots, shared with your friend.</p></div>
       <label class="primary upload-label">＋ Add photo<input data-upload="photo" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden></label>
-      <section class="photo-garden-grid" aria-label="Shared photo garden, earliest photos first">${pics.map(memoryCard).join('') || '<div class="empty">Your garden is waiting for its first photo ♡</div>'}</section>
+      <section class="photo-garden-grid" aria-label="Shared photo garden, latest photos first">${pics.map(memoryCard).join('') || '<div class="empty">Your garden is waiting for its first photo ♡</div>'}</section>
       ${historySentinelMarkup('bottom')}
     `;
 }

@@ -158,6 +158,23 @@ function syncChatReplyPreview() {
     : '';
 }
 
+function observeLatestNotePhotoLayout(thread = $('#chatThread')) {
+  thread?.__cbPhotoLayoutObserver?.disconnect();
+  if (!thread || typeof ResizeObserver !== 'function') return;
+  const observer = new ResizeObserver(() => {
+    if (page !== 'notes' || !thread.isConnected || !thread.__cbFollowingLatest) return;
+    if (thread.__cbPhotoScrollFrame) return;
+    thread.__cbPhotoScrollFrame = requestAnimationFrame(() => {
+      thread.__cbPhotoScrollFrame = 0;
+      if (page === 'notes' && thread.isConnected && thread.__cbFollowingLatest) {
+        thread.scrollTop = thread.scrollHeight;
+      }
+    });
+  });
+  thread.__cbPhotoLayoutObserver = observer;
+  thread.querySelectorAll('.chat-message-photos, .chat-message-photos img').forEach(node => observer.observe(node));
+}
+
 function renderNotesPage(options = {}) {
   startNotesIncomingPoll();
   if (!seenRelativeInterval) {
@@ -223,7 +240,14 @@ function renderNotesPage(options = {}) {
   // Keeping its message nodes mounted prevents scroll, focus and CSS animation jumps.
   const desiredThreadMarkup = olderControl + (messagesHtml || emptyMarkup);
   if (existingThread && existingThread.__cbNotesMarkup === desiredThreadMarkup) {
+    if (options.followLatest) {
+      existingThread.__cbFollowingLatest = true;
+      requestAnimationFrame(() => {
+        if (existingThread.isConnected && existingThread.__cbFollowingLatest) existingThread.scrollTop = existingThread.scrollHeight;
+      });
+    }
     syncNotesTypingIndicator();
+    observeLatestNotePhotoLayout(existingThread);
     return;
   }
 
@@ -343,6 +367,7 @@ function renderNotesPage(options = {}) {
       syncNotesSeenReceiptVisibility(existingThread);
       observeNoteSeenMessages();
       renderNotesPhotoSelection();
+      observeLatestNotePhotoLayout(existingThread);
       hydrateMedia();
     });
     return;
@@ -374,6 +399,7 @@ function renderNotesPage(options = {}) {
     if (thread) {
       thread.__cbNotesMarkup = olderControl + (messagesHtml || emptyMarkup);
       thread.__cbFollowingLatest = true;
+      syncNotesTypingIndicator();
       thread.scrollTop = thread.scrollHeight;
       if (!thread.__cbFollowLatestListener) {
         thread.addEventListener('scroll', () => {
@@ -386,6 +412,7 @@ function renderNotesPage(options = {}) {
     syncNotesSeenReceiptVisibility(thread);
     observeNoteSeenMessages();
     renderNotesPhotoSelection();
+    observeLatestNotePhotoLayout(thread);
     hydrateMedia();
   });
 }

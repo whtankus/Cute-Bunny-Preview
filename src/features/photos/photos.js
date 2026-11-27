@@ -338,8 +338,14 @@ function hydrateMedia() {
         void hydrateOneMedia(entry.target);
       }
     }), { rootMargin: page === 'gallery' ? '1400px 0px' : '500px 0px' });
-    nodes.slice(0, page === 'gallery' ? 12 : 0).forEach(node => void hydrateOneMedia(node));
-    nodes.slice(page === 'gallery' ? 12 : 0).forEach(node => mediaObserver.observe(node));
+    const prioritizedNodes = page === 'gallery'
+      ? nodes.slice(0, 12)
+      : page === 'notes'
+        ? nodes.filter(node => node.dataset.localPreview === 'true').slice(-6)
+        : [];
+    const prioritizedSet = new Set(prioritizedNodes);
+    prioritizedNodes.forEach(node => void hydrateOneMedia(node));
+    nodes.filter(node => !prioritizedSet.has(node)).forEach(node => mediaObserver.observe(node));
     if (page === 'music') warmSongSources(feed.filter(item => item.kind === 'song').slice(0, 8));
   } else nodes.forEach(node => void hydrateOneMedia(node));
 }

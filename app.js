@@ -156,7 +156,7 @@ const api = window.CuteBunnyServices.createApi({
   themes: APP_THEMES
 });
 
-function toast(msg) {
+function toast(msg, options = {}) {
   const raw = String(msg ?? '').replace(/\s+/g, ' ').trim(), lower = raw.toLowerCase();
   let message = raw;
   // Status toasts are plain text: remove decorative heart glyphs from every message.
@@ -179,7 +179,8 @@ function toast(msg) {
   t.setAttribute('aria-live', 'polite');
   t.classList.add('show');
   clearTimeout(window.cuteToast);
-  window.cuteToast = setTimeout(() => t.classList.remove('show'), 2800);
+  const duration = Math.max(1400, Math.min(6000, Number(options.duration) || 2800));
+  window.cuteToast = setTimeout(() => t.classList.remove('show'), duration);
 }
 
 function openAuth(mode = 'register') {
@@ -805,7 +806,7 @@ function go(p, options = {}) {
 
   page = p;
   updateNotificationBadge();
-  if (p !== 'notes') void markNavNotificationsSeen(p);
+  void markNavNotificationsSeen(p);
   $('#crumb').textContent = ({ home: 'Home', gallery: 'Photos', music: 'Music', notes: 'Notes', friends: 'Friends', streak: 'Streak Garden' })[p];
   document.querySelectorAll('#nav button[data-page]').forEach(b => {
     const isCurrentPage = b.dataset.page === p;

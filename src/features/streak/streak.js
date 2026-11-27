@@ -643,13 +643,17 @@ function recordStreakDailyQuest(kind, value = '') {
   if (kind === 'login') state.login = true;
   state.noteTexts = state.noteTexts.slice(-80);
   const quests = getDailyQuestRotation(dateKey);
+  const previousState = readStreakDailyQuests(dateKey);
+  const completedBefore = new Set(quests.filter(quest => quest.done(previousState)).map(quest => quest.id));
+  const newlyCompletedQuests = quests.filter(quest => !completedBefore.has(quest.id) && quest.done(state));
   const newlyCompleted = !state.badge && quests.every(quest => quest.done(state));
   if (newlyCompleted) state.badge = true;
   writeStreakDailyQuests(dateKey, state);
   quests.forEach(quest => {
     if (quest.done(state)) awardPetalReward('quest:' + dateKey + ':' + quest.id, 10);
   });
-  if (newlyCompleted) toast('Daily Bloom earned! You completed today’s three quests ♡');
+  newlyCompletedQuests.filter(quest => !newlyCompleted).forEach(quest => toast(quest.title + ' complete! +10 Petal Points', {duration: 2400}));
+  if (newlyCompleted) toast('Daily Bloom earned! Today’s chest is ready to open.', {duration: 4200});
   if (page === 'streak') renderStreakPage();
 }
 
@@ -1184,8 +1188,8 @@ function renderStreakPage() {
   const chestClaimed = Object.prototype.hasOwnProperty.call(petalRewards, 'chest:' + todayKey);
   const petalRewardsMarkup = '<div class="sg-petal-rewards" aria-label="Petal Points rewards">' +
     '<div class="sg-petal-balance"><span class="sg-petal-balance-art">' + gardenIllustration('bloom-5') + '</span><div><b>' + petalRewardBalance(petalRewards) + ' Petal Points</b><small>Earn 10 per daily quest · 25 from the daily chest</small></div></div>' +
-    '<button type="button" class="sg-petal-chest" data-claim-petal-chest' + (completedQuests !== 3 || chestClaimed ? ' disabled' : '') + '>' +
-    '<span class="sg-chest-art">' + gardenIllustration('golden-bell') + '</span> ' + (chestClaimed ? 'Chest collected today' : completedQuests === 3 ? 'Open daily chest · +25' : 'Complete 3 quests to unlock chest') + '</button>' +
+    '<button type="button" class="sg-petal-chest' + (completedQuests === 3 && !chestClaimed ? ' is-ready' : chestClaimed ? ' is-claimed' : '') + '" data-claim-petal-chest aria-live="polite" aria-label="' + (chestClaimed ? 'Daily chest collected' : completedQuests === 3 ? 'Daily chest ready to open, plus 25 Petal Points' : 'Daily chest locked until all three quests are complete') + '"' + (completedQuests !== 3 || chestClaimed ? ' disabled' : '') + '>' +
+    '<span class="sg-chest-art">' + gardenIllustration('golden-bell') + '</span> ' + (chestClaimed ? 'Chest collected today ✓' : completedQuests === 3 ? 'Chest ready · Open for +25' : 'Complete 3 quests to unlock chest') + '</button>' +
     '<small class="sg-petal-note">Your Petal Points sync to your account and stay available across your devices.</small></div>';
   const collection = readGardenCollection();
   const collectibleMarkup = '<section class="sg-collectibles"><div class="sg-section-heading"><div><h3>Little Garden Shop</h3><p>Find a tiny treasure, from everyday blooms to magical keepsakes</p></div><span class="sg-shop-sparkle" aria-hidden="true">✧</span></div><div class="sg-collectible-grid">' +
@@ -1214,7 +1218,7 @@ function renderStreakPage() {
       return '<article class="sg-daily-quest-card' + (item.done ? ' is-done' : '') + '" data-daily-quest-action="' + action + '" role="button" tabindex="0" aria-label="' + esc(item.title + '. ' + item.description + (item.done ? ' Completed.' : ' Open quest activity.')) + '">' +
         '<span class="sg-daily-quest-icon">' + gardenIllustration(item.art || item.kind || item.id) + '</span>' +
         '<div class="sg-daily-quest-copy"><div class="sg-daily-quest-title-row"><b>' + item.title + '</b>' +
-        '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '">' + (item.done ? 'Done ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
+        '<span class="sg-daily-quest-status' + (item.done ? ' is-done' : '') + '" role="status" aria-live="polite">' + (item.done ? 'Complete ✓' : item.progress + ' / ' + item.target) + '</span></div>' +
         '<p>' + item.description + '</p>' + (item.kind === 'note' && item.match ? '<div class="sg-quest-keyword-hint"><span>USE IN YOUR MESSAGE</span><b>' + (Array.isArray(item.match) ? item.match.join(' · ') : item.match) + '</b></div>' : '') + '<div class="sg-daily-quest-progress"><span style="width:' + (item.progress / item.target * 100) + '%"></span></div></div></article>';
     }).join('') +
     '</div><div class="sg-daily-quest-footer"><span>' + completedQuests + ' / 3 quests complete</span>' +

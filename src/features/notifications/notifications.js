@@ -49,7 +49,7 @@ async function showPhoneNotification(notification) {
 }
 
 function updateNotificationBadge() {
-  const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at && !(page === 'notes' && n.kind === 'note' && !/\bliked your note\b/i.test(String(n.message || '')))).length;
+  const badge = $('#notificationBadge'), count = notificationRows.filter(n => !n.read_at).length;
   badge.textContent = count > 9 ? '9+' : String(count);
   badge.classList.toggle('hidden', count === 0);
   updateNavNewDots();
@@ -70,7 +70,7 @@ function updateNavNewDots() {
 }
 
 async function markNavNotificationsSeen(targetPage) {
-  const pageKinds = { gallery: ['photo'], music: ['song'], friends: ['buddy'] };
+  const pageKinds = { gallery: ['photo'], music: ['song'], notes: ['note'], friends: ['buddy'] };
   const kinds = pageKinds[targetPage];
   if (!kinds?.length || !me) return;
   const rows = notificationRows.filter(row => !row.read_at && kinds.includes(String(row.kind || '').toLowerCase()));

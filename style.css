@@ -6872,6 +6872,8 @@ body[data-mode="dark"] .achievement-copy>small{color:#d3a5bd}
 .sg-petal-balance small,.sg-petal-note{font-size:.82rem;line-height:1.45;opacity:.8}
 .sg-petal-chest{width:100%;min-height:46px;padding:10px 14px;border:1px solid #d9a8bb;border-radius:15px;background:#f6d8e5;color:#754b62;font:inherit;font-weight:700;cursor:pointer;transition:transform .2s ease,background .2s ease}
 .sg-petal-chest:not(:disabled):hover{transform:translateY(-2px);background:#f2c8d9}
+.sg-petal-chest.is-ready{border-color:#d7c47e;background:#fff3c9;color:#75612e;box-shadow:0 4px 14px rgba(191,156,76,.16)}
+.sg-petal-chest.is-claimed{border-color:#d5e2ce;background:#eff5e9;color:#66805f}
 .sg-petal-chest:disabled{cursor:default;opacity:.7}
 .sg-petal-note{display:block}
 [data-theme="midnight"] .sg-petal-rewards,.dark .sg-petal-rewards{background:linear-gradient(140deg,rgba(98,62,91,.6),rgba(75,67,105,.6));color:inherit}
@@ -7839,7 +7841,7 @@ body[data-mode="dark"].notes-page-active.notes-header-hidden .app > header {
 /* Small glowing indicators for unseen activity in main navigation */
 .app #nav button{position:relative}
 .app #nav .nav-new-dot{position:absolute;top:5px;right:10px;width:8px;height:8px;border-radius:50%;background:#f0445e;box-shadow:0 0 0 2px rgba(253,248,241,.96),0 0 8px 2px rgba(240,68,94,.58);opacity:0;transform:scale(.55);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
-.app #nav .nav-new-dot.is-visible{opacity:1;transform:scale(1);animation:nav-new-dot-glow 2s ease-in-out infinite}
+.app #nav .nav-new-dot.is-visible{opacity:1;transform:scale(1);animation:nav-new-dot-glow 2s ease-in-out 3}
 @keyframes nav-new-dot-glow{0%,100%{box-shadow:0 0 0 2px rgba(253,248,241,.96),0 0 6px 1px rgba(240,68,94,.42)}50%{box-shadow:0 0 0 2px rgba(253,248,241,.96),0 0 11px 3px rgba(240,68,94,.72)}}
 @media(prefers-reduced-motion:reduce){.app #nav .nav-new-dot.is-visible{animation:none}}
 

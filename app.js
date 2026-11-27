@@ -4085,25 +4085,16 @@ sharedAudioElement?.addEventListener('playing', () => {
   button?.classList.remove('is-buffering', 'is-loading');
 });
 
-// Add subtle tactile feedback to primary taps when the device supports it.
+// Give every enabled button consistent visual feedback, and add light haptics
+// only on devices that expose the Vibration API.
 let lastCuteBunnyHapticAt = 0;
-document.addEventListener('pointerdown', event => {
-  const control = event.target.closest?.('#nav button[data-page], button.primary, button.round');
-  if (!control || control.disabled || event.button !== 0 || event.isPrimary === false) return;
+function showCuteBunnyButtonRipple(control, x, y) {
+  if (!control || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  control.classList.add('cb-ripple-host');
+  if (window.getComputedStyle(control).position === 'static') control.style.position = 'relative';
+  [...control.children].filter(child => child.classList.contains('cb-tap-ripple')).forEach(child => child.remove());
 
-  const now = performance.now();
-  if (typeof navigator.vibrate === 'function' && now - lastCuteBunnyHapticAt > 60) {
-    try {
-      navigator.vibrate(8);
-      lastCuteBunnyHapticAt = now;
-    } catch {}
-  }
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  control.querySelector('.cb-tap-ripple')?.remove();
   const bounds = control.getBoundingClientRect();
-  const x = event.clientX - bounds.left;
-  const y = event.clientY - bounds.top;
   const diameter = Math.ceil(Math.hypot(
     Math.max(x, bounds.width - x),
     Math.max(y, bounds.height - y)
@@ -4116,7 +4107,32 @@ document.addEventListener('pointerdown', event => {
   ripple.style.top = y + 'px';
   control.append(ripple);
   ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+}
+
+document.addEventListener('pointerdown', event => {
+  const control = event.target.closest?.('button:not([data-no-ripple])');
+  if (!control || control.disabled || control.getAttribute('aria-disabled') === 'true' || event.button !== 0 || event.isPrimary === false) return;
+
+  const now = performance.now();
+  if (typeof navigator.vibrate === 'function' && now - lastCuteBunnyHapticAt > 65) {
+    try {
+      navigator.vibrate(8);
+      lastCuteBunnyHapticAt = now;
+    } catch {}
+  }
+  const bounds = control.getBoundingClientRect();
+  showCuteBunnyButtonRipple(control, event.clientX - bounds.left, event.clientY - bounds.top);
 }, { passive: true });
+
+// Keyboard and assistive-technology activation get the same visible response,
+// centred in the control. Physical pointer taps are handled above.
+document.addEventListener('click', event => {
+  if (event.detail !== 0) return;
+  const control = event.target.closest?.('button:not([data-no-ripple])');
+  if (!control || control.disabled || control.getAttribute('aria-disabled') === 'true') return;
+  const bounds = control.getBoundingClientRect();
+  showCuteBunnyButtonRipple(control, bounds.width / 2, bounds.height / 2);
+}, true);
 
 // Restore the original PR #115 global boing feedback for every enabled button.
 document.addEventListener('click', event => {

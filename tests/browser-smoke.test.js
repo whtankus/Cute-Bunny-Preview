@@ -206,11 +206,16 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   await page.locator('#chatSend').click();
 
   const savedNote = await page.waitForFunction(() => {
-    return window.__cuteBunnyTestState.tables.memories.find(row => row.kind === 'note' && row.text === '');
+    const state = window.__cuteBunnyTestState;
+    const note = state.tables.memories.find(row => row.kind === 'note' && row.text === '');
+    const photo = state.tables.memories.find(row => row.kind === 'photo' && row.file_name === 'notes-browser.png');
+    const link = note && state.tables.note_message_photos.find(row => row.note_id === note.id && row.photo_id === photo?.id);
+    return note && photo && link ? { note, photo, link } : null;
   });
-  const note = await savedNote.jsonValue();
-  const photo = await page.evaluate(() => window.__cuteBunnyTestState.tables.memories.find(row => row.kind === 'photo' && row.file_name === 'notes-browser.png'));
-  const link = await page.evaluate(noteId => window.__cuteBunnyTestState.tables.note_message_photos.find(row => row.note_id === noteId), note.id);
+  const saved = await savedNote.jsonValue();
+  const note = saved.note;
+  const photo = saved.photo;
+  const link = saved.link;
   assert.ok(photo, 'a Photo Garden memory should be saved for the attachment');
   assert.ok(link, 'the Notes message should be linked to the saved photo');
   assert.equal(link.photo_id, photo.id);
@@ -262,7 +267,7 @@ test('Notes composer keeps its pill field and action button vertically aligned o
     assert.match(metrics.radius, /999px|50%/);
     assert.equal(metrics.sendWidth, 40);
     assert.equal(metrics.sendHeight, 40);
-    assert.ok(metrics.centerDifference < 1, 'send button should remain centred against the writing field');
+    assert.ok(metrics.centerDifference < 1, 'send button should remain centred against the writing field: ' + JSON.stringify(metrics));
     assert.equal(metrics.horizontalOverflow, false, 'Notes should not overflow narrow viewports');
     await page.context().close();
     contexts.delete(page.context());

@@ -44,7 +44,7 @@
     const room = Math.max(0, 3 - notesSelectedPhotos.length);
     if (files.length > room) window.toast?.('You can attach up to three photos ♡');
     files.slice(0, room).forEach(file => {
-      const validType = /^image\\/(jpeg|png|webp|gif)$/i.test(file.type);
+      const validType = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type);
       const validSize = file.size <= 8 * 1024 * 1024;
       if (!validType) { window.toast?.('Choose a JPG, PNG, WebP, or GIF image.'); return; }
       if (!validSize) { window.toast?.('Each photo must be under 8 MB.'); return; }

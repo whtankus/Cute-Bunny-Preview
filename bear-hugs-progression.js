@@ -261,7 +261,7 @@ function ensureLivingScene(scene) {
     ambience = document.createElement('div');
     ambience.className = 'bear-living-atmosphere';
     ambience.setAttribute('aria-hidden', 'true');
-    ambience.innerHTML = '<span class="bear-living-petal petal-one">✿</span><span class="bear-living-petal petal-two">✧</span><span class="bear-living-petal petal-three">♡</span><span class="bear-living-glow"></span>';
+    ambience.innerHTML = '<span class="bear-living-petal petal-one">✿</span><span class="bear-living-petal petal-two">✧</span><span class="bear-living-petal petal-three">♡</span><span class="bear-living-sparkle sparkle-one">✦</span><span class="bear-living-sparkle sparkle-two">✧</span><span class="bear-living-sparkle sparkle-three">✦</span><span class="bear-living-glow"></span>';
     scene.appendChild(ambience);
   }
 
@@ -1071,6 +1071,22 @@ function install() {
   ensurePicker();
   window.addEventListener('cute-bunny:bear-action', recordBearMoment);
   if (!bearAtmosphereTimer) bearAtmosphereTimer = setInterval(() => ensureLivingScene($('.couple-bears-scene')), 15 * 60 * 1000);
+
+  // A subtle pointer-following glow makes the bear scene feel responsive on desktop.
+  document.addEventListener('pointermove', event => {
+    if (event.pointerType !== 'mouse') return;
+    const scene = event.target.closest?.('#coupleBearGame .couple-bears-scene');
+    if (!scene) return;
+    const rect = scene.getBoundingClientRect();
+    scene.style.setProperty('--bear-pointer-x', ((event.clientX - rect.left) / Math.max(1, rect.width) * 100).toFixed(1) + '%');
+    scene.style.setProperty('--bear-pointer-y', ((event.clientY - rect.top) / Math.max(1, rect.height) * 100).toFixed(1) + '%');
+    scene.classList.add('has-bear-pointer');
+  }, { passive: true });
+  document.addEventListener('pointerout', event => {
+    const scene = event.target.closest?.('#coupleBearGame .couple-bears-scene');
+    if (!scene || scene.contains(event.relatedTarget)) return;
+    scene.classList.remove('has-bear-pointer');
+  }, { passive: true });
 
   // Delegate from document because the app replaces #content on every render.
   document.addEventListener('click', event => {

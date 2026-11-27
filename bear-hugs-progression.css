@@ -642,3 +642,23 @@
 #coupleBearGame .bear-moments-list article{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border-radius:11px;background:rgba(255,255,255,.48);font-size:.7rem;color:var(--cb-text)}
 #coupleBearGame .bear-moments-list button{width:29px;height:29px;border:0;border-radius:50%;background:#fff0f5;color:#bd7898;font-size:1rem;cursor:pointer}
 @media(prefers-reduced-motion:reduce){#coupleBearGame .bear-living-petal{animation:none;opacity:.25;bottom:20%}}
+
+
+/* Bearfriend polish: a responsive, softly animated world without heavy effects. */
+#coupleBearGame .couple-bears-scene{--bear-pointer-x:50%;--bear-pointer-y:44%;cursor:default;transition:box-shadow .35s ease,filter .35s ease}
+#coupleBearGame .couple-bears-scene:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.24),transparent 58%);opacity:.7;transition:opacity .35s ease}
+#coupleBearGame .couple-bears-scene.has-bear-pointer:after{background:radial-gradient(ellipse at var(--bear-pointer-x) var(--bear-pointer-y),rgba(255,255,255,.25),transparent 43%),radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.2),transparent 58%);opacity:1}
+#coupleBearGame .bear-living-glow{left:var(--bear-pointer-x,50%);top:var(--bear-pointer-y,44%);transform:translate(-50%,-50%);width:48%;height:68%;opacity:.72;transition:left .18s ease-out,top .18s ease-out,opacity .3s ease}
+#coupleBearGame .couple-bears-scene.has-bear-pointer .bear-living-glow{opacity:1}
+#coupleBearGame #bearPoseSvg{transform-origin:50% 82%;transition:transform .35s cubic-bezier(.2,.75,.25,1),filter .35s ease}
+#coupleBearGame .couple-bears-scene.has-bear-pointer #bearPoseSvg{transform:translateY(-2px) scale(1.012);filter:drop-shadow(0 8px 10px rgba(125,83,112,.12))}
+#coupleBearGame .bear-living-sparkle{position:absolute;z-index:1;pointer-events:none;color:#fff8d9;font-size:clamp(10px,1.6vw,16px);opacity:0;text-shadow:0 0 9px rgba(255,255,255,.9);animation:bearSparkleDrift 5.8s ease-in-out infinite}
+#coupleBearGame .sparkle-one{left:23%;top:22%;animation-delay:-1.2s}
+#coupleBearGame .sparkle-two{right:19%;top:34%;animation-delay:-3.7s;font-size:12px}
+#coupleBearGame .sparkle-three{left:66%;top:13%;animation-delay:-2.5s;font-size:10px}
+@keyframes bearSparkleDrift{0%,100%{transform:translate3d(0,5px,0) scale(.7) rotate(-12deg);opacity:0}35%,65%{transform:translate3d(0,-5px,0) scale(1) rotate(12deg);opacity:.78}}
+#coupleBearGame .bear-action-button{transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+#coupleBearGame .bear-action-button:hover:not(:disabled){transform:translateY(-2px);filter:saturate(1.08);box-shadow:0 7px 16px rgba(157,105,139,.14)}
+#coupleBearGame .bear-action-button:active:not(:disabled){transform:scale(.96)}
+@media(hover:none){#coupleBearGame .couple-bears-scene.has-bear-pointer #bearPoseSvg{transform:none;filter:none}}
+@media(prefers-reduced-motion:reduce){#coupleBearGame .bear-living-sparkle{animation:none;opacity:.22}#coupleBearGame #bearPoseSvg,#coupleBearGame .couple-bears-scene,#coupleBearGame .bear-living-glow{transition:none}}

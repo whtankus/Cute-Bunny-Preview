@@ -357,19 +357,17 @@
     const { data: m, error } = await sb.from('memories').select('id,owner_id,kind,storage_path').eq('id', id).single();
     fail(error);
 
-    // Removing a Notes message also removes its attached Photo Garden photos.
-    // The photo memories are shared records, so delete their storage objects too.
-    const deletedPhotoIds = [];
+    // Deleting a Notes message also deletes its attached Photo Garden memories.
     if (m.kind === 'note') {
       const { data: links, error: linksError } = await sb.from('note_message_photos')
         .select('photo_id').eq('note_id', id);
       const missingLinksTable = /note_message_photos.*(does not exist|not found|schema cache)|schema cache.*note_message_photos/i.test(linksError?.message || '');
       if (linksError && !missingLinksTable) fail(linksError);
-      const linkedPhotoIds = [...new Set((links || []).map(link => String(link.photo_id)).filter(Boolean))];
+      const photoIds = [...new Set((links || []).map(link => String(link.photo_id)).filter(Boolean))];
       let photos = [];
-      if (linkedPhotoIds.length) {
+      if (photoIds.length) {
         const { data, error: photosError } = await sb.from('memories')
-          .select('id,storage_path').in('id', linkedPhotoIds)
+          .select('id,storage_path').in('id', photoIds)
           .eq('owner_id', session.user.id).eq('kind', 'photo');
         fail(photosError);
         photos = data || [];
@@ -383,12 +381,11 @@
       fail(noteDeleteError);
       const paths = photos.map(photo => photo.storage_path).filter(Boolean);
       if (paths.length) await sb.storage.from('memories').remove(paths);
-      if (photos.length) {
-        const ids = photos.map(photo => String(photo.id));
+      const deletedPhotoIds = photos.map(photo => String(photo.id));
+      if (deletedPhotoIds.length) {
         const { error: photoDeleteError } = await sb.from('memories').delete()
-          .in('id', ids).eq('owner_id', session.user.id).eq('kind', 'photo');
+          .in('id', deletedPhotoIds).eq('owner_id', session.user.id).eq('kind', 'photo');
         fail(photoDeleteError);
-        deletedPhotoIds.push(...ids);
       }
       return { deletedNoteIds: [String(id)], deletedPhotoIds };
     }
@@ -412,8 +409,8 @@
     }
 
     if (m.storage_path) await sb.storage.from('memories').remove([m.storage_path]);
-    const { error: e } = await sb.from('memories').delete().eq('id', id);
-    fail(e);
+    const { error: deleteError } = await sb.from('memories').delete().eq('id', id);
+    fail(deleteError);
     if (emptyNoteIds.length) {
       const { error: noteDeleteError } = await sb.from('memories').delete()
         .in('id', emptyNoteIds).eq('owner_id', session.user.id).eq('kind', 'note');
@@ -422,32 +419,7 @@
     return { deletedNoteIds: emptyNoteIds, deletedPhotoIds: m.kind === 'photo' ? [String(id)] : [] };
   }
 
-  if (path === '/media' && method === 'POST') {    // that empty message too so its author and timestamp do not linger in chat.
-    const emptyNoteIds = [];
-    if (m.kind === 'photo') {
-      const { data: links, error: linksError } = await sb.from('note_message_photos').select('note_id').eq('photo_id', id);
-      const missingLinksTable = /note_message_photos.*(does not exist|not found|schema cache)|schema cache.*note_message_photos/i.test(linksError?.message || '');
-      if (linksError && !missingLinksTable) fail(linksError);
-      for (const noteId of [...new Set((links || []).map(link => String(link.note_id)))]) {
-        const [{ data: note, error: noteError }, { data: remaining, error: remainingError }] = await Promise.all([
-          sb.from('memories').select('id,text').eq('id', noteId).eq('owner_id', session.user.id).eq('kind', 'note').maybeSingle(),
-          sb.from('note_message_photos').select('photo_id').eq('note_id', noteId).neq('photo_id', id)
-        ]);
-        fail(noteError);
-        if (remainingError && !/note_message_photos.*(does not exist|not found|schema cache)|schema cache.*note_message_photos/i.test(remainingError.message || '')) fail(remainingError);
-        if (note && !String(note.text || '').trim() && !(remaining || []).length) emptyNoteIds.push(String(note.id));
-      }
-    }
-
-    if (m.storage_path) await sb.storage.from('memories').remove([m.storage_path]);
-    const { error: e } = await sb.from('memories').delete().eq('id', id);
-    fail(e);
-    if (emptyNoteIds.length) {
-      const { error: noteDeleteError } = await sb.from('memories').delete()
-        .in('id', emptyNoteIds).eq('owner_id', session.user.id).eq('kind', 'note');
-      fail(noteDeleteError);
-    }
-
+  if (path === '/media' && method === 'POST') {
     const form = body;
     let file = form.get('file');
     const kind = form.get('kind'), caption = form.get('caption') || file.name;

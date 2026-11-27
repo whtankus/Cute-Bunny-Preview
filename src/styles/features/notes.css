@@ -830,3 +830,9 @@ body[data-mode="dark"] #content .notes-new-messages {
   to {opacity:1;transform:translate(-50%,0) scale(1)}
 }
 @media(prefers-reduced-motion:reduce) {#content .notes-new-messages {animation:none!important}}
+
+/* Keep the write field visually centered while its height grows. */
+#content .chat-composer-main #chatInput {
+  transform-origin: center center;
+  transition: height .12s ease, transform .12s ease;
+}

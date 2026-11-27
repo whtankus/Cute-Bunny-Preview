@@ -3821,9 +3821,14 @@ document.addEventListener('input', event => {
   if (field.value.trim()) startNotesTyping();
   else stopNotesTyping();
   field.style.height = 'auto';
-  const nextHeight = Math.min(Math.max(field.scrollHeight, 50), 116);
+  const contentHeight = Math.ceil(field.scrollHeight);
+  const nextHeight = Math.min(Math.max(contentHeight, 50), 116);
   field.style.height = nextHeight + 'px';
-  field.style.overflowY = field.scrollHeight > 116 ? 'auto' : 'hidden';
+  // The composer is bottom-anchored; offset half the added height so the
+  // textarea grows around its center instead of appearing to stretch from an edge.
+  const centerOffset = Math.max(0, (nextHeight - 50) / 2);
+  field.style.transform = centerOffset ? `translateY(${centerOffset}px)` : '';
+  field.style.overflowY = contentHeight > 116 ? 'auto' : 'hidden';
   syncChatComposerState(field);
   syncNotesKeyboardLayout();
 });

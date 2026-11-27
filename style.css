@@ -8077,3 +8077,18 @@ body[data-mode="dark"] .sg-milestone.sg-special-heart .sg-milestone-copy b{color
 @media(prefers-reduced-motion:reduce){
   .app #nav button .nav-new-dot.is-visible{animation:none!important}
 }
+
+/* Center the empty-state icon and copy within the full notification area. */
+#notificationGate .notification-empty {
+  display: grid !important;
+  place-content: center !important;
+  justify-items: center !important;
+  align-content: center !important;
+  width: 100%;
+  min-height: 100%;
+  text-align: center !important;
+}
+#notificationGate .notification-empty > * {
+  justify-self: center !important;
+  text-align: center !important;
+}

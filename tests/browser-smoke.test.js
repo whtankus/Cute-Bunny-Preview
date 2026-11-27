@@ -179,7 +179,7 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   const mediaWarnings = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => {
-    if (/Photo could not be loaded|Using direct photo URL fallback|Persistent photo cache unavailable/i.test(message.text())) {
+    if (/Photo could not be loaded|Stored photo did not decode|Using direct photo URL fallback|Persistent photo cache unavailable/i.test(message.text())) {
       mediaWarnings.push(message.text());
     }
   });

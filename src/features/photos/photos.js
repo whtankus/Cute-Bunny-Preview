@@ -297,8 +297,9 @@ async function hydrateOneMedia(node) {
           }
           URL.revokeObjectURL(previousPreviewUrl);
         };
-        const restorePreview = () => {
+        const restorePreview = error => {
           if (!node.isConnected || node.getAttribute('src') !== url) return;
+          console.warn('Stored photo did not decode; keeping local preview:', error?.message || error);
           node.src = previousPreviewUrl;
           node.dataset.localPreview = 'true';
         };

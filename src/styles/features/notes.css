@@ -511,21 +511,25 @@ body[data-mode="dark"] #content .chat-composer #chatReplyingTo {
 
 /* Notes attachment previews, message thumbnails and unified composer. */
 #content .chat-composer-main {
-  display:flex;grid-column:1/-1;grid-row:4;align-items:center;gap:8px;min-width:0;width:100%;
-  padding:5px 6px 5px 10px;border:1px solid var(--cb-border,#ead3df);
-  border-radius:24px;background:var(--cb-surface-raised,#fffafd);
+  display:flex;grid-column:1/-1;grid-row:4;align-items:center;gap:7px;
+  min-width:0;width:calc(100% + 4px);max-width:none;box-sizing:border-box;
+  margin-inline:-2px;padding:3px 5px 3px 9px;
+  border:1px solid var(--cb-border,#ead3df);border-radius:999px;
+  background:var(--cb-surface-raised,#fffafd);
   box-shadow:0 3px 0 color-mix(in srgb,var(--cb-accent,#d78cac) 16%,transparent);
 }
 #content .chat-composer-main #chatInput {
-  flex:1 1 auto;min-width:0;width:100%;min-height:42px;max-height:120px;
-  margin:0;padding:10px 5px;border:0!important;outline:0!important;
+  flex:1 1 auto;align-self:center;min-width:0;width:100%;
+  min-height:38px;max-height:108px;box-sizing:border-box;
+  margin:0;padding:8px 5px;border:0!important;outline:0!important;
   background:transparent!important;box-shadow:none!important;resize:none;
+  line-height:1.3;
 }
 #content .chat-composer-main #chatSend,
 #content .chat-composer-main .chat-photo-picker {
-  display:inline-flex;flex:0 0 42px;align-items:center;justify-content:center;
-  width:42px;min-width:42px;height:42px;min-height:42px;padding:0;
-  border:0;border-radius:50%;line-height:1;box-shadow:none;
+  display:inline-flex;flex:0 0 38px;align-items:center;justify-content:center;
+  width:38px;min-width:38px;height:38px;min-height:38px;padding:0;
+  border:0;border-radius:50%;line-height:1;box-shadow:none;box-sizing:border-box;
 }
 #content .chat-composer-main .chat-photo-picker {color:#a96889;background:linear-gradient(145deg,#fce5ef,#eee7ff)}
 #content .chat-photo-picker svg {width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}

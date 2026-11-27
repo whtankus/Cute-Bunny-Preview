@@ -239,7 +239,9 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
 
   const message = page.locator('.chat-message[data-memory="' + note.id + '"]');
   const bubble = message.locator('.chat-bubble');
-  const sharedImage = message.locator('.chat-message-photo img');
+  const sharedPhoto = message.locator('.chat-message-photo').first();
+  const sharedImage = sharedPhoto.locator('img');
+  assert.equal(await bubble.count(), 0, 'a photo-only message should not render an empty chat bubble');
   await sharedImage.waitFor({ state: 'attached' });
   const visiblePhoto = await page.waitForFunction(noteId => {
     const image = document.querySelector('.chat-message[data-memory="' + noteId + '"] .chat-message-photo img');
@@ -254,8 +256,13 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
     assert.ok(mediaWarnings.some(message => /Stored photo did not decode/.test(message)),
       'the local preview should only be retained when the stored image cannot decode');
   }
-  assert.equal(await bubble.evaluate(node => node.classList.contains('no-heart-reaction')), true, 'photo-only messages should not show a photo-like indicator');
-  assert.equal(await bubble.locator('.memory-heart-toggle').count(), 0, 'photo attachments should not display a heart indicator');
+  assert.equal(await message.locator('.memory-heart-toggle').count(), 0, 'photo attachments should not display a heart indicator');
+  const photoShape = await sharedPhoto.evaluate(node => ({
+    radius: getComputedStyle(node).borderRadius,
+    shadow: getComputedStyle(node).boxShadow
+  }));
+  assert.match(photoShape.radius, /22px/);
+  assert.notEqual(photoShape.shadow, 'none', 'shared photos should have a raised 3D card shadow');
   const photoMotion = await sharedImage.evaluate(image => {
     const style = getComputedStyle(image);
     return { name: style.animationName, duration: style.animationDuration };
@@ -269,16 +276,42 @@ test('Notes photos validate, remove, send as a photo-only message, and remain re
   });
   assert.equal(nativeMenuPrevented, true, 'Notes photos should suppress the browser image context menu');
 
-  const bounds = await bubble.boundingBox();
-  await page.mouse.move(bounds.x + 4, bounds.y + 4);
+  const bounds = await sharedPhoto.boundingBox();
+  await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
   await page.mouse.down();
   await page.waitForTimeout(260);
   await page.mouse.up();
-  await page.locator('.chat-actions-popup [data-chat-reply="' + note.id + '"]').click();
+  const photoReplyAction = page.locator('.chat-actions-popup.is-photo-actions [data-chat-reply="' + note.id + '"]');
+  await photoReplyAction.waitFor({ state: 'visible' });
+  assert.equal(await page.locator('.chat-actions-popup.is-photo-actions [data-chat-delete="' + note.id + '"]').count(), 1,
+    'long-pressing an own shared photo should offer Delete');
+  assert.equal(await page.locator('#photoLightbox').isVisible(), false,
+    'long-pressing a shared Notes photo should open actions, not the photo viewer');
+  await photoReplyAction.click();
   await page.locator('#chatReplyingTo').waitFor({ state: 'visible' });
   const replyText = await page.locator('#chatReplyingTo').innerText();
   assert.match(replyText, /Photo shared/, 'replying to a photo-only message should show the photo context');
   assert.match(replyText, /Replying to/, 'reply preview should identify the original sender');
+
+  await sharedPhoto.click();
+  await page.locator('#photoLightbox').waitFor({ state: 'visible' });
+  const viewerDelete = page.locator('#photoLightboxDelete');
+  assert.equal(await viewerDelete.isVisible(), true, 'the owner should see Delete when opening their shared photo');
+  assert.equal(await page.locator('#photoLightboxSave').isVisible(), false, 'the owner should not see a redundant Save action');
+  const viewerAlignment = await page.locator('#photoLightbox').evaluate(gate => {
+    const card = gate.querySelector('.photo-lightbox-card').getBoundingClientRect();
+    const image = gate.querySelector('#photoLightboxImage').getBoundingClientRect();
+    const actions = gate.querySelector('.photo-lightbox-actions').getBoundingClientRect();
+    const button = gate.querySelector('#photoLightboxDelete').getBoundingClientRect();
+    return {
+      belowImage: actions.top >= image.bottom - 1,
+      centered: Math.abs((button.left + button.width / 2) - (card.left + card.width / 2)) < 2
+    };
+  });
+  assert.equal(viewerAlignment.belowImage, true, 'Delete should appear underneath the opened photo');
+  assert.equal(viewerAlignment.centered, true, 'Delete should sit at the horizontal centre of the viewer');
+  await page.locator('#photoLightbox').click({ position: { x: 4, y: 4 } });
+  await page.locator('#photoLightbox').waitFor({ state: 'hidden' });
 });
 
 test('Notes composer keeps its pill field and action button vertically aligned on desktop and mobile', async () => {

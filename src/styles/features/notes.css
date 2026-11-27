@@ -684,3 +684,48 @@ body[data-mode="dark"] #content .chat-photo-preview-item button {border-color:#3
     will-change: auto;
   }
 }
+
+
+/* Shared Notes photos sit outside the text bubble as rounded, raised photo cards. */
+#content .chat-message-photos {
+  width: min(100%, 218px);
+  max-width: min(218px, 100%);
+  perspective: 700px;
+}
+#content .chat-message-photo {
+  position: relative;
+  border: 1px solid rgba(255,255,255,.94) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(145deg, var(--cb-surface-raised, #fffafd), var(--cb-accent-soft, #f4e3ed)) !important;
+  box-shadow:
+    0 3px 0 color-mix(in srgb, var(--cb-accent, #bc83a2) 24%, transparent),
+    0 10px 20px rgba(70,45,68,.16),
+    inset 0 1px 0 rgba(255,255,255,.9) !important;
+  transform-style: preserve-3d;
+  -webkit-tap-highlight-color: transparent;
+}
+#content .chat-message-photo img {
+  border-radius: 21px !important;
+}
+#content .chat-message-photo:active,
+#content .chat-message-photo.is-pressed {
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--cb-accent, #bc83a2) 22%, transparent),
+    0 4px 9px rgba(70,45,68,.13) !important;
+}
+.chat-actions-popup.is-photo-actions {
+  gap: 7px !important;
+  padding: 6px 7px !important;
+  border: 1px solid color-mix(in srgb, var(--cb-accent, #bc83a2) 25%, white) !important;
+  border-radius: 999px !important;
+  box-shadow: 0 8px 22px rgba(70,45,68,.2) !important;
+}
+.chat-actions-popup.is-photo-actions .chat-action-btn {
+  min-height: 32px !important;
+  padding: 7px 13px !important;
+  border-radius: 999px !important;
+  font-size: .72rem !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  #content .chat-message-photo { transform: none !important; }
+}

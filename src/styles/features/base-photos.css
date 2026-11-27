@@ -1220,3 +1220,65 @@ display:none!important
   justify-self:center!important;
 
 }
+
+
+/* Shared photo viewer: place the available Delete or Save action below the photo, centred. */
+#photoLightbox .photo-lightbox-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  max-height: calc(100dvh - 20px) !important;
+  padding: 16px 14px 18px !important;
+}
+#photoLightbox .photo-lightbox-card > #photoLightboxImage {
+  order: 1 !important;
+  display: block !important;
+  max-width: min(100%, 92vw) !important;
+  max-height: calc(100dvh - 112px) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 12px 30px rgba(51,33,52,.2), 0 2px 0 rgba(255,255,255,.75) !important;
+}
+#photoLightbox .photo-lightbox-card > .photo-lightbox-actions {
+  position: static !important;
+  order: 2 !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+#photoLightbox .photo-lightbox-actions > #photoLightboxDelete,
+#photoLightbox .photo-lightbox-actions > #photoLightboxSave {
+  display: block !important;
+  box-sizing: border-box !important;
+  flex: 0 0 96px !important;
+  width: 96px !important;
+  min-width: 96px !important;
+  max-width: 96px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  margin: 0 auto !important;
+  padding: 7px 10px !important;
+  border-radius: 999px !important;
+  text-align: center !important;
+}
+#photoLightbox .photo-lightbox-actions > #photoLightboxDelete.hidden,
+#photoLightbox .photo-lightbox-actions > #photoLightboxSave.hidden {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+@media (max-width: 520px) {
+  #photoLightbox .photo-lightbox-card > #photoLightboxImage {
+    max-width: 94vw !important;
+    max-height: calc(100dvh - 116px) !important;
+  }
+}

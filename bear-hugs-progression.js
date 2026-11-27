@@ -21,7 +21,6 @@ const getFriends = () => typeof friends !== 'undefined' && Array.isArray(friends
 const getMe = () => typeof me !== 'undefined' ? me : null;
 const getSupabase = () => typeof sb !== 'undefined' ? sb : null;
 
-let pickerReturnFocus = null;
 let selectedFriendId = localStorage.getItem(SELECTED_KEY) || '';
 let sharedPoints = 0;
 let lastSharedAction = '';
@@ -63,8 +62,8 @@ function announceSharedLevelUp(previousPoints, nextPoints) {
   const unlocked = REWARDS.filter(reward => previousPoints < reward.unlockPoints && nextPoints >= reward.unlockPoints);
   if (!unlocked.length) return;
   const names = unlocked.map(reward => reward.name).join(', ');
-  if (typeof toast === 'function') toast('New Bearfriend keepsake unlocked: ' + names + ' ♡');
-  else setStatus('New Bearfriend keepsake unlocked: ' + names + ' ♡');
+  if (typeof toast === 'function') toast('New Bear Hugs reward unlocked: ' + names + ' ♡');
+  else setStatus('New Bear Hugs reward unlocked: ' + names + ' ♡');
 }
 async function loadSharedProgress() {
   const user = getMe(), client = getSupabase();
@@ -110,7 +109,7 @@ async function loadSharedProgress() {
   if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== requestedPartnerId ||
       String(getMe()?.id || '') !== String(user.id)) return;
   if (error) {
-    console.warn('Shared Bearfriend progress could not load:', error.message || error);
+    console.warn('Shared Bear Hugs progress could not load:', error.message || error);
     setStatus('Your shared Love Meter could not load. Please try again. ♡');
     return;
   }
@@ -144,7 +143,7 @@ async function recordSharedAction(action, partnerId = selectedFriendId, actionId
     p_action_id: actionId
   });
   if (error) {
-    console.warn('Shared Bearfriend points could not be saved:', error.message || error);
+    console.warn('Shared Bear Hugs points could not be saved:', error.message || error);
     setStatus('Your bear moment was sent, but its Love Meter points could not be saved. ♡');
     return false;
   }
@@ -177,9 +176,9 @@ async function saveEquippedRewards(partnerId, pairKey, rewardIds) {
       p_reward_ids: rewardIds
     });
   } catch (error) {
-    console.warn('Shared Bearfriend equipment request failed:', error?.message || error);
+    console.warn('Shared Bear Hugs equipment request failed:', error?.message || error);
     if (sharedProgressPairKey === pairKey && String(selectedFriendId) === String(partnerId)) {
-      setStatus('Reward syncing is unavailable. Check your connection and Bearfriend database updates. ♡');
+      setStatus('Reward syncing is unavailable. Check your connection and Bear Hugs database updates. ♡');
     }
     return false;
   }
@@ -187,9 +186,9 @@ async function saveEquippedRewards(partnerId, pairKey, rewardIds) {
   // A response for a previous partner must never overwrite the active partner's UI.
   if (sharedProgressPairKey !== pairKey || String(selectedFriendId) !== String(partnerId)) return false;
   if (error) {
-    console.warn('Shared Bearfriend equipment could not be saved:', error.message || error);
+    console.warn('Shared Bear Hugs equipment could not be saved:', error.message || error);
     setStatus(/function .*set_bear_hug_equipment.*(does not exist|not found)|schema cache/i.test(error.message || '')
-      ? 'Reward syncing needs the latest Bearfriend setup update. ♡'
+      ? 'Reward syncing needs the latest Bear Hugs database migration. ♡'
       : 'Your reward could not sync to your Bearfriend. Please try again. ♡');
     return false;
   }
@@ -316,7 +315,7 @@ function updateUI() {
     careStrip = document.createElement('section');
     careStrip.id = 'bearCarePointsStrip';
     careStrip.className = 'bear-care-strip';
-    careStrip.setAttribute('aria-label', 'Shared Care Points and Bearfriend Level 1');
+    careStrip.setAttribute('aria-label', 'Shared Care Points and Bear Hugs Level 1');
   }
   const actions = $('.couple-bear-actions', root);
   if (actions) actions.insertAdjacentElement('afterend', careStrip);
@@ -325,7 +324,7 @@ function updateUI() {
   careStrip.innerHTML =
     '<div class="bear-care-strip-head">' +
       '<div class="bear-care-total"><span class="bear-care-mark" aria-hidden="true">✿</span><span><small>SHARED CARE POINTS</small><b>' + points.toLocaleString() + '</b></span></div>' +
-      '<span class="bear-care-level"><small>BEARFRIEND LEVEL</small><b>1</b></span>' +
+      '<span class="bear-care-level"><small>BEAR LEVEL</small><b>1</b></span>' +
     '</div>' +
     '<div class="bear-care-track" role="progressbar" aria-label="' + (nextReward ? 'Progress to ' + esc(nextReward.name) : 'All keepsakes unlocked') + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(progressPercent) + '"><span style="width:' + progressPercent + '%"></span></div>' +
     '<div class="bear-care-foot"><span><b class="bear-care-progress-label">' + points.toLocaleString() + ' Care Points</b></span><b>' + (nextReward ? pointsToNext.toLocaleString() + ' to next treasure' : 'All treasures collected') + '</b></div>' +
@@ -573,14 +572,6 @@ async function answerPartnerInvite(id, accept) {
   renderPickerList();
   if (accept) await chooseFriend(String(data.sender_id));
 }
-function closeBearFriendPicker() {
-  const modal = $('#bearFriendPicker');
-  if (!modal) return;
-  modal.classList.add('hidden');
-  const returnTarget = pickerReturnFocus;
-  pickerReturnFocus = null;
-  if (returnTarget?.isConnected) returnTarget.focus({ preventScroll: true });
-}
 function ensurePicker() {
   if ($('#bearFriendPicker')) return;
   const modal = document.createElement('div');
@@ -588,31 +579,9 @@ function ensurePicker() {
   modal.className = 'bear-friend-picker hidden';
   modal.innerHTML = '<section class="bear-friend-picker-card" role="dialog" aria-modal="true" aria-labelledby="bearFriendPickerTitle"><button type="button" class="bear-friend-picker-close" aria-label="Close">×</button><span class="bear-picker-art">🐻 ♡ 🐻</span><small>YOUR LITTLE BEARFRIEND SPACE</small><h3 id="bearFriendPickerTitle">Choose your Bearfriend</h3><p>Choose an accepted friend for your little bears. You can change this anytime; your choice will be remembered.</p><form class="bear-friend-search" id="bearFriendSearchForm"><input id="bearFriendSearchInput" type="search" maxlength="24" autocomplete="off" spellcheck="false" placeholder="Find a friend by username…" aria-label="Find a friend by username"><button type="submit">Find</button></form><div class="bear-friend-picker-list"><div class="bear-no-friends">Loading your requests and friends… ♡</div></div><p class="bear-picker-footnote">You can change your Bearfriend later. ♡</p></section>';
   document.body.appendChild(modal);
-  modal.addEventListener('keydown', event => {
-    if (event.key === 'Escape') {
-      event.preventDefault();
-      pendingAction = null;
-      closeBearFriendPicker();
-      return;
-    }
-    if (event.key !== 'Tab') return;
-    const focusable = [...modal.querySelectorAll('button:not(:disabled),input:not(:disabled),[href],[tabindex]:not([tabindex="-1"])')]
-      .filter(element => !element.hidden && element.getAttribute('aria-hidden') !== 'true');
-    if (!focusable.length) return;
-    const first = focusable[0], last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  });
   modal.addEventListener('click', event => {
     if (event.target === modal || event.target.closest('.bear-friend-picker-close')) {
-      pendingAction = null;
-      closeBearFriendPicker();
-      return;
+      pendingAction = null; modal.classList.add('hidden'); return;
     }
     const invite = event.target.closest('[data-bear-invite]');
     if (invite) { void sendPartnerInvite(invite.dataset.bearInvite); return; }
@@ -657,9 +626,7 @@ async function openPicker(action = null) {
   if (action) pendingAction = action;
   ensurePicker();
   const modal = $('#bearFriendPicker');
-  if (modal.classList.contains('hidden')) pickerReturnFocus = document.activeElement;
   modal.classList.remove('hidden');
-  $('.bear-friend-picker-close', modal)?.focus();
   $('.bear-friend-picker-list', modal).innerHTML = '<div class="bear-no-friends">Loading your requests and friends… ♡</div>';
   const needsFriendRefresh = !getFriends().length && !(typeof friendResults !== 'undefined' && friendResults.length) && typeof refresh === 'function';
   if (needsFriendRefresh) {
@@ -744,7 +711,7 @@ function ensureOwnChannel() {
       } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
         ownReady = false;
         finish(false);
-        console.warn('Bearfriend receive channel status:', status);
+        console.warn('Bear Hugs receive channel status:', status);
       }
     });
     setTimeout(() => finish(ownReady), 6000);
@@ -794,7 +761,7 @@ async function ensurePeerChannel(friendId) {
       } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
         peerReady = false;
         finish(false);
-        console.warn('Bearfriend send channel status:', status);
+        console.warn('Bear Hugs send channel status:', status);
       }
     });
     setTimeout(() => finish(peerReady), 6000);
@@ -814,7 +781,7 @@ async function chooseFriend(id) {
   lastBearActivityAt = Date.now();
   bearsAreAsleep = false;
   try { localStorage.setItem(SELECTED_KEY, selectedFriendId); } catch {}
-  closeBearFriendPicker();
+  $('#bearFriendPicker')?.classList.add('hidden');
   updatePartnerChip();
   setStatus('Connecting your two little bears… ♡');
   const results = await Promise.all([ensureOwnChannel(), ensurePeerChannel(selectedFriendId)]);
@@ -863,7 +830,7 @@ async function sendAction(action, partnerId = selectedFriendId, actionId = creat
       clearTimeout(ackTimer);
       pendingActionAcks.delete(payload.actionId);
       resolveAcknowledgement(false);
-      console.warn('Bearfriend action was not delivered:', result);
+      console.warn('Bear Hugs action was not delivered:', result);
       setStatus('That little moment could not reach your friend. Please try again. ♡');
       return false;
     }
@@ -876,7 +843,7 @@ async function sendAction(action, partnerId = selectedFriendId, actionId = creat
     clearTimeout(ackTimer);
     pendingActionAcks.delete(payload.actionId);
     resolveAcknowledgement(false);
-    console.warn('Bearfriend action send failed:', error?.message || error);
+    console.warn('Bear Hugs action send failed:', error?.message || error);
     setStatus('That little moment could not reach your friend. Please try again. ♡');
     return false;
   }
@@ -936,7 +903,7 @@ async function sendActionAcknowledgement(actionPayload) {
       }
     });
   } catch (error) {
-    console.warn('Bearfriend acknowledgement could not be sent:', error?.message || error);
+    console.warn('Bear Hugs acknowledgement could not be sent:', error?.message || error);
   }
 }
 function flushPendingRemoteAction() {
@@ -982,16 +949,12 @@ async function runLocalAction(action) {
     try {
       const delivered = await sendAction(action, partnerId, actionId);
       if (!delivered) return;
-      const pointsSaved = await recordSharedAction(action, partnerId, actionId);
-      if (pointsSaved && String(selectedFriendId) === partnerId) {
-        const actionName = ({hug:'Hug',kiss:'Kiss',flykiss:'Flying kiss',slap:'Silly tap',hands:'Hand-hold',dance:'Dance',pet:'Pet',feed:'Snack time',sleep:'Bedtime',tummy:'Tummy scratch',idle:'Relax'})[action] || 'Moment';
-        setStatus(actionName + ' shared with your Bearfriend · +2 Care Points ♡');
-      }
+      await recordSharedAction(action, partnerId, actionId);
       // Count only actions confirmed as delivered; action IDs keep retries
       // and concurrent sends from awarding duplicate quest credit.
       window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', { detail: { action, actionId } }));
     } catch (error) {
-      console.warn('Bearfriend action could not be completed:', error?.message || error);
+      console.warn('Bear Hugs action could not be completed:', error?.message || error);
       setStatus('Your bears enjoyed the moment, but it could not reach your Bearfriend. ♡');
     }
   })();
@@ -1008,7 +971,7 @@ function ensureProgressChannel() {
     })
     .subscribe(status => {
       if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
-        console.warn('Shared Bearfriend progress updates unavailable:', status);
+        console.warn('Shared Bear Hugs progress updates unavailable:', status);
       }
     });
   progressTopic = topic;

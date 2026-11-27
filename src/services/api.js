@@ -357,6 +357,39 @@
     const { data: m, error } = await sb.from('memories').select('id,owner_id,kind,storage_path').eq('id', id).single();
     fail(error);
 
+    // Deleting a Notes message also deletes its attached Photo Garden memories.
+    if (m.kind === 'note') {
+      const { data: links, error: linksError } = await sb.from('note_message_photos')
+        .select('photo_id').eq('note_id', id);
+      const missingLinksTable = /note_message_photos.*(does not exist|not found|schema cache)|schema cache.*note_message_photos/i.test(linksError?.message || '');
+      if (linksError && !missingLinksTable) fail(linksError);
+      const photoIds = [...new Set((links || []).map(link => String(link.photo_id)).filter(Boolean))];
+      let photos = [];
+      if (photoIds.length) {
+        const { data, error: photosError } = await sb.from('memories')
+          .select('id,storage_path').in('id', photoIds)
+          .eq('owner_id', session.user.id).eq('kind', 'photo');
+        fail(photosError);
+        photos = data || [];
+      }
+      if (!missingLinksTable) {
+        const { error: linksDeleteError } = await sb.from('note_message_photos').delete().eq('note_id', id);
+        fail(linksDeleteError);
+      }
+      const { error: noteDeleteError } = await sb.from('memories').delete()
+        .eq('id', id).eq('owner_id', session.user.id).eq('kind', 'note');
+      fail(noteDeleteError);
+      const paths = photos.map(photo => photo.storage_path).filter(Boolean);
+      if (paths.length) await sb.storage.from('memories').remove(paths);
+      const deletedPhotoIds = photos.map(photo => String(photo.id));
+      if (deletedPhotoIds.length) {
+        const { error: photoDeleteError } = await sb.from('memories').delete()
+          .in('id', deletedPhotoIds).eq('owner_id', session.user.id).eq('kind', 'photo');
+        fail(photoDeleteError);
+      }
+      return { deletedNoteIds: [String(id)], deletedPhotoIds };
+    }
+
     // If a Photo Garden photo is the only content in a Notes message, remove
     // that empty message too so its author and timestamp do not linger in chat.
     const emptyNoteIds = [];
@@ -376,14 +409,14 @@
     }
 
     if (m.storage_path) await sb.storage.from('memories').remove([m.storage_path]);
-    const { error: e } = await sb.from('memories').delete().eq('id', id);
-    fail(e);
+    const { error: deleteError } = await sb.from('memories').delete().eq('id', id);
+    fail(deleteError);
     if (emptyNoteIds.length) {
       const { error: noteDeleteError } = await sb.from('memories').delete()
         .in('id', emptyNoteIds).eq('owner_id', session.user.id).eq('kind', 'note');
       fail(noteDeleteError);
     }
-    return { deletedNoteIds: emptyNoteIds };
+    return { deletedNoteIds: emptyNoteIds, deletedPhotoIds: m.kind === 'photo' ? [String(id)] : [] };
   }
 
   if (path === '/media' && method === 'POST') {

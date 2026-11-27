@@ -108,7 +108,7 @@ opacity:1;transform:scale(1)
   columns:unset!important;
   column-count:unset!important;
   column-width:auto!important;
-  gap:12px!important;
+  gap:6px!important;
   direction:ltr;
 }
 #content .photo-garden-grid>.feed-item{
@@ -120,5 +120,5 @@ opacity:1;transform:scale(1)
   -webkit-column-break-inside:auto!important;
 }
 @media(max-width:420px){
-  #content .photo-garden-grid{gap:9px!important}
+  #content .photo-garden-grid{gap:4px!important}
 }

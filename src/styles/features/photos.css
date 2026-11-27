@@ -100,25 +100,31 @@ opacity:1;transform:scale(1)
 }
 
 
-/* Keep the Photo Garden in row order: 1–2, then 3–4, then 5–6. */
+/* Use a true two-column masonry layout so short photos sit directly
+   beneath the previous photo instead of leaving grid-row-sized blank gaps. */
 #content .photo-garden-grid{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  grid-auto-flow:row!important;
-  columns:unset!important;
-  column-count:unset!important;
+  display:block!important;
+  width:100%;
+  columns:2;
+  column-count:2!important;
   column-width:auto!important;
-  gap:6px!important;
+  column-gap:6px!important;
   direction:ltr;
 }
 #content .photo-garden-grid>.feed-item{
-  display:flex!important;
-  width:auto!important;
-  margin:0!important;
-  vertical-align:initial!important;
-  break-inside:auto!important;
-  -webkit-column-break-inside:auto!important;
+  display:inline-flex!important;
+  flex-direction:column!important;
+  width:100%!important;
+  margin:0 0 6px!important;
+  vertical-align:top!important;
+  break-inside:avoid!important;
+  -webkit-column-break-inside:avoid!important;
+}
+#content .photo-garden-grid>.feed-item>.tile{
+  width:100%!important;
+  min-width:0!important;
 }
 @media(max-width:420px){
-  #content .photo-garden-grid{gap:4px!important}
+  #content .photo-garden-grid{column-gap:4px!important}
+  #content .photo-garden-grid>.feed-item{margin-bottom:4px!important}
 }

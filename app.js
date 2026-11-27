@@ -274,7 +274,7 @@ async function refresh() {
       api('/me'),
       api('/feed'),
       api('/following'),
-      api('/feed?kind=photo&limit=8').catch(error => { console.warn('Photo warm cache skipped:', error?.message || error); return null; }),
+      api('/feed?kind=photo&limit=8&order=oldest').catch(error => { console.warn('Photo warm cache skipped:', error?.message || error); return null; }),
       api('/feed?kind=song&limit=8').catch(error => { console.warn('Music warm cache skipped:', error?.message || error); return null; }),
       api('/notes/my-read-cursors').catch(error => { console.warn('Note read cursors could not be loaded:', error?.message || error); return [] }),
       api('/feed?kind=note&limit=' + FEED_PAGE_SIZE).catch(error => { console.warn('Notes history could not be loaded:', error?.message || error); return [] })
@@ -1062,7 +1062,13 @@ function render(options = {}) {
   const visibleFeed = feed.filter(x => !pendingDeleteTimers.has(String(x.id)) && !(x.kind === 'note' && hiddenNoteIds.has(String(x.id))));
   const allPics = visibleFeed.filter(x => x.kind === 'photo');
   const allSongs = visibleFeed.filter(x => x.kind === 'song');
-  const pics = page === 'gallery' ? allPics.slice(0, mediaVisibleCount.photo) : allPics;
+  const pics = page === 'gallery'
+    ? [...allPics].sort((a, b) => {
+        const aTime = Date.parse(a.createdAt || a.created_at || 0) || 0;
+        const bTime = Date.parse(b.createdAt || b.created_at || 0) || 0;
+        return aTime - bTime || (Number(a.id) || 0) - (Number(b.id) || 0);
+      }).slice(0, mediaVisibleCount.photo)
+    : allPics;
   const songs = page === 'music' ? allSongs.slice(0, mediaVisibleCount.song) : allSongs;
   const notes = visibleFeed.filter(x => x.kind === 'note');
 

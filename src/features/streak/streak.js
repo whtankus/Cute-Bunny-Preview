@@ -240,14 +240,14 @@ function getDailyQuestRotation(dateKey) {
   const elapsedDays = Number.isFinite(startDate.getTime()) && Number.isFinite(currentDate.getTime())
     ? Math.max(0, Math.floor((currentDate - startDate) / 86400000)) : 0;
   const dayIndex = elapsedDays % 20;
-  // Bearfriend missions rotate into the community slot on five days of each
+  // Bear Hugs missions rotate into the community slot on five days of each
   // 20-day cycle, keeping the daily set at three quests.
   const bearHugQuests = {
-    3: ['A warm Bearfriend moment','Give your Bearfriend two hugs.','bear-action','heart','hug',2],
+    3: ['A warm bear hug','Give your Bearfriend two hugs.','bear-action','heart','hug',2],
     7: ['A kiss for your Bearfriend','Share two kisses with your Bearfriend.','bear-action','heart','kiss',2],
     11: ['A little bear cuddle','Pet your Bearfriend three times.','bear-action','heart','pet',3],
     15: ['Dance together','Share two dances with your Bearfriend.','bear-action','heart','dance',2],
-    19: ['Three shared moments','Share any three Bearfriend actions together.','bear-action','heart',null,3]
+    19: ['Three caring moments','Share any three Bear Hugs actions together.','bear-action','heart',null,3]
   };
   const entries = [chatQuests[dayIndex], photoQuests[dayIndex], bearHugQuests[dayIndex] || communityQuests[dayIndex]];
 

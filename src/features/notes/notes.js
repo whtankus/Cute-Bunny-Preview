@@ -43,9 +43,11 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const messageCharacterCount = noteGraphemeSegmenter
     ? [...noteGraphemeSegmenter.segment(messageValue)].length
     : Array.from(messageValue).length;
+  const attachedPhotos = Array.isArray(m.photos) ? m.photos.slice(0, 3) : [];
   const messageWordCount = messageValue.trim() ? messageValue.trim().split(/\s+/u).length : 0;
-  const isShortMessage = messageWordCount < 4;
-  const hasHeartReaction = messageCharacterCount >= 6;
+  const isShortMessage = messageCharacterCount > 0 && messageWordCount < 4;
+  // Photo-only Notes messages are still first-class messages and can receive hearts.
+  const hasHeartReaction = messageCharacterCount >= 6 || attachedPhotos.length > 0;
   const heartButton = hasHeartReaction
     ? `<span class="memory-heart-toggle reaction-heart-indicator${liked ? ' is-lit' : ''}" aria-hidden="true"><span class="heart-wallpaper-fill">♥</span><span class="heart-outline-glyph">${liked ? '♥' : '♡'}</span></span>`
     : '';
@@ -53,13 +55,12 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const handle = esc(owner.username || 'friend');
   const pet = esc(owner.mascot || '🐰');
   const messageText = esc(m.text || '');
-  const attachedPhotos = Array.isArray(m.photos) ? m.photos.slice(0, 3) : [];
   const photoMarkup = attachedPhotos.length ? `<div class="chat-message-photos count-${attachedPhotos.length}" aria-label="${attachedPhotos.length} attached photo${attachedPhotos.length === 1 ? '' : 's'}">${attachedPhotos.map((photo, index) => {
     const photoId = String(photo.id || '');
     const source = photo.previewUrl || '';
     const storagePath = photo.storagePath || photo.storage_path || '';
     const contentType = photo.contentType || photo.content_type || '';
-    return `<button class="chat-message-photo" type="button" data-chat-open-photo="${esc(photoId)}" aria-label="Open shared photo ${index + 1}"><img loading="lazy" decoding="async" alt="Shared photo ${index + 1}" ${storagePath ? `data-media="${esc(photoId)}" data-storage-path="${esc(storagePath)}" data-content-type="${esc(contentType)}"` : ''} ${source ? `src="${esc(source)}"` : ''} draggable="false"></button>`;
+    return `<button class="chat-message-photo" type="button" data-chat-open-photo="${esc(photoId)}" aria-label="Open shared photo ${index + 1}"><img loading="lazy" decoding="async" alt="Shared photo ${index + 1}" ${storagePath ? `data-media="${esc(photoId)}" data-storage-path="${esc(storagePath)}" data-content-type="${esc(contentType)}" ${source ? 'data-local-preview="true"' : ''}` : ''} ${source ? `src="${esc(source)}"` : ''} draggable="false"></button>`;
   }).join('')}</div>` : '';
   const createdAt = m.createdAt || m.created_at || '';
   const time = esc(formatNoteClock(createdAt));
@@ -80,7 +81,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const replyTarget = m.reply_to_id ? feed.find(item => String(item.id) === String(m.reply_to_id)) : null;
   const replyAuthor = replyTarget?.author?.displayName || replyTarget?.author?.display_name || replyTarget?.author?.username || 'Original message';
   const replyText = replyTarget?.text || (replyTarget?.photos?.length ? 'Photo shared' : 'This message is no longer available');
-  const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote"><span class="chat-reply-preview-text">${esc(replyText)}</span></span></button>` : '';
+  const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote"><span class="chat-reply-preview-text"><b>${esc(replyAuthor)}</b> · ${esc(replyText)}</span></span></button>` : '';
 
   return `
     <div class="chat-message ${mine ? 'is-mine' : 'is-friend'}${liked ? ' is-loved' : ''}${m.isPending ? ' is-uploading' : ''}${isContinuation ? ' is-continuation' : ''}" data-kind="note" data-memory="${esc(id)}" data-owner="${esc(ownerId)}" data-like-count="${Number(m.like_count) || 0}" data-reaction-count="${Array.isArray(m.reactions) ? m.reactions.length : 0}">
@@ -120,7 +121,7 @@ function memoryCard(m, options = {}) {
 
   let body = '';
   if (m.kind === 'photo') {
-    body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo is-loading" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}"` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div></div>`;
+    body = `<div class="tile${liked}">${heartButton}<div class="photo-frame"><img class="feed-photo is-loading" loading="lazy" decoding="async" data-media="${esc(m.id)}" ${m.previewUrl ? `src="${esc(m.previewUrl)}" ${m.storagePath ? 'data-local-preview="true"' : ''}` : ""} alt="Shared photo" role="button" tabindex="0" aria-label="Open full photo" draggable="false"></div></div>`;
   } else if (m.kind === 'song') {
     const songAction = m.isPending ? '' : mine
       ? `<button class="song-download card-song-save card-song-delete" type="button" data-memory-delete="${esc(m.id)}" aria-label="Delete song">Delete</button>`
@@ -148,8 +149,10 @@ function syncChatReplyPreview() {
   const isMine = !!item && replyOwnerId === String(me?.id || '');
   preview.classList.toggle('is-mine', isMine);
   preview.classList.toggle('is-friend', !!item && !isMine);
+  const replyAuthor = item?.author?.displayName || item?.author?.display_name || item?.author?.username || 'Original message';
+  const replyExcerpt = item?.text || (item?.photos?.length ? 'Photo shared' : 'Message unavailable');
   preview.innerHTML = item
-    ? `<div class="chat-replying-content"><span class="chat-replying-message">${esc(item.text || 'Message unavailable')}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
+    ? `<div class="chat-replying-content"><small class="chat-replying-author">Replying to ${esc(replyAuthor)}</small><span class="chat-replying-message">${esc(replyExcerpt)}</span></div><button type="button" data-chat-reply-cancel aria-label="Cancel reply">×</button>`
     : '';
 }
 

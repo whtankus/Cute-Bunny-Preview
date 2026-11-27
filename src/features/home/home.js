@@ -31,31 +31,9 @@ function getCuteBunnySeason(date = new Date()) {
   return { id: 'autumn', label: 'Autumn memories', greeting: 'Collect the golden moments', icon: '🍂' };
 }
 
-function renderHomePersonalPanel(visibleFeed, notes, pics, songs) {
-  const season = getCuteBunnySeason();
-  document.body.dataset.season = season.id;
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const displayName = String(me?.display_name || me?.username || 'friend').trim().split(/\s+/)[0];
-  const streak = Math.max(0, Number(me?.login_streak) || 0);
-  const activityCount = (visibleFeed?.length || 0) + (notes?.length || 0);
-  return `<section class="home-personal-panel" aria-label="Your personal dashboard">
-    <div class="home-personal-welcome"><div><span class="home-season-kicker">${season.icon} ${esc(season.label)}</span>
-      <h2>${esc(greeting)}, ${esc(displayName)} <span aria-hidden="true">♡</span></h2><p>${esc(season.greeting)} — your little world is growing.</p></div>
-      <span class="home-personal-mascot" aria-hidden="true">${esc(me?.mascot || '🐰')}</span></div>
-    <div class="home-personal-stats">
-      <div><span aria-hidden="true">🌱</span><b>${streak}</b><small>day streak</small></div>
-      <div><span aria-hidden="true">📷</span><b>${pics?.length || 0}</b><small>photos</small></div>
-      <div><span aria-hidden="true">💌</span><b>${notes?.length || 0}</b><small>notes</small></div>
-      <div><span aria-hidden="true">🎵</span><b>${songs?.length || 0}</b><small>songs</small></div>
-    </div>
-    <div class="home-personal-foot"><span>✦ ${activityCount} little moments in your scrapbook</span><span>${friends?.length || 0} friends</span></div>
-  </section>`;
-}
-
-
 function renderHomePage(c, visibleFeed, notes, pics, songs) {
     destroyBearPoseEngine();
+    document.body.dataset.season = getCuteBunnySeason().id;
     c.innerHTML = `
       <div class="hero home-hero">
         <div>
@@ -70,7 +48,6 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
           <i>✦</i>
         </button>
       </div>
-      ${renderHomePersonalPanel(visibleFeed, notes, pics, songs)}
       <div class="daily" id="dailyCard" role="button" tabindex="0" aria-label="A little kindness for today. Tap for another reminder">
         <span class="daily-icon">🌼</span><div><small>A LITTLE KINDNESS FOR TODAY</small><p id="compliment">${esc(getKindness())}</p></div>
       </div>

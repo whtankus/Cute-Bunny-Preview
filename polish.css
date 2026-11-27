@@ -4013,3 +4013,12 @@ body[data-mode="dark"] #content .bear-name{background:rgba(54,43,58,.9);color:#e
     width:54px;height:54px;max-width:54px;max-height:54px;
   }
 }
+
+
+/* Restrained app-wide touch feedback and page entrance motion. */
+#content button:not(:disabled),#nav button,.app>header button{transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .18s ease,box-shadow .18s ease}
+@media(hover:hover){#content button:not(:disabled):hover,#nav button:hover{filter:brightness(1.025)}}
+#content button:not(:disabled):active,#nav button:active,.app>header button:active{transform:scale(.975)}
+#content>.heading,#content>.hero,#content>.home-personal-panel,#content>.daily,#content>.toolbar,#content>.grid,#content>.couple-bear-game{animation:cb-page-arrive .32s cubic-bezier(.2,.75,.25,1) both}
+@keyframes cb-page-arrive{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){#content>*{animation:none!important}}

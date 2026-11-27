@@ -195,6 +195,25 @@
       ownNoteSeenCount = latestOwnNoteId == null ? 0 : (ownReadCursors || []).filter(cursor => Number(cursor.last_read_message_id) >= Number(latestOwnNoteId)).length;
     }
 
+    const noteIds = (rows || []).filter(memory => memory.kind === 'note').map(memory => memory.id);
+    const attachedPhotosByNote = new Map();
+    if (noteIds.length) {
+      const { data: links, error: linksError } = await sb.from('note_message_photos')
+        .select('note_id,photo_id,photo:memories!note_message_photos_photo_id_fkey(id,owner_id,kind,file_name,content_type,storage_path,created_at)')
+        .in('note_id', noteIds);
+      // Keep old Notes conversations readable until the new migration is applied.
+      if (linksError && !/note_message_photos|schema cache/i.test(linksError.message || '')) fail(linksError);
+      for (const link of links || []) {
+        const photo = Array.isArray(link.photo) ? link.photo[0] : link.photo;
+        if (!photo) continue;
+        const items = attachedPhotosByNote.get(String(link.note_id)) || [];
+        items.push({
+          id: photo.id, owner_id: photo.owner_id, storagePath: photo.storage_path,
+          contentType: photo.content_type, fileName: photo.file_name, createdAt: photo.created_at
+        });
+        attachedPhotosByNote.set(String(link.note_id), items);
+      }
+    }
     const memoryIds = (rows || []).map(memory => memory.id).filter(id => id != null);
     let likeRows = [];
     if (memoryIds.length) {
@@ -239,6 +258,7 @@
         like_count: likeState.count,
         liked_by_me: likeState.likedByMe,
         reactions: reactionsByMemory.get(String(m.id)) || [],
+        photos: attachedPhotosByNote.get(String(m.id)) || [],
         is_latest_own_note: m.kind === 'note' && String(m.id) === String(latestOwnNoteId),
         seen_by_count: m.kind === 'note' && String(m.id) === String(latestOwnNoteId) ? ownNoteSeenCount : 0,
         createdAt: m.created_at,

@@ -354,12 +354,36 @@
 
   if (path.startsWith('/memories/') && method === 'DELETE') {
     const id = path.split('/').pop();
-    const { data: m, error } = await sb.from('memories').select('id,owner_id,storage_path').eq('id', id).single();
+    const { data: m, error } = await sb.from('memories').select('id,owner_id,kind,storage_path').eq('id', id).single();
     fail(error);
+
+    // If a Photo Garden photo is the only content in a Notes message, remove
+    // that empty message too so its author and timestamp do not linger in chat.
+    const emptyNoteIds = [];
+    if (m.kind === 'photo') {
+      const { data: links, error: linksError } = await sb.from('note_message_photos').select('note_id').eq('photo_id', id);
+      const missingLinksTable = /note_message_photos.*(does not exist|not found|schema cache)|schema cache.*note_message_photos/i.test(linksError?.message || '');
+      if (linksError && !missingLinksTable) fail(linksError);
+      for (const noteId of [...new Set((links || []).map(link => String(link.note_id)))]) {
+        const [{ data: note, error: noteError }, { data: remaining, error: remainingError }] = await Promise.all([
+          sb.from('memories').select('id,text').eq('id', noteId).eq('owner_id', session.user.id).eq('kind', 'note').maybeSingle(),
+          sb.from('note_message_photos').select('photo_id').eq('note_id', noteId).neq('photo_id', id)
+        ]);
+        fail(noteError);
+        if (remainingError && !/note_message_photos.*(does not exist|not found|schema cache)|schema cache.*note_message_photos/i.test(remainingError.message || '')) fail(remainingError);
+        if (note && !String(note.text || '').trim() && !(remaining || []).length) emptyNoteIds.push(String(note.id));
+      }
+    }
+
     if (m.storage_path) await sb.storage.from('memories').remove([m.storage_path]);
     const { error: e } = await sb.from('memories').delete().eq('id', id);
     fail(e);
-    return {};
+    if (emptyNoteIds.length) {
+      const { error: noteDeleteError } = await sb.from('memories').delete()
+        .in('id', emptyNoteIds).eq('owner_id', session.user.id).eq('kind', 'note');
+      fail(noteDeleteError);
+    }
+    return { deletedNoteIds: emptyNoteIds };
   }
 
   if (path === '/media' && method === 'POST') {

@@ -1,6 +1,9 @@
 /* notes feature functions; classic-script compatibility with current app state. */
 'use strict';
 
+let notesSelectedPhotos = [];
+let notesChatSendInFlight = false;
+
 function formatMessageTime(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
@@ -50,6 +53,14 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
   const handle = esc(owner.username || 'friend');
   const pet = esc(owner.mascot || '🐰');
   const messageText = esc(m.text || '');
+  const attachedPhotos = Array.isArray(m.photos) ? m.photos.slice(0, 3) : [];
+  const photoMarkup = attachedPhotos.length ? `<div class="chat-message-photos count-${attachedPhotos.length}" aria-label="${attachedPhotos.length} attached photo${attachedPhotos.length === 1 ? '' : 's'}">${attachedPhotos.map((photo, index) => {
+    const photoId = String(photo.id || '');
+    const source = photo.previewUrl || '';
+    const storagePath = photo.storagePath || photo.storage_path || '';
+    const contentType = photo.contentType || photo.content_type || '';
+    return `<button class="chat-message-photo" type="button" data-chat-open-photo="${esc(photoId)}" aria-label="Open shared photo ${index + 1}"><img loading="lazy" decoding="async" alt="Shared photo ${index + 1}" ${storagePath ? `data-media="${esc(photoId)}" data-storage-path="${esc(storagePath)}" data-content-type="${esc(contentType)}"` : ''} ${source ? `src="${esc(source)}"` : ''} draggable="false"></button>`;
+  }).join('')}</div>` : '';
   const createdAt = m.createdAt || m.created_at || '';
   const time = esc(formatNoteClock(createdAt));
   const editedLabel = m.edited_at ? '<small class="chat-edited-label">Edited</small>' : '';
@@ -68,7 +79,7 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
     : '';
   const replyTarget = m.reply_to_id ? feed.find(item => String(item.id) === String(m.reply_to_id)) : null;
   const replyAuthor = replyTarget?.author?.displayName || replyTarget?.author?.display_name || replyTarget?.author?.username || 'Original message';
-  const replyText = replyTarget?.text || 'This message is no longer available';
+  const replyText = replyTarget?.text || (replyTarget?.photos?.length ? 'Photo shared' : 'This message is no longer available');
   const replyMarkup = m.reply_to_id ? `<button type="button" class="chat-reply-preview" data-chat-jump="${esc(m.reply_to_id)}" aria-label="Jump to original message"><span class="chat-reply-preview-quote"><span class="chat-reply-preview-text">${esc(replyText)}</span></span></button>` : '';
 
   return `
@@ -81,7 +92,8 @@ function chatMessageMarkup(m, showMeta = true, isContinuation = false, showSeen 
             <div class="chat-bubble${hasHeartReaction ? '' : ' no-heart-reaction'}${isShortMessage ? ' is-short-message' : ''}" tabindex="0" data-chat-message-id="${esc(id)}" aria-label="Message from ${name}">
               ${heartButton}
               ${replyMarkup}
-              <span class="chat-message-text" dir="auto">${messageText}</span>
+              ${photoMarkup}
+              ${messageText ? `<span class="chat-message-text" dir="auto">${messageText}</span>` : ''}
             </div>
           </div>
         </div>
@@ -318,6 +330,8 @@ function renderNotesPage(options = {}) {
       syncNotesKeyboardLayout();
       syncNotesSeenReceiptVisibility(existingThread);
       observeNoteSeenMessages();
+      renderNotesPhotoSelection();
+      hydrateMedia();
     });
     return;
   }
@@ -331,8 +345,13 @@ function renderNotesPage(options = {}) {
       <form id="chatComposer" class="chat-composer" autocomplete="off">
         <div id="chatReplyingTo" class="chat-replying-to" ${replyingToMessageId ? '' : 'hidden'}></div>
         <small id="chatSeenStatus" class="chat-seen-receipt chat-seen-status" ${latestSeenAt ? 'data-seen-at="' + esc(latestSeenAt) + '"' : ''} aria-label="${esc(latestSeenLabel || "Not seen")}" ${latestHasBeenSeen ? "" : "hidden"}>${esc(latestSeenLabel)}</small>
-        <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little message…" aria-label="Write a little message"></textarea>
-        <button type="submit" class="primary" id="chatSend" aria-label="Send message" hidden>💌</button>
+        <div id="chatPhotoPreview" class="chat-photo-preview" aria-label="Selected photos" hidden></div>
+        <div class="chat-composer-main">
+          <textarea id="chatInput" class="input" maxlength="1000" rows="1" enterkeyhint="enter" inputmode="text" autocapitalize="sentences" spellcheck="true" aria-multiline="true" placeholder="Write a little love letter…" aria-label="Write a little love letter"></textarea>
+          <input id="chatPhotoInput" class="chat-photo-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple tabindex="-1" aria-hidden="true">
+          <button type="button" class="chat-photo-picker" id="chatPhotoPicker" aria-label="Choose up to three photos" title="Add photos"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"></rect><circle cx="8.5" cy="9" r="1.5"></circle><path d="m4 17 5-5 3 3 3-4 5 6"></path></svg></button>
+          <button type="submit" class="primary" id="chatSend" aria-label="Send love letter" hidden>💌</button>
+        </div>
       </form>
     </section>
   `;
@@ -347,67 +366,112 @@ function renderNotesPage(options = {}) {
     }
     syncNotesSeenReceiptVisibility(thread);
     observeNoteSeenMessages();
+    renderNotesPhotoSelection();
+    hydrateMedia();
   });
 }
 
 async function sendChatMessage() {
   const field = $('#chatInput');
-  const text = field?.value.trim();
-  if (!text) return;
+  const text = String(field?.value || '').trim();
+  const selectedPhotos = [...notesSelectedPhotos];
+  if (notesChatSendInFlight || (!text && !selectedPhotos.length)) return;
+  if (selectedPhotos.length > 3) return toast('Choose up to three photos ♡');
+
   const replyId = replyingToMessageId;
-  const tempId = 'local-note-' + Date.now();
+  const tempId = 'local-note-' + (crypto.randomUUID?.() || Date.now());
   const createdAt = new Date().toISOString();
   const optimistic = {
-    id: tempId,
-    kind: 'note',
-    text,
-    reply_to_id: replyId ? Number(replyId) : null,
-    createdAt,
-    created_at: createdAt,
-    isPending: true,
+    id: tempId, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null,
+    photos: selectedPhotos.map((photo, index) => ({ id: photo.clientPhotoId || 'local-' + index, previewUrl: photo.previewUrl })),
+    createdAt, created_at: createdAt, isPending: true,
     author: { ...me, id: me?.id, displayName: me?.displayName || me?.username, mascot: me?.mascot || '🐰' }
   };
 
+  notesChatSendInFlight = true;
   stopNotesTyping();
-  field.value = '';
-  field.style.height = '';
-  field.style.overflowY = 'hidden';
+  if (field) { field.value = ''; field.style.height = ''; field.style.overflowY = 'hidden'; }
+  notesSelectedPhotos = [];
+  renderNotesPhotoSelection();
   feed = [optimistic, ...feed];
   hideMessageActions();
   renderNotesPage({ followLatest: true });
 
-  const refocusComposer = (restoreDraft = false) => {
-    const nextField = $('#chatInput');
-    if (!nextField) return;
-    if (restoreDraft && !nextField.value) nextField.value = text;
-    nextField.focus({ preventScroll: true });
-    syncChatComposerState(nextField);
-    syncNotesKeyboardLayout();
-  };
-  refocusComposer();
-
+  let savedNote = null;
+  const uploadedPaths = [];
+  const photoMemories = [];
   try {
-    const { data: saved, error: sendError } = await sb.from('memories')
+    const { data, error } = await sb.from('memories')
       .insert({ owner_id: me.id, kind: 'note', text, reply_to_id: replyId ? Number(replyId) : null })
-      .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at')
-      .single();
-    if (sendError) throw sendError;
-    recordStreakNoteQuest(text);
-    void loadKindnessEventStatus();
+      .select('id,owner_id,kind,text,created_at,reply_to_id,edited_at').single();
+    if (error) throw error;
+    savedNote = data;
+
+    for (const photo of selectedPhotos) {
+      let file = photo.file;
+      if (!file) throw new Error('A selected photo is no longer available. Please select it again.');
+      if (typeof CuteBunnyServices?.optimizePhotoUpload === 'function') {
+        file = await CuteBunnyServices.optimizePhotoUpload(file);
+      }
+      const storagePath = me.id + '/' + crypto.randomUUID() + '/' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const { error: uploadError } = await sb.storage.from('memories').upload(storagePath, file, {
+        contentType: file.type, upsert: false
+      });
+      if (uploadError) throw uploadError;
+      uploadedPaths.push(storagePath);
+
+      const { data: savedPhoto, error: photoError } = await sb.from('memories').insert({
+        owner_id: me.id, kind: 'photo', text: file.name,
+        file_name: file.name, content_type: file.type, storage_path: storagePath
+      }).select('id,owner_id,kind,text,file_name,content_type,storage_path,created_at').single();
+      if (photoError) throw photoError;
+      photoMemories.push({
+        ...savedPhoto, createdAt: savedPhoto.created_at, fileName: savedPhoto.file_name,
+        contentType: savedPhoto.content_type, storagePath: savedPhoto.storage_path,
+        previewUrl: photo.previewUrl, author: optimistic.author
+      });
+    }
+
+    if (photoMemories.length) {
+      const { error: linkError } = await sb.from('note_message_photos').insert(
+        photoMemories.map(photo => ({ note_id: savedNote.id, photo_id: photo.id }))
+      );
+      if (linkError) throw linkError;
+    }
+
+    const record = {
+      ...savedNote, createdAt: savedNote.created_at, author: optimistic.author,
+      photos: photoMemories.map(photo => ({
+        id: photo.id, storagePath: photo.storagePath, contentType: photo.contentType,
+        fileName: photo.fileName, previewUrl: photo.previewUrl
+      }))
+    };
+    feed = feed.map(item => String(item.id) === tempId ? record : item);
+    feed = [...photoMemories, ...feed];
     if (replyingToMessageId === replyId) replyingToMessageId = null;
-    const record = { ...saved, createdAt: saved.created_at, author: optimistic.author };
-    feed = feed.map(m => String(m.id) === tempId ? record : m);
+    if (text) recordStreakNoteQuest(text);
+    void loadKindnessEventStatus();
     renderNotesPage({ followLatest: true });
-    refocusComposer();
+    hydrateMedia();
   } catch (error) {
-    feed = feed.filter(m => String(m.id) !== tempId);
+    if (savedNote?.id) await sb.from('memories').delete().eq('id', savedNote.id).catch(() => {});
+    if (photoMemories.length) {
+      await sb.from('memories').delete().in('id', photoMemories.map(photo => photo.id)).catch(() => {});
+    }
+    if (uploadedPaths.length) await sb.storage.from('memories').remove(uploadedPaths).catch(() => {});
+    feed = feed.filter(item => String(item.id) !== tempId);
     if (replyId) replyingToMessageId = replyId;
+    notesSelectedPhotos = selectedPhotos;
+    if (field) field.value = text;
     renderNotesPage({ followLatest: true });
-    refocusComposer(true);
-    toast(error.message);
+    renderNotesPhotoSelection();
+    toast((error?.message || 'Your love letter could not be sent.') + ' Your draft has been kept.');
+  } finally {
+    notesChatSendInFlight = false;
+    syncChatComposerState($('#chatInput'));
+    renderNotesPhotoSelection();
   }
 }
-
 function openNoteComposer() {
   const myLatestNote = feed.find(m => m.kind === 'note' && String(m.author?.id || m.owner_id) === String(me?.id));
   const input = $('#igNoteInput');
@@ -912,13 +976,31 @@ function syncChatComposerState(field = $('#chatInput')) {
   const composer = $('#chatComposer');
   if (!send || !composer) return;
   const hasMessage = !!field?.value.trim();
-  composer.classList.toggle('has-message', hasMessage);
-  send.hidden = !hasMessage;
-  send.disabled = !hasMessage;
-  send.setAttribute('aria-hidden', String(!hasMessage));
-  send.setAttribute('aria-label', hasMessage ? 'Send message' : 'Write a message first');
+  const hasPhotos = notesSelectedPhotos.length > 0;
+  const canSend = (hasMessage || hasPhotos) && !notesChatSendInFlight;
+  composer.classList.toggle('has-message', canSend);
+  composer.classList.toggle('has-photos', hasPhotos);
+  send.hidden = !canSend;
+  send.disabled = !canSend;
+  send.setAttribute('aria-hidden', String(!canSend));
+  send.setAttribute('aria-label', canSend ? 'Send love letter' : 'Choose a photo or write a message first');
+  const picker = $('#chatPhotoPicker');
+  if (picker) {
+    picker.hidden = canSend;
+    picker.disabled = notesChatSendInFlight || notesSelectedPhotos.length >= 3;
+  }
 }
 
+function renderNotesPhotoSelection() {
+  const host = $('#chatPhotoPreview');
+  if (!host) return;
+  host.hidden = !notesSelectedPhotos.length;
+  host.innerHTML = notesSelectedPhotos.map(photo => `<div class="chat-photo-preview-item">
+    <img src="${esc(photo.previewUrl)}" alt="Selected photo preview">
+    <button type="button" data-chat-photo-remove="${esc(photo.clientPhotoId)}" aria-label="Remove photo">×</button>
+  </div>`).join('');
+  syncChatComposerState($('#chatInput'));
+}
 function isTouchNotesViewport() {
   const touchDevice = window.matchMedia('(pointer: coarse)').matches || (navigator.maxTouchPoints || 0) > 0;
   return window.matchMedia('(max-width: 720px)').matches && touchDevice;
@@ -1027,3 +1109,8 @@ function syncNotesSeenReceiptVisibility(thread = $('#chatThread')) {
   const hasReceipt = status.getAttribute('aria-label') !== 'Not seen';
   status.hidden = !hasReceipt || distanceFromBottom > 32;
 }
+
+window.sendChatMessage = sendChatMessage;
+window.isTouchNotesViewport = isTouchNotesViewport;
+window.renderNotesPhotoSelection = renderNotesPhotoSelection;
+window.syncChatComposerState = syncChatComposerState;

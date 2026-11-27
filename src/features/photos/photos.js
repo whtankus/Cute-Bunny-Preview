@@ -99,11 +99,12 @@ function tryAutoLoadFeedHistory() {
   }
 }
 
-async function openPhotoLightbox(id) {
-  const item = feed.find(memory => String(memory.id) === String(id));
+async function openPhotoLightbox(id, fallbackItem = null) {
+  const item = feed.find(memory => String(memory.id) === String(id)) || fallbackItem;
   if (!item || item.kind !== 'photo') return;
   const gate = $('#photoLightbox'), image = $('#photoLightboxImage'), deleteButton = $('#photoLightboxDelete'), saveButton = $('#photoLightboxSave');
-  const thumb = [...document.querySelectorAll('.feed-item[data-memory]')].find(node => node.dataset.memory === String(id))?.querySelector('.feed-photo');
+  const thumb = [...document.querySelectorAll('.feed-item[data-memory]')].find(node => node.dataset.memory === String(id))?.querySelector('.feed-photo')
+    || [...document.querySelectorAll('[data-chat-open-photo]')].find(node => node.dataset.chatOpenPhoto === String(id))?.querySelector('img');
   const isOwnPhoto = String(item.author?.id || item.owner_id || '') === String(me?.id || '');
   const canDelete = isOwnPhoto && !item.isPending;
   gate.dataset.memoryId = String(id);
@@ -113,7 +114,7 @@ async function openPhotoLightbox(id) {
   saveButton.classList.toggle('hidden', isOwnPhoto);
   saveButton.setAttribute('aria-hidden', String(isOwnPhoto));
   // Reuse the already-rendered thumbnail immediately whenever possible.
-  const visibleSource = thumb?.currentSrc || thumb?.getAttribute('src');
+  const visibleSource = thumb?.currentSrc || thumb?.getAttribute('src') || item.previewUrl || '';
   if (visibleSource) image.src = visibleSource;
   else image.removeAttribute('src');
   gate.classList.remove('hidden');
@@ -261,7 +262,10 @@ async function prewarmPhotoSources(items, concurrency = 4) {
 async function hydrateOneMedia(node) {
   if (!node || node.getAttribute('src') || node.dataset.mediaLoading === 'true') return;
   try {
-    const memory = feed.find(item => String(item.id) === String(node.dataset.media));
+    const memory = feed.find(item => String(item.id) === String(node.dataset.media)) || (node.dataset.storagePath ? {
+      id: node.dataset.media, storagePath: node.dataset.storagePath,
+      contentType: node.dataset.contentType || ''
+    } : null);
     if (!memory?.storagePath || memory.isPending) return;
     node.dataset.mediaLoading = 'true';
     if (node.loading !== 'eager') node.loading = 'lazy';

@@ -279,3 +279,41 @@ test('Supabase data access is provided by an injected service instead of being e
   assert.match(html, /src="src\/services\/api\.js"/);
   assert.ok(html.indexOf('src/services/api.js') < html.indexOf('src="app.js'));
 });
+
+
+test('Notes love-letter composer supports up to three photos and image-only messages', () => {
+  const notes = read('src/features/notes/notes.js');
+  const events = read('src/features/notes/chat-events.js');
+  const styles = read('src/styles/features/notes.css');
+  assert.ok(notes.includes('id="chatPhotoInput"'));
+  assert.ok(notes.includes('id="chatPhotoPicker"'));
+  assert.ok(notes.includes('id="chatPhotoPreview"'));
+  assert.ok(notes.includes('attachedPhotos'));
+  assert.ok(notes.includes('photos: selectedPhotos.map'));
+  assert.ok(notes.includes('(!text && !selectedPhotos.length)'));
+  assert.ok(notes.includes("kind: 'photo'"));
+  assert.ok(events.includes('3 - notesSelectedPhotos.length'));
+  assert.ok(events.includes('URL.createObjectURL'));
+  assert.ok(styles.includes('chat-message-photos'));
+  assert.ok(styles.includes('chat-composer-main'));
+});
+
+test('Notes photo attachments persist through the RLS-protected Photo Garden link table', () => {
+  const service = read('src/services/api.js');
+  const schema = read('supabase/schema.sql');
+  const migration = read('supabase/migrations/202611270001_notes_message_photo_attachments.sql');
+  assert.ok(service.includes("from('note_message_photos')"));
+  assert.ok(service.includes('attachedPhotosByNote'));
+  assert.ok(schema.includes('create table if not exists public.note_message_photos'));
+  assert.ok(migration.includes('enable row level security'));
+  assert.ok(migration.includes('Attach own photo to own note'));
+});
+
+test('photo-sharing Notes messages retain the existing swipe-to-reply target', () => {
+  const notes = read('src/features/notes/notes.js');
+  const gestures = read('swipe-gestures.js');
+  assert.ok(notes.includes('data-chat-message-id="${esc(id)}"'));
+  assert.ok(notes.includes('reply_to_id: replyId'));
+  assert.ok(gestures.includes('.chat-message .chat-bubble[data-chat-message-id]'));
+  assert.ok(gestures.includes('replyingToMessageId = messageId'));
+});

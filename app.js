@@ -2626,7 +2626,8 @@ function triggerBearAction(action, options = {}) {
     bump: 'A tiny, gentle bear head bump. ♡'
   };
   scene.dataset.action = action;
-  bearPoseEngine?.play(action, bearActorIndex(options.gender || me?.gender));
+  if (window.BearfriendHome?.runLocalAction) window.BearfriendHome.runLocalAction(action, bearActorIndex(options.gender || me?.gender));
+  else bearPoseEngine?.play(action, bearActorIndex(options.gender || me?.gender));
   const status = $('#coupleBearStatus');
   if (status) status.textContent = messages[action] || 'Two little bears, one big love.';
   document.querySelectorAll('#coupleBearGame [data-couple-action]').forEach(button => {

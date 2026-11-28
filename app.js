@@ -2362,6 +2362,7 @@ function updateBearLoveMeter() {
 // Bear Hugs articulated SVG animation engine — embedded in the existing Home experience.
 let bearPoseEngine = null;
 function destroyBearPoseEngine() {
+  window.destroyBearfriendWorld?.();
   if (bearPoseEngine) {
     bearPoseEngine.destroy();
     bearPoseEngine = null;

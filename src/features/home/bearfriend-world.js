@@ -22,6 +22,18 @@
   const WEATHER_LABELS = { clear: '☀️ Clear', rain: '🌧️ Rain', snow: '❄️ Snow' };
   const active = new Map();
 
+  // Register before the Bear Hugs progression listener: a completed drag is
+  // movement, not a tap, so it must not accidentally send an extra pet action.
+  document.addEventListener('click', event => {
+    const bunny = event.target.closest?.('.bear-world-bunny');
+    if (!bunny) return;
+    if (Date.now() < (Number(bunny.dataset.noClickUntil) || 0)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
+  }, true);
+
   function currentTimeIndex() {
     const hour = new Date().getHours();
     return hour >= 6 && hour < 11 ? 0 : hour >= 11 && hour < 17 ? 1 : hour >= 17 && hour < 20 ? 2 : 3;
@@ -199,9 +211,43 @@
       bunny.classList.add('is-hopping');
       window.setTimeout(() => bunny.classList.remove('is-hopping'), 650);
       // A normal pointer tap produces one native click. The progression
-      // module receives that scene click and routes it through the existing
-      // accepted-partner action/acknowledgement flow. Do not synthesize a
-      // second click here, or the same cuddle would be sent twice.
+      // module routes it through the existing accepted-partner flow. A drag
+      // suppresses that synthetic click and is handled as bunny movement.
+      if (didMove) {
+        bunny.dataset.noClickUntil = String(Date.now() + 450);
+        const left = parseFloat(bunny.style.left) || 13;
+        const top = parseFloat(bunny.style.top) || 76;
+        if (left <= 5) {
+          moveRoom(controller, -1, true);
+          bunny.style.left = '86%';
+          bunny.style.top = '76%';
+        } else if (left >= 89) {
+          moveRoom(controller, 1, true);
+          bunny.style.left = '5%';
+          bunny.style.top = '76%';
+        } else {
+          const heads = [{ left: 28, top: 25 }, { left: 72, top: 25 }];
+          const target = heads
+            .map((point, index) => ({ ...point, index, distance: Math.hypot(left - point.left, top - point.top) }))
+            .sort((a, b) => a.distance - b.distance)[0];
+          if (target && Math.abs(left - target.left) < 15 && Math.abs(top - target.top) < 18) {
+            window.clearTimeout(controller.ridingTimer);
+            bunny.classList.add('is-riding');
+            bunny.style.left = target.left + '%';
+            bunny.style.top = target.top + '%';
+            controller.ridingTimer = window.setTimeout(() => {
+              const other = heads[1 - target.index];
+              bunny.style.left = other.left + '%';
+              bunny.style.top = other.top + '%';
+              controller.ridingTimer = window.setTimeout(() => {
+                bunny.classList.remove('is-riding');
+                bunny.style.left = '50%';
+                bunny.style.top = '76%';
+              }, 520);
+            }, 520);
+          }
+        }
+      }
       didMove = false;
     };
     bunny.addEventListener('pointerup', finish);
@@ -269,6 +315,7 @@
   function dispose(root, controller) {
     controller.timers.forEach(window.clearInterval);
     window.clearTimeout(controller.wanderTimer);
+    window.clearTimeout(controller.ridingTimer);
     active.delete(root);
   }
 

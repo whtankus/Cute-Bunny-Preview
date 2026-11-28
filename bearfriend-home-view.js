@@ -10,7 +10,6 @@
 (function () {
   const FRAME = "<div class=\"bfh\" data-bearfriend-home>\n  <div class=\"bfh-scene couple-bears-scene\" id=\"scene\">\n    <svg id=\"bg\" viewBox=\"90 120 420 270\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <svg id=\"bsvg\" viewBox=\"66.667 98 466.667 300\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <svg id=\"fg\" viewBox=\"90 120 420 270\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <canvas id=\"wx\"></canvas>\n    <div id=\"tint\"></div>\n    <div id=\"pops\"></div>\n  </div>";
   const ACTIONS = [["hug", "🫂", "Hug"], ["kiss", "💋", "Kiss"], ["flykiss", "😘", "Flying kiss"], ["slap", "🖐️", "Playful slap"], ["hands", "🤝", "Hold hands"], ["feed", "🍓", "Feed"], ["sleep", "🌙", "Sleep"], ["dance", "💃", "Dance"], ["pet", "🐾", "Pet"], ["tummy", "🫳", "Scratch tummy"], ["idle", "🌸", "Relax"]];
-  const ROOMS = [["living", "🛋️ Living"], ["kitchen", "🍳 Kitchen"], ["bedroom", "🛏️ Bedroom"], ["balcony", "🌆 Balcony"], ["garden", "🌷 Garden"]];
 
   function render(container) {
     if (!container) return null;
@@ -18,19 +17,12 @@
     container.innerHTML =
       FRAME +
       '<div class="bfh-controls" data-bfh-controls>' +
-        '<div class="bfh-rooms" role="group" aria-label="Rooms">' +
-          ROOMS.map(r => '<button type="button" data-room="' + r[0] + '">' + r[1] + '</button>').join('') +
-        '</div>' +
         '<div class="couple-bear-actions" id="acts" role="group" aria-label="Choose a bear action">' +
           ACTIONS.map(a => '<button type="button" class="bear-action-button" data-a="' + a[0] + '" aria-pressed="false" title="' + a[2] + '" data-couple-action="' + a[0] + '"><span aria-hidden="true">' + a[1] + '</span><b>' + a[2] + '</b></button>').join('') +
         '</div>' +
       '</div></div>';
     const root = container.querySelector('[data-bearfriend-home]');
     window.BearfriendHome.mount(root);
-    const BH = window.BearfriendHome;
-    container.querySelectorAll('[data-room]').forEach(b => {
-      b.onclick = () => BH.setScene(b.dataset.room, 'auto', 'clear');
-    });
     // Bear Hugs progression delegates [data-couple-action] clicks and invokes the app's shared action handler.
     return root;
   }

@@ -2372,13 +2372,6 @@ function initBearPoseEngine() {
   if (!svg) return;
   destroyBearPoseEngine();
   bearPoseEngine = createBearPoseEngine(svg);
-  const soundToggle = $('#bearSoundToggle');
-  if (soundToggle) {
-    const enabled = localStorage.getItem(bearSoundStorageKey) !== 'off';
-    soundToggle.setAttribute('aria-pressed', String(enabled));
-    soundToggle.textContent = enabled ? '♫ Sound on' : '♫ Sound off';
-    soundToggle.setAttribute('aria-label', enabled ? 'Mute Bearfriend sounds' : 'Enable Bearfriend sounds');
-  }
 }
 function bearActorIndex(gender) {
   return String(gender || '').toLowerCase() === 'female' ? 1 : 0;
@@ -2576,7 +2569,7 @@ function startBearRealtime() {
       .on('broadcast', { event: 'bear-action' }, ({ payload }) => {
         if (String(payload?.userId || '') === String(me?.id || '')) return;
         const action = String(payload?.action || '');
-        if (!['hug', 'kiss', 'flykiss', 'slap', 'hands', 'dance', 'pet', 'feed', 'sleep', 'tummy', 'idle'].includes(action)) return;
+        if (!['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep', 'idle'].includes(action)) return;
         triggerBearAction(action, { remote: true, gender: payload?.gender });
       })
       .subscribe(status => {
@@ -2623,9 +2616,6 @@ function triggerBearAction(action, options = {}) {
   const messages = {
     hug: 'A big, warm bear hug! ♡',
     kiss: 'A tiny kiss, sealed with a heart. 💗',
-    flykiss: 'A flying kiss is on its way! 💋',
-    slap: 'A playful little surprise! ✨',
-    tummy: 'A gentle tummy tickle! 🫳',
     hands: 'Together, paw in paw. ♡',
     dance: 'Look at them dance! Two happy little bears. ✨',
     pet: 'A gentle head pat. They love it! 🐾',
@@ -2654,9 +2644,6 @@ document.addEventListener('click', event => {
     try { localStorage.setItem(bearSoundStorageKey, next); } catch {}
     updateBearLoveMeter();
     bearPoseEngine?.setSound(next === 'on');
-    soundToggle.setAttribute('aria-pressed', String(next === 'on'));
-    soundToggle.textContent = next === 'on' ? '♫ Sound on' : '♫ Sound off';
-    soundToggle.setAttribute('aria-label', next === 'on' ? 'Mute Bearfriend sounds' : 'Enable Bearfriend sounds');
     return;
   }
   const actionButton = event.target.closest('#coupleBearGame [data-couple-action]');

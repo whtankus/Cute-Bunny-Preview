@@ -16,7 +16,6 @@ const assets = [
   'src/services/api.js',
   'src/features/notes/chat-events.js',
   'src/features/home/home.js',
-  'src/features/home/bearfriend-world.js',
   'src/features/photos/photos.js',
   'src/features/notes/notes.js',
   'src/features/music/music.js',

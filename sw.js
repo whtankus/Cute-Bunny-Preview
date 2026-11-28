@@ -1,4 +1,4 @@
-const CACHE_NAME = "cute-bunny-shell-v404";
+const CACHE_NAME = "cute-bunny-shell-v402";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -7,14 +7,13 @@ const APP_ASSETS = [
   "./button-interactions.css?v=nav-3d-depth-20261118",
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
-  "./app.js?v=44",
+  "./app.js?v=42",
   "./src/core/dom.js",
   "./src/services/supabase-client.js",
   "./src/services/media-optimizer.js",
   "./src/services/api.js",
   "./src/features/notes/chat-events.js",
   "./src/features/home/home.js",
-  "./src/features/home/bearfriend-world.js?v=20261128-world-3",
   "./src/features/photos/photos.js",
   "./src/features/notes/notes.js",
   "./src/features/music/music.js",
@@ -62,7 +61,6 @@ const SHELL_FILES = new Set([
   "api.js",
   "chat-events.js",
   "home.js",
-  "bearfriend-world.js",
   "photos.js",
   "notes.js",
   "music.js",

@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('core browser scripts parse without syntax errors', () => {
-  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/features/notes/chat-events.js', 'src/features/home/home.js', 'src/features/home/bearfriend-world.js', 'src/features/photos/photos.js', 'src/features/notes/notes.js', 'src/features/music/music.js', 'src/features/friends/friends.js', 'src/features/notifications/notifications.js', 'src/features/profile/profile.js', 'src/features/streak/streak.js', 'sw.js', 'scripts/build-preview.js']) {
+  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/features/notes/chat-events.js', 'src/features/home/home.js', 'src/features/photos/photos.js', 'src/features/notes/notes.js', 'src/features/music/music.js', 'src/features/friends/friends.js', 'src/features/notifications/notifications.js', 'src/features/profile/profile.js', 'src/features/streak/streak.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);
   }
 });
@@ -361,44 +361,4 @@ test('Notes keeps the selected preview if the stored image fails to decode', () 
   assert.match(photos, /node\.decode\(\)\.then\(releasePreview\)\.catch\(restorePreview\)/);
   assert.match(photos, /node\.dataset\.localPreview = 'true'/);
   assert.match(photos, /node\.addEventListener\('error', restorePreview/);
-});
-
-test('Bearfriend Home world keeps rooms, ambience and bunny movement integrated', () => {
-  const world = read('src/features/home/bearfriend-world.js');
-  const html = read('index.html');
-  const app = read('app.js');
-  assert.doesNotThrow(() => new vm.Script(world, { filename: 'bearfriend-world.js' }));
-  assert.ok(html.includes('src/features/home/bearfriend-world.js'));
-  assert.match(world, /6 \* 60 \* 1000/);
-  assert.match(world, /4 \* 60 \* 1000/);
-  assert.match(world, /data-world-room/);
-  assert.match(world, /is-riding/);
-  assert.match(world, /controller\.dragging/);
-  assert.match(app, /'flykiss', 'slap', 'hands', 'dance', 'pet', 'feed', 'sleep', 'tummy', 'idle'/);
-  assert.match(app, /Mute Bearfriend sounds/);
-});
-
-test('Bearfriend rooms render distinct scenery without duplicating Care Points', () => {
-  const world = read('src/features/home/bearfriend-world.js');
-  const html = read('index.html');
-  assert.match(world, /ROOM_DECOR/);
-  for (const room of ['living', 'kitchen', 'bedroom', 'balcony', 'garden']) {
-    assert.match(world, new RegExp(room + ':'));
-  }
-  assert.match(world, /bear-world-room-decor/);
-  assert.ok(html.includes('src/features/home/bearfriend-world.js'));
-});
-
-
-test('Bearfriend home world is isolated and unmounts its timers', () => {
-  const world = read('src/features/home/bearfriend-world.js');
-  const html = read('index.html');
-  assert.doesNotThrow(() => new vm.Script(world, { filename: 'bearfriend-world.js' }));
-  assert.match(world, /6 \* 60 \* 1000/);
-  assert.match(world, /4 \* 60 \* 1000/);
-  assert.match(world, /MutationObserver/);
-  assert.match(world, /function dispose\(/);
-  assert.match(world, /active\.delete\(root\)/);
-  assert.match(html, /src\/features\/home\/bearfriend-world\.js/);
-  assert.match(html, /bear-hugs-progression\.js/);
 });

@@ -5,7 +5,7 @@ const root = path.resolve(__dirname, '..');
 const requiredFiles = [
   'index.html', 'app.js', 'style.css', 'sw.js', 'manifest.webmanifest',
   'src/core/dom.js',
-  'src/features/home/home.js', 'src/features/home/bearfriend-world.js', 'src/styles/features/home.css', 'src/styles/features/base-home.css',
+  'src/features/home/home.js', 'src/styles/features/home.css', 'src/styles/features/base-home.css',
   'src/features/photos/photos.js', 'src/styles/features/photos.css', 'src/styles/features/base-photos.css',
   'src/features/notes/notes.js', 'src/styles/features/notes.css', 'src/styles/features/base-notes.css',
   'src/features/music/music.js', 'src/styles/features/music.css', 'src/styles/features/base-music.css',

@@ -363,7 +363,8 @@ test('Notes keeps the selected preview if the stored image fails to decode', () 
   assert.match(photos, /node\.addEventListener\('error', restorePreview/);
 });
 
-\ntest('Bearfriend living world rotates rooms every 6 minutes and time independently every 4 minutes', () => {
+
+test('Bearfriend living world rotates rooms every 6 minutes and time independently every 4 minutes', () => {
   const world = read('bearfriend-living-world.js');
   const styles = read('bearfriend-living-world.css');
   const html = read('index.html');

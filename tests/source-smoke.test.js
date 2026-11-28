@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('core browser scripts parse without syntax errors', () => {
-  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/features/notes/chat-events.js', 'src/features/home/home.js', 'src/features/photos/photos.js', 'src/features/notes/notes.js', 'src/features/music/music.js', 'src/features/friends/friends.js', 'src/features/notifications/notifications.js', 'src/features/profile/profile.js', 'src/features/streak/streak.js', 'sw.js', 'scripts/build-preview.js']) {
+  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/features/notes/chat-events.js', 'src/features/home/home.js', 'src/features/home/bearfriend-world.js', 'src/features/photos/photos.js', 'src/features/notes/notes.js', 'src/features/music/music.js', 'src/features/friends/friends.js', 'src/features/notifications/notifications.js', 'src/features/profile/profile.js', 'src/features/streak/streak.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);
   }
 });
@@ -25,7 +25,7 @@ test('Bear Hugs restores saved partners and keeps reward progression wired', () 
   assert.match(bear, /bear-care-milestone/);
   assert.match(styles, /bear-reward-apply:disabled/);
   assert.match(styles, /bear-visual-cap/);
-  assert.ok(html.includes('bearfriend-source-faithful-20261128'));
+  assert.ok(html.includes('native-bearfriend-20261128'));
 });
 
 test('Bear Hugs uses one fixed level and Care Point-based treasure collection', () => {

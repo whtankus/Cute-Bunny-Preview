@@ -205,7 +205,7 @@
             }
         };
         const wob = o => {
-            const g = document.querySelector('.obj[data-o="' + o + '"] .ig');
+            const g = ROOT.querySelector('.obj[data-o="' + o + '"] .ig');
             if (g) {
                 g.classList.remove('wob');
                 void g.getBoundingClientRect();
@@ -382,8 +382,8 @@
             const r = st.room;
             (OUT(r) ? $('#fg') : $('#bg')).after($('#wx'));
             $('#bg').innerHTML = '<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop id="s1" offset="0"/><stop id="s2" offset="1"/></linearGradient><radialGradient id="lg"><stop offset="0" stop-color="#ffe9a8" stop-opacity=".75"/><stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/></radialGradient></defs>' + roomSvg(r) + props(r) + edgeHints() + giftSvg();
-            $$('.plot').forEach(g => g.onclick = () => tapPlot(+g.dataset.i));
-            $$('.obj').forEach(g => g.onclick = e => {
+            $('.plot').forEach(g => g.onpointerup = e => { e.preventDefault(); e.stopPropagation(); tapPlot(+g.dataset.i); });
+            $('.obj').forEach(g => g.onpointerup = e => {
                 e.stopPropagation();
                 objTap(g.dataset.o, e);
             });
@@ -397,8 +397,8 @@
             updClock();
             const gf = $('#gift');
             if (gf)
-                gf.onclick = openGift;
-            $('#bg').onclick = e => {
+                gf.onpointerup = e => { e.preventDefault(); e.stopPropagation(); openGift(); };
+            $('#bg').onpointerup = e => {
                 if (e.target.closest('.plot,#gift,.obj') || asleep)
                     return;
                 const r = $('#bg').getBoundingClientRect(), vx = 90 + (e.clientX - r.left) / r.width * 420, vy = 120 + (e.clientY - r.top) / r.height * 270;
@@ -814,9 +814,7 @@
                 e.style.opacity = st.wx === 'clear' ? 0 : .92;
                 e.setAttribute('fill', st.wx === 'rain' ? '#aeb7c4' : '#fff');
             });
-            $('#tint').style.background = sTint({
-                morning: 'rgba(255,214,170,.05)', afternoon: 'rgba(255,214,170,.03)', evening: 'rgba(255,150,100,.08)', night: 'rgba(70,40,120,.22)'
-            }[p]);
+            $('#tint').style.background = 'transparent';
             const g = $('#glow');
             if (g)
                 g.style.opacity = n || p === 'evening' ? 1 : 0;
@@ -1047,18 +1045,25 @@
                 return;
             amT = setInterval(() => {
                 const p = phase();
-                if (st.wx === 'rain')
-                    wind(1800, .015, 1);
-                else if (st.wx === 'snow')
-                    wind(260, .009, 1.2);
+                if (st.wx === 'rain') {
+                    // Soft, low-volume rain texture rather than a sharp hiss.
+                    wind(1050, .006, 1.25);
+                    if (Math.random() < .35) tone(180 + Math.random() * 90, .025, .004);
+                }
+                else if (st.wx === 'snow') {
+                    // Quiet, low-frequency winter breeze.
+                    wind(420, .004, 1.5);
+                }
                 else if (p === 'night') {
-                    tone(4300, .06, .005);
-                    setTimeout(() => tone(4300, .06, .005), 130);
+                    // Clear-night crickets, not bird chirps.
+                    tone(3900, .035, .003);
+                    setTimeout(() => tone(4100, .035, .003), 180);
                 }
                 else if (Math.random() < .5) {
-                    const f = 2200 + Math.random() * 900;
-                    tone(f, .1, .008, f * 1.4);
-                    setTimeout(() => tone(f * 1.2, .1, .008, f * .9), 140);
+                    // Short, gentle daytime bird calls for clear weather.
+                    const f = 1900 + Math.random() * 650;
+                    tone(f, .075, .006, f * 1.18);
+                    setTimeout(() => tone(f * 1.12, .08, .005, f * .92), 125);
                 }
             }, 1000);
         }

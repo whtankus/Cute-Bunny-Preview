@@ -12,6 +12,13 @@
     balcony: { label: 'Balcony', icon: '🌙', sky: '#b9c4e7', ground: '#cdb9dc' },
     garden: { label: 'Garden', icon: '🌷', sky: '#c7e6d2', ground: '#a9d39e' }
   };
+  const ROOM_DECOR = {
+    living: '<span class="decor-a">🛋️</span><span class="decor-b">🪴</span><span class="decor-c">🖼️</span>',
+    kitchen: '<span class="decor-a">🍪</span><span class="decor-b">🫖</span><span class="decor-c">🥕</span>',
+    bedroom: '<span class="decor-a">🛏️</span><span class="decor-b">🌙</span><span class="decor-c">⭐</span>',
+    balcony: '<span class="decor-a">🔭</span><span class="decor-b">🌆</span><span class="decor-c">🪴</span>',
+    garden: '<span class="decor-a">🌷</span><span class="decor-b">🌼</span><span class="decor-c">🦋</span>'
+  };
   const TIME_ORDER = ['morning', 'afternoon', 'evening', 'night'];
   const TIME_LABELS = {
     morning: 'Morning light',
@@ -63,6 +70,17 @@
     return panel;
   }
 
+  function makeRoomDecor(scene) {
+    let decor = scene.querySelector('.bear-world-room-decor');
+    if (!decor) {
+      decor = document.createElement('div');
+      decor.className = 'bear-world-room-decor';
+      decor.setAttribute('aria-hidden', 'true');
+      scene.appendChild(decor);
+    }
+    return decor;
+  }
+
   function makeAtmosphere(scene) {
     let overlay = scene.querySelector('.bear-world-atmosphere');
     if (!overlay) {
@@ -107,12 +125,16 @@
   }
 
   function applyState(controller, announce = false) {
-    const { scene, panel, state } = controller;
+    const { scene, panel, state, decor } = controller;
     if (!scene.isConnected || !panel.isConnected) return;
     const room = ROOM_META[state.room];
     scene.dataset.bearRoom = state.room;
     scene.dataset.bearTime = state.time;
     scene.dataset.bearWeather = state.weather;
+    if (decor) {
+      decor.dataset.room = state.room;
+      decor.innerHTML = ROOM_DECOR[state.room];
+    }
     scene.style.setProperty('--bear-room-sky', room.sky);
     scene.style.setProperty('--bear-room-ground', room.ground);
     const svg = scene.querySelector('#bearPoseSvg');
@@ -276,6 +298,7 @@
     const scene = root.querySelector('.couple-bears-scene');
     if (!scene) return;
     const panel = makeControls(root);
+    const decor = makeRoomDecor(scene);
     const overlay = makeAtmosphere(scene);
     const bunny = makeBunny(scene);
     const state = {
@@ -283,7 +306,7 @@
       time: TIME_ORDER[currentTimeIndex()],
       weather: 'clear'
     };
-    const controller = { root, scene, panel, overlay, bunny, state, timers: [], wanderTimer: 0, dragging: false };
+    const controller = { root, scene, panel, overlay, decor, bunny, state, timers: [], wanderTimer: 0, dragging: false };
     active.set(root, controller);
     connectBunny(controller);
 

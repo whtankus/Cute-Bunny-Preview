@@ -72,11 +72,7 @@
   }
 
   function windowScene() {
-    return '<defs>' +
-      '<linearGradient id="bear-world-window-sky" x1="0" y1="0" x2="0" y2="1"><stop id="bear-world-sky-top" offset="0" stop-color="#8fd0f2"/><stop id="bear-world-sky-bottom" offset="1" stop-color="#e4f5ff"/></linearGradient>' +
-      '<radialGradient id="bear-world-sun-glow"><stop offset="0" stop-color="#ffe9a8" stop-opacity=".8"/><stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/></radialGradient>' +
-      '</defs>' +
-      '<rect x="252" y="149" width="96" height="92" rx="12" fill="#fff" stroke="#e8c6d4" stroke-width="4"/>' +
+    return '<rect x="252" y="149" width="96" height="92" rx="12" fill="#fff" stroke="#e8c6d4" stroke-width="4"/>' +
       '<g clip-path="url(#bear-world-window-clip)"><rect x="258" y="155" width="84" height="80" fill="url(#bear-world-window-sky)"/>' +
       '<g id="bear-world-stars" opacity="0" fill="#fff">' +
       '<circle cx="268" cy="168" r="1.5"/><circle cx="287" cy="181" r="1"/><circle cx="313" cy="165" r="1.4"/><circle cx="330" cy="190" r="1.2"/><circle cx="277" cy="216" r="1"/><circle cx="320" cy="220" r="1.5"/><circle cx="300" cy="201" r="1"/></g>' +
@@ -196,7 +192,10 @@
   function buildBackground() {
     if (!background) return;
     const room = ROOM_ORDER[roomIndex];
-    background.innerHTML = roomMarkup(room);
+    background.innerHTML = '<defs>' +
+      '<linearGradient id="bear-world-window-sky" x1="0" y1="0" x2="0" y2="1"><stop id="bear-world-sky-top" offset="0" stop-color="#8fd0f2"/><stop id="bear-world-sky-bottom" offset="1" stop-color="#e4f5ff"/></linearGradient>' +
+      '<clipPath id="bear-world-window-clip"><rect x="258" y="155" width="84" height="80" rx="8"/></clipPath>' +
+      '</defs>' + roomMarkup(room);
     background.style.opacity = "1";
     paintAtmosphere();
     updateMeta();

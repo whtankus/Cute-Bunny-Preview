@@ -377,3 +377,14 @@ test('Bearfriend Home world keeps rooms, ambience and bunny movement integrated'
   assert.match(app, /'flykiss', 'slap', 'hands', 'dance', 'pet', 'feed', 'sleep', 'tummy', 'idle'/);
   assert.match(app, /Mute Bearfriend sounds/);
 });
+
+test('Bearfriend rooms render distinct scenery without duplicating Care Points', () => {
+  const world = read('src/features/home/bearfriend-world.js');
+  const html = read('index.html');
+  assert.match(world, /ROOM_DECOR/);
+  for (const room of ['living', 'kitchen', 'bedroom', 'balcony', 'garden']) {
+    assert.match(world, new RegExp(room + ':'));
+  }
+  assert.match(world, /bear-world-room-decor/);
+  assert.ok(html.includes('src/features/home/bearfriend-world.js'));
+});

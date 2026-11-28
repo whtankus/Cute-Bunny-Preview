@@ -1,0 +1,67 @@
+/* Bearfriend environment layers — scoped to the existing Bearfriend scene. */
+#content .couple-bears-scene.bear-pose-scene{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:#e9e1f4;
+}
+#content .couple-bears-scene.bear-pose-scene #bearWorldBg,
+#content .couple-bears-scene.bear-pose-scene #bearWorldWeather,
+#content .couple-bears-scene.bear-pose-scene #bearWorldTint,
+#content .couple-bears-scene.bear-pose-scene #bearPoseSvg{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:none;
+  max-height:none;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:inherit;
+  aspect-ratio:auto;
+}
+#content .couple-bears-scene.bear-pose-scene #bearWorldBg{z-index:0;pointer-events:none;transition:opacity .28s ease}
+#content .couple-bears-scene.bear-pose-scene #bearWorldTint{z-index:1;pointer-events:none;transition:background 1.2s ease,opacity 1.2s ease}
+#content .couple-bears-scene.bear-pose-scene #bearWorldWeather{z-index:2;pointer-events:none}
+#content .couple-bears-scene.bear-pose-scene #bearPoseSvg{
+  z-index:3;
+  overflow:hidden;
+  background:transparent!important;
+  object-fit:fill;
+}
+#content .bear-world-meta{
+  display:block;
+  width:max-content;
+  max-width:100%;
+  margin:8px auto 4px;
+  padding:6px 12px;
+  border:1px solid rgba(220,185,204,.72);
+  border-radius:999px;
+  background:rgba(255,250,252,.76);
+  color:#98788d;
+  font:800 .66rem/1.2 Nunito,sans-serif;
+  letter-spacing:.035em;
+  text-align:center;
+  box-shadow:0 3px 10px rgba(120,83,108,.06);
+}
+#content .bear-world-cloud{animation:bear-world-cloud-drift 40s linear infinite alternate}
+@keyframes bear-world-cloud-drift{to{translate:26px 0}}
+#content .bear-world-twinkle{animation:bear-world-twinkle 2.4s ease-in-out infinite}
+@keyframes bear-world-twinkle{50%{opacity:.35}}
+#content .bear-world-butterfly{transform-box:fill-box;transform-origin:center;animation:bear-world-flutter 9s ease-in-out infinite}
+#content .bear-world-butterfly.second{animation-delay:-4.5s}
+@keyframes bear-world-flutter{
+  0%,100%{translate:0 0}
+  25%{translate:24px -16px}
+  50%{translate:42px 8px}
+  75%{translate:12px 20px}
+}
+@media(prefers-reduced-motion:reduce){
+  #content .bear-world-cloud,
+  #content .bear-world-twinkle,
+  #content .bear-world-butterfly{animation:none!important}
+  #content .couple-bears-scene.bear-pose-scene #bearWorldBg,
+  #content .couple-bears-scene.bear-pose-scene #bearWorldTint{transition:none}
+}

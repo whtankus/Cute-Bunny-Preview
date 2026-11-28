@@ -34,5 +34,6 @@ Use names that explain **what a file does**, not when it was created or which vi
 - `profile-settings.js` / `profile-settings.css`
 - `streak-garden.js` / `streak-garden.css`
 - `bearfriend.js` / `bearfriend.css`
+- `src/features/bearfriend/bearfriend-world.js` / `src/styles/features/bearfriend-world.css` (current environment module)
 
 Names above are conventions for future modules; they do not imply those files exist yet.

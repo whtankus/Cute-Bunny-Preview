@@ -1046,7 +1046,10 @@ function achievementGardenMarkup(items) {
 function render(options = {}) {
   const c = $('#content');
   if (!c) return;
-  if (page !== 'home') destroyBearPoseEngine();
+  if (page !== 'home') {
+    destroyBearPoseEngine();
+    window.destroyBearfriendWorld?.();
+  }
   if (sb && me) startBearRealtime();
 
   if (page === 'notes') {
@@ -2372,6 +2375,17 @@ function initBearPoseEngine() {
   if (!svg) return;
   destroyBearPoseEngine();
   bearPoseEngine = createBearPoseEngine(svg);
+  // The living-world SVG now owns the scenery. Keep the original articulated
+  // bear groups and action effects, but remove the pose engine's old backdrop.
+  const bearGroup = svg.querySelector("#bears");
+  if (bearGroup) {
+    let node = svg.firstElementChild;
+    while (node && node !== bearGroup) {
+      const next = node.nextElementSibling;
+      if (node.tagName.toLowerCase() !== "defs" && node.id !== "pil") node.remove();
+      node = next;
+    }
+  }
 }
 function bearActorIndex(gender) {
   return String(gender || '').toLowerCase() === 'female' ? 1 : 0;

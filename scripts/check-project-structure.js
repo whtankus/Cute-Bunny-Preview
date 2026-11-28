@@ -13,6 +13,7 @@ const requiredFiles = [
   'src/features/notifications/notifications.js', 'src/styles/features/notifications.css', 'src/styles/features/base-notifications.css',
   'src/features/profile/profile.js', 'src/styles/features/profile.css', 'src/styles/features/base-profile.css',
   'src/features/streak/streak.js', 'src/styles/features/streak.css', 'src/styles/features/base-streak.css',
+  'src/features/bearfriend/bearfriend-world.js', 'src/styles/features/bearfriend-world.css',
   'src/features/notes/chat-events.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/styles/tokens.css',
   'capacitor.config.json', 'scripts/build-preview.js', 'tests/source-smoke.test.js', 'tests/architecture.test.js',
   'docs/PROJECT-STRUCTURE.md', 'docs/FILE-NAMING.md', 'docs/FEATURE-MAP.md',

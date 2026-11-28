@@ -2477,11 +2477,6 @@ document.addEventListener('click', event => {
   triggerBearAction(actionButton.dataset.coupleAction);
 });
 document.addEventListener('click', event => {
-  const bear = event.target.closest('#coupleBearGame .couple-bear, #coupleBearGame #bearPoseSvg');
-  if (!bear) return;
-  triggerBearAction('pet');
-});
-document.addEventListener('click', event => {
   if (!event.target.closest('#coupleBearGame')) return;
   updateBearLoveMeter();
 }, true);

@@ -78,6 +78,23 @@ async function waitForSignedInApp(page) {
   await page.locator('#nav button[data-page="home"]').waitFor({ state: 'visible' });
 }
 
+test('Home mounts the original Bearfriend world natively and room controls work', async () => {
+  const page = await newTestPage({ authenticated: true });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+
+  await waitForSignedInApp(page);
+  await page.locator('#bearfriendWorld').waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#bearfriendHomeFrame').count(), 0);
+  assert.equal(await page.locator('#scene').count(), 1);
+  assert.equal(await page.locator('#acts .act').count(), 11);
+  assert.equal(await page.locator('#bfRoomNav button').count(), 5);
+  await page.locator('[data-bf-room="garden"]').click();
+  await page.waitForFunction(() => document.querySelector('#bfRoomStatus')?.textContent === 'Garden');
+  assert.ok(await page.locator('#bearCarePointsStrip').count(), 'shared Care Points strip should be mounted');
+  assert.deepEqual(errors, []);
+});
+
 test('welcome screen renders and opens registration', async () => {
   const page = await newTestPage();
   const errors = [];

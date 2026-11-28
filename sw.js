@@ -1,4 +1,4 @@
-const CACHE_NAME = "cute-bunny-shell-v402";
+const CACHE_NAME = "cute-bunny-shell-v403";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -38,6 +38,9 @@ const APP_ASSETS = [
   "./src/styles/features/notifications.css",
   "./src/styles/features/profile.css",
   "./src/styles/features/streak.css",
+  "./bearfriend-home.css?v=20261128-1",
+  "./bearfriend-home.js?v=20261128-1",
+  "./bear-pose-engine.js?v=20261128-1",
   "./bear-hugs-progression.css?v=bearfriend-name-only-20261127",
   "./bear-hugs-progression.js?v=bearfriend-name-only-20261127",
   "./manifest.webmanifest",
@@ -85,6 +88,9 @@ const SHELL_FILES = new Set([
   "notifications.css",
   "profile.css",
   "streak.css",
+  "bearfriend-home.css",
+  "bearfriend-home.js",
+  "bear-pose-engine.js",
   "bear-hugs-progression.css",
   "bear-hugs-progression.js",
   "sw.js",

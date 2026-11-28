@@ -66,13 +66,14 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
           <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bearfriend</h3><p>Choose how our little bears show their love.</p></div>
           <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
         </div>
-        <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears, one brown and one white">
-          <svg id="bearPoseSvg" viewBox="90 120 420 270" role="img" aria-label="Two animated bears showing affection through movement">
-            <title>Two Little Bears</title>
-          </svg>
+        <div class="couple-bears-scene bear-pose-scene bfh-scene" id="scene" data-bearfriend-home data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears in changing rooms and weather">
+          <svg id="bg" viewBox="90 120 420 270" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+          <svg id="bearPoseSvg" viewBox="66.667 98 466.667 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Two animated bears showing affection through movement"><title>Two Little Bears</title></svg>
+          <svg id="fg" viewBox="90 120 420 270" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+          <canvas id="wx" aria-hidden="true"></canvas><div id="tint" aria-hidden="true"></div><div id="pops" aria-live="polite"></div>
         </div>
         <p class="couple-bear-status" id="coupleBearStatus" aria-live="polite">Two little bears, one big love.</p>
-        <div class="couple-bear-actions" role="group" aria-label="Choose a bear action">
+        <div class="couple-bear-actions" id="acts" role="group" aria-label="Choose a bear action">
           <button type="button" class="bear-action-button" data-couple-action="hug" aria-pressed="false"><span aria-hidden="true">🫂</span><b>Hug</b></button>
           <button type="button" class="bear-action-button" data-couple-action="kiss" aria-pressed="false"><span aria-hidden="true">💋</span><b>Kiss</b></button>
           <button type="button" class="bear-action-button" data-couple-action="flykiss" aria-pressed="false"><span aria-hidden="true">😘</span><b>Flying kiss</b></button>
@@ -85,6 +86,11 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
           <button type="button" class="bear-action-button" data-couple-action="sleep" aria-pressed="false"><span aria-hidden="true">🌙</span><b>Sleep</b></button>
           <button type="button" class="bear-action-button" data-couple-action="idle" aria-pressed="false"><span aria-hidden="true">🌸</span><b>Relax</b></button>
         </div>
+        <div class="bfh-daily-tasks" aria-label="Today together">
+          <div class="bfh-daily-heading">Today together · <span id="pgt">0/5</span></div>
+          <div class="bfh-daily-track"><span id="pg"></span></div>
+          <div id="tasks"></div>
+        </div>
         <div class="couple-bear-footer">
           <div class="bear-love-meter" role="group" aria-label="Little love meter">
             <div class="bear-love-meter-copy"><span>Little love meter</span><b id="bearLoveCount">0 hugs of happiness</b></div>
@@ -94,4 +100,5 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
       </section>
     `;
     initBearPoseEngine();
+    if (window.BearfriendHome?.mount) window.BearfriendHome.mount(document.querySelector('#coupleBearGame .couple-bears-scene'));
 }

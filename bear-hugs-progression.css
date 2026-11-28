@@ -744,7 +744,7 @@
 #coupleBearGame .couple-bears-scene[data-bear-room="bedroom"]{background:linear-gradient(180deg,#e8def7,#d8c6ec)}
 #coupleBearGame .couple-bears-scene[data-bear-room="balcony"]{background:linear-gradient(180deg,#aebce5,#cbb8dc)}
 #coupleBearGame .couple-bears-scene[data-bear-room="garden"]{background:linear-gradient(180deg,#c8e8d5,#aad59e)}
-#coupleBearGame .bear-world-atmosphere{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
+#coupleBearGame .bear-world-atmosphere{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
 #coupleBearGame .bear-world-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 22%,rgba(255,255,255,.4),transparent 64%);transition:background 1s}
 #coupleBearGame .bear-world-is-evening .bear-world-glow{background:linear-gradient(130deg,rgba(255,147,104,.1),rgba(255,187,133,.25))}
 #coupleBearGame .bear-world-is-night .bear-world-glow{background:linear-gradient(180deg,rgba(28,32,94,.3),rgba(66,53,125,.18))}
@@ -787,7 +787,7 @@
 #coupleBearGame .bear-world-bunny.is-riding{box-shadow:0 0 0 5px rgba(255,232,170,.35),0 5px 13px rgba(100,77,103,.2);transform:scale(.9)}
 
 /* Bearfriend room decor: lightweight, room-specific scenery behind the animated bears. */
-#coupleBearGame .bear-world-room-decor{position:absolute;inset:0;z-index:3;overflow:hidden;pointer-events:none}
+#coupleBearGame .bear-world-room-decor{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
 #coupleBearGame .bear-world-room-decor span{position:absolute;display:grid;place-items:center;min-width:27px;min-height:27px;font-size:clamp(21px,5.2vw,31px);line-height:1;opacity:.78;filter:drop-shadow(0 3px 3px rgba(85,65,84,.16));animation:bearWorldDecorFloat 5s ease-in-out infinite}
 #coupleBearGame .bear-world-room-decor .decor-a{left:5%;bottom:9%}
 #coupleBearGame .bear-world-room-decor .decor-b{right:5%;bottom:10%;animation-delay:-2.3s}

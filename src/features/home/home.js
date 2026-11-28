@@ -66,11 +66,15 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
           <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bearfriend</h3><p>Choose how our little bears show their love.</p></div>
           <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
         </div>
-        <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears, one brown and one white">
-          <svg id="bearPoseSvg" viewBox="90 120 420 270" role="img" aria-label="Two animated bears showing affection through movement">
+        <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears in a changing, animated world">
+          <svg id="bearWorldBg" viewBox="90 120 420 270" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+          <div id="bearWorldTint" aria-hidden="true"></div>
+          <canvas id="bearWorldWeather" aria-hidden="true"></canvas>
+          <svg id="bearPoseSvg" viewBox="90 120 420 270" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Two animated bears showing affection through movement">
             <title>Two Little Bears</title>
           </svg>
         </div>
+        <p class="bear-world-meta" id="bearWorldMeta" aria-live="polite">Living room · Afternoon · Clear skies</p>
         <p class="couple-bear-status" id="coupleBearStatus" aria-live="polite">Two little bears, one big love.</p>
         <div class="couple-bear-actions" role="group" aria-label="Choose a bear action">
           <button type="button" class="bear-action-button" data-couple-action="hug" aria-pressed="false"><span aria-hidden="true">🫂</span><b>Hug</b></button>
@@ -94,4 +98,5 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
       </section>
     `;
     initBearPoseEngine();
+    window.initBearfriendWorld?.();
 }

@@ -8,7 +8,7 @@ const root = path.resolve(__dirname, '..');
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 
 test('core browser scripts parse without syntax errors', () => {
-  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/features/notes/chat-events.js', 'src/features/home/home.js', 'src/features/photos/photos.js', 'src/features/notes/notes.js', 'src/features/music/music.js', 'src/features/friends/friends.js', 'src/features/notifications/notifications.js', 'src/features/profile/profile.js', 'src/features/streak/streak.js', 'sw.js', 'scripts/build-preview.js']) {
+  for (const file of ['app.js', 'src/core/dom.js', 'src/services/supabase-client.js', 'src/services/media-optimizer.js', 'src/services/api.js', 'src/features/notes/chat-events.js', 'src/features/home/home.js', 'src/features/photos/photos.js', 'src/features/notes/notes.js', 'src/features/music/music.js', 'src/features/friends/friends.js', 'src/features/notifications/notifications.js', 'src/features/profile/profile.js', 'src/features/streak/streak.js', 'src/features/bearfriend/bearfriend-world.js', 'sw.js', 'scripts/build-preview.js']) {
     assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }), file);
   }
 });
@@ -361,4 +361,25 @@ test('Notes keeps the selected preview if the stored image fails to decode', () 
   assert.match(photos, /node\.decode\(\)\.then\(releasePreview\)\.catch\(restorePreview\)/);
   assert.match(photos, /node\.dataset\.localPreview = 'true'/);
   assert.match(photos, /node\.addEventListener\('error', restorePreview/);
+});
+
+test('Bearfriend living world stays inside the existing bear scene and pauses when inactive', () => {
+  const world = read('src/features/bearfriend/bearfriend-world.js');
+  const styles = read('src/styles/features/bearfriend-world.css');
+  const home = read('src/features/home/home.js');
+  const app = read('app.js');
+  const html = read('index.html');
+  assert.doesNotThrow(() => new vm.Script(world, { filename: 'bearfriend-world.js' }));
+  for (const room of ['living', 'kitchen', 'bedroom', 'balcony', 'garden']) assert.ok(world.includes(room));
+  assert.match(world, /6 \* 60 \* 1000/);
+  assert.match(world, /4 \* 60 \* 1000/);
+  assert.match(world, /3 \* 60 \* 1000/);
+  assert.match(world, /IntersectionObserver/);
+  assert.match(world, /document\.hidden/);
+  assert.match(world, /window\.destroyBearfriendWorld = destroy/);
+  assert.match(home, /id="bearWorldBg"/);
+  assert.match(home, /window\.initBearfriendWorld/);
+  assert.match(app, /window\.destroyBearfriendWorld/);
+  assert.match(styles, /#bearWorldWeather/);
+  assert.match(html, /src\/features\/bearfriend\/bearfriend-world\.js/);
 });

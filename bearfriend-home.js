@@ -998,3 +998,351 @@
 // ------------------------------------------------------------
 // Sound
 // ------------------------------------------------------------
+
+        let ac, nb, amT;
+        const A = () => {
+            if (!ac) {
+                ac = new (window.AudioContext || window.webkitAudioContext)();
+                nb = ac.createBuffer(1, ac.sampleRate * 1.2, ac.sampleRate);
+                const d = nb.getChannelData(0);
+                for (let i = 0; i < d.length; i++)
+                    d[i] = Math.random() * 2 - 1;
+            }
+            ac.resume();
+            return ac;
+        };
+
+        function tone(f, d, v, g) {
+            if (!st.snd)
+                return;
+            const c = A(), t = c.currentTime, o = c.createOscillator(), n = c.createGain();
+            o.frequency.setValueAtTime(f, t);
+            if (g)
+                o.frequency.exponentialRampToValueAtTime(g, t + d);
+            n.gain.setValueAtTime(.0001, t);
+            n.gain.exponentialRampToValueAtTime(v, t + .02);
+            n.gain.exponentialRampToValueAtTime(.0001, t + d);
+            o.connect(n);
+            n.connect(c.destination);
+            o.start(t);
+            o.stop(t + d + .05);
+        }
+
+        function wind(fr, v, d) {
+            const c = A(), s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+            s.buffer = nb;
+            f.type = fr > 800 ? 'bandpass' : 'lowpass';
+            f.frequency.value = fr;
+            g.gain.value = v;
+            s.connect(f);
+            f.connect(g);
+            g.connect(c.destination);
+            s.start();
+            s.stop(c.currentTime + d);
+        }
+
+        function amb() {
+            clearInterval(amT);
+            if (!st.snd)
+                return;
+            amT = setInterval(() => {
+                const p = phase();
+                if (st.wx === 'rain')
+                    wind(1800, .015, 1);
+                else if (st.wx === 'snow')
+                    wind(260, .009, 1.2);
+                else if (p === 'night') {
+                    tone(4300, .06, .005);
+                    setTimeout(() => tone(4300, .06, .005), 130);
+                }
+                else if (Math.random() < .5) {
+                    const f = 2200 + Math.random() * 900;
+                    tone(f, .1, .008, f * 1.4);
+                    setTimeout(() => tone(f * 1.2, .1, .008, f * .9), 140);
+                }
+            }, 1000);
+        }
+
+// ------------------------------------------------------------
+// Care points, tasks and progress
+// ------------------------------------------------------------
+
+        const ACTION_LIST = [
+            ['hug', '🫂', 'Hug'], ['kiss', '💋', 'Kiss'], ['flykiss', '😘', 'Flying kiss'], ['slap', '🖐️', 'Playful slap'], ['hands', '🤝', 'Hold hands'], ['dance', '💃', 'Dance'], ['pet', '🐾', 'Pet'], ['tummy', '🫳', 'Scratch tummy'], ['feed', '🍓', 'Feed'], ['sleep', '🌙', 'Sleep'], ['idle', '🌸', 'Relax']
+        ];
+        const ACTION_MAP = Object.fromEntries(ACTION_LIST.map(a => [a[0], a]));
+        const addP = n => {
+            st.petals += n;
+            carePaint();
+        };
+        const put = (s, f) => {
+            const e = $(s);
+            if (e)
+                f(e);
+        };
+        const emitProgress = () => {
+            const p = st.petals, l = Math.floor(p / 100);
+            ROOT.dispatchEvent(new CustomEvent('bearfriend:progress', { bubbles: true, detail: {
+                    points: p, level: l + 1, toNext: 100 - p % 100, nextTreasure: TREAS[l % TREAS.length], tasks: { ...st.tasks }, tasksDone: TK.filter(([k, , n]) => st.tasks[k] >= n).length, tasksTotal: TK.length
+                } }));
+        };
+
+        function tasks() {
+            put('#tasks', e => e.innerHTML = TK.map(([k, l, n]) => `<div class="tk${st.tasks[k] >= n ? ' ok' : ''}"><span>${st.tasks[k] >= n ? '✅' : '⬜'} ${l}</span><b>${Math.min(st.tasks[k], n)}/${n}</b></div>`).join(''));
+            const d = TK.filter(([k, , n]) => st.tasks[k] >= n).length;
+            put('#pg', e => e.style.width = d / TK.length * 100 + '%');
+            put('#pgt', e => e.textContent = d + '/' + TK.length);
+            save();
+            emitProgress();
+        }
+
+        function tick(k) {
+            const n = TK.find(x => x[0] === k)[2];
+            if (st.tasks[k] >= n)
+                return;
+            st.tasks[k]++;
+            if (st.tasks[k] >= n) {
+                addP(3);
+                pop('Task done! +3 🌸', 300, 175);
+            }
+            if (TK.every(([a, , m]) => st.tasks[a] >= m) && !st.bonus) {
+                st.bonus = 1;
+                addP(10);
+                setTimeout(() => pop('All done today! +10 🌸 ✨', 300, 140), 900);
+            }
+            tasks();
+        }
+
+// ------------------------------------------------------------
+// Rooms, gifts, weather timers, save / load
+// ------------------------------------------------------------
+
+        function goRoom(r) {
+            const b = $('#bg');
+            b.style.transition = 'opacity .25s';
+            b.style.opacity = 0;
+            setTimeout(() => {
+                st.room = r;
+                build();
+                auto();
+                b.style.opacity = 1;
+                pop(RN[r], 300, 150);
+            }, 260);
+        }
+
+        function feedBunny() {
+            if (asleep) {
+                pop('shh, bunny is sleeping 💤', bx, by - 60);
+                return;
+            }
+            const c = $('#crt'), b = $('#bun');
+            if (!c || b.classList.contains('nib'))
+                return;
+            c.style.display = '';
+            b.classList.add('nib');
+            tone(300, .05, .03, 200);
+            setTimeout(() => {
+                c.style.display = 'none';
+                b.classList.remove('nib');
+                pop('♥', bx, by - 60);
+                hop();
+                tick('feed');
+            }, 2800);
+        }
+
+        function openGift() {
+            const t = st.gift;
+            if (!t)
+                return;
+            st.gift = null;
+            const g = $('#gift');
+            g && g.remove();
+            [0, 1, 2].forEach(i => setTimeout(() => pop('💖', 270 + i * 30, 330), i * 160));
+            pop({ rose: '🌹 A rose for you!', berries: '🍓 Fresh berries!', note: '💌 Thinking of you' }[t], 300, 300);
+            addP(2);
+            tick('open');
+        }
+        const ROOMS = ['living', 'kitchen', 'bedroom', 'balcony', 'garden'], RN = {
+            living: '🛋️ Living room', kitchen: '🍪 Kitchen', bedroom: '🛏️ Bedroom', balcony: '🌙 Balcony', garden: '🌷 Garden'
+        }, WN = { clear: '☀️ Clear skies', rain: '🌧️ Rain', snow: '❄️ Snow' };
+        let roomT, wxT;
+
+        function startRoomTimer() {
+            clearInterval(roomT);
+            roomT = setInterval(() => goRoom(ROOMS[(ROOMS.indexOf(st.room) + 1) % ROOMS.length]), 5 * 60e3);
+        }
+
+        function pickWx(init) {
+            const s = seasonOf(), pool = [['clear', 5], ['rain', s === 'winter' ? 1 : 3]];
+            if (s === 'winter')
+                pool.push(['snow', 4]);
+            const p = init ? pool : pool.filter(x => x[0] !== st.wx);
+            let r = Math.random() * p.reduce((a, x) => a + x[1], 0);
+            for (const x of p) {
+                if ((r -= x[1]) < 0)
+                    return x[0];
+            }
+            return p[0][0];
+        }
+
+        function startWxTimer() {
+            clearInterval(wxT);
+            wxT = setInterval(() => {
+                st.wx = pickWx();
+                env();
+                pop(WN[st.wx], 300, 150);
+            }, 3 * 60e3);
+        }
+        $('#fg').innerHTML = bunnySvg();
+        engine = createBearfriendHomeEngine($('#bsvg'));
+        $('#bsvg').onclick = e => {
+            const g = e.target.closest('g[id^="s"]');
+            if (!g || !/^s[01]$/.test(g.id))
+                return;
+            triggerBearAction(['pet', 'hug', 'tummy', 'dance', 'kiss'][Math.floor(Math.random() * 5)], { by: +g.id[1] });
+        };
+        engine.setSound(false);
+        addEventListener('pointerdown', () => {
+            st.snd = true;
+            engine.setSound(true);
+        }, { once: true, capture: true });
+        for (const n of [...$('#bsvg').children]) {
+            if (n.id === 'bears')
+                break;
+            if (n.tagName !== 'defs' && n.id !== 'pil')
+                n.remove();
+        }
+        const TREAS = ['Cloverlight Meadow', 'Moonpetal Pond', 'Starberry Grove', 'Honeydew Hill', 'Rainbow Orchard'];
+
+        function save() {
+            try {
+                localStorage.setItem('bf-home-v2', JSON.stringify({
+                    petals: st.petals, day: new Date().toDateString(), tasks: st.tasks, bonus: st.bonus
+                }));
+            }
+            catch { }
+        }
+
+        function loadSave() {
+            try {
+                const sv = JSON.parse(localStorage.getItem('bf-home-v2') || '{}');
+                st.petals = sv.petals || 0;
+                if (sv.day === new Date().toDateString()) {
+                    Object.assign(st.tasks, sv.tasks || {});
+                    st.bonus = sv.bonus || 0;
+                }
+            }
+            catch { }
+        }
+
+        function carePaint() {
+            const p = st.petals, l = Math.floor(p / 100), r = p % 100;
+            put('#cp', e => e.textContent = p);
+            put('#lv', e => e.textContent = l + 1);
+            put('#cbar', e => e.style.width = r + '%');
+            put('#cpt', e => e.textContent = p + ' Care Points');
+            put('#cto', e => e.textContent = (100 - r) + ' to next treasure');
+            put('#cn', e => e.textContent = TREAS[l % TREAS.length]);
+            put('#cleft', e => e.textContent = (100 - r) + ' points left');
+            save();
+            emitProgress();
+        }
+        const seen = [0, 1, 2, 3].map(() => ({ s: -1, t: Date.now() }));
+        setInterval(() => {
+            const n = Date.now(), f = (st.wx === 'rain' ? .5 : 1) * (seasonOf() === 'winter' ? 1.5 : 1);
+            for (let i = 0; i < 4; i++) {
+                const s = st.plots[i], q = seen[i];
+                if (q.s !== s) {
+                    q.s = s;
+                    q.t = n;
+                    continue;
+                }
+                if (s === 4)
+                    continue;
+                if (n - q.t > (s === 0 ? 7000 : 16000) * f) {
+                    if (s === 0) {
+                        st.plots[i] = 1;
+                        st.rare[i] = 0;
+                    }
+                    else {
+                        st.plots[i] = s + 1;
+                        if (s + 1 === 4)
+                            st.rare[i] = Math.random() < .25 ? 1 : 0;
+                    }
+                    plot(i);
+                }
+            }
+        }, 1000);
+        let lastPh = phase();
+        setInterval(() => {
+            const p = phase();
+            if (p !== lastPh) {
+                lastPh = p;
+                auto();
+            }
+            env();
+        }, 30000);
+        let swp = null;
+        $('#scene').addEventListener('pointerdown', e => {
+            if (e.target.closest('#bun'))
+                return;
+            swp = { x: e.clientX, y: e.clientY };
+        });
+        addEventListener('pointerup', e => {
+            if (!swp)
+                return;
+            const dx = e.clientX - swp.x, dy = e.clientY - swp.y;
+            swp = null;
+            if (Math.abs(dx) > 60 && Math.abs(dy) < 45) {
+                goRoom(ROOMS[(ROOMS.indexOf(st.room) + (dx < 0 ? 1 : ROOMS.length - 1)) % ROOMS.length]);
+                startRoomTimer();
+            }
+        });
+        setInterval(() => {
+            sOff++;
+            st.wx = pickWx(true);
+            build();
+            auto();
+            pop(SN[seasonOf()], 300, 150);
+        }, 6 * 60e3);
+        loadSave();
+        st.wx = pickWx(true);
+        build();
+        auto();
+        startRoomTimer();
+        startWxTimer();
+        tasks();
+        carePaint();
+        const api = {
+            triggerBearAction, runLocalAction, createBearPoseEngine: createBearfriendHomeEngine,
+            setScene: (r, t, w) => {
+                st.room = r;
+                st.time = t;
+                st.wx = w;
+                build();
+                auto();
+            }
+        };
+        api.destroy = () => {
+            _dead = true;
+            _ints.forEach(id => window.clearInterval(id));
+            _lis.forEach(([t, f, o]) => window.removeEventListener(t, f, o));
+            try { engine && engine.destroy && engine.destroy(); } catch (e) { }
+            delete ROOT.__bfh;
+        };
+        ROOT.__bfh = api;
+        return api;
+    }
+    const BH = window.BearfriendHome = window.BearfriendHome || {};
+    BH.createBearPoseEngine = createBearfriendHomeEngine;
+    BH.triggerBearAction = () => false;
+    BH.runLocalAction = () => false;
+    BH.mount = root => Object.assign(BH, mountBearfriendHome(root));
+    BH.unmount = root => { const a = (root || document.querySelector('[data-bearfriend-home]') || {}).__bfh; if (a) a.destroy(); BH.triggerBearAction = () => false; BH.runLocalAction = () => false; };
+    const boot = () => {
+        const root = document.querySelector('[data-bearfriend-home]');
+        if (root)
+            BH.mount(root);
+    };
+    document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
+})();

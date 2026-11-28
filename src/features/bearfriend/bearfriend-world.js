@@ -43,6 +43,7 @@
   let animationFrame = 0;
   let intervals = [];
   let visible = false;
+  let intersecting = false;
   let pageVisible = !document.hidden;
   let roomIndex = 0;
   let timeIndex = 0;
@@ -382,17 +383,15 @@
 
   function onVisibilityChange() {
     pageVisible = !document.hidden;
-    if (pageVisible && scene && scene.isConnected) {
-      if (!observer) start();
-    } else {
-      stop();
-    }
+    if (pageVisible && intersecting && scene && scene.isConnected) start();
+    else stop();
   }
 
   function destroy() {
     stop();
     if (observer) observer.disconnect();
     observer = null;
+    intersecting = false;
     document.removeEventListener("visibilitychange", onVisibilityChange);
     scene = background = weatherCanvas = weatherContext = tint = meta = null;
     particles = [];
@@ -409,18 +408,20 @@
     weatherContext = weatherCanvas.getContext("2d");
     roomIndex = 0;
     timeIndex = initialTimeIndex();
-    weather = "clear";
+    weather = "";
     chooseWeather();
     buildBackground();
     document.addEventListener("visibilitychange", onVisibilityChange);
     if ("IntersectionObserver" in window) {
       observer = new IntersectionObserver(entries => {
         const entry = entries[entries.length - 1];
-        if (entry && entry.isIntersecting && pageVisible) start();
+        intersecting = !!(entry && entry.isIntersecting);
+        if (intersecting && pageVisible) start();
         else stop();
       }, { threshold: .08 });
       observer.observe(scene);
     } else {
+      intersecting = true;
       start();
     }
   }

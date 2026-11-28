@@ -362,3 +362,25 @@ test('Notes keeps the selected preview if the stored image fails to decode', () 
   assert.match(photos, /node\.dataset\.localPreview = 'true'/);
   assert.match(photos, /node\.addEventListener\('error', restorePreview/);
 });
+
+\ntest('Bearfriend living world rotates rooms every 6 minutes and time independently every 4 minutes', () => {
+  const world = read('bearfriend-living-world.js');
+  const styles = read('bearfriend-living-world.css');
+  const html = read('index.html');
+  const build = read('scripts/build-preview.js');
+  const sw = read('sw.js');
+  assert.match(world, /ROOM_MS = 6 \* 60 \* 1000/);
+  assert.match(world, /TIME_MS = 4 \* 60 \* 1000/);
+  assert.match(world, /WEATHER_MS = 5 \* 60 \* 1000/);
+  assert.match(world, /function weatherFor\(slot\)/);
+  assert.match(world, /visibilitychange/);
+  assert.match(world, /worldRoom/);
+  assert.match(world, /worldTime/);
+  assert.match(world, /worldWeather/);
+  assert.match(styles, /bear-world-backdrop/);
+  assert.match(html, /bearfriend-living-world\.js/);
+  assert.ok(build.includes("'bearfriend-living-world.css'"));
+  assert.ok(build.includes("'bearfriend-living-world.js'"));
+  assert.ok(sw.includes('./bearfriend-living-world.css'));
+  assert.ok(sw.includes('./bearfriend-living-world.js'));
+});

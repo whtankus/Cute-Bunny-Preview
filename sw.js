@@ -40,7 +40,7 @@ const APP_ASSETS = [
   "./src/styles/features/profile.css",
   "./src/styles/features/streak.css",
   "./bear-hugs-progression.css?v=bearfriend-name-only-20261127",
-  "./bear-hugs-progression.js?v=bearfriend-name-only-20261127",
+  "./bear-hugs-progression.js?v=bearfriend-source-faithful-20261128",
   "./manifest.webmanifest",
   "./supabase-config.js",
   "./bunny-app-icon-192.png",

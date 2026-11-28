@@ -33,8 +33,8 @@
 
   function weatherFor(slot) {
     const seed = pairSeed();
-    const previous = WEATHER[(hash(seed + ':' + (slot - 1)) % WEATHER.length)];
-    const choices = WEATHER.filter(item => item !== previous);
+    const previousIndex = hash(seed + ':' + (slot - 1)) % WEATHER.length;
+    const choices = WEATHER.filter((item, index) => index !== previousIndex);
     return choices[hash(seed + ':' + slot) % choices.length];
   }
 
@@ -96,7 +96,7 @@
       '<path d="M' + (100 + i * 27) + ' 120 V292" stroke="' + (room === 'bedroom' ? '#d9c8ec' : '#f4c8d8') + '" stroke-width="2" opacity=".34"/>'
     ).join('');
     const roomWindow = '<rect x="252" y="149" width="96" height="92" rx="12" fill="#fff" stroke="#e8c6d4" stroke-width="4"/>' +
-      '<clipPath id="bearWorldWindowClip"><rect x="258" y="155" width="84" height="80" rx="8"/></clipPath>' +
+      '<defs><clipPath id="bearWorldWindowClip"><rect x="258" y="155" width="84" height="80" rx="8"/></clipPath></defs>' +
       '<g clip-path="url(#bearWorldWindowClip)">' + windowArt(time, weather) + '</g>' +
       '<path d="M300 155V235M258 195H342" stroke="#fff" stroke-width="3"/>' +
       '<rect x="246" y="240" width="108" height="8" rx="4" fill="#f3d3df"/>';
@@ -153,6 +153,7 @@
     scene.dataset.worldRoom = state.room;
     scene.dataset.worldTime = state.time;
     scene.dataset.worldWeather = state.weather;
+    TIMES.forEach(name => scene.classList.toggle('bear-time-' + name, name === state.time));
     scene.setAttribute('aria-label', 'Bearfriend home: ' + LABELS[state.room] + ', ' + LABELS[state.time] + ', ' + LABELS[state.weather]);
     const layer = ensureLayer(scene);
     layer.innerHTML = backdropMarkup(state);

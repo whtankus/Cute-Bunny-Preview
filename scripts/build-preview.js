@@ -47,7 +47,7 @@ const assets = [
   'swipe-gestures.js',
   'header-statusbar-blend.css',
   'bear-hugs-progression.css',
-  'bear-hugs-progression.js',
+  'bear-hugs-progression.js',\n  'bearfriend-living-world.css',\n  'bearfriend-living-world.js',
   'sw.js',
   'manifest.webmanifest',
   'bunny-app-icon-192.png',

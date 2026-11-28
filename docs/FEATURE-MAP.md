@@ -11,7 +11,7 @@
 | Notifications | `app.js`, `sw.js` | `src/features/notifications/` |
 | Profiles | `app.js` | `src/features/profile/` |
 | Streak Garden | `app.js` | `src/features/streak-garden/` |
-| Bearfriend | `bear-hugs-progression.js`, `bear-hugs-progression.css` | `src/features/bearfriend/` |
+| Bearfriend | `app.js`, `bear-hugs-progression.js`, `bear-hugs-progression.css`, `src/features/bearfriend/bearfriend-world.js` | `src/features/bearfriend/` |
 | Shared DOM helpers | `src/core/dom.js` | `src/core/` |
 | Supabase client | `src/services/supabase-client.js` | `src/services/` |
 | Image preparation | `src/services/media-optimizer.js` | `src/services/` |
@@ -40,3 +40,10 @@ Feature modules should own rendering and event handlers. Services own network/st
 - notifications: `src/features/notifications/notifications.js`, `src/styles/features/base-notifications.css` (base layer) and `src/styles/features/notifications.css` (polish layer)
 - profile: `src/features/profile/profile.js`, `src/styles/features/base-profile.css` (base layer) and `src/styles/features/profile.css` (polish layer)
 - streak: `src/features/streak/streak.js`, `src/styles/features/base-streak.css` (base layer) and `src/styles/features/streak.css` (polish layer)
+
+
+## Bearfriend living world
+- Existing Bearfriend scene and actions remain in the Home experience.
+- Environment layer: `src/features/bearfriend/bearfriend-world.js` and `src/styles/features/bearfriend-world.css`.
+- Five rooms rotate every six minutes; time-of-day shifts every four minutes; weather is randomized every three minutes.
+- Weather animation and timers pause when the scene leaves view or the document is hidden.

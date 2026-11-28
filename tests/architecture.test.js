@@ -122,3 +122,32 @@ test("base and polish feature styles preserve their cascade layers", () => {
   }
  }
 });
+
+
+test("Bearfriend Home is mounted natively with scoped styles and shared progression", () => {
+ const home = read("src/features/home/home.js");
+ const world = read("src/features/home/bearfriend-world.js");
+ const css = read("src/styles/features/bearfriend-world.css");
+ const index = read("index.html");
+ const build = read("scripts/build-preview.js");
+ const worker = read("sw.js");
+ const progression = read("bear-hugs-progression.js");
+
+ assert.match(home, /renderBearfriendWorldMarkup/);
+ assert.match(home, /mountBearfriendWorld/);
+ assert.doesNotMatch(home, /bearfriendHomeFrame|bearfriend-iframe-host/);
+ assert.match(world, /function mountBearfriendWorld/);
+ assert.match(world, /startRoomTimer\(\)[\s\S]*?6\*60e3/);
+ assert.match(world, /startWxTimer\(\)[\s\S]*?3\*60e3/);
+ assert.match(world, /startTimeTimer\(\)[\s\S]*?4\*60e3/);
+ assert.match(world, /bearfriend:external-action/);
+ assert.match(world, /bearfriend:iframe-play/);
+ assert.match(css, /#bearfriendWorld/);
+ assert.match(index, /src\/features\/home\/bearfriend-world\.js/);
+ assert.match(index, /src\/styles\/features\/bearfriend-world\.css/);
+ assert.match(build, /src\/features\/home\/bearfriend-world\.js/);
+ assert.match(build, /src\/styles\/features\/bearfriend-world\.css/);
+ assert.match(worker, /bearfriend-world\.js/);
+ assert.match(worker, /bearfriend-world\.css/);
+ assert.match(progression, /refresh: updateUI/);
+});

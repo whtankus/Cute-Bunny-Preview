@@ -1,8 +1,7 @@
-const CACHE_NAME = "cute-bunny-shell-v403";
+const CACHE_NAME = "cute-bunny-shell-v404";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./bearfriend-home.html",
   "./style.css?v=milestone-shine-20261124",
   "./polish.css?v=bearfriend-name-only-20261127",
   "./button-interactions.css?v=nav-3d-depth-20261118",
@@ -15,6 +14,7 @@ const APP_ASSETS = [
   "./src/services/api.js",
   "./src/features/notes/chat-events.js",
   "./src/features/home/home.js",
+  "./src/features/home/bearfriend-world.js?v=native-bearfriend-20261128",
   "./src/features/photos/photos.js",
   "./src/features/notes/notes.js",
   "./src/features/music/music.js",
@@ -32,6 +32,7 @@ const APP_ASSETS = [
   "./src/styles/features/base-profile.css",
   "./src/styles/features/base-streak.css",
   "./src/styles/features/home.css",
+  "./src/styles/features/bearfriend-world.css?v=native-bearfriend-20261128",
   "./src/styles/features/photos.css",
   "./src/styles/features/notes.css",
   "./src/styles/features/music.css",
@@ -50,7 +51,6 @@ const APP_ASSETS = [
 
 const SHELL_FILES = new Set([
   "index.html",
-  "bearfriend-home.html",
   "style.css",
   "polish.css",
   "button-interactions.css",
@@ -63,6 +63,7 @@ const SHELL_FILES = new Set([
   "api.js",
   "chat-events.js",
   "home.js",
+  "bearfriend-world.js",
   "photos.js",
   "notes.js",
   "music.js",
@@ -80,6 +81,7 @@ const SHELL_FILES = new Set([
   "base-profile.css",
   "base-streak.css",
   "home.css",
+  "bearfriend-world.css",
   "photos.css",
   "notes.css",
   "music.css",

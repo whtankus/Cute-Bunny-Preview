@@ -1,4 +1,4 @@
-const CACHE_NAME = "cute-bunny-shell-v402";
+const CACHE_NAME = "cute-bunny-shell-v403";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -8,6 +8,11 @@ const APP_ASSETS = [
   "./swipe-gestures.css?v=20261121-2",
   "./swipe-gestures.js?v=20261121-2",
   "./app.js?v=42",
+  "./bear-pose-engine.js?v=20261128",
+  "./bearfriend-home.js?v=20261128",
+  "./bearfriend-home-view.js?v=20261128",
+  "./bearfriend-home.css?v=20261128",
+  "./bearfriend-home-controls.css?v=20261128",
   "./src/core/dom.js",
   "./src/services/supabase-client.js",
   "./src/services/media-optimizer.js",
@@ -55,6 +60,11 @@ const SHELL_FILES = new Set([
   "swipe-gestures.css",
   "swipe-gestures.js",
   "app.js",
+  "bear-pose-engine.js",
+  "bearfriend-home.js",
+  "bearfriend-home-view.js",
+  "bearfriend-home.css",
+  "bearfriend-home-controls.css",
   "dom.js",
   "supabase-client.js",
   "media-optimizer.js",

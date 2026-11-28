@@ -147,13 +147,13 @@
     const scene = $('#coupleBearGame .couple-bears-scene');
     if (!scene || !$('#bearPoseSvg', scene)) return;
     const state = stateAt();
+    TIMES.forEach(name => scene.classList.toggle('bear-time-' + name, name === state.time));
     const signature = [state.room, state.time, state.weather].join('|');
     if (signature === lastSignature && $('.bear-world-backdrop', scene)) return;
     lastSignature = signature;
     scene.dataset.worldRoom = state.room;
     scene.dataset.worldTime = state.time;
     scene.dataset.worldWeather = state.weather;
-    TIMES.forEach(name => scene.classList.toggle('bear-time-' + name, name === state.time));
     scene.setAttribute('aria-label', 'Bearfriend home: ' + LABELS[state.room] + ', ' + LABELS[state.time] + ', ' + LABELS[state.weather]);
     const layer = ensureLayer(scene);
     layer.innerHTML = backdropMarkup(state);

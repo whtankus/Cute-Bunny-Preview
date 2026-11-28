@@ -382,8 +382,8 @@
             const r = st.room;
             (OUT(r) ? $('#fg') : $('#bg')).after($('#wx'));
             $('#bg').innerHTML = '<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop id="s1" offset="0"/><stop id="s2" offset="1"/></linearGradient><radialGradient id="lg"><stop offset="0" stop-color="#ffe9a8" stop-opacity=".75"/><stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/></radialGradient></defs>' + roomSvg(r) + props(r) + edgeHints() + giftSvg();
-            $('.plot').forEach(g => g.onpointerup = e => { e.preventDefault(); e.stopPropagation(); tapPlot(+g.dataset.i); });
-            $('.obj').forEach(g => g.onpointerup = e => {
+            $('#bg').querySelectorAll('.plot').forEach(g => g.onpointerup = e => { e.preventDefault(); e.stopPropagation(); tapPlot(+g.dataset.i); });
+            $('#bg').querySelectorAll('.obj').forEach(g => g.onpointerup = e => {
                 e.stopPropagation();
                 objTap(g.dataset.o, e);
             });

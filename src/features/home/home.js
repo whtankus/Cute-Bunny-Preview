@@ -34,7 +34,9 @@ function getCuteBunnySeason(date = new Date()) {
 
 function initBearfriendWorld(){
   const root=document.getElementById('bearfriendWorld');
-  if(root)window.mountBearfriendWorld?.(root);
+  if(!root)return;
+  window.mountBearfriendWorld?.(root);
+  window.BearfriendProgression?.refresh?.();
 }
 
 function renderHomePage(c, visibleFeed, notes, pics, songs) {

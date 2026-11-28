@@ -333,6 +333,9 @@ function updateUI() {
       ? 'Next: <b>' + esc(nextReward.name) + '</b> · ' + pointsToNext.toLocaleString() + ' points left'
       : '<b>Every keepsake is unlocked!</b> Your little bear world is complete') + '</div>';
 
+  const bearfriendFrame = $('#bearfriendHomeFrame', root);
+  if (bearfriendFrame?.contentWindow) bearfriendFrame.contentWindow.postMessage({ type: 'bearfriend:points', points }, location.origin);
+
   let panel = $('#bearProgressionPanel', root);
   if (!panel) {
     panel = document.createElement('section');
@@ -850,12 +853,23 @@ async function sendAction(action, partnerId = selectedFriendId, actionId = creat
     return false;
   }
 }
+window.addEventListener('bearfriend:external-action', event => {
+  const action = String(event.detail?.action || '');
+  if (!ACTIONS.has(action)) return;
+  window.__bearfriendActionFromIframe = true;
+  try { void runLocalAction(action); }
+  finally { window.__bearfriendActionFromIframe = false; }
+});
+
 function applyRemoteAction(action, payload) {
   if (!ACTIONS.has(action)) return;
   noteBearActivity();
   const root = $('#coupleBearGame');
   if (root && typeof originalTrigger === 'function') {
     originalTrigger(action, { remote: true, gender: payload.gender });
+    window.dispatchEvent(new CustomEvent('bearfriend:iframe-play', {
+      detail: { action, by: String(payload.gender || '').toLowerCase() === 'female' ? 1 : 0 }
+    }));
     if (action === 'sleep') bearsAreAsleep = true;
     lastSharedAction = action;
     window.dispatchEvent(new CustomEvent('cute-bunny:bear-action', {
@@ -1191,6 +1205,7 @@ function install() {
     }
   });
 }
+window.BearfriendProgression = { getPoints };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
 else install();
 })();

@@ -231,7 +231,7 @@ async function equipReward(id) {
 }
 
 function ensureBearAccessoryLayers() {
-  const svg = $('#bearPoseSvg');
+  const svg = $('#bsvg');
   if (!svg) return;
   [0, 1].forEach(index => {
     const head = svg.querySelector('#h' + index);

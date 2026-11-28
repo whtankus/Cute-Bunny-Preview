@@ -111,7 +111,7 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
   <style>
     #coupleBearGame.bearfriend-iframe-host{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible}
     #bearfriendHomeFrame{display:block;width:100%;height:1250px;border:0;background:transparent;overflow:hidden}
-    #coupleBearGame .couple-bears-scene[hidden],#coupleBearGame .couple-bear-actions[hidden],#coupleBearGame .couple-bear-status[hidden],#coupleBearGame .couple-bear-footer[hidden],#coupleBearGame #bearCarePointsStrip,#coupleBearGame #bearProgressionPanel{display:none!important}
+    #coupleBearGame .couple-bears-scene[hidden],#coupleBearGame .couple-bear-actions[hidden],#coupleBearGame .couple-bear-status[hidden],#coupleBearGame .couple-bear-footer[hidden],#coupleBearGame #bearCarePointsStrip{display:none!important}
   </style>
 </section>
     `;

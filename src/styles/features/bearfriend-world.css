@@ -46,6 +46,8 @@
   text-align:center;
   box-shadow:0 3px 10px rgba(120,83,108,.06);
 }
+#content .bear-world-cloud{animation:bear-world-cloud-drift 40s linear infinite alternate}
+@keyframes bear-world-cloud-drift{to{translate:26px 0}}
 #content .bear-world-twinkle{animation:bear-world-twinkle 2.4s ease-in-out infinite}
 @keyframes bear-world-twinkle{50%{opacity:.35}}
 #content .bear-world-butterfly{transform-box:fill-box;transform-origin:center;animation:bear-world-flutter 9s ease-in-out infinite}
@@ -57,6 +59,7 @@
   75%{translate:12px 20px}
 }
 @media(prefers-reduced-motion:reduce){
+  #content .bear-world-cloud,
   #content .bear-world-twinkle,
   #content .bear-world-butterfly{animation:none!important}
   #content .couple-bears-scene.bear-pose-scene #bearWorldBg,

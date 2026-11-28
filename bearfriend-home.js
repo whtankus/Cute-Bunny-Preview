@@ -382,10 +382,13 @@
             const r = st.room;
             (OUT(r) ? $('#fg') : $('#bg')).after($('#wx'));
             $('#bg').innerHTML = '<defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop id="s1" offset="0"/><stop id="s2" offset="1"/></linearGradient><radialGradient id="lg"><stop offset="0" stop-color="#ffe9a8" stop-opacity=".75"/><stop offset="1" stop-color="#ffe9a8" stop-opacity="0"/></radialGradient></defs>' + roomSvg(r) + props(r) + edgeHints() + giftSvg();
-            $('#bg').querySelectorAll('.plot').forEach(g => g.onpointerup = e => { e.preventDefault(); e.stopPropagation(); tapPlot(+g.dataset.i); });
-            $('#bg').querySelectorAll('.obj').forEach(g => g.onpointerup = e => {
-                e.stopPropagation();
-                objTap(g.dataset.o, e);
+            // Delegate room-object input from the SVG root for reliable mouse and touch hit testing.
+            $('#bg').querySelectorAll('.obj,.plot').forEach(g => {
+                g.style.pointerEvents = 'all';
+                g.style.touchAction = 'manipulation';
+                g.querySelectorAll('rect,ellipse,circle,path,text').forEach(shape => {
+                    if (shape.getAttribute('fill') === 'transparent') shape.style.pointerEvents = 'all';
+                });
             });
             treats.length = 0;
             {
@@ -399,11 +402,24 @@
             if (gf)
                 gf.onpointerup = e => { e.preventDefault(); e.stopPropagation(); openGift(); };
             $('#bg').onpointerup = e => {
-                if (e.target.closest('.plot,#gift,.obj') || asleep)
-                    return;
+                const target = e.target;
+                const plotTarget = target.closest && target.closest('.plot');
+                if (plotTarget) {
+                    e.preventDefault(); e.stopPropagation();
+                    tapPlot(+plotTarget.dataset.i); return;
+                }
+                const objectTarget = target.closest && target.closest('.obj');
+                if (objectTarget) {
+                    e.preventDefault(); e.stopPropagation();
+                    objTap(objectTarget.dataset.o, e); return;
+                }
+                if (target.closest && target.closest('#gift')) {
+                    e.preventDefault(); e.stopPropagation();
+                    openGift(); return;
+                }
+                if (asleep) return;
                 const r = $('#bg').getBoundingClientRect(), vx = 90 + (e.clientX - r.left) / r.width * 420, vy = 120 + (e.clientY - r.top) / r.height * 270;
-                if (vy < 296)
-                    return;
+                if (vy < 296) return;
                 arr = null;
                 tx = Math.max(112, Math.min(488, vx));
                 ty = Math.max(304, Math.min(372, vy));

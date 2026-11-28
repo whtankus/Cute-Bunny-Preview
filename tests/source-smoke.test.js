@@ -388,3 +388,17 @@ test('Bearfriend rooms render distinct scenery without duplicating Care Points',
   assert.match(world, /bear-world-room-decor/);
   assert.ok(html.includes('src/features/home/bearfriend-world.js'));
 });
+
+
+test('Bearfriend home world is isolated and unmounts its timers', () => {
+  const world = read('src/features/home/bearfriend-world.js');
+  const html = read('index.html');
+  assert.doesNotThrow(() => new vm.Script(world, { filename: 'bearfriend-world.js' }));
+  assert.match(world, /6 \* 60 \* 1000/);
+  assert.match(world, /4 \* 60 \* 1000/);
+  assert.match(world, /MutationObserver/);
+  assert.match(world, /function dispose\(/);
+  assert.match(world, /active\.delete\(root\)/);
+  assert.match(html, /src\/features\/home\/bearfriend-world\.js/);
+  assert.match(html, /bear-hugs-progression\.js/);
+});

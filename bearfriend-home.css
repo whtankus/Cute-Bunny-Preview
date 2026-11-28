@@ -320,3 +320,7 @@
     translate: 4px -18px;
   }
 }
+/* Explicit SVG hit targets for Bearfriend props and garden plots. */
+.bfh-scene #bg{pointer-events:auto;touch-action:manipulation}
+.bfh-scene #bg .obj,.bfh-scene #bg .plot,.bfh-scene #bg #gift{pointer-events:all;cursor:pointer;touch-action:manipulation}
+.bfh-scene #bg .obj>rect[fill="transparent"],.bfh-scene #bg .plot ellipse[fill="transparent"]{pointer-events:all}

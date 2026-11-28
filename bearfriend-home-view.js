@@ -8,7 +8,7 @@
 
    NOTE: bear-pose-engine.js now defines createBearfriendHomeEngine, so it no longer clashes with app.js's createBearPoseEngine. */
 (function () {
-  const FRAME = "<div class=\"bfh\" data-bearfriend-home>\n  <div class=\"bfh-scene couple-bears-scene\" id=\"scene\">\n    <svg id=\"bg\" viewBox=\"90 120 420 270\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <svg id=\"bsvg\" viewBox=\"66.667 98 466.667 300\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <svg id=\"fg\" viewBox=\"90 120 420 270\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <canvas id=\"wx\"></canvas>\n    <div id=\"tint\"></div>\n    <div id=\"pops\"></div>\n  </div>";
+  const FRAME = "<div class=\"bfh\" data-bearfriend-home>\n  <div class=\"bfh-scene couple-bears-scene\" id=\"scene\">\n    <svg id=\"bg\" viewBox=\"90 120 420 270\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <svg id=\"bearPoseSvg\" viewBox=\"66.667 98 466.667 300\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <svg id=\"fg\" viewBox=\"90 120 420 270\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <canvas id=\"wx\"></canvas>\n    <div id=\"tint\"></div>\n    <div id=\"pops\"></div>\n  </div>";
   const ACTIONS = [["hug", "🤗", "Hug"], ["kiss", "💋", "Kiss"], ["flykiss", "😘", "Flying Kiss"], ["slap", "🖐️", "Playful Slap"], ["hands", "🫶", "Hold Hands"], ["feed", "🍓", "Feed"], ["sleep", "💤", "Sleep"], ["dance", "💃", "Dance"], ["pet", "🐾", "Pet"], ["tummy", "🫳", "Scratch Tummy"], ["idle", "🌸", "Relax"]];
   const ROOMS = [["living", "🛋️ Living"], ["kitchen", "🍳 Kitchen"], ["bedroom", "🛏️ Bedroom"], ["balcony", "🌆 Balcony"], ["garden", "🌷 Garden"]];
 
@@ -31,9 +31,7 @@
     container.querySelectorAll('[data-room]').forEach(b => {
       b.onclick = () => BH.setScene(b.dataset.room, 'auto', 'clear');
     });
-    container.querySelectorAll('[data-a]').forEach(b => {
-      b.onclick = () => BH.triggerBearAction(b.dataset.a);
-    });
+    // Bear Hugs progression delegates [data-couple-action] clicks and invokes the app's shared action handler.
     return root;
   }
 

@@ -13,6 +13,14 @@ test('core browser scripts parse without syntax errors', () => {
   }
 });
 
+test('Bear Hugs realtime startup helpers are defined before use', () => {
+  const app = read('app.js');
+  assert.ok(app.includes('function getBearPartnerId()'));
+  assert.ok(app.includes('function startBearRealtime()'));
+  assert.ok(app.includes('function publishBearAction(action)'));
+  assert.ok(app.indexOf('function startBearRealtime()') < app.indexOf('function publishBearAction(action)'));
+});
+
 test('Bear Hugs restores saved partners and keeps reward progression wired', () => {
   const bear = read('bear-hugs-progression.js');
   const styles = read('bear-hugs-progression.css');

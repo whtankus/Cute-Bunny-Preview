@@ -9,7 +9,6 @@ fs.mkdirSync(output, { recursive: true });
 
 const assets = [
   'index.html',
-  'bearfriend-home.html',
   'app.js',
   'src/core/dom.js',
   'src/services/supabase-client.js',
@@ -17,6 +16,7 @@ const assets = [
   'src/services/api.js',
   'src/features/notes/chat-events.js',
   'src/features/home/home.js',
+  'src/features/home/bearfriend-world.js',
   'src/features/photos/photos.js',
   'src/features/notes/notes.js',
   'src/features/music/music.js',
@@ -34,6 +34,7 @@ const assets = [
   'src/styles/features/base-profile.css',
   'src/styles/features/base-streak.css',
   'src/styles/features/home.css',
+  'src/styles/features/bearfriend-world.css',
   'src/styles/features/photos.css',
   'src/styles/features/notes.css',
   'src/styles/features/music.css',

@@ -730,3 +730,44 @@
 @media(prefers-reduced-motion:reduce){
  #coupleBearGame .bear-reward-filters button{transition:none}
 }
+
+
+/* Bearfriend living world: rotating rooms, accelerated day cycle, and shared weather. */
+#coupleBearGame .bear-living-atmosphere{z-index:1}
+#coupleBearGame .bear-world-backdrop{position:absolute;inset:0;z-index:0;overflow:hidden;opacity:.94;transition:background 1.8s ease,filter 1.8s ease}
+#coupleBearGame .bear-world-backdrop:before,
+#coupleBearGame .bear-world-backdrop:after{position:absolute;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(95,65,85,.12));transition:opacity 1s ease}
+#coupleBearGame .bear-world-backdrop:before{content:"";left:5%;bottom:13%;font-size:clamp(24px,5vw,48px);opacity:.72}
+#coupleBearGame .bear-world-backdrop:after{content:"";right:7%;bottom:12%;font-size:clamp(21px,4vw,40px);opacity:.72}
+#coupleBearGame .bear-world-backdrop[data-room="garden"]{background:linear-gradient(180deg,rgba(222,237,250,.88) 0%,rgba(255,236,222,.7) 57%,rgba(162,205,153,.92) 58%,rgba(119,174,128,.9) 100%)}
+#coupleBearGame .bear-world-backdrop[data-room="garden"]:before{content:"🌳"}
+#coupleBearGame .bear-world-backdrop[data-room="garden"]:after{content:"🌷  🌼"}
+#coupleBearGame .bear-world-backdrop[data-room="living-room"]{background:linear-gradient(180deg,rgba(255,239,220,.92) 0%,rgba(255,247,231,.86) 69%,rgba(193,145,116,.88) 70%,rgba(166,117,98,.9) 100%)}
+#coupleBearGame .bear-world-backdrop[data-room="living-room"]:before{content:"🪟";top:15%;bottom:auto}
+#coupleBearGame .bear-world-backdrop[data-room="living-room"]:after{content:"🪴"}
+#coupleBearGame .bear-world-backdrop[data-room="bedroom"]{background:linear-gradient(180deg,rgba(218,210,246,.94) 0%,rgba(246,224,239,.9) 72%,rgba(171,143,184,.9) 73%,rgba(142,119,165,.9) 100%)}
+#coupleBearGame .bear-world-backdrop[data-room="bedroom"]:before{content:"🌙";top:13%;bottom:auto}
+#coupleBearGame .bear-world-backdrop[data-room="bedroom"]:after{content:"🛏️"}
+#coupleBearGame .bear-world-backdrop[data-room="reading-nook"]{background:linear-gradient(180deg,rgba(245,232,211,.94) 0%,rgba(255,247,225,.9) 70%,rgba(179,146,113,.9) 71%,rgba(146,113,92,.9) 100%)}
+#coupleBearGame .bear-world-backdrop[data-room="reading-nook"]:before{content:"📚";top:15%;bottom:auto}
+#coupleBearGame .bear-world-backdrop[data-room="reading-nook"]:after{content:"🪔"}
+#coupleBearGame .bear-time-morning .bear-world-backdrop{filter:brightness(1.04) saturate(1.04)}
+#coupleBearGame .bear-time-afternoon .bear-world-backdrop{filter:brightness(1.1) saturate(1.08)}
+#coupleBearGame .bear-time-evening .bear-world-backdrop{filter:sepia(.13) saturate(1.1) brightness(.96)}
+#coupleBearGame .bear-time-night .bear-world-backdrop{filter:brightness(.62) saturate(.82) hue-rotate(9deg)}
+#coupleBearGame .bear-world-weather{position:absolute;inset:0;z-index:3;overflow:hidden;pointer-events:none;opacity:.7;transition:opacity .8s ease}
+#coupleBearGame .bear-world-weather:before,
+#coupleBearGame .bear-world-weather:after{content:"";position:absolute;inset:-35%;pointer-events:none;opacity:0}
+#coupleBearGame .weather-sunny:before{inset:auto 8% auto auto;top:8%;width:clamp(34px,8vw,68px);height:clamp(34px,8vw,68px);border-radius:50%;background:radial-gradient(circle,#fff5c8 0 25%,rgba(255,227,155,.48) 58%,transparent 72%);opacity:1;filter:blur(1px)}
+#coupleBearGame .weather-cloudy:before{inset:8% 0 auto;height:38%;background:radial-gradient(ellipse at 28% 45%,rgba(255,255,255,.58) 0 12%,transparent 26%),radial-gradient(ellipse at 45% 38%,rgba(255,255,255,.52) 0 13%,transparent 27%),radial-gradient(ellipse at 72% 48%,rgba(255,255,255,.46) 0 12%,transparent 26%);opacity:.85}
+#coupleBearGame .weather-rainy:before{inset:-35% -20%;background:repeating-linear-gradient(105deg,transparent 0 17px,rgba(255,255,255,.52) 18px 19px,transparent 20px 34px);opacity:.72;animation:bearWorldRain .8s linear infinite}
+#coupleBearGame .weather-snowy:before{inset:-12%;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 2px,transparent 3px),radial-gradient(circle,rgba(255,255,255,.8) 0 1.5px,transparent 2.5px),radial-gradient(circle,rgba(255,255,255,.85) 0 2px,transparent 3px);background-size:53px 57px,79px 83px,113px 97px;background-position:0 0,24px 31px,48px 15px;opacity:.85;animation:bearWorldSnow 8s linear infinite}
+#coupleBearGame .bear-world-weather.weather-cloudy:after{inset:0;background:linear-gradient(180deg,rgba(142,155,178,.12),transparent 70%);opacity:1}
+#coupleBearGame .bear-world-hud{position:absolute;z-index:5;top:9px;left:10px;right:10px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+#coupleBearGame .bear-world-hud>span{display:grid;gap:2px;min-width:0;padding:5px 9px;border:1px solid rgba(255,255,255,.65);border-radius:12px;background:rgba(255,250,252,.72);box-shadow:0 3px 12px rgba(80,55,80,.08);backdrop-filter:blur(8px);color:#80677a}
+#coupleBearGame .bear-world-hud b{font-size:.48rem;letter-spacing:.1em;opacity:.72}
+#coupleBearGame .bear-world-hud i{font-size:.62rem;font-style:normal;font-weight:800;white-space:nowrap}
+@keyframes bearWorldRain{from{transform:translate3d(0,-8%,0)}to{transform:translate3d(-7%,8%,0)}}
+@keyframes bearWorldSnow{from{transform:translate3d(0,-5%,0)}to{transform:translate3d(-3%,9%,0)}}
+@media(max-width:420px){#coupleBearGame .bear-world-hud{gap:4px;left:6px;right:6px}#coupleBearGame .bear-world-hud>span{padding:4px 6px;border-radius:10px}#coupleBearGame .bear-world-hud b{font-size:.43rem}#coupleBearGame .bear-world-hud i{font-size:.55rem}}
+@media(prefers-reduced-motion:reduce){#coupleBearGame .bear-world-backdrop,#coupleBearGame .bear-world-weather,#coupleBearGame .bear-world-backdrop:before,#coupleBearGame .bear-world-backdrop:after{transition:none;animation:none}}

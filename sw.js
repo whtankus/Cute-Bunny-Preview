@@ -1,8 +1,7 @@
-const CACHE_NAME = "cute-bunny-shell-v403";
+const CACHE_NAME = "cute-bunny-shell-v402";
 const APP_ASSETS = [
   "./",
   "./index.html",
-  "./bearfriend-home.html",
   "./style.css?v=milestone-shine-20261124",
   "./polish.css?v=bearfriend-name-only-20261127",
   "./button-interactions.css?v=nav-3d-depth-20261118",
@@ -40,7 +39,7 @@ const APP_ASSETS = [
   "./src/styles/features/profile.css",
   "./src/styles/features/streak.css",
   "./bear-hugs-progression.css?v=bearfriend-name-only-20261127",
-  "./bear-hugs-progression.js?v=bearfriend-source-faithful-20261128",
+  "./bear-hugs-progression.js?v=bearfriend-name-only-20261127",
   "./manifest.webmanifest",
   "./supabase-config.js",
   "./bunny-app-icon-192.png",
@@ -50,7 +49,6 @@ const APP_ASSETS = [
 
 const SHELL_FILES = new Set([
   "index.html",
-  "bearfriend-home.html",
   "style.css",
   "polish.css",
   "button-interactions.css",

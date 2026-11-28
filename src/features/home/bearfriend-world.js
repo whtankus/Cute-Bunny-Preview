@@ -455,7 +455,7 @@ function pickWx(init){const s=seasonOf(),pool=[['clear',5],['rain',s==='winter'?
 function startWxTimer(){clearInterval(wxT);wxT=setInterval(()=>{st.wx=pickWx();env();pop(WN[st.wx],300,150)},3*60e3)}
 function startTimeTimer(){clearInterval(timeT);timeT=setInterval(()=>{timeCycle=TIME_SEQ[(TIME_SEQ.indexOf(timeCycle)+1)%TIME_SEQ.length];env();auto();pop(({morning:'🌅 Morning',afternoon:'☀️ Afternoon',evening:'🌇 Evening',night:'🌙 Night'})[timeCycle],300,150)},4*60e3)}
 $('#fg').innerHTML=bunnySvg();engine=createBearPoseEngine($('#bsvg'));
-$('#bsvg').onclick=e=>{const g=e.target.closest('g[id^="s"]');if(!g||!/^s[01]$/.test(g.id))return;triggerBearAction(['pet','hug','tummy','dance','kiss'][Math.floor(Math.random()*5)],{by:+g.id[1]})};engine.setSound(false);
+$('#bsvg').onclick=e=>{const g=e.target.closest('g[id^="s"]');if(!g||!/^s[01]$/.test(g.id))return;triggerBearAction(['pet','hug','tummy','dance','kiss'][Math.floor(Math.random()*5)],{by:+g.id[1]})};st.snd=localStorage.getItem(bearSoundStorageKey)==='on';engine.setSound(st.snd);
 for(const n of[...$('#bsvg').children]){if(n.id==='bears')break;if(n.tagName!=='defs'&&n.id!=='pil')n.remove()}
 window.__t=(r,t,w)=>{st.room=r;st.time=t;st.wx=w;build();auto();rs()};window.__e=a=>engine.play(a,0);window.__tap=i=>{tapPlot(i)};
 const TREAS=['Cloverlight Meadow','Moonpetal Pond','Starberry Grove','Honeydew Hill','Rainbow Orchard'];

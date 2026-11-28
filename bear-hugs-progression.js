@@ -1205,7 +1205,7 @@ function install() {
     }
   });
 }
-window.BearfriendProgression = { getPoints };
+window.BearfriendProgression = { getPoints, refresh: updateUI };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });
 else install();
 })();

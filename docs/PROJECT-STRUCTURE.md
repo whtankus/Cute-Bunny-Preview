@@ -23,10 +23,12 @@
 │   │   ├── friends/friends.js
 │   │   ├── notifications/notifications.js
 │   │   ├── profile/profile.js
-│   │   └── streak/streak.js
+│   │   ├── streak/streak.js
+│   │   └── bearfriend/bearfriend-world.js
 │   └── styles/
 │       ├── tokens.css
 │       └── features/{base-,}{home,photos,notes,music,friends,notifications,profile,streak}.css
+│       └── features/bearfriend-world.css
 ├── bear-hugs-progression.js
 ├── bear-hugs-progression.css
 ├── swipe-gestures.js
@@ -75,3 +77,7 @@ The feature-first tree is a migration destination; not every feature has been mo
 Eight feature scripts own 154 extracted function declarations, plus four feature page renderers. They load before `app.js` as classic scripts so they can continue to use the existing app-level lexical state. This is a compatibility boundary, not full dependency injection or isolated feature state. The shared realtime lifecycle coordinator and the Streak Garden illustration helper remain in `app.js` for a later dependency-aware extraction.
 
 Feature CSS is split into sixteen stylesheets: eight base-layer stylesheets and eight polish/override stylesheets. Base styles load after `style.css` and before tokens/polish; override styles load after `polish.css`. Selector audit details are in `docs/CSS-AUDIT.md`.
+
+
+## Bearfriend environment
+The existing Bearfriend scene retains its original interaction buttons, affection progression and Supabase realtime contracts. The extracted living-world layer supplies five room backdrops, time-of-day lighting, seasonal tint and weather particles. Its timers and animation loop are scoped to the visible Bearfriend scene and are stopped when navigating away.

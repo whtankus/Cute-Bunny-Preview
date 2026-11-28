@@ -2372,6 +2372,13 @@ function initBearPoseEngine() {
   if (!svg) return;
   destroyBearPoseEngine();
   bearPoseEngine = createBearPoseEngine(svg);
+  const soundToggle = $('#bearSoundToggle');
+  if (soundToggle) {
+    const enabled = localStorage.getItem(bearSoundStorageKey) !== 'off';
+    soundToggle.setAttribute('aria-pressed', String(enabled));
+    soundToggle.textContent = enabled ? '♫ Sound on' : '♫ Sound off';
+    soundToggle.setAttribute('aria-label', enabled ? 'Mute Bearfriend sounds' : 'Enable Bearfriend sounds');
+  }
 }
 function bearActorIndex(gender) {
   return String(gender || '').toLowerCase() === 'female' ? 1 : 0;
@@ -2647,6 +2654,9 @@ document.addEventListener('click', event => {
     try { localStorage.setItem(bearSoundStorageKey, next); } catch {}
     updateBearLoveMeter();
     bearPoseEngine?.setSound(next === 'on');
+    soundToggle.setAttribute('aria-pressed', String(next === 'on'));
+    soundToggle.textContent = next === 'on' ? '♫ Sound on' : '♫ Sound off';
+    soundToggle.setAttribute('aria-label', next === 'on' ? 'Mute Bearfriend sounds' : 'Enable Bearfriend sounds');
     return;
   }
   const actionButton = event.target.closest('#coupleBearGame [data-couple-action]');

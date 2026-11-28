@@ -1,4 +1,4 @@
-const CACHE_NAME = "cute-bunny-shell-v403";
+const CACHE_NAME = "cute-bunny-shell-v404";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -14,7 +14,7 @@ const APP_ASSETS = [
   "./src/services/api.js",
   "./src/features/notes/chat-events.js",
   "./src/features/home/home.js",
-  "./src/features/home/bearfriend-world.js?v=20261128-world-2",
+  "./src/features/home/bearfriend-world.js?v=20261128-world-3",
   "./src/features/photos/photos.js",
   "./src/features/notes/notes.js",
   "./src/features/music/music.js",

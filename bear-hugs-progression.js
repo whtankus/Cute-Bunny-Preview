@@ -252,20 +252,103 @@ function ensureBearAccessoryLayers() {
   });
 }
 
-function ensureLivingScene(scene) {
-  if (!scene) return;
-  const hour = new Date().getHours();
-  const atmosphere = hour < 6 || hour >= 20 ? 'night' : hour < 11 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-  ['morning', 'afternoon', 'evening', 'night'].forEach(name => scene.classList.toggle('bear-time-' + name, name === atmosphere));
-  let ambience = scene.querySelector('.bear-living-atmosphere');
+function getBearWorldState(now = Date.now()) {
+  const pairSeed = String(sharedProgressPairKey || 'cute-bunny-world');
+  const hash = value => {
+    let result = 2166136261;
+    for (let index = 0; index < value.length; index++) {
+      result ^= value.charCodeAt(index);
+      result = Math.imul(result, 16777619);
+    }
+    return result >>> 0;
+  };
+  const rooms = [
+    { id: 'garden', label: 'Flower Garden', icon: '🌷' },
+    { id: 'living-room', label: 'Cozy Living Room', icon: '🛋️' },
+    { id: 'bedroom', label: 'Dreamy Bedroom', icon: '🛏️' },
+    { id: 'reading-nook', label: 'Reading Nook', icon: '📚' }
+  ];
+  const times = [
+    { id: 'morning', label: 'Morning', icon: '🌅' },
+    { id: 'afternoon', label: 'Afternoon', icon: '☀️' },
+    { id: 'evening', label: 'Evening', icon: '🌇' },
+    { id: 'night', label: 'Night', icon: '🌙' }
+  ];
+  const weatherOptions = [
+    { id: 'sunny', label: 'Sunny', icon: '☀️' },
+    { id: 'cloudy', label: 'Cloudy', icon: '☁️' },
+    { id: 'rainy', label: 'Rainy', icon: '🌧️' },
+    { id: 'snowy', label: 'Snowy', icon: '❄️' }
+  ];
+  const roomSlot = Math.floor(now / 600000);
+  const timeSlot = Math.floor(now / 300000);
+  const room = rooms[(roomSlot + hash(pairSeed + ':room')) % rooms.length];
+  const time = times[(timeSlot + hash(pairSeed + ':time')) % times.length];
+  let weatherIndex = hash(pairSeed + ':weather:' + timeSlot) % weatherOptions.length;
+  const previousWeatherIndex = hash(pairSeed + ':weather:' + (timeSlot - 1)) % weatherOptions.length;
+  if (weatherIndex === previousWeatherIndex) weatherIndex = (weatherIndex + 1) % weatherOptions.length;
+  return { room, time, weather: weatherOptions[weatherIndex] };
+}
+
+function syncBearWorldScene(scene) {
+  const target = scene || $('#coupleBearGame .couple-bears-scene');
+  if (!target) return;
+  const state = getBearWorldState();
+  target.dataset.room = state.room.id;
+  target.dataset.weather = state.weather.id;
+  target.dataset.timeOfDay = state.time.id;
+  ['morning', 'afternoon', 'evening', 'night'].forEach(name => {
+    target.classList.toggle('bear-time-' + name, name === state.time.id);
+  });
+
+  let ambience = target.querySelector('.bear-living-atmosphere');
   if (!ambience) {
     ambience = document.createElement('div');
     ambience.className = 'bear-living-atmosphere';
     ambience.setAttribute('aria-hidden', 'true');
-    ambience.innerHTML = '<span class="bear-living-petal petal-one">✿</span><span class="bear-living-petal petal-two">✧</span><span class="bear-living-petal petal-three">♡</span><span class="bear-living-sparkle sparkle-one">✦</span><span class="bear-living-sparkle sparkle-two">✧</span><span class="bear-living-sparkle sparkle-three">✦</span><span class="bear-living-glow"></span>';
-    scene.appendChild(ambience);
+    ambience.innerHTML = '<div class="bear-world-backdrop"></div><span class="bear-living-petal petal-one">✿</span><span class="bear-living-petal petal-two">✧</span><span class="bear-living-petal petal-three">♡</span><span class="bear-living-sparkle sparkle-one">✦</span><span class="bear-living-sparkle sparkle-two">✧</span><span class="bear-living-sparkle sparkle-three">✦</span><span class="bear-living-glow"></span>';
+    target.appendChild(ambience);
   }
+  const backdrop = ambience.querySelector('.bear-world-backdrop');
+  if (backdrop) backdrop.dataset.room = state.room.id;
 
+  let weatherLayer = target.querySelector('.bear-world-weather');
+  if (!weatherLayer) {
+    weatherLayer = document.createElement('div');
+    weatherLayer.className = 'bear-world-weather';
+    weatherLayer.setAttribute('aria-hidden', 'true');
+    target.appendChild(weatherLayer);
+  }
+  weatherLayer.dataset.weather = state.weather.id;
+  weatherLayer.className = 'bear-world-weather weather-' + state.weather.id;
+
+  let hud = target.querySelector('.bear-world-hud');
+  if (!hud) {
+    hud = document.createElement('div');
+    hud.className = 'bear-world-hud';
+    hud.setAttribute('role', 'status');
+    hud.setAttribute('aria-live', 'polite');
+    target.appendChild(hud);
+  }
+  const label = state.room.id + '|' + state.time.id + '|' + state.weather.id;
+  if (hud.dataset.state !== label) {
+    hud.dataset.state = label;
+    hud.innerHTML =
+      '<span><b>ROOM</b><i>' + state.room.icon + ' ' + state.room.label + '</i></span>' +
+      '<span><b>TIME</b><i>' + state.time.icon + ' ' + state.time.label + '</i></span>' +
+      '<span><b>WEATHER</b><i>' + state.weather.icon + ' ' + state.weather.label + '</i></span>';
+  }
+}
+
+function ensureLivingScene(scene) {
+  if (!scene) return;
+  syncBearWorldScene(scene);
+  if (!bearAtmosphereTimer) {
+    bearAtmosphereTimer = window.setInterval(() => syncBearWorldScene(), 15000);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') syncBearWorldScene();
+    });
+  }
 }
 function getBearMomentsKey() {
   return 'cuteBunnyBearMoments:v1:' + (sharedProgressPairKey || 'unpaired');

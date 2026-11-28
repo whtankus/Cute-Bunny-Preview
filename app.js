@@ -1046,7 +1046,10 @@ function achievementGardenMarkup(items) {
 function render(options = {}) {
   const c = $('#content');
   if (!c) return;
-  if (page !== 'home') destroyBearPoseEngine();
+  if (page !== 'home') {
+    window.destroyBearfriendWorld?.();
+    destroyBearPoseEngine();
+  }
   if (sb && me) startBearRealtime();
 
   if (page === 'notes') {

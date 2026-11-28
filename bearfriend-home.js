@@ -13,7 +13,7 @@
 function mountBearfriendHome(ROOT){
   if(ROOT.__bfh)return ROOT.__bfh;
   if(typeof createBearPoseEngine!=='function')throw new Error('bear-pose-engine.js must be loaded before bearfriend-home.js');
-const $=s=>(ROOT.matches&&ROOT.matches(s)?ROOT:ROOT.querySelector(s)),$=s=>[...ROOT.querySelectorAll(s)];
+const $=s=>(ROOT.matches&&ROOT.matches(s)?ROOT:ROOT.querySelector(s)),$$=s=>[...ROOT.querySelectorAll(s)];
 const st={room:'living',time:'auto',wx:'clear',snd:false,it:{plant:1,lamp:1,pics:1},plots:[0,0,0,0],rare:[0,0,0,0],petals:0,season:'auto',gift:null,bonus:0,tasks:{water:0,feed:0,hug:0,kiss:0,bunny:0}};
 const COLS=['#ff9ec0','#c9a6ff','#ffd36b','#8fd3ff'];
 const SEQ=['spring','summer','autumn','winter'],SN={spring:'🌸 Spring',summer:'☀️ Summer',autumn:'🍂 Autumn',winter:'⛄ Winter'};let sOff=0;

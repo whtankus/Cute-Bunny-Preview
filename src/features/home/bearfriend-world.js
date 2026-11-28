@@ -118,6 +118,7 @@
       button.classList.toggle('is-active', selected);
     });
     scene.classList.toggle('bear-world-is-night', state.time === 'night');
+    scene.classList.toggle('bear-world-is-evening', state.time === 'evening');
     scene.classList.toggle('bear-world-is-rainy', state.weather === 'rain');
     scene.classList.toggle('bear-world-is-snowy', state.weather === 'snow');
     const bunny = scene.querySelector('.bear-world-bunny');
@@ -165,6 +166,7 @@
       startTop = (parseFloat(bunny.style.top) || 76) / 100 * rect.height;
       try { bunny.setPointerCapture(pointer); } catch {}
       bunny.classList.add('is-held');
+      controller.dragging = true;
       clearTimeout(holdTimer);
       holdTimer = window.setTimeout(() => {
         if (pointer !== null && !didMove) bunny.classList.add('is-purring');
@@ -193,16 +195,13 @@
       clearTimeout(holdTimer);
       pointer = null;
       bunny.classList.remove('is-held', 'is-purring');
+      controller.dragging = false;
       bunny.classList.add('is-hopping');
       window.setTimeout(() => bunny.classList.remove('is-hopping'), 650);
-      if (!didMove) {
-        const pet = controller.root.querySelector('[data-couple-action="pet"]');
-        if (pet) pet.click();
-        else {
-          const status = rootStatus(controller.root);
-          if (status) status.textContent = 'A little bunny cuddle. ♡';
-        }
-      }
+      // A normal pointer tap produces one native click. The progression
+      // module receives that scene click and routes it through the existing
+      // accepted-partner action/acknowledgement flow. Do not synthesize a
+      // second click here, or the same cuddle would be sent twice.
       didMove = false;
     };
     bunny.addEventListener('pointerup', finish);

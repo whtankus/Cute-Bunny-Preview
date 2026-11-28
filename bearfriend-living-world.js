@@ -143,9 +143,114 @@
     return layer;
   }
 
+  function ensureBunny(scene) {
+    let layer = $('.bear-world-foreground', scene);
+    if (layer) return layer;
+
+    layer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    layer.classList.add('bear-world-foreground');
+    layer.setAttribute('viewBox', '90 120 420 270');
+    layer.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    layer.setAttribute('aria-label', 'Interactive bunny companion');
+    layer.innerHTML = '<g class="bear-world-bunny" transform="translate(300 350)" role="button" tabindex="0" aria-label="Little bunny. Tap to hop, drag to move, or use arrow keys.">' +
+      '<ellipse class="bear-world-bunny-shadow" cx="0" cy="0" rx="20" ry="4" fill="#8b6481" opacity=".2"/>' +
+      '<g class="bear-world-bunny-body">' +
+        '<ellipse cx="-5" cy="-14" rx="16" ry="12" fill="#fff" stroke="#ddcbd3" stroke-width="1.5"/>' +
+        '<circle cx="10" cy="-27" r="11" fill="#fff" stroke="#ddcbd3" stroke-width="1.5"/>' +
+        '<g class="bear-world-bunny-ears"><ellipse cx="5" cy="-42" rx="4" ry="13" fill="#fff" stroke="#ddcbd3" stroke-width="1.2" transform="rotate(-8 5 -42)"/><ellipse cx="16" cy="-42" rx="4" ry="13" fill="#fff" stroke="#ddcbd3" stroke-width="1.2" transform="rotate(9 16 -42)"/><ellipse cx="5" cy="-42" rx="1.8" ry="8" fill="#f2a8bf" transform="rotate(-8 5 -42)"/></g>' +
+        '<circle cx="14" cy="-29" r="1.7" fill="#4a3433"/><ellipse cx="20" cy="-25" rx="3.1" ry="2" fill="#f4a1b6" opacity=".72"/><ellipse cx="23" cy="-28" rx="2" ry="1.5" fill="#e987a2"/>' +
+        '<circle cx="-19" cy="-14" r="5.5" fill="#fff" stroke="#ddcbd3" stroke-width="1.2"/>' +
+      '</g></g>';
+    scene.appendChild(layer);
+
+    const bunny = $('.bear-world-bunny', layer);
+    const status = $('#coupleBearStatus');
+    let x = 300, y = 350, drag = null, suppressClickUntil = 0, hopTimer = 0;
+    const syncPosition = () => bunny.setAttribute('transform', 'translate(' + x + ' ' + y + ')');
+    const scenePoint = event => {
+      const matrix = layer.getScreenCTM();
+      if (!matrix) return { x, y };
+      const point = layer.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      const local = point.matrixTransform(matrix.inverse());
+      return { x: local.x, y: local.y };
+    };
+    const hop = () => {
+      bunny.classList.remove('is-hopping');
+      void bunny.getBoundingClientRect();
+      bunny.classList.add('is-hopping');
+      clearTimeout(hopTimer);
+      hopTimer = window.setTimeout(() => bunny.classList.remove('is-hopping'), 680);
+      if (status) status.textContent = 'The little bunny gives a happy hop. 🐰';
+    };
+
+    bunny.addEventListener('pointerdown', event => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const point = scenePoint(event);
+      drag = {
+        pointerId: event.pointerId,
+        offsetX: x - point.x,
+        offsetY: y - point.y,
+        startX: event.clientX,
+        startY: event.clientY,
+        moved: false
+      };
+      try { bunny.setPointerCapture(event.pointerId); } catch {}
+    });
+    bunny.addEventListener('pointermove', event => {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 5) drag.moved = true;
+      if (!drag.moved) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const point = scenePoint(event);
+      x = Math.max(112, Math.min(488, point.x + drag.offsetX));
+      y = Math.max(304, Math.min(372, point.y + drag.offsetY));
+      syncPosition();
+    });
+    const finishDrag = event => {
+      if (!drag || event.pointerId !== drag.pointerId) return;
+      const moved = drag.moved;
+      drag = null;
+      if (moved) {
+        suppressClickUntil = Date.now() + 350;
+        if (status) status.textContent = 'The bunny found a new cozy spot. 🐰';
+      }
+    };
+    bunny.addEventListener('pointerup', finishDrag);
+    bunny.addEventListener('pointercancel', finishDrag);
+    bunny.addEventListener('click', event => {
+      event.stopPropagation();
+      if (Date.now() < suppressClickUntil) return;
+      hop();
+    });
+    bunny.addEventListener('keydown', event => {
+      const moves = {
+        ArrowLeft: [-12, 0], ArrowRight: [12, 0],
+        ArrowUp: [0, -8], ArrowDown: [0, 8]
+      };
+      if (moves[event.key]) {
+        event.preventDefault();
+        x = Math.max(112, Math.min(488, x + moves[event.key][0]));
+        y = Math.max(304, Math.min(372, y + moves[event.key][1]));
+        syncPosition();
+        if (status) status.textContent = 'The bunny moved to a new cozy spot. 🐰';
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        suppressClickUntil = Date.now() + 350;
+        hop();
+      }
+    });
+    return layer;
+  }
+
   function applyState() {
     const scene = $('#coupleBearGame .couple-bears-scene');
     if (!scene || !$('#bearPoseSvg', scene)) return;
+    ensureBunny(scene);
     const state = stateAt();
     TIMES.forEach(name => scene.classList.toggle('bear-time-' + name, name === state.time));
     const signature = [state.room, state.time, state.weather].join('|');

@@ -61,11 +61,12 @@ test('core DOM helpers expose query and HTML escaping without changing text cont
 
 test("feature modules are loaded before app.js", () => {
  const html = read("index.html");
- const appIndex = html.indexOf("src=\"app.js?v=36\"");
+ const appIndex = html.indexOf("src=\"app.js");
  for (const feature of ["home","photos","notes","music","friends","notifications","profile","streak"]) {
-  const script = "src=\"src/features/" + feature + "/" + feature + ".js\"";
-  assert.ok(html.indexOf(script) >= 0, feature + " module exists in HTML");
-  assert.ok(html.indexOf(script) < appIndex, feature + " loads before app.js");
+  const script = "src=\"src/features/" + feature + "/" + feature + ".js";
+  const moduleIndex = html.indexOf(script);
+  assert.ok(moduleIndex >= 0, feature + " module exists in HTML");
+  assert.ok(moduleIndex < appIndex, feature + " loads before app.js");
   assert.match(read("src/features/" + feature + "/" + feature + ".js"), /^\/\* .* feature functions/);
  }
 });

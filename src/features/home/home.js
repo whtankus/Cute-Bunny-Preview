@@ -71,6 +71,7 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
             <title>Two Little Bears</title>
           </svg>
         </div>
+        <div class="bear-scene-tools"><button type="button" id="bearSoundToggle" class="bear-sound-toggle" aria-label="Toggle bear sounds" title="Toggle bear sounds" aria-pressed="false">♫ Sound</button></div>
         <p class="couple-bear-status" id="coupleBearStatus" aria-live="polite">Two little bears, one big love.</p>
         <div class="couple-bear-actions" role="group" aria-label="Choose a bear action">
           <button type="button" class="bear-action-button" data-couple-action="hug" aria-pressed="false"><span aria-hidden="true">🫂</span><b>Hug</b></button>

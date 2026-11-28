@@ -132,7 +132,11 @@
     function cycleRoom() { setRoom(roomIndex+1,true); }
     function cycleTime() { setTime(timeIndex+1,true); }
     function cycleWeather() { randomWeather(); }
-    roomButtons.forEach((button,i)=>button.addEventListener('click',()=>setRoom(i,true)));
+    const roomHandlers = roomButtons.map((button,i) => {
+      const handler = () => setRoom(i,true);
+      button.addEventListener('click',handler);
+      return [button,handler];
+    });
     timeButton?.addEventListener('click',cycleTime);
     weatherButton?.addEventListener('click',cycleWeather);
 
@@ -150,7 +154,7 @@
       clearInterval(roomTimer); clearInterval(timeTimer); clearInterval(weatherTimer);
       cancelAnimationFrame(raf); resizeObserver?.disconnect();
       window.removeEventListener('resize', draw);
-      roomButtons.forEach((button,i)=>button.removeEventListener('click',()=>setRoom(i,true)));
+      roomHandlers.forEach(([button,handler])=>button.removeEventListener('click',handler));
       timeButton?.removeEventListener('click',cycleTime);
       weatherButton?.removeEventListener('click',cycleWeather);
     };

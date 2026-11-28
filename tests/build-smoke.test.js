@@ -31,6 +31,8 @@ test('production build emits a complete app bundle with generated public config'
       'src/services/supabase-client.js',
       'src/services/media-optimizer.js',
       'src/styles/tokens.css',
+      'src/features/bearfriend/bearfriend-world.js',
+      'src/styles/features/bearfriend-world.css',
       'style.css',
       'polish.css',
       'sw.js',

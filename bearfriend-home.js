@@ -1331,6 +1331,11 @@
         carePaint();
         const api = {
             triggerBearAction, runLocalAction, createBearPoseEngine,
+            setSound: enabled => {
+                st.snd = !!enabled;
+                engine.setSound(st.snd);
+                amb();
+            },
             setScene: (r, t, w) => {
                 st.room = r;
                 st.time = t;

@@ -22,7 +22,7 @@
           ROOMS.map(r => '<button type="button" data-room="' + r[0] + '">' + r[1] + '</button>').join('') +
         '</div>' +
         '<div class="bfh-acts" id="acts" role="group" aria-label="Bear actions">' +
-          ACTIONS.map(a => '<button type="button" data-a="' + a[0] + '" aria-pressed="false" title="' + a[2] + '"><span>' + a[1] + '</span> ' + a[2] + '</button>').join('') +
+          ACTIONS.map(a => '<button type="button" data-a="' + a[0] + '" aria-pressed="false" title="' + a[2] + '" data-couple-action="' + a[0] + '"><span>' + a[1] + '</span> ' + a[2] + '</button>').join('') +
         '</div>' +
       '</div></div>';
     const root = container.querySelector('[data-bearfriend-home]');

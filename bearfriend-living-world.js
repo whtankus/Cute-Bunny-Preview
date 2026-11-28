@@ -18,7 +18,7 @@
   function pairSeed() {
     let partner = '';
     try { partner = localStorage.getItem('cuteBunnyBearSelectedFriend:v1') || ''; } catch {}
-    const own = String(window.me?.id || window.currentUser?.id || '');
+    const own = typeof me !== 'undefined' ? String(me?.id || '') : String(window.currentUser?.id || '');
     return [own, partner].filter(Boolean).sort().join(':') || 'cute-bunny-bearfriend-world';
   }
 

@@ -1,6 +1,6 @@
 /* bearfriend-home-controls.css — buttons under the Bearfriend scene (rooms + bear actions). Scoped by .bfh-* classes. */
 .bfh-controls{margin-top:12px;display:grid;gap:10px}
-.bfh-rooms,.bfh-acts{display:flex;flex-wrap:wrap;gap:8px}
+.bfh-acts{display:flex;flex-wrap:wrap;gap:8px}
 .bfh-controls button{font:600 13px/1 system-ui,sans-serif;padding:9px 12px;border-radius:999px;border:1px solid #f0c9a6;background:#fff;color:#5b4036;cursor:pointer;touch-action:manipulation;transition:transform .12s,background .2s}
 .bfh-controls button:active{transform:scale(.95)}
 .bfh-controls button[aria-pressed="true"]{background:#ffe3ee;border-color:#ef8fb1}

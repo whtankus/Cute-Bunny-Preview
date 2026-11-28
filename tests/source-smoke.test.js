@@ -15,9 +15,9 @@ test('core browser scripts parse without syntax errors', () => {
 
 test('Bear Hugs realtime startup helpers are defined before use', () => {
   const app = read('app.js');
-  assert.match(app, /function getBearPartnerId\\(\\)/);
-  assert.match(app, /function startBearRealtime\\(\\)/);
-  assert.match(app, /function publishBearAction\\(action\\)/);
+  assert.ok(app.includes('function getBearPartnerId()'));
+  assert.ok(app.includes('function startBearRealtime()'));
+  assert.ok(app.includes('function publishBearAction(action)'));
   assert.ok(app.indexOf('function startBearRealtime()') < app.indexOf('function publishBearAction(action)'));
 });
 

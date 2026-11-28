@@ -2368,10 +2368,16 @@ function destroyBearPoseEngine() {
   }
 }
 function initBearPoseEngine() {
-  const svg = $('#bearPoseSvg');
-  if (!svg) return;
+  const root = $('#coupleBearGame');
+  if (!root) return;
   destroyBearPoseEngine();
-  bearPoseEngine = createBearPoseEngine(svg);
+  if (window.BearfriendWorld?.mount) {
+    bearPoseEngine = window.BearfriendWorld.mount(root);
+    bearPoseEngine.setSound(localStorage.getItem(bearSoundStorageKey) !== 'off');
+    return;
+  }
+  const svg = $('#bearPoseSvg');
+  if (svg) bearPoseEngine = createBearPoseEngine(svg);
 }
 function bearActorIndex(gender) {
   return String(gender || '').toLowerCase() === 'female' ? 1 : 0;

@@ -66,11 +66,12 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
           <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bearfriend</h3><p>Choose how our little bears show their love.</p></div>
           <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
         </div>
-        <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears, one brown and one white">
-          <svg id="bearPoseSvg" viewBox="90 120 420 270" role="img" aria-label="Two animated bears showing affection through movement">
-            <title>Two Little Bears</title>
-          </svg>
-        </div>
+        <div class="couple-bears-scene bear-pose-scene bfh-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two animated bears in changing rooms and weather">
+<svg id="bfhBackground" viewBox="0 0 600 400" role="img" aria-label="A cozy room that changes with the time and weather"></svg>
+<svg id="bearPoseSvg" viewBox="0 0 600 400" role="img" aria-label="Two animated bears showing affection through movement"><title>Two Little Bears</title></svg>
+<canvas id="bfhWeather" aria-hidden="true"></canvas><div id="bfhTint" aria-hidden="true"></div>
+</div>
+<div class="bfh-environment-status" aria-live="polite"><span><i aria-hidden="true">⌂</i><b id="bfhRoomLabel">Living room</b></span><span><i aria-hidden="true">◷</i><b id="bfhTimeLabel">Morning</b></span><span><i aria-hidden="true">☀</i><b id="bfhWeatherLabel">Clear skies</b></span></div>
         <p class="couple-bear-status" id="coupleBearStatus" aria-live="polite">Two little bears, one big love.</p>
         <div class="couple-bear-actions" role="group" aria-label="Choose a bear action">
           <button type="button" class="bear-action-button" data-couple-action="hug" aria-pressed="false"><span aria-hidden="true">🫂</span><b>Hug</b></button>

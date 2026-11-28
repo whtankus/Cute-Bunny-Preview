@@ -9,7 +9,7 @@
    NOTE: bear-pose-engine.js now defines createBearfriendHomeEngine, so it no longer clashes with app.js's createBearPoseEngine. */
 (function () {
   const FRAME = "<div class=\"bfh\" data-bearfriend-home>\n  <div class=\"bfh-scene couple-bears-scene\" id=\"scene\">\n    <svg id=\"bg\" viewBox=\"90 120 420 270\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <svg id=\"bsvg\" viewBox=\"66.667 98 466.667 300\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <svg id=\"fg\" viewBox=\"90 120 420 270\" preserveAspectRatio=\"xMidYMid slice\"></svg>\n    <canvas id=\"wx\"></canvas>\n    <div id=\"tint\"></div>\n    <div id=\"pops\"></div>\n  </div>";
-  const ACTIONS = [["hug", "🫂", "Hug"], ["kiss", "💋", "Kiss"], ["flykiss", "😘", "Flying kiss"], ["slap", "🖐️", "Playful slap"], ["hands", "🤝", "Hold hands"], ["dance", "💃", "Dance"], ["pet", "🐾", "Pet"], ["tummy", "🫳", "Scratch Tummy"], ["idle", "🌸", "Relax"]];
+  const ACTIONS = [["hug", "🫂", "Hug"], ["kiss", "💋", "Kiss"], ["flykiss", "😘", "Flying kiss"], ["slap", "🖐️", "Playful slap"], ["hands", "🤝", "Hold hands"], ["feed", "🍓", "Feed"], ["sleep", "🌙", "Sleep"], ["dance", "💃", "Dance"], ["pet", "🐾", "Pet"], ["tummy", "🫳", "Scratch tummy"], ["idle", "🌸", "Relax"]];
   const ROOMS = [["living", "🛋️ Living"], ["kitchen", "🍳 Kitchen"], ["bedroom", "🛏️ Bedroom"], ["balcony", "🌆 Balcony"], ["garden", "🌷 Garden"]];
 
   function render(container) {

@@ -1,0 +1,32 @@
+/* Bearfriend's automatically changing home scene. */
+#coupleBearGame .couple-bears-scene{position:relative;isolation:isolate;overflow:hidden;background:#f7e8ef}
+#coupleBearGame .bear-world-backdrop{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;transition:opacity .8s ease}
+#coupleBearGame .bear-world-svg{display:block;width:100%;height:100%}
+#coupleBearGame #bearPoseSvg{position:relative;z-index:2;background:transparent}
+#coupleBearGame #bearPoseSvg>ellipse:not(#pil),
+#coupleBearGame #bearPoseSvg>path,
+#coupleBearGame #bearPoseSvg>g:not(#bears):not(#berry):not(#fx){display:none}
+#coupleBearGame .bear-world-status{position:absolute;z-index:4;top:9px;left:10px;max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 9px;border:1px solid rgba(255,255,255,.62);border-radius:999px;background:rgba(255,250,252,.62);color:#795d73;font:800 clamp(8px,1.8vw,10px)/1.2 Nunito,system-ui,sans-serif;letter-spacing:.015em;backdrop-filter:blur(8px);pointer-events:none;box-shadow:0 2px 8px rgba(90,60,80,.08)}
+#coupleBearGame .bear-world-raindrop{animation:bearWorldRain 1.05s linear infinite;animation-delay:var(--rain-delay)}
+#coupleBearGame .bear-world-snowflake{animation:bearWorldSnow 5.5s ease-in-out infinite;animation-delay:var(--flake-delay)}
+@keyframes bearWorldRain{from{transform:translate3d(0,-18px,0);opacity:0}18%{opacity:.8}to{transform:translate3d(-13px,42px,0);opacity:0}}
+@keyframes bearWorldSnow{0%,100%{transform:translate3d(0,-12px,0)}50%{transform:translate3d(9px,18px,0)}}
+@media(prefers-reduced-motion:reduce){
+ #coupleBearGame .bear-world-backdrop{transition:none}
+ #coupleBearGame .bear-world-raindrop,#coupleBearGame .bear-world-snowflake{animation:none}
+}
+
+#coupleBearGame .bear-world-foreground{position:absolute;inset:0;z-index:3;display:block;width:100%;height:100%;overflow:visible;pointer-events:none}
+#coupleBearGame .bear-world-bunny{pointer-events:auto;cursor:grab;outline:none;touch-action:none}
+#coupleBearGame .bear-world-bunny:active{cursor:grabbing}
+#coupleBearGame .bear-world-bunny:focus-visible{filter:drop-shadow(0 0 4px rgba(207,118,157,.78))}
+#coupleBearGame .bear-world-bunny-body{transform-box:fill-box;transform-origin:50% 100%;animation:bearWorldBunnyIdle 3.2s ease-in-out infinite}
+#coupleBearGame .bear-world-bunny-ears{transform-box:fill-box;transform-origin:50% 100%;animation:bearWorldBunnyEars 4.8s ease-in-out infinite}
+#coupleBearGame .bear-world-bunny.is-hopping .bear-world-bunny-body{animation:bearWorldBunnyHop .62s cubic-bezier(.22,.75,.28,1)}
+@keyframes bearWorldBunnyIdle{50%{transform:translateY(-1.5px) scale(1.02,.99)}}
+@keyframes bearWorldBunnyEars{0%,88%,100%{transform:rotate(0)}92%{transform:rotate(-8deg)}96%{transform:rotate(5deg)}}
+@keyframes bearWorldBunnyHop{25%{transform:translateY(-18px) scale(.94,1.06)}62%{transform:translateY(0) scale(1.07,.93)}100%{transform:translateY(0) scale(1,1)}}
+@media(prefers-reduced-motion:reduce){
+ #coupleBearGame .bear-world-bunny-body,#coupleBearGame .bear-world-bunny-ears{animation:none}
+ #coupleBearGame .bear-world-bunny.is-hopping .bear-world-bunny-body{animation:none}
+}

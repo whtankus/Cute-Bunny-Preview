@@ -48,6 +48,8 @@ const assets = [
   'header-statusbar-blend.css',
   'bear-hugs-progression.css',
   'bear-hugs-progression.js',
+  'bearfriend-living-world.css',
+  'bearfriend-living-world.js',
   'sw.js',
   'manifest.webmanifest',
   'bunny-app-icon-192.png',

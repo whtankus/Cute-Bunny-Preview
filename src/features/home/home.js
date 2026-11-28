@@ -66,27 +66,10 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
           <div><small>A LITTLE PLAYTIME</small><h3 id="coupleBearTitle">Bearfriend</h3><p>Choose how our little bears show their love.</p></div>
           <span class="couple-bear-sparkle" aria-hidden="true">♡</span>
         </div>
-        <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears in a changing home">
-          <div class="bearfriend-world-backdrop" aria-hidden="true"></div>
+        <div class="couple-bears-scene bear-pose-scene" data-action="idle" data-viewer-gender="${esc(me?.gender || '')}" aria-label="Two little bears, one brown and one white">
           <svg id="bearPoseSvg" viewBox="90 120 420 270" role="img" aria-label="Two animated bears showing affection through movement">
             <title>Two Little Bears</title>
           </svg>
-        </div>
-        <div class="bearfriend-world-controls" aria-label="Bearfriend world settings">
-          <div class="bearfriend-world-status">
-            <span>Room: <b data-world-label="room">🛋️ Living room</b></span>
-            <span>Time: <b data-world-label="time">☀️ Afternoon</b></span>
-            <span>Weather: <b data-world-label="weather">☀️ Clear skies</b></span>
-          </div>
-          <div class="bearfriend-world-buttons" role="group" aria-label="Choose a room">
-            <button type="button" data-world-room="0" aria-pressed="true">🛋️ Living</button>
-            <button type="button" data-world-room="1" aria-pressed="false">🍪 Kitchen</button>
-            <button type="button" data-world-room="2" aria-pressed="false">🛏️ Bedroom</button>
-            <button type="button" data-world-room="3" aria-pressed="false">🌙 Balcony</button>
-            <button type="button" data-world-room="4" aria-pressed="false">🌷 Garden</button>
-            <button type="button" data-world-cycle="time">Change time</button>
-            <button type="button" data-world-cycle="weather">Change weather</button>
-          </div>
         </div>
         <p class="couple-bear-status" id="coupleBearStatus" aria-live="polite">Two little bears, one big love.</p>
         <div class="couple-bear-actions" role="group" aria-label="Choose a bear action">
@@ -111,5 +94,4 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
       </section>
     `;
     initBearPoseEngine();
-    window.initBearfriendWorld?.();
 }

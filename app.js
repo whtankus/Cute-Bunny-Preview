@@ -2606,6 +2606,46 @@ ${eye("l")}${eye("r")}</g></g></g>`;
   };
 }
 
+function getBearPartnerId() {
+  const partner = friends.find(friend => friend?.id && String(friend.id) !== String(me?.id));
+  return partner ? String(partner.id) : '';
+}
+function startBearRealtime() {
+  if (!sb || !me?.id) return;
+  const ownTopic = 'cute-bunny-bear-actions-' + String(me.id);
+  if (!bearRealtimeChannel || bearRealtimeTopic !== ownTopic) {
+    if (bearRealtimeChannel) void sb.removeChannel(bearRealtimeChannel);
+    bearRealtimeTopic = ownTopic;
+    bearRealtimeChannel = sb.channel(ownTopic, { config: { broadcast: { self: false } } })
+      .on('broadcast', { event: 'bear-action' }, ({ payload }) => {
+        if (String(payload?.userId || '') === String(me?.id || '')) return;
+        const action = String(payload?.action || '');
+        if (!['hug', 'kiss', 'hands', 'dance', 'pet', 'feed', 'sleep', 'idle'].includes(action)) return;
+        triggerBearAction(action, { remote: true, gender: payload?.gender });
+      })
+      .subscribe(status => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          console.warn('Bear Hugs receive channel status:', status);
+        }
+      });
+  }
+  const partnerId = getBearPartnerId();
+  const partnerTopic = partnerId ? 'cute-bunny-bear-actions-' + partnerId : '';
+  if (partnerTopic && bearRealtimePartnerTopic !== partnerTopic) {
+    if (bearRealtimePartnerChannel) void sb.removeChannel(bearRealtimePartnerChannel);
+    bearRealtimePartnerTopic = partnerTopic;
+    bearRealtimePartnerChannel = sb.channel(partnerTopic, { config: { broadcast: { self: false } } })
+      .subscribe(status => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          console.warn('Bear Hugs send channel status:', status);
+        }
+      });
+  } else if (!partnerTopic && bearRealtimePartnerChannel) {
+    void sb.removeChannel(bearRealtimePartnerChannel);
+    bearRealtimePartnerChannel = null;
+    bearRealtimePartnerTopic = '';
+  }
+}
 function publishBearAction(action) {
   startBearRealtime();
   if (!bearRealtimePartnerChannel || !bearRealtimePartnerTopic || !me?.id) return;

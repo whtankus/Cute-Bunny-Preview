@@ -32,36 +32,13 @@ function getCuteBunnySeason(date = new Date()) {
 }
 
 
-function initBearfriendHomeFrameBridge() {
-  const frame = document.getElementById('bearfriendHomeFrame');
-  if (!frame) return;
-  if (!window.__bearfriendHomeFrameBridgeInstalled) {
-    window.addEventListener('message', event => {
-      const currentFrame = document.getElementById('bearfriendHomeFrame');
-      if (!currentFrame || event.source !== currentFrame.contentWindow || event.origin !== location.origin) return;
-      const data = event.data || {};
-      if (data.type === 'bearfriend:resize') {
-        currentFrame.style.height = Math.max(900, Math.min(2600, Number(data.height) || 1250)) + 'px';
-      } else if (data.type === 'bearfriend:action') {
-        window.dispatchEvent(new CustomEvent('bearfriend:external-action', { detail: { action: data.action, by: data.by } }));
-      } else if (data.type === 'bearfriend:request-points') {
-        currentFrame.contentWindow.postMessage({ type: 'bearfriend:points', points: window.BearfriendProgression?.getPoints?.() || 0 }, location.origin);
-      }
-    });
-    window.addEventListener('bearfriend:iframe-play', event => {
-      const currentFrame = document.getElementById('bearfriendHomeFrame');
-      if (currentFrame?.contentWindow) currentFrame.contentWindow.postMessage({
-        type: 'bearfriend:play', action: event.detail?.action, by: event.detail?.by
-      }, location.origin);
-    });
-    window.__bearfriendHomeFrameBridgeInstalled = true;
-  }
-  frame.addEventListener('load', () => {
-    frame.contentWindow?.postMessage({ type: 'bearfriend:points', points: window.BearfriendProgression?.getPoints?.() || 0 }, location.origin);
-  }, { once: true });
+function initBearfriendWorld(){
+  const root=document.getElementById('bearfriendWorld');
+  if(root)window.mountBearfriendWorld?.(root);
 }
 
 function renderHomePage(c, visibleFeed, notes, pics, songs) {
+    window.destroyBearfriendWorld?.();
     destroyBearPoseEngine();
     document.body.dataset.season = getCuteBunnySeason().id;
     c.innerHTML = `
@@ -78,6 +55,7 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
           <i>✦</i>
         </button>
       </div>
+      ${window.renderBearfriendWorldMarkup ? window.renderBearfriendWorldMarkup() : ""}
       <div class="daily" id="dailyCard" role="button" tabindex="0" aria-label="A little kindness for today. Tap for another reminder">
         <span class="daily-icon">🌼</span><div><small>A LITTLE KINDNESS FOR TODAY</small><p id="compliment">${esc(getKindness())}</p></div>
       </div>
@@ -90,31 +68,8 @@ function renderHomePage(c, visibleFeed, notes, pics, songs) {
         <article class="tile"><button type="button" class="tile-art music-art happy-thing-art happy-music-thumbnail" data-happy-go="music" aria-label="Open Cozy Playlist"><svg viewBox="0 0 220 132" role="img" aria-hidden="true"><defs><linearGradient id="music-deck" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4eafa"/><stop offset="1" stop-color="#cdb9e2"/></linearGradient><linearGradient id="music-vinyl" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#806d9d"/><stop offset=".55" stop-color="#544968"/><stop offset="1" stop-color="#9882ae"/></linearGradient></defs><ellipse cx="111" cy="113" rx="68" ry="8" fill="#8e79a9" opacity=".17"/><g class="music-artwork"><g transform="rotate(-5 111 75)"><rect x="43" y="40" width="136" height="66" rx="13" fill="url(#music-deck)" stroke="#a58cbd" stroke-width="2.5"/><rect x="51" y="48" width="120" height="50" rx="9" fill="#f9f3fb" opacity=".8"/><circle cx="105" cy="73" r="35" fill="url(#music-vinyl)" stroke="#76618f" stroke-width="2"/><circle cx="105" cy="73" r="27" fill="none" stroke="#c9b8d8" stroke-width="1.2" opacity=".48"/><circle cx="105" cy="73" r="20" fill="none" stroke="#c9b8d8" stroke-width="1.2" opacity=".42"/><circle cx="105" cy="73" r="12" fill="#f0c7d5" stroke="#b986a5" stroke-width="1.5"/><path d="M105 66c-4-5-10-1-7 4 1 3 7 7 7 7s6-4 7-7c3-5-3-9-7-4Z" fill="#b86f91"/><circle cx="105" cy="73" r="2.2" fill="#fff5f7"/><path d="M145 55 160 55 160 83Q160 91 152 91Q144 91 144 84Q144 77 153 77Q156 77 158 79V61H145Z" fill="#b79acb"/><path d="M60 58h13M60 64h8" stroke="#d4bfdc" stroke-width="2" stroke-linecap="round"/></g><path d="M52 29q-9 11 0 22m118-25q9 11 0 22" fill="none" stroke="#b29ac8" stroke-width="3" stroke-linecap="round"/><path d="M185 32c-5-7-14-2-11 5 2 4 11 10 11 10s9-6 11-10c3-7-6-12-11-5Z" fill="#d9b2df"/><path d="m38 81 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#d9b36e"/></g></svg></button><h3>Cozy Playlist</h3><p>${songs.length} shared songs</p><button class="primary" data-go="music">Open music →</button></article>
       </div>
 
-      <section class="couple-bear-game bearfriend-iframe-host" id="coupleBearGame" aria-label="Bearfriend">
-  <iframe id="bearfriendHomeFrame" title="Bearfriend Home" src="bearfriend-home.html" loading="eager" scrolling="no"></iframe>
-  <div class="couple-bears-scene" hidden aria-hidden="true"><svg id="bearPoseSvg" viewBox="90 120 420 270"></svg></div>
-  <p class="couple-bear-status" id="coupleBearStatus" hidden aria-live="polite">Two little bears, one big love.</p>
-  <div class="couple-bear-actions" hidden aria-label="Bearfriend actions">
-    <button type="button" data-couple-action="hug">Hug</button>
-    <button type="button" data-couple-action="kiss">Kiss</button>
-    <button type="button" data-couple-action="flykiss">Flying kiss</button>
-    <button type="button" data-couple-action="slap">Playful slap</button>
-    <button type="button" data-couple-action="hands">Hold hands</button>
-    <button type="button" data-couple-action="dance">Dance</button>
-    <button type="button" data-couple-action="pet">Pet</button>
-    <button type="button" data-couple-action="tummy">Scratch tummy</button>
-    <button type="button" data-couple-action="feed">Feed</button>
-    <button type="button" data-couple-action="sleep">Sleep</button>
-    <button type="button" data-couple-action="idle">Relax</button>
-  </div>
-  <div class="couple-bear-footer" hidden><div class="bear-love-meter"><b id="bearLoveCount">0</b><span id="bearLoveFill"></span></div></div>
-  <style>
-    #coupleBearGame.bearfriend-iframe-host{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible}
-    #bearfriendHomeFrame{display:block;width:100%;height:1250px;border:0;background:transparent;overflow:hidden}
-    #coupleBearGame .couple-bears-scene[hidden],#coupleBearGame .couple-bear-actions[hidden],#coupleBearGame .couple-bear-status[hidden],#coupleBearGame .couple-bear-footer[hidden],#coupleBearGame #bearCarePointsStrip{display:none!important}
-  </style>
-</section>
+      
     `;
-    initBearfriendHomeFrameBridge();
+    initBearfriendWorld();
     initBearPoseEngine();
 }
